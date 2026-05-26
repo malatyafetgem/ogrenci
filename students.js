@@ -1,14 +1,52 @@
-/**
+﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
 import { db } from "./firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
-  updateDoc, deleteDoc, query, where, orderBy
+  updateDoc, deleteDoc, collectionGroup
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { compareOgrenci, compareSinif } from "./utils.js";
+import { bugun, compareOgrenci, compareSinif, compareTarihDesc, formatTarih, tarihSiralamaAnahtari } from "./utils.js";
 
 const KOLEKSIYON = "students";
+
+function altKayit(d) {
+  return {
+    id: d.id,
+    ogrenciId: d.ref.parent.parent?.id || "",
+    ...d.data()
+  };
+}
+
+async function tumAltKayitlariGetir(altKoleksiyon) {
+  try {
+    const snap = await getDocs(collectionGroup(db, altKoleksiyon));
+    return snap.docs.map(altKayit);
+  } catch (_) {
+    const ogrSnap = await getDocs(collection(db, KOLEKSIYON));
+    const listeler = await Promise.all(
+      ogrSnap.docs.map(async ogrDoc => {
+        try {
+          const snap = await getDocs(collection(db, KOLEKSIYON, ogrDoc.id, altKoleksiyon));
+          return snap.docs.map(d => ({ id: d.id, ogrenciId: ogrDoc.id, ...d.data() }));
+        } catch (_) {
+          return [];
+        }
+      })
+    );
+    return listeler.flat();
+  }
+}
+
+function tarihliVeri(veri) {
+  if (!("tarih" in veri)) return veri;
+  const tarih = formatTarih(veri.tarih);
+  return {
+    ...veri,
+    tarih,
+    tarih_sira: tarihSiralamaAnahtari(tarih)
+  };
+}
 
 /** Tüm aktif öğrencileri getir */
 export async function tumOgrencileriGetir() {
@@ -37,7 +75,7 @@ export async function ogrenciEkle(ogrenciNo, veri) {
   await setDoc(doc(db, KOLEKSIYON, String(ogrenciNo)), {
     ...veri,
     durum: "Aktif",
-    olusturma_tarihi: new Date().toISOString()
+    olusturma_tarihi: bugun()
   });
 }
 
@@ -45,7 +83,7 @@ export async function ogrenciEkle(ogrenciNo, veri) {
 export async function ogrenciGuncelle(ogrenciNo, veri) {
   await updateDoc(doc(db, KOLEKSIYON, String(ogrenciNo)), {
     ...veri,
-    guncelleme_tarihi: new Date().toISOString()
+    guncelleme_tarihi: bugun()
   });
 }
 
@@ -66,7 +104,7 @@ export async function ogrenciMezunEt(ogrenciNo, mezunVerisi) {
   // graduates koleksiyonuna kopyala
   await setDoc(doc(db, "graduates", id), {
     ...mezunVerisi,
-    mezuniyet_tarihi: new Date().toISOString()
+    mezuniyet_tarihi: bugun()
   });
   // students'ta durumu güncelle
   await updateDoc(doc(db, KOLEKSIYON, id), { durum: "Mezun" });
@@ -77,6 +115,10 @@ export async function ogrenciMezunEt(ogrenciNo, mezunVerisi) {
 export async function velileriGetir(ogrenciNo) {
   const snap = await getDocs(collection(db, KOLEKSIYON, String(ogrenciNo), "veliler"));
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function tumVelileriGetir() {
+  return tumAltKayitlariGetir("veliler");
 }
 
 export async function veliEkleGuncelle(ogrenciNo, veliId, veri) {
@@ -90,14 +132,14 @@ export async function veliEkleGuncelle(ogrenciNo, veliId, veri) {
 // ── Alt koleksiyon: Devamsızlıklar ──────────────────────────────────────────
 
 export async function devamsizliklarGetir(ogrenciNo) {
-  const snap = await getDocs(
-    query(collection(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar"), orderBy("tarih", "desc"))
-  );
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
 export async function devamsizlikEkle(ogrenciNo, veri) {
-  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar"), veri);
+  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar"), tarihliVeri(veri));
 }
 
 export async function devamsizlikSil(ogrenciNo, kayitId) {
@@ -108,23 +150,29 @@ export async function devamsizlikSil(ogrenciNo, kayitId) {
 export function devamsizlikHesapla(kayitlar) {
   let ozurlu = 0, ozursuz = 0;
   for (const k of kayitlar) {
-    if (k.tur === "Özürlü") ozurlu += k.gun_degeri || 0;
-    else ozursuz += k.gun_degeri || 0;
+    const gun = Number(k.gun_degeri) || 0;
+    if (k.tur === "Özürlü") ozurlu += gun;
+    else ozursuz += gun;
   }
   return { ozurlu, ozursuz };
+}
+
+export async function tumDevamsizliklariGetir() {
+  const kayitlar = await tumAltKayitlariGetir("devamsizliklar");
+  return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
 // ── Alt koleksiyon: Davranışlar ─────────────────────────────────────────────
 
 export async function davranislarGetir(ogrenciNo) {
-  const snap = await getDocs(
-    query(collection(db, KOLEKSIYON, String(ogrenciNo), "davranislar"), orderBy("tarih", "desc"))
-  );
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, KOLEKSIYON, String(ogrenciNo), "davranislar"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
 export async function davranisEkle(ogrenciNo, veri) {
-  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "davranislar"), veri);
+  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "davranislar"), tarihliVeri(veri));
 }
 
 export async function davranisGuncelle(ogrenciNo, kayitId, veri) {
@@ -135,21 +183,31 @@ export async function davranisSil(ogrenciNo, kayitId) {
   await deleteDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "davranislar", kayitId));
 }
 
+export async function tumDavranislariGetir() {
+  const kayitlar = await tumAltKayitlariGetir("davranislar");
+  return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+}
+
 // ── Alt koleksiyon: Veli Görüşmeleri ────────────────────────────────────────
 
 export async function gorusmeleriGetir(ogrenciNo) {
-  const snap = await getDocs(
-    query(collection(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri"), orderBy("tarih", "desc"))
-  );
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri"));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
 export async function gorusmeEkle(ogrenciNo, veri) {
-  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri"), veri);
+  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri"), tarihliVeri(veri));
 }
 
 export async function gorusmeSil(ogrenciNo, kayitId) {
   await deleteDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri", kayitId));
+}
+
+export async function tumGorusmeleriGetir() {
+  const kayitlar = await tumAltKayitlariGetir("veligorusmeleri");
+  return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
 // ── Yardımcı: Dinamik sınıf listesi ─────────────────────────────────────────

@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="file-redirect.js"></script>
-  <title>Davranış Raporu — ÖBS</title>
+  <title>Davranış Raporu — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="app.css?v=20260526-5">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -41,13 +41,13 @@
               <div class="col-6 col-md-3">
                 <label class="form-label small mb-1">Sınıf</label>
                 <select id="filtre-sinif" class="form-select form-select-sm">
-                  <option value="">Tüm Sınıflar</option>
+                  <option value="">Seçiniz</option>
                 </select>
               </div>
               <div class="col-6 col-md-2">
                 <label class="form-label small mb-1">Tür</label>
                 <select id="filtre-tur" class="form-select form-select-sm">
-                  <option value="">Tümü</option>
+                  <option value="">Seçiniz</option>
                   <option>Olumlu</option>
                   <option>Olumsuz</option>
                 </select>
@@ -55,7 +55,7 @@
               <div class="col-6 col-md-2">
                 <label class="form-label small mb-1">Kategori</label>
                 <select id="filtre-kategori" class="form-select form-select-sm">
-                  <option value="">Tümü</option>
+                  <option value="">Seçiniz</option>
                   <option>Yardımseverlik</option><option>Sosyal Katkı</option>
                   <option>Başarılı Davranış</option><option>Disiplin</option>
                   <option>Kıyafet</option><option>Telefon Kullanımı</option>
@@ -95,7 +95,7 @@
           <div class="col-12 col-md-8">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">Kayıtlar <span class="badge bg-secondary ms-1" id="kayit-sayisi">—</span></h6>
+                <h6 class="mb-0">Kayıtlar <span class="badge bg-secondary ms-1" id="kayit-sayisi">0</span></h6>
                 <div class="d-flex gap-2 no-print">
                   <button class="btn btn-sm btn-success" id="excel-export-btn">
                     <i class="bi bi-file-earmark-excel me-1"></i>Excel
@@ -106,10 +106,10 @@
                 </div>
               </div>
               <div class="card-body p-0">
-                <div id="yukleniyor" class="text-center py-4 text-muted">
+                <div id="yukleniyor" class="text-center py-4 text-muted d-none">
                   <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
                 </div>
-                <div class="table-responsive d-none" id="tablo-kap">
+                <div class="table-responsive" id="tablo-kap">
                   <table id="davranis-tablo" class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                       <tr>
@@ -117,7 +117,9 @@
                         <th>Tür</th><th>Kategori</th><th>Açıklama</th>
                       </tr>
                     </thead>
-                    <tbody id="davranis-tbody"></tbody>
+                    <tbody id="davranis-tbody">
+                      <tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip arama düğmesine basın.</td></tr>
+                    </tbody>
                   </table>
                 </div>
               </div>
@@ -144,9 +146,9 @@
 
 <script type="module">
   import { requireAuth } from "./auth.js";
-  import { layoutYukle } from "./layout.js";
-  import { tumOgrencileriGetir, siniflarGetir, davranislarGetir } from "./students.js";
-  import { tarihtenDate, sinifSiralamaAnahtari } from "./utils.js";
+  import { layoutYukle } from "./layout.js?v=20260526-5";
+  import { tumOgrencileriGetir, siniflarGetir, tumDavranislariGetir } from "./students.js";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js";
 
   let raporVerisi = [];
   let dt = null;
@@ -161,8 +163,19 @@
     flatpickr("#filtre-bit", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
     document.getElementById("filtre-uygula").addEventListener("click", yukleRapor);
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
-    await yukleRapor();
+    tabloBekle();
   });
+
+  function tabloBekle() {
+    if (dt) { dt.destroy(); dt = null; }
+    if (grafik) { grafik.destroy(); grafik = null; }
+    raporVerisi = [];
+    document.getElementById("kayit-sayisi").textContent = "0";
+    document.getElementById("davranis-tbody").innerHTML =
+      `<tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip arama düğmesine basın.</td></tr>`;
+    document.getElementById("yukleniyor").classList.add("d-none");
+    document.getElementById("tablo-kap").classList.remove("d-none");
+  }
 
   async function yukleRapor() {
     document.getElementById("yukleniyor").classList.remove("d-none");
@@ -175,27 +188,29 @@
     const filtBas      = document.getElementById("filtre-bas").value;
     const filtBit      = document.getElementById("filtre-bit").value;
 
-    const ogrenciler = await tumOgrencileriGetir();
+    const [ogrenciler, tumKayitlar] = await Promise.all([
+      tumOgrencileriGetir(),
+      tumDavranislariGetir()
+    ]);
+    const ogrById = new Map(ogrenciler.map(ogr => [ogr.id, ogr]));
     raporVerisi = [];
 
-    for (const ogr of ogrenciler) {
-      if (filtSinif && ogr.sinif !== filtSinif) continue;
-      let kayitlar = await davranislarGetir(ogr.id);
-      if (filtTur)      kayitlar = kayitlar.filter(k => k.tur === filtTur);
-      if (filtKategori) kayitlar = kayitlar.filter(k => k.kategori === filtKategori);
+    tumKayitlar.forEach(k => {
+      const ogr = ogrById.get(k.ogrenciId);
+      if (!ogr) return;
+      if (filtSinif && ogr.sinif !== filtSinif) return;
+      if (filtTur && k.tur !== filtTur) return;
+      if (filtKategori && k.kategori !== filtKategori) return;
       if (filtBas || filtBit) {
-        kayitlar = kayitlar.filter(k => {
-          const t = tarihtenDate(k.tarih);
-          if (!t) return true;
-          if (filtBas && t < tarihtenDate(filtBas)) return false;
-          if (filtBit && t > tarihtenDate(filtBit)) return false;
-          return true;
-        });
+        const t = tarihtenDate(k.tarih);
+        if (!t) return;
+        if (filtBas && t < tarihtenDate(filtBas)) return;
+        if (filtBit && t > tarihtenDate(filtBit)) return;
       }
-      kayitlar.forEach(k => raporVerisi.push({ ogr, ...k }));
-    }
+      raporVerisi.push({ ogr, ...k });
+    });
 
-    raporVerisi.sort((a, b) => (b.tarih || "").localeCompare(a.tarih || ""));
+    raporVerisi.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
     document.getElementById("kayit-sayisi").textContent = raporVerisi.length;
 
     const tbody = document.getElementById("davranis-tbody");
@@ -205,19 +220,24 @@
           const olumlu = d.tur === "Olumlu";
           const tamAd = `${d.ogr.ad} ${d.ogr.soyad}`.trim();
           return `<tr>
-            <td>${d.tarih || "—"}</td>
-            <td><a href="students-detail.html?id=${d.ogr.id}" class="text-decoration-none">${tamAd}</a></td>
-            <td data-order="${attr(sinifSiralamaAnahtari(d.ogr.sinif))}">${d.ogr.sinif || "—"}</td>
-            <td><span class="badge ${olumlu ? "bg-success" : "bg-danger"}">${d.tur}</span></td>
-            <td>${d.kategori || "—"}</td>
-            <td class="small text-muted">${d.aciklama || "—"}</td>
+            <td data-order="${escapeAttr(tarihSiralamaAnahtari(d.tarih))}">${escapeHtml(d.tarih || "—")}</td>
+            <td><a href="students-detail.html?id=${escapeAttr(d.ogr.id)}" class="text-decoration-none">${escapeHtml(tamAd)}</a></td>
+            <td data-order="${escapeAttr(sinifSiralamaAnahtari(d.ogr.sinif))}">${escapeHtml(d.ogr.sinif || "—")}</td>
+            <td><span class="badge ${olumlu ? "bg-success" : "bg-danger"}">${escapeHtml(d.tur)}</span></td>
+            <td>${escapeHtml(d.kategori || "—")}</td>
+            <td class="small text-muted">${escapeHtml(d.aciklama || "—")}</td>
           </tr>`;
         }).join("");
 
     if (raporVerisi.length > 0) {
       dt = new DataTable("#davranis-tablo", {
-        language: { search: "Ara:", info: "_TOTAL_ kayıt", zeroRecords: "Bulunamadı",
-          paginate: { next: "İleri", previous: "Geri" } },
+        language: {
+          search: "Ara:", lengthMenu: "_MENU_ kayıt göster",
+          info: "_TOTAL_ kayıt içinden _START_–_END_",
+          infoEmpty: "Kayıt yok", zeroRecords: "Bulunamadı",
+          emptyTable: "Kayıt yok",
+          paginate: { next: "İleri", previous: "Geri" }
+        },
         pageLength: 20, order: [[0, "desc"]]
       });
     }
@@ -251,9 +271,6 @@
     XLSX.writeFile(wb, `davranis_raporu_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  function attr(value) {
-    return String(value ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-  }
 </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-(() => {
+﻿(() => {
   if (window.location.protocol !== "file:") return;
 
   const LOCAL_BASE = "http://127.0.0.1:8091/ogrenci/";

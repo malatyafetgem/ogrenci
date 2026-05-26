@@ -1,8 +1,10 @@
-/**
+﻿/**
  * layout.js — Ortak sidebar ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
 import { APP_VERSION, APP_UPDATED_AT } from "./version.js";
+
+let layoutYuklendi = false;
 
 // Aktif menü öğesini belirle
 function aktifMi(href) {
@@ -13,6 +15,8 @@ function aktifMi(href) {
 }
 
 export function layoutYukle() {
+  if (layoutYuklendi) return;
+  layoutYuklendi = true;
   yukleTopbar();
   yukleSidebar();
   yukleBottomNav();
@@ -35,15 +39,16 @@ function yukleTopbar() {
   kap.outerHTML = `
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
-        <ul class="navbar-nav">
+        <ul class="navbar-nav d-none d-md-flex">
           <li class="nav-item">
             <a class="nav-link" href="#" id="sidebar-toggle" role="button" title="Menüyü Aç/Kapat">
               <i class="bi bi-list"></i>
             </a>
           </li>
         </ul>
-        <a href="dashboard.html" class="navbar-brand ms-2">
-          <span class="brand-text fw-semibold">Öğrenci Bilgi Sistemi</span>
+        <a href="dashboard.html" class="navbar-brand ms-2 d-flex align-items-center gap-2">
+          <span class="brand-logo-mark"><i class="bi bi-person-vcard-fill"></i></span>
+          <span class="brand-text fw-semibold">Öğrenci Bilgileri</span>
         </a>
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
@@ -86,7 +91,7 @@ function yukleSidebar() {
       baslik: "Öğrenciler",
       ogeler: [
         { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
-        { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle" }
+        { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true }
       ]
     },
     {
@@ -99,21 +104,21 @@ function yukleSidebar() {
     {
       baslik: "Devamsızlık",
       ogeler: [
-        { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık Gir" },
+        { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık Gir", adminOnly: true },
         { href: "attendance-report.html", ikon: "bi-calendar-check", etiket: "Devamsızlık Raporu" }
       ]
     },
     {
       baslik: "Davranış",
       ogeler: [
-        { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış Gir" },
+        { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış Gir", adminOnly: true },
         { href: "behavior-report.html", ikon: "bi-bar-chart", etiket: "Davranış Raporu" }
       ]
     },
     {
       baslik: "Veli Görüşmeleri",
       ogeler: [
-        { href: "meetings-entry.html", ikon: "bi-chat-dots", etiket: "Görüşme Gir" },
+        { href: "meetings-entry.html", ikon: "bi-chat-dots", etiket: "Görüşme Gir", adminOnly: true },
         { href: "meetings-list.html", ikon: "bi-chat-square-text", etiket: "Görüşme Listesi" }
       ]
     },
@@ -121,13 +126,13 @@ function yukleSidebar() {
       baslik: "Mezunlar",
       ogeler: [
         { href: "graduates-list.html", ikon: "bi-mortarboard", etiket: "Mezun Listesi" },
-        { href: "graduates-promotion.html", ikon: "bi-arrow-up-circle", etiket: "Yıl Sonu Aktarımı" }
+        { href: "graduates-promotion.html", ikon: "bi-arrow-up-circle", etiket: "Yıl Sonu Aktarımı", adminOnly: true }
       ]
     },
     {
       baslik: "Sistem",
       ogeler: [
-        { href: "settings.html", ikon: "bi-gear", etiket: "Ayarlar" }
+        { href: "settings.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true }
       ]
     }
   ];
@@ -136,7 +141,8 @@ function yukleSidebar() {
     <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
       <div class="sidebar-brand">
         <a href="dashboard.html" class="brand-link">
-          <span class="brand-text fw-semibold fs-6">📚 ÖBS</span>
+          <span class="brand-logo-mark brand-logo-mark-sm"><i class="bi bi-person-vcard-fill"></i></span>
+          <span class="brand-text fw-semibold fs-6">Öğrenci Bilgileri</span>
         </a>
       </div>
       <div class="sidebar-wrapper">
@@ -151,7 +157,7 @@ function yukleSidebar() {
       const aktif = aktifMi(oge.href);
       html += `
         <li class="nav-item">
-          <a href="${oge.href}" class="nav-link ${aktif}">
+          <a href="${oge.href}" class="nav-link ${aktif}" ${oge.adminOnly ? "data-admin-only" : ""}>
             <i class="nav-icon bi ${oge.ikon}"></i>
             <p>${oge.etiket}</p>
           </a>
@@ -176,8 +182,8 @@ function yukleBottomNav() {
   const ogeler = [
     { href: "dashboard.html", ikon: "bi-speedometer2", etiket: "Panel" },
     { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenciler" },
-    { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık" },
-    { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış" }
+    { href: "attendance-report.html", ikon: "bi-calendar-check", etiket: "Devamsızlık" },
+    { href: "behavior-report.html", ikon: "bi-bar-chart", etiket: "Davranış" }
   ];
 
   let html = `
@@ -201,18 +207,25 @@ function yukleBottomNav() {
     </nav>
 
     <!-- Offcanvas: Daha Fazlası -->
-    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="daha-fazla-menu" style="height:auto">
+    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="daha-fazla-menu" style="height:auto;max-height:82vh;overflow-y:auto">
       <div class="offcanvas-header">
         <h5 class="offcanvas-title">Menü</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
       </div>
       <div class="offcanvas-body">
         <div class="row g-3 text-center">
-          ${offcanvasOge("phone-list.html", "bi-telephone-fill", "Telefon Listesi")}
-          ${offcanvasOge("parents-list.html", "bi-people-fill", "Veli Listesi")}
-          ${offcanvasOge("meetings-entry.html", "bi-chat-dots", "Veli Görüşmesi")}
+          ${offcanvasOge("students-add-edit.html", "bi-person-plus", "Yeni Öğrenci", true)}
+          ${offcanvasOge("phone-list.html", "bi-telephone-fill", "Telefon")}
+          ${offcanvasOge("parents-list.html", "bi-people-fill", "Veli")}
+          ${offcanvasOge("attendance-entry.html", "bi-calendar-x", "Devamsızlık Gir", true)}
+          ${offcanvasOge("attendance-report.html", "bi-calendar-check", "Devamsızlık Raporu")}
+          ${offcanvasOge("behavior-entry.html", "bi-star-half", "Davranış Gir", true)}
+          ${offcanvasOge("behavior-report.html", "bi-bar-chart", "Davranış Raporu")}
+          ${offcanvasOge("meetings-entry.html", "bi-chat-dots", "Görüşme Gir", true)}
+          ${offcanvasOge("meetings-list.html", "bi-chat-square-text", "Görüşmeler")}
           ${offcanvasOge("graduates-list.html", "bi-mortarboard", "Mezunlar")}
-          ${offcanvasOge("settings.html", "bi-gear", "Ayarlar")}
+          ${offcanvasOge("graduates-promotion.html", "bi-arrow-up-circle", "Yıl Sonu", true)}
+          ${offcanvasOge("settings.html", "bi-gear", "Ayarlar", true)}
         </div>
       </div>
     </div>`;
@@ -220,14 +233,20 @@ function yukleBottomNav() {
   kap.innerHTML = html;
 }
 
-function offcanvasOge(href, ikon, etiket) {
+function offcanvasOge(href, ikon, etiket, adminOnly = false) {
   return `
     <div class="col-3">
-      <a href="${href}" class="text-decoration-none text-body">
+      <a href="${href}" class="text-decoration-none text-body" ${adminOnly ? "data-admin-only" : ""}>
         <div class="p-2">
           <i class="bi ${ikon} fs-3"></i>
           <div class="small mt-1">${etiket}</div>
         </div>
       </a>
     </div>`;
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", layoutYukle, { once: true });
+} else {
+  layoutYukle();
 }

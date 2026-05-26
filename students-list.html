@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="file-redirect.js"></script>
-  <title>Öğrenci Listesi — ÖBS</title>
+  <title>Öğrenci Listesi — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="app.css?v=20260526-5">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -37,38 +37,31 @@
         <div class="card mb-3 no-print">
           <div class="card-body py-2">
             <div class="row g-2 align-items-end">
-              <div class="col-6 col-md-2">
+              <div class="col-6 col-md-3">
                 <label class="form-label small mb-1">Sınıf</label>
                 <select id="filtre-sinif" class="form-select form-select-sm">
-                  <option value="">Tüm Sınıflar</option>
+                  <option value="">Seçiniz</option>
                 </select>
               </div>
-              <div class="col-6 col-md-2">
+              <div class="col-6 col-md-3">
                 <label class="form-label small mb-1">Cinsiyet</label>
                 <select id="filtre-cinsiyet" class="form-select form-select-sm">
-                  <option value="">Tümü</option>
+                  <option value="">Seçiniz</option>
                   <option>Erkek</option>
                   <option>Kız</option>
                 </select>
               </div>
-              <div class="col-6 col-md-2">
+              <div class="col-6 col-md-3">
                 <label class="form-label small mb-1">Yatılılık</label>
                 <select id="filtre-yatililik" class="form-select form-select-sm">
-                  <option value="">Tümü</option>
+                  <option value="">Seçiniz</option>
                   <option>Gündüzlü</option>
+                  <option value="Yatılı">Yatılı</option>
                   <option>Paralı Yatılı</option>
                   <option>Parasız Yatılı</option>
                 </select>
               </div>
-              <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Durum</label>
-                <select id="filtre-durum" class="form-select form-select-sm">
-                  <option value="Aktif">Aktif</option>
-                  <option value="">Tümü</option>
-                  <option value="Mezun">Mezun</option>
-                </select>
-              </div>
-              <div class="col-12 col-md-4 d-flex gap-2">
+              <div class="col-12 col-md-3 d-flex gap-2">
                 <button id="filtre-uygula" class="btn btn-sm btn-primary">
                   <i class="bi bi-search me-1"></i>Filtrele
                 </button>
@@ -84,40 +77,42 @@
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h6 class="mb-0">
               <i class="bi bi-people me-1"></i>Öğrenciler
-              <span class="badge bg-secondary ms-1" id="kayit-sayisi">—</span>
+              <span class="badge bg-secondary ms-1" id="kayit-sayisi">0</span>
             </h6>
             <div class="d-flex gap-2 no-print flex-wrap">
-              <a href="students-add-edit.html" class="btn btn-sm btn-primary">
+              <a href="students-add-edit.html" class="btn btn-sm btn-primary" data-admin-only>
                 <i class="bi bi-person-plus me-1"></i>Yeni Öğrenci
               </a>
               <button class="btn btn-sm btn-success" id="excel-export-btn">
                 <i class="bi bi-file-earmark-excel me-1"></i>Excel
               </button>
-              <button class="btn btn-sm btn-outline-secondary" id="excel-import-btn">
+              <button class="btn btn-sm btn-outline-secondary" id="excel-import-btn" data-admin-only>
                 <i class="bi bi-upload me-1"></i>Excel İçe Aktar
               </button>
               <input type="file" id="excel-dosya" accept=".xlsx,.xls" class="d-none">
             </div>
           </div>
           <div class="card-body p-0">
-            <div id="yukleniyor" class="text-center py-4 text-muted">
+            <div id="yukleniyor" class="text-center py-4 text-muted d-none">
               <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
             </div>
-            <div class="table-responsive d-none" id="tablo-kap">
+            <div class="table-responsive" id="tablo-kap">
               <table id="ogrenci-tablo" class="table table-sm table-hover mb-0 align-middle">
                 <thead class="table-light">
                   <tr>
-                    <th style="width:50px">Avatar</th>
                     <th>No</th>
                     <th>Ad Soyad</th>
                     <th>Sınıf</th>
+                    <th>Öğrenci Tel</th>
                     <th>Cinsiyet</th>
                     <th>Yatılılık</th>
                     <th class="text-center">Devamsızlık</th>
                     <th class="no-print">İşlem</th>
                   </tr>
                 </thead>
-                <tbody id="ogrenci-tbody"></tbody>
+                <tbody id="ogrenci-tbody">
+                  <tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -199,8 +194,8 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js";
-  import { layoutYukle } from "./layout.js";
+  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js";
+  import { layoutYukle } from "./layout.js?v=20260526-5";
   import { db } from "./firebase-config.js";
   import {
     collection, getDocs
@@ -208,15 +203,13 @@
   import {
     ogrenciEkle, ogrenciGuncelle, noMevcutMu,
     velileriGetir, veliEkleGuncelle, siniflarGetir,
-    devamsizliklarGetir, devamsizlikHesapla
+    tumDevamsizliklariGetir, devamsizlikHesapla
   } from "./students.js";
   import {
     devamsizlikDurum, devamsizlikRenk,
     formatAd, formatSoyad, formatMetin, formatTelefon, toast,
     compareOgrenci, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
   } from "./utils.js";
-  import { avatarSrc } from "./avatar.js";
-
   let tumOgrenciler = [];
   let dt = null;
 
@@ -226,6 +219,7 @@
     { key: "ad", label: "Ad", requiredForNew: true, aliases: ["ad", "adı", "adi", "öğrenci adı", "ogrenci adi"] },
     { key: "soyad", label: "Soyad", requiredForNew: true, aliases: ["soyad", "soyadı", "soyadi"] },
     { key: "sinif", label: "Sınıf", requiredForNew: true, aliases: ["sınıf", "sinif", "sınıfı", "sinifi"] },
+    { key: "telefon", label: "Öğrenci Telefonu", aliases: ["öğrenci telefonu", "ogrenci telefonu", "öğrenci tel", "ogrenci tel", "cep telefonu", "cep tel", "telefon öğrenci", "telefon ogrenci"] },
     { key: "cinsiyet", label: "Cinsiyet", aliases: ["cinsiyet", "cinsiyeti"] },
     { key: "yatililik", label: "Yatılılık", aliases: ["yatılılık", "yatililik"] },
     { key: "maddi_durum", label: "Maddi Durum", aliases: ["maddi durum", "maddi_durum"] },
@@ -278,7 +272,12 @@
       const o = document.createElement("option"); o.value = s; o.textContent = s;
       sinifSel.appendChild(o);
     });
-    await yukleOgrenciler({ durum: "Aktif" });
+    tabloBekle("Filtreleri seçip Filtrele'ye basın.");
+  }
+
+  function tabloBekle(mesaj) {
+    tumOgrenciler = [];
+    tabloYukle([], mesaj);
   }
 
   async function yukleOgrenciler(filtreler = {}) {
@@ -290,10 +289,14 @@
       const snap = await getDocs(collection(db, "students"));
       let ogrenciler = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-      if (filtreler.durum)     ogrenciler = ogrenciler.filter(o => (o.durum || "Aktif") === filtreler.durum);
+      ogrenciler = ogrenciler.filter(o => (o.durum || "Aktif") === "Aktif");
       if (filtreler.sinif)     ogrenciler = ogrenciler.filter(o => o.sinif === filtreler.sinif);
       if (filtreler.cinsiyet)  ogrenciler = ogrenciler.filter(o => o.cinsiyet === filtreler.cinsiyet);
-      if (filtreler.yatililik) ogrenciler = ogrenciler.filter(o => o.yatililik === filtreler.yatililik);
+      if (filtreler.yatililik === "Yatılı") {
+        ogrenciler = ogrenciler.filter(o => o.yatililik === "Paralı Yatılı" || o.yatililik === "Parasız Yatılı");
+      } else if (filtreler.yatililik) {
+        ogrenciler = ogrenciler.filter(o => o.yatililik === filtreler.yatililik);
+      }
       ogrenciler.sort(compareOgrenci);
 
       tumOgrenciler = ogrenciler;
@@ -305,39 +308,37 @@
     }
   }
 
-  function tabloYukle(veri) {
+  function tabloYukle(veri, bosMesaj = "Kayıt bulunamadı.") {
     document.getElementById("kayit-sayisi").textContent = veri.length;
     const tbody = document.getElementById("ogrenci-tbody");
 
     tbody.innerHTML = veri.length === 0
-      ? `<tr><td colspan="8" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
+      ? `<tr><td colspan="8" class="text-center text-muted py-3">${escapeHtml(bosMesaj)}</td></tr>`
       : veri.map(o => {
           const ad = o.ad || ""; const soyad = o.soyad || "";
           const tamAd = `${ad} ${soyad}`.trim();
-          const foto = `<img src="${avatarSrc(o.cinsiyet)}" class="ogrenci-avatar" alt="">`;
-          const durumRenk = o.durum === "Aktif" ? "success" : o.durum === "Mezun" ? "secondary" : "warning";
           return `<tr>
-            <td>${foto}</td>
-            <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(o))}">${o.id}</td>
+            <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(o))}">${escapeHtml(o.id)}</td>
             <td>
-              <a href="students-detail.html?id=${o.id}"
-                 class="fw-semibold text-decoration-none">${tamAd}</a>
-              <span class="badge bg-${durumRenk} ms-1" style="font-size:.65rem">${o.durum || ""}</span>
+              <a href="students-detail.html?id=${escapeAttr(o.id)}"
+                 class="fw-semibold text-decoration-none">${escapeHtml(tamAd)}</a>
             </td>
-            <td data-order="${escapeAttr(sinifSiralamaAnahtari(o.sinif))}">${o.sinif || "—"}</td>
-            <td>${o.cinsiyet || "—"}</td>
-            <td><span class="badge bg-light text-dark border">${o.yatililik || "—"}</span></td>
+            <td data-order="${escapeAttr(sinifSiralamaAnahtari(o.sinif))}">${escapeHtml(o.sinif || "—")}</td>
+            <td>${escapeHtml(formatTelefon(o.telefon || "") || "—")}</td>
+            <td>${escapeHtml(o.cinsiyet || "—")}</td>
+            <td><span class="badge bg-light text-dark border">${escapeHtml(o.yatililik || "—")}</span></td>
             <td class="text-center" id="dev-${o.id}"><span class="text-muted">—</span></td>
             <td class="no-print">
-              <a href="students-detail.html?id=${o.id}" class="btn btn-xs btn-outline-info me-1" title="Detay">
+              <a href="students-detail.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-info me-1" title="Detay">
                 <i class="bi bi-eye"></i>
               </a>
-              <a href="students-add-edit.html?id=${o.id}" class="btn btn-xs btn-outline-primary me-1" title="Düzenle">
+              <a href="students-add-edit.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-primary me-1" title="Düzenle" data-admin-only>
                 <i class="bi bi-pencil"></i>
               </a>
             </td>
           </tr>`;
         }).join("");
+    applyAdminVisibility(tbody);
 
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
@@ -348,24 +349,38 @@
           search: "Ara:", info: "_TOTAL_ kayıt içinden _START_–_END_",
           zeroRecords: "Bulunamadı",
           paginate: { next: "İleri", previous: "Geri" },
-          lengthMenu: "_MENU_ kayıt göster"
+          lengthMenu: "_MENU_ kayıt göster",
+          infoEmpty: "Kayıt yok",
+          emptyTable: "Kayıt yok"
         },
         pageLength: 25,
-        order: [[3, "asc"], [1, "asc"]],
+        order: [[2, "asc"], [0, "asc"]],
         columnDefs: [
-          { orderable: false, targets: [0, 6, 7] }
+          { orderable: false, targets: [6, 7] }
         ]
       });
     }
 
-    // Devamsızlık sayılarını arka planda yükle
-    yukleDevamsizliklar(veri);
+    // Filtre sonucu öğrenci geldiyse devamsızlık rozetlerini arka planda doldur.
+    if (veri.length > 0) yukleDevamsizliklar(veri);
   }
 
   async function yukleDevamsizliklar(veri) {
-    for (const o of veri.slice(0, 50)) { // İlk 50'si
+    let tumKayitlar = [];
+    try {
+      tumKayitlar = await tumDevamsizliklariGetir();
+    } catch (_) {
+      return;
+    }
+    const kayitlarByOgrenci = new Map();
+    tumKayitlar.forEach(k => {
+      if (!kayitlarByOgrenci.has(k.ogrenciId)) kayitlarByOgrenci.set(k.ogrenciId, []);
+      kayitlarByOgrenci.get(k.ogrenciId).push(k);
+    });
+
+    for (const o of veri) {
       try {
-        const kayitlar = await devamsizliklarGetir(o.id);
+        const kayitlar = kayitlarByOgrenci.get(o.id) || [];
         const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
         const durum = devamsizlikDurum(ozurlu, ozursuz);
         const el = document.getElementById(`dev-${o.id}`);
@@ -385,8 +400,7 @@
       yukleOgrenciler({
         sinif: document.getElementById("filtre-sinif").value,
         cinsiyet: document.getElementById("filtre-cinsiyet").value,
-        yatililik: document.getElementById("filtre-yatililik").value,
-        durum: document.getElementById("filtre-durum").value
+        yatililik: document.getElementById("filtre-yatililik").value
       });
     });
 
@@ -394,13 +408,13 @@
       document.getElementById("filtre-sinif").value = "";
       document.getElementById("filtre-cinsiyet").value = "";
       document.getElementById("filtre-yatililik").value = "";
-      document.getElementById("filtre-durum").value = "Aktif";
-      yukleOgrenciler({ durum: "Aktif" });
+      tabloBekle("Filtreleri seçip Filtrele'ye basın.");
     });
 
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
 
     document.getElementById("excel-import-btn").addEventListener("click", () => {
+      if (!adminActionAllowed()) return;
       importSifirla();
       const modal = new bootstrap.Modal(document.getElementById("import-modal"));
       modal.show();
@@ -419,6 +433,7 @@
       "No": o.id,
       "Ad": o.ad, "Soyad": o.soyad,
       "Sınıf": o.sinif,
+      "Öğrenci Telefonu": o.telefon,
       "Cinsiyet": o.cinsiyet,
       "Yatılılık": o.yatililik,
       "Geldiği Okulun Adı": o.geldigi_okul,
@@ -556,6 +571,7 @@
         <td>${escapeHtml(coz.ogrVeri.ad)}</td>
         <td>${escapeHtml(coz.ogrVeri.soyad)}</td>
         <td>${escapeHtml(coz.ogrVeri.sinif)}</td>
+        <td>${escapeHtml(coz.ogrVeri.telefon)}</td>
         <td>${escapeHtml(coz.ogrVeri.cinsiyet)}</td>
         <td>${escapeHtml(coz.babaVeri.telefon || "")}</td>
         <td>${escapeHtml(coz.anneVeri.telefon || "")}</td>
@@ -567,14 +583,15 @@
         <thead class="table-light">
           <tr>
             <th>#</th><th>Durum</th><th>No</th><th>Ad</th><th>Soyad</th>
-            <th>Sınıf</th><th>Cinsiyet</th><th>Baba Tel</th><th>Anne Tel</th>
+            <th>Sınıf</th><th>Öğrenci Tel</th><th>Cinsiyet</th><th>Baba Tel</th><th>Anne Tel</th>
           </tr>
         </thead>
-        <tbody>${previewRows || `<tr><td colspan="9" class="text-muted text-center">Önizlenecek satır yok.</td></tr>`}</tbody>
+        <tbody>${previewRows || `<tr><td colspan="10" class="text-muted text-center">Önizlenecek satır yok.</td></tr>`}</tbody>
       </table>`;
   }
 
   async function importBaslat() {
+    if (!adminActionAllowed()) return;
     if (!importVerisi.length) return;
     const eksikler = zorunluEksikler();
     if (eksikler.length) {
@@ -650,7 +667,7 @@
       Yeni: ${eklendi}, Güncellenen: ${guncellendi}, Bulunamayan No: ${bulunamadi}, Atlanan: ${atlandi}, Hatalı: ${hatali}
       ${hatalar.length ? `<hr class="my-2"><div class="small">${hatalar.map(escapeHtml).join("<br>")}</div>` : ""}`;
 
-    await yukleOgrenciler({ durum: "Aktif" });
+    await yukleOgrenciler({});
   }
 
   function satirCoz(satir) {
@@ -669,6 +686,7 @@
     alanEkle(ogrVeri, "ad", formatAd(raw.ad));
     alanEkle(ogrVeri, "soyad", formatSoyad(raw.soyad));
     alanEkle(ogrVeri, "sinif", temiz(raw.sinif));
+    alanEkle(ogrVeri, "telefon", formatTelefon(raw.telefon));
     alanEkle(ogrVeri, "cinsiyet", normalizeCinsiyet(raw.cinsiyet));
     alanEkle(ogrVeri, "yatililik", temiz(raw.yatililik));
     alanEkle(ogrVeri, "maddi_durum", temiz(raw.maddi_durum));

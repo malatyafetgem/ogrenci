@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="file-redirect.js"></script>
-  <title>Öğrenci Ekle / Düzenle — ÖBS</title>
+  <title>Öğrenci Ekle / Düzenle — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="app.css?v=20260526-5">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -59,6 +59,10 @@
                 <input type="text" class="form-control" id="f-numara" inputmode="numeric"
                        placeholder="Sadece rakam" autocomplete="off">
                 <div class="invalid-feedback" id="no-hata">Bu numara zaten kullanımda.</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Öğrenci Telefonu</label>
+                <input type="text" class="form-control" id="f-telefon" inputmode="numeric" autocomplete="off">
               </div>
               <div class="col-md-3">
                 <label class="form-label">Sınıf <span class="text-danger">*</span></label>
@@ -314,18 +318,18 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js";
-  import { layoutYukle } from "./layout.js";
+  import { requireAdmin } from "./auth.js";
+  import { layoutYukle } from "./layout.js?v=20260526-5";
   import {
     ogrenciGetir, ogrenciEkle, ogrenciGuncelle,
     velileriGetir, veliEkleGuncelle, siniflarGetir, noMevcutMu
   } from "./students.js";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
-    gecerliOgrenciNo, gecerliTc
+    gecerliOgrenciNo, gecerliTc, escapeAttr
   } from "./utils.js";
   import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js";
-  import { avatarSrc } from "./avatar.js";
+  import { avatarSrc } from "./avatar.js?v=20260526-5";
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");
@@ -333,11 +337,12 @@
   let mevcutVeliler = [];
   let yetenekSayac = 0;
 
-  requireAuth(async () => {
+  requireAdmin(async () => {
     layoutYukle();
     await ilkYukle();
     baglaFormat(document.getElementById("f-ad"), "ad");
     baglaFormat(document.getElementById("f-soyad"), "soyad");
+    baglaFormat(document.getElementById("f-telefon"), "telefon");
     baglaFormat(document.getElementById("b-ad"), "ad");
     baglaFormat(document.getElementById("b-soyad"), "soyad");
     baglaFormat(document.getElementById("a-ad"), "ad");
@@ -401,6 +406,7 @@
     g("f-soyad").value = ogr.soyad || "";
     g("f-numara").value = ogr.numara || ogr.id || "";
     g("f-numara").disabled = true; // Düzenlemede no değiştirilemez
+    g("f-telefon").value = ogr.telefon || "";
     g("f-sinif").value = ogr.sinif || "";
     g("f-cinsiyet").value = ogr.cinsiyet || "";
     g("f-yatililik").value = ogr.yatililik || "";
@@ -459,7 +465,7 @@
         <option>Sanat</option><option>Spor</option><option>Müzik</option><option>Diğer</option>
       </select>
       <input type="text" class="form-control form-control-sm" id="y-aciklama-${i}"
-             placeholder="Açıklama (örn: Keman çalıyor)" value="${aciklama}">
+             placeholder="Açıklama (örn: Keman çalıyor)" value="${escapeAttr(aciklama)}">
       <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('yetenek-${i}').remove()">
         <i class="bi bi-x"></i>
       </button>`;
@@ -564,6 +570,7 @@
       const ogrVeri = {
         ad, soyad,
         numara,
+        telefon: formatTelefon(g("f-telefon")),
         sinif: g("f-sinif"),
         cinsiyet: g("f-cinsiyet"),
         yatililik: g("f-yatililik"),

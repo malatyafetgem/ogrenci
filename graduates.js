@@ -1,10 +1,11 @@
-/**
+﻿/**
  * graduates.js — Mezun Firestore CRUD işlemleri
  */
 import { db } from "./firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { bugun } from "./utils.js";
 
 const KOLEKSIYON = "graduates";
 
@@ -22,7 +23,7 @@ export async function mezunGetir(id) {
 export async function mezunGuncelle(id, veri) {
   await updateDoc(doc(db, KOLEKSIYON, String(id)), {
     ...veri,
-    guncelleme_tarihi: new Date().toISOString()
+    guncelleme_tarihi: bugun()
   });
 }
 

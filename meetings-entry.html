@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="file-redirect.js"></script>
-  <title>Veli Görüşmesi Gir — ÖBS</title>
+  <title>Veli Görüşmesi Gir — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="app.css?v=20260526-5">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -116,16 +116,16 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js";
-  import { layoutYukle } from "./layout.js";
+  import { requireAdmin } from "./auth.js";
+  import { layoutYukle } from "./layout.js?v=20260526-5";
   import { tumOgrencileriGetir, velileriGetir, gorusmeEkle } from "./students.js";
-  import { formatMetin, formatAd } from "./utils.js";
+  import { formatMetin, formatAd, escapeHtml, escapeAttr } from "./utils.js";
   import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js";
 
   let tumOgrenciler = [];
   let seciliOgrVeliler = [];
 
-  requireAuth(async () => {
+  requireAdmin(async () => {
     layoutYukle();
     tumOgrenciler = await tumOgrencileriGetir();
 
@@ -166,9 +166,9 @@
         `${o.ad} ${o.soyad} ${o.numara}`.toLowerCase().includes(q)).slice(0, 8);
       if (!eslesen.length) { sonucEl.classList.add("d-none"); return; }
       sonucEl.innerHTML = eslesen.map(o =>
-        `<div class="ac-item" data-id="${o.id}">
-          <strong>${o.ad} ${o.soyad}</strong>
-          <span class="text-muted ms-2 small">${o.sinif} · No: ${o.numara}</span>
+        `<div class="ac-item" data-id="${escapeAttr(o.id)}">
+          <strong>${escapeHtml(`${o.ad || ""} ${o.soyad || ""}`.trim())}</strong>
+          <span class="text-muted ms-2 small">${escapeHtml(o.sinif || "")} · No: ${escapeHtml(o.numara || o.id)}</span>
         </div>`).join("");
       sonucEl.classList.remove("d-none");
       sonucEl.querySelectorAll(".ac-item").forEach(el =>

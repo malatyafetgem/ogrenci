@@ -1,4 +1,4 @@
-/**
+﻿/**
  * utils.js — Metin biçimlendirme ve genel yardımcı fonksiyonlar
  */
 
@@ -113,18 +113,43 @@ export function formatTelefon(str) {
 }
 
 /**
+ * Kullanıcı/Excel/Firestore kaynaklı metni HTML'e güvenli bas.
+ */
+export function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+export function escapeAttr(value) {
+  return escapeHtml(value);
+}
+
+/**
  * Tarihi GG.AA.YYYY formatında göster.
  */
 export function formatTarih(tarihStr) {
   if (!tarihStr) return "";
-  // Zaten GG.AA.YYYY ise doğrudan döndür
-  if (/^\d{2}\.\d{2}\.\d{4}$/.test(tarihStr)) return tarihStr;
-  // YYYY-MM-DD formatını dönüştür
-  if (/^\d{4}-\d{2}-\d{2}$/.test(tarihStr)) {
-    const [y, m, d] = tarihStr.split("-");
-    return `${d}.${m}.${y}`;
+  if (tarihStr instanceof Date && !Number.isNaN(tarihStr.getTime())) {
+    const d = String(tarihStr.getDate()).padStart(2, "0");
+    const m = String(tarihStr.getMonth() + 1).padStart(2, "0");
+    return `${d}.${m}.${tarihStr.getFullYear()}`;
   }
-  return tarihStr;
+  const raw = String(tarihStr).trim();
+  const ggAaYyyy = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+  if (ggAaYyyy) {
+    const [, d, m, y] = ggAaYyyy;
+    return `${d.padStart(2, "0")}.${m.padStart(2, "0")}.${y}`;
+  }
+  const yyyyMmDd = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (yyyyMmDd) {
+    const [, y, m, d] = yyyyMmDd;
+    return `${d.padStart(2, "0")}.${m.padStart(2, "0")}.${y}`;
+  }
+  return raw;
 }
 
 /**
@@ -146,6 +171,22 @@ export function tarihtenDate(str) {
   if (!/^\d{2}\.\d{2}\.\d{4}$/.test(str)) return null;
   const [g, a, y] = str.split(".");
   return new Date(`${y}-${a}-${g}`);
+}
+
+export function tarihSiralamaAnahtari(str) {
+  const tarih = formatTarih(str);
+  const m = tarih.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!m) return "0000-00-00";
+  const [, g, a, y] = m;
+  return `${y}-${a}-${g}`;
+}
+
+export function compareTarihDesc(a, b) {
+  return tarihSiralamaAnahtari(b).localeCompare(tarihSiralamaAnahtari(a));
+}
+
+export function compareTarihAsc(a, b) {
+  return tarihSiralamaAnahtari(a).localeCompare(tarihSiralamaAnahtari(b));
 }
 
 const TR_SIRALAYICI = new Intl.Collator("tr", { numeric: true, sensitivity: "base" });
@@ -276,7 +317,7 @@ export function toast(mesaj, tip = "success") {
   el.setAttribute("role", "alert");
   el.innerHTML = `
     <div class="d-flex">
-      <div class="toast-body">${mesaj}</div>
+      <div class="toast-body">${escapeHtml(mesaj)}</div>
       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>`;
 

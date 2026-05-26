@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="file-redirect.js"></script>
-  <title>Öğrenci Detayı — ÖBS</title>
+  <title>Öğrenci Detayı — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css">
+  <link rel="stylesheet" href="app.css?v=20260526-5">
 </head>
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
   <div id="topbar-kap"></div>
   <div id="sidebar-kap"></div>
@@ -49,7 +49,7 @@
                   <div class="d-flex gap-2 flex-wrap align-items-center" id="profil-rozetler"></div>
                 </div>
                 <div class="d-flex gap-2 no-print">
-                  <a href="#" id="duzenle-btn" class="btn btn-primary btn-sm">
+                  <a href="#" id="duzenle-btn" class="btn btn-primary btn-sm" data-admin-only>
                     <i class="bi bi-pencil me-1"></i>Düzenle
                   </a>
                   <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
@@ -166,9 +166,12 @@
                 </div>
               </div>
               <div class="card">
+                <div class="card-header">
+                  <h6 class="mb-0"><i class="bi bi-list-ul me-1"></i>Kayıtlar</h6>
+                </div>
                 <div class="card-body p-0">
                   <div class="table-responsive">
-                    <table class="table table-sm table-hover mb-0">
+                    <table class="table table-sm table-hover mb-0 detay-kayit-tablo">
                       <thead class="table-light">
                         <tr>
                           <th>Tarih</th>
@@ -198,7 +201,7 @@
                 </div>
                 <div class="card-body p-0">
                   <div class="table-responsive">
-                    <table class="table table-sm table-hover mb-0">
+                    <table class="table table-sm table-hover mb-0 detay-kayit-tablo">
                       <thead class="table-light">
                         <tr>
                           <th>Tarih</th>
@@ -221,13 +224,13 @@
               <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <h6 class="mb-0"><i class="bi bi-chat-dots me-1"></i>Görüşme Kayıtları</h6>
-                  <a id="gorusme-ekle-link" href="#" class="btn btn-sm btn-primary no-print">
+                  <a id="gorusme-ekle-link" href="#" class="btn btn-sm btn-primary no-print" data-admin-only>
                     <i class="bi bi-plus me-1"></i>Görüşme Gir
                   </a>
                 </div>
                 <div class="card-body p-0">
                   <div class="table-responsive">
-                    <table class="table table-sm table-hover mb-0">
+                    <table class="table table-sm table-hover mb-0 detay-kayit-tablo">
                       <thead class="table-light">
                         <tr>
                           <th>Tarih</th>
@@ -257,8 +260,8 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js";
-  import { layoutYukle } from "./layout.js";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js";
+  import { layoutYukle } from "./layout.js?v=20260526-5";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil,
@@ -266,9 +269,9 @@
     gorusmeleriGetir, gorusmeSil
   } from "./students.js";
   import {
-    devamsizlikDurum, devamsizlikRenk, formatTelefon, toast
+    devamsizlikDurum, devamsizlikRenk, formatTelefon, toast, escapeHtml, escapeAttr
   } from "./utils.js";
-  import { avatarSrc } from "./avatar.js";
+  import { avatarSrc } from "./avatar.js?v=20260526-5";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -287,7 +290,7 @@
       if (!o) { location.href = "students-list.html"; return; }
 
       const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
-      document.title = `${tamAd} — ÖBS`;
+      document.title = `${tamAd} — Öğrenci Bilgileri`;
       document.getElementById("sayfa-baslik").textContent = tamAd;
       document.getElementById("breadcrumb-ad").textContent = tamAd;
 
@@ -295,10 +298,10 @@
       document.getElementById("profil-foto").src = avatarSrc(o.cinsiyet);
       document.getElementById("profil-ad").textContent = tamAd;
       document.getElementById("profil-rozetler").innerHTML = [
-        `<span class="badge bg-primary">${o.sinif || "—"}</span>`,
-        `<span class="badge bg-secondary">${o.cinsiyet || "—"}</span>`,
-        `<span class="badge bg-info text-dark">${o.yatililik || "—"}</span>`,
-        o.durum !== "Aktif" ? `<span class="badge bg-warning text-dark">${o.durum}</span>` : ""
+        `<span class="badge bg-primary">${escapeHtml(o.sinif || "—")}</span>`,
+        `<span class="badge bg-secondary">${escapeHtml(o.cinsiyet || "—")}</span>`,
+        `<span class="badge bg-info text-dark">${escapeHtml(o.yatililik || "—")}</span>`,
+        o.durum !== "Aktif" ? `<span class="badge bg-warning text-dark">${escapeHtml(o.durum)}</span>` : ""
       ].join("");
 
       document.getElementById("duzenle-btn").href =
@@ -309,6 +312,7 @@
       // Bloklar
       blokDoldur("blok-kimlik", [
         ["Öğrenci No", o.id],
+        ["Öğrenci Telefonu", formatTelefon(o.telefon || "")],
         ["TC Kimlik", o.tc_kimlik],
         ["Doğum Tarihi", o.dogum_tarihi],
         ["Doğum Yeri", o.dogum_yeri],
@@ -334,7 +338,7 @@
         yetEl.innerHTML = o.yetenekler.map(y =>
           `<div class="d-flex align-items-center gap-2 mb-1">
             <i class="bi bi-star-fill text-warning small"></i>
-            <span class="small"><strong>${y.tur}</strong> — ${y.aciklama}</span>
+            <span class="small"><strong>${escapeHtml(y.tur)}</strong> — ${escapeHtml(y.aciklama)}</span>
           </div>`
         ).join("");
       } else {
@@ -361,9 +365,9 @@
   function blokDoldur(elId, alanlar) {
     const el = document.getElementById(elId);
     el.innerHTML = alanlar.map(([et, dg]) => `
-      <div class="d-flex justify-content-between mb-2 small border-bottom pb-1">
-        <span class="text-muted">${et}</span>
-        <span class="fw-semibold text-end">${dg || '<span class="text-muted">—</span>'}</span>
+      <div class="detay-bilgi-satir d-flex justify-content-between mb-2 small border-bottom pb-1">
+        <span class="text-muted">${escapeHtml(et)}</span>
+        <span class="fw-semibold text-end">${dg ? escapeHtml(dg) : '<span class="text-muted">—</span>'}</span>
       </div>`).join("");
   }
 
@@ -380,8 +384,8 @@
         <div class="card h-100">
           <div class="card-header">
             <h6 class="mb-0">
-              <span class="badge bg-${turRenk} me-1">${v.tur}</span>
-              ${v.ad || ""} ${v.soyad || ""}
+              <span class="badge bg-${turRenk} me-1">${escapeHtml(v.tur)}</span>
+              ${escapeHtml(`${v.ad || ""} ${v.soyad || ""}`.trim())}
             </h6>
           </div>
           <div class="card-body">
@@ -399,9 +403,9 @@
 
   function veliSatir(et, dg) {
     if (!dg) return "";
-    return `<div class="d-flex justify-content-between mb-1 small border-bottom pb-1">
-      <span class="text-muted">${et}</span>
-      <span class="fw-semibold text-end" style="max-width:60%">${dg}</span>
+    return `<div class="veli-bilgi-satir d-flex justify-content-between mb-1 small border-bottom pb-1">
+      <span class="text-muted">${escapeHtml(et)}</span>
+      <span class="fw-semibold text-end" style="max-width:60%">${escapeHtml(dg)}</span>
     </div>`;
   }
 
@@ -423,16 +427,17 @@
     tbody.innerHTML = kayitlar.length === 0
       ? `<tr><td colspan="5" class="text-center text-muted py-3">Devamsızlık kaydı yok.</td></tr>`
       : kayitlar.map(k => `<tr>
-          <td>${k.tarih || "—"}</td>
-          <td><span class="badge ${k.tur === "Özürsüz" ? "bg-danger" : "bg-warning text-dark"}">${k.tur}</span></td>
-          <td>${k.miktar || "—"}</td>
-          <td>${k.aciklama || "—"}</td>
-          <td class="no-print">
-            <button class="btn btn-xs btn-outline-danger" onclick="silDevamsizlik('${k.id}')">
+          <td data-label="Tarih">${escapeHtml(k.tarih || "—")}</td>
+          <td data-label="Tür"><span class="badge ${k.tur === "Özürsüz" ? "bg-danger" : "bg-warning text-dark"}">${escapeHtml(k.tur)}</span></td>
+          <td data-label="Miktar">${escapeHtml(k.miktar || "—")}</td>
+          <td data-label="Açıklama">${escapeHtml(k.aciklama || "—")}</td>
+          <td data-label="İşlem" class="no-print">
+            <button class="btn btn-xs btn-outline-danger" data-admin-only onclick="silDevamsizlik('${escapeAttr(k.id)}')">
               <i class="bi bi-trash"></i>
             </button>
           </td>
         </tr>`).join("");
+    applyAdminVisibility(tbody);
   }
 
   async function yukleDavranis() {
@@ -452,18 +457,19 @@
       : liste.map(d => {
           const renk = d.tur === "Olumlu" ? "success" : "danger";
           return `<tr>
-            <td>${d.tarih || "—"}</td>
-            <td><span class="badge bg-${renk}">${d.tur}</span></td>
-            <td>${d.kategori || "—"}</td>
-            <td>${d.aciklama || "—"}</td>
-            <td>${d.veli_gorusmesi ? '<i class="bi bi-check-circle text-success"></i>' : "—"}</td>
-            <td class="no-print">
-              <button class="btn btn-xs btn-outline-danger" onclick="silDavranis('${d.id}')">
+            <td data-label="Tarih">${escapeHtml(d.tarih || "—")}</td>
+            <td data-label="Tür"><span class="badge bg-${renk}">${escapeHtml(d.tur)}</span></td>
+            <td data-label="Kategori">${escapeHtml(d.kategori || "—")}</td>
+            <td data-label="Açıklama">${escapeHtml(d.aciklama || "—")}</td>
+            <td data-label="Veli Görüşmesi">${d.veli_gorusmesi ? '<i class="bi bi-check-circle text-success"></i>' : "—"}</td>
+            <td data-label="İşlem" class="no-print">
+              <button class="btn btn-xs btn-outline-danger" data-admin-only onclick="silDavranis('${escapeAttr(d.id)}')">
                 <i class="bi bi-trash"></i>
               </button>
             </td>
           </tr>`;
         }).join("");
+    applyAdminVisibility(tbody);
   }
 
   async function yukleGorusmeler() {
@@ -472,20 +478,22 @@
     tbody.innerHTML = gorusmeler.length === 0
       ? `<tr><td colspan="5" class="text-center text-muted py-3">Görüşme kaydı yok.</td></tr>`
       : gorusmeler.map(g => `<tr>
-          <td>${g.tarih || "—"}</td>
-          <td>${g.veli_tur || "—"}</td>
-          <td>${g.konu || "—"}</td>
-          <td>${g.aciklama || "—"}</td>
-          <td class="no-print">
-            <button class="btn btn-xs btn-outline-danger" onclick="silGorusme('${g.id}')">
+          <td data-label="Tarih">${escapeHtml(g.tarih || "—")}</td>
+          <td data-label="Veli">${escapeHtml(g.veli_tur || "—")}</td>
+          <td data-label="Konu">${escapeHtml(g.konu || "—")}</td>
+          <td data-label="Açıklama">${escapeHtml(g.aciklama || "—")}</td>
+          <td data-label="İşlem" class="no-print">
+            <button class="btn btn-xs btn-outline-danger" data-admin-only onclick="silGorusme('${escapeAttr(g.id)}')">
               <i class="bi bi-trash"></i>
             </button>
           </td>
         </tr>`).join("");
+    applyAdminVisibility(tbody);
   }
 
   // Global silme fonksiyonları (onclick ile kullanılır)
   window.silDevamsizlik = async (kayitId) => {
+    if (!adminActionAllowed()) return;
     if (!confirm("Bu devamsızlık kaydı silinecek. Emin misiniz?")) return;
     try {
       await devamsizlikSil(ogrenciId, kayitId);
@@ -495,6 +503,7 @@
   };
 
   window.silDavranis = async (kayitId) => {
+    if (!adminActionAllowed()) return;
     if (!confirm("Bu davranış kaydı silinecek. Emin misiniz?")) return;
     try {
       await davranisSil(ogrenciId, kayitId);
@@ -505,6 +514,7 @@
   };
 
   window.silGorusme = async (kayitId) => {
+    if (!adminActionAllowed()) return;
     if (!confirm("Bu görüşme kaydı silinecek. Emin misiniz?")) return;
     try {
       await gorusmeSil(ogrenciId, kayitId);

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * autocomplete.js — Firestore'daki _autocomplete koleksiyonunu okur/yazar.
  */
 import { db } from "./firebase-config.js";
