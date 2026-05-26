@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş — Öğrenci Bilgi Sistemi</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <style>
+    body { background: #f4f6f9; }
+    .login-kart {
+      max-width: 400px;
+      margin: 8vh auto 0;
+    }
+    .login-logo {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .login-logo .baslik {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #343a40;
+      display: block;
+      margin-top: 0.5rem;
+    }
+    .login-logo .alt-baslik {
+      font-size: 0.85rem;
+      color: #6c757d;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="login-kart">
+
+    <div class="login-logo">
+      <i class="bi bi-mortarboard-fill fs-1 text-primary"></i>
+      <span class="baslik">Öğrenci Bilgi Sistemi</span>
+      <span class="alt-baslik">Malatya FETGEM</span>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h5 class="card-title mb-4 text-center">Yönetici Girişi</h5>
+
+        <div id="hata-mesaji" class="alert alert-danger d-none" role="alert"></div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">E-Posta</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+            <input type="email" class="form-control" id="email" placeholder="admin@ornek.com" autocomplete="username">
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="sifre" class="form-label">Şifre</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            <input type="password" class="form-control" id="sifre" placeholder="••••••••" autocomplete="current-password">
+            <button class="btn btn-outline-secondary" type="button" id="sifre-goster">
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary w-100" id="giris-btn">
+          <span id="btn-metin">Giriş Yap</span>
+          <span id="btn-yuklen" class="d-none">
+            <span class="spinner-border spinner-border-sm me-1"></span> Giriş yapılıyor...
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <p class="text-center text-muted small mt-3">
+      Malatya FETGEM &copy; 2025
+    </p>
+  </div>
+</div>
+
+<script type="module">
+  import { login, redirectIfLoggedIn } from "./assets/js/core/auth.js";
+
+  // Zaten giriş yapılmışsa dashboard'a yönlendir
+  redirectIfLoggedIn();
+
+  const emailEl  = document.getElementById("email");
+  const sifreEl  = document.getElementById("sifre");
+  const hataEl   = document.getElementById("hata-mesaji");
+  const girisBtn = document.getElementById("giris-btn");
+  const btnMetin = document.getElementById("btn-metin");
+  const btnYuklen= document.getElementById("btn-yuklen");
+
+  // Şifre göster/gizle
+  document.getElementById("sifre-goster").addEventListener("click", () => {
+    const goster = sifreEl.type === "password";
+    sifreEl.type = goster ? "text" : "password";
+    document.querySelector("#sifre-goster i").className = `bi bi-eye${goster ? "-slash" : ""}`;
+  });
+
+  // Enter ile giriş
+  sifreEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") girisBtn.click();
+  });
+
+  // Giriş
+  girisBtn.addEventListener("click", async () => {
+    const email = emailEl.value.trim();
+    const sifre = sifreEl.value;
+
+    hataEl.classList.add("d-none");
+
+    if (!email || !sifre) {
+      hataEl.textContent = "E-posta ve şifre alanları boş bırakılamaz.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
+
+    btnMetin.classList.add("d-none");
+    btnYuklen.classList.remove("d-none");
+    girisBtn.disabled = true;
+
+    try {
+      await login(email, sifre);
+      // Başarılıysa auth.js dashboard'a yönlendirir
+    } catch (err) {
+      let mesaj = "Giriş başarısız. Lütfen bilgilerinizi kontrol edin.";
+      if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password") {
+        mesaj = "E-posta veya şifre hatalı.";
+      } else if (err.code === "auth/too-many-requests") {
+        mesaj = "Çok fazla başarısız deneme. Lütfen daha sonra tekrar deneyin.";
+      }
+      hataEl.textContent = mesaj;
+      hataEl.classList.remove("d-none");
+    } finally {
+      btnMetin.classList.remove("d-none");
+      btnYuklen.classList.add("d-none");
+      girisBtn.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

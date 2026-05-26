@@ -1,0 +1,155 @@
+/* =============================================
+   app.css — Özel stiller
+   ============================================= */
+
+/* --- Bottom Navbar (Telefon) --- */
+.bottom-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: #fff;
+  border-top: 1px solid #dee2e6;
+  box-shadow: 0 -2px 8px rgba(0,0,0,.08);
+  z-index: 1030;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+  color: #6c757d;
+  text-decoration: none;
+  font-size: 0.68rem;
+  gap: 2px;
+  transition: color .2s;
+}
+
+.bottom-nav-item i {
+  font-size: 1.3rem;
+}
+
+.bottom-nav-item.aktif,
+.bottom-nav-item:hover {
+  color: #0d6efd;
+}
+
+/* Telefonda içerik alanına alt navbar kadar padding ekle */
+@media (max-width: 767.98px) {
+  .app-wrapper,
+  .content-wrapper {
+    padding-bottom: 68px !important;
+  }
+}
+
+/* --- Genel --- */
+.content-wrapper {
+  background-color: #f4f6f9;
+}
+
+/* Kart gölgesi */
+.card {
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+/* Öğrenci fotoğraf küçük resim */
+.ogrenci-avatar {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.ogrenci-avatar-buyuk {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #dee2e6;
+}
+
+/* Devamsızlık renk kodları */
+.devamsizlik-normal { color: #198754; }
+.devamsizlik-uyari  { color: #ffc107; }
+.devamsizlik-kritik { color: #dc3545; font-weight: 600; }
+
+/* Davranış rozet renkleri */
+.badge-olumlu  { background-color: #198754; }
+.badge-olumsuz { background-color: #dc3545; }
+
+/* DataTables Türkçe düzeltmeler */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+  margin-bottom: 0.5rem;
+}
+
+/* Form bölüm başlığı */
+.form-bolum-baslik {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #6c757d;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* Yetenek satırları */
+.yetenek-satir {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+/* Autocomplete dropdown */
+.ac-dropdown {
+  position: absolute;
+  z-index: 999;
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+
+.ac-dropdown .ac-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.ac-dropdown .ac-item:hover {
+  background: #f0f4ff;
+}
+
+/* Yazdırma: sidebar, topbar, bottom-nav gizle */
+@media print {
+  .app-sidebar,
+  .app-header,
+  .bottom-navbar,
+  .bottom-nav-kap,
+  #bottom-nav-kap,
+  .no-print {
+    display: none !important;
+  }
+
+  .content-wrapper {
+    margin-left: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  body {
+    background: #fff !important;
+  }
+}

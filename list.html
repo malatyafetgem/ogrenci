@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Listesi — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="/ogrenci/assets/css/app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h3 class="mb-0">Öğrenci Listesi</h3>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="/ogrenci/dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item active">Öğrenci Listesi</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <!-- Filtreler -->
+        <div class="card mb-3 no-print">
+          <div class="card-body py-2">
+            <div class="row g-2 align-items-end">
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Sınıf</label>
+                <select id="filtre-sinif" class="form-select form-select-sm">
+                  <option value="">Tüm Sınıflar</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Cinsiyet</label>
+                <select id="filtre-cinsiyet" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option>Erkek</option>
+                  <option>Kız</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Yatılılık</label>
+                <select id="filtre-yatililik" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option>Gündüzlü</option>
+                  <option>Paralı Yatılı</option>
+                  <option>Parasız Yatılı</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Maddi Durum</label>
+                <select id="filtre-maddi" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option>Düşük</option>
+                  <option>Orta</option>
+                  <option>İyi</option>
+                  <option>Çok İyi</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-2 d-flex gap-2">
+                <button id="filtre-temizle" class="btn btn-sm btn-outline-secondary w-100">
+                  <i class="bi bi-x-circle me-1"></i>Temizle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tablo Kartı -->
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="mb-0">
+              <i class="bi bi-people me-1"></i>
+              Öğrenciler
+              <span class="badge bg-secondary ms-1" id="kayit-sayisi">—</span>
+            </h6>
+            <div class="d-flex gap-2 no-print">
+              <button class="btn btn-sm btn-success" id="excel-export-btn">
+                <i class="bi bi-file-earmark-excel me-1"></i>Excel
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" id="excel-import-btn">
+                <i class="bi bi-upload me-1"></i>İçe Aktar
+              </button>
+              <a href="/ogrenci/pages/students/add-edit.html" class="btn btn-sm btn-primary">
+                <i class="bi bi-person-plus me-1"></i>Yeni Öğrenci
+              </a>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table id="ogrenci-tablo" class="table table-hover table-sm mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width:50px"></th>
+                    <th>No</th>
+                    <th>Ad Soyad</th>
+                    <th>Sınıf</th>
+                    <th>Cinsiyet</th>
+                    <th>Yatılılık</th>
+                    <th>Maddi Durum</th>
+                    <th class="no-print">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="ogrenci-tbody">
+                  <tr><td colspan="8" class="text-center py-4 text-muted">Yükleniyor...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+<div id="bottom-nav-kap"></div>
+
+<!-- Silme Onay Modal -->
+<div class="modal fade" id="sil-modal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title text-danger"><i class="bi bi-trash me-1"></i>Öğrenci Sil</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-1"><strong id="sil-ogrenci-adi"></strong> adlı öğrenciyi silmek istediğinizden emin misiniz?</p>
+        <p class="text-danger small mb-0">Bu işlem geri alınamaz. Tüm kayıtlar silinir.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+        <button type="button" class="btn btn-sm btn-danger" id="sil-onayla">Evet, Sil</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { requireAuth } from "/ogrenci/assets/js/core/auth.js";
+  import { layoutYukle } from "/ogrenci/assets/js/ui/layout.js";
+  import { tumOgrencileriGetir, siniflarGetir, ogrenciSil } from "/ogrenci/assets/js/data/students.js";
+  import { toast, maddiDurumRenk } from "/ogrenci/assets/js/core/utils.js";
+
+  const AVATAR = "/ogrenci/assets/img/avatar-default.png";
+
+  let tumOgrenciler = [];
+  let tablo = null;
+  let silId = null;
+
+  requireAuth(async () => {
+    layoutYukle();
+    await yukleVeriler();
+    baglaFiltreler();
+    baglaButonlar();
+  });
+
+  async function yukleVeriler() {
+    tumOgrenciler = await tumOgrencileriGetir();
+    document.getElementById("kayit-sayisi").textContent = tumOgrenciler.length;
+
+    // Sınıf filtresi doldur
+    const siniflar = await siniflarGetir();
+    const sinifSel = document.getElementById("filtre-sinif");
+    siniflar.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s; opt.textContent = s;
+      sinifSel.appendChild(opt);
+    });
+
+    tabloYukle(tumOgrenciler);
+  }
+
+  function tabloYukle(veriler) {
+    const tbody = document.getElementById("ogrenci-tbody");
+
+    if (tablo) { tablo.destroy(); tablo = null; }
+
+    tbody.innerHTML = veriler.length === 0
+      ? `<tr><td colspan="8" class="text-center py-4 text-muted">Kayıt bulunamadı.</td></tr>`
+      : veriler.map(o => {
+          const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
+          const foto = o.fotograf_url || AVATAR;
+          const maddiRenk = maddiDurumRenk(o.maddi_durum);
+          return `<tr>
+            <td><img src="${foto}" class="ogrenci-avatar" alt="" onerror="this.src='${AVATAR}'"></td>
+            <td>${o.numara || o.id}</td>
+            <td>
+              <a href="/ogrenci/pages/students/detail.html?id=${o.id}" class="fw-semibold text-decoration-none">
+                ${tamAd}
+              </a>
+            </td>
+            <td>${o.sinif || "—"}</td>
+            <td>${o.cinsiyet || "—"}</td>
+            <td><span class="badge bg-secondary">${o.yatililik || "—"}</span></td>
+            <td>${o.maddi_durum ? `<span class="badge bg-${maddiRenk}">${o.maddi_durum}</span>` : "—"}</td>
+            <td class="no-print">
+              <a href="/ogrenci/pages/students/detail.html?id=${o.id}" class="btn btn-xs btn-outline-primary me-1" title="Detay">
+                <i class="bi bi-eye"></i>
+              </a>
+              <a href="/ogrenci/pages/students/add-edit.html?id=${o.id}" class="btn btn-xs btn-outline-secondary me-1" title="Düzenle">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <button class="btn btn-xs btn-outline-danger sil-btn"
+                data-id="${o.id}" data-ad="${tamAd}" title="Sil">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>`;
+        }).join("");
+
+    if (veriler.length > 0) {
+      tablo = new DataTable("#ogrenci-tablo", {
+        language: {
+          search: "Ara:", lengthMenu: "_MENU_ kayıt göster",
+          info: "_TOTAL_ kayıttan _START_–_END_ arası",
+          infoEmpty: "Kayıt yok", zeroRecords: "Eşleşen kayıt bulunamadı",
+          paginate: { first: "İlk", last: "Son", next: "İleri", previous: "Geri" }
+        },
+        pageLength: 25,
+        columnDefs: [
+          { orderable: false, targets: [0, 7] }
+        ]
+      });
+    }
+
+    // Silme butonları
+    document.querySelectorAll(".sil-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        silId = btn.dataset.id;
+        document.getElementById("sil-ogrenci-adi").textContent = btn.dataset.ad;
+        new bootstrap.Modal(document.getElementById("sil-modal")).show();
+      });
+    });
+  }
+
+  function filtrele() {
+    const sinif = document.getElementById("filtre-sinif").value;
+    const cinsiyet = document.getElementById("filtre-cinsiyet").value;
+    const yatililik = document.getElementById("filtre-yatililik").value;
+    const maddi = document.getElementById("filtre-maddi").value;
+
+    const filtreli = tumOgrenciler.filter(o =>
+      (!sinif || o.sinif === sinif) &&
+      (!cinsiyet || o.cinsiyet === cinsiyet) &&
+      (!yatililik || o.yatililik === yatililik) &&
+      (!maddi || o.maddi_durum === maddi)
+    );
+
+    document.getElementById("kayit-sayisi").textContent = filtreli.length;
+    tabloYukle(filtreli);
+  }
+
+  function baglaFiltreler() {
+    ["filtre-sinif","filtre-cinsiyet","filtre-yatililik","filtre-maddi"]
+      .forEach(id => document.getElementById(id).addEventListener("change", filtrele));
+
+    document.getElementById("filtre-temizle").addEventListener("click", () => {
+      ["filtre-sinif","filtre-cinsiyet","filtre-yatililik","filtre-maddi"]
+        .forEach(id => document.getElementById(id).value = "");
+      filtrele();
+    });
+  }
+
+  function baglaButonlar() {
+    // Excel export
+    document.getElementById("excel-export-btn").addEventListener("click", () => {
+      const satirlar = tumOgrenciler.map(o => ({
+        "No": o.numara || o.id,
+        "Ad": o.ad || "",
+        "Soyad": o.soyad || "",
+        "Sınıf": o.sinif || "",
+        "Cinsiyet": o.cinsiyet || "",
+        "Yatılılık": o.yatililik || "",
+        "Maddi Durum": o.maddi_durum || "",
+        "TC Kimlik": o.tc_kimlik || "",
+        "Doğum Tarihi": o.dogum_tarihi || ""
+      }));
+      const ws = XLSX.utils.json_to_sheet(satirlar);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Öğrenciler");
+      XLSX.writeFile(wb, `ogrenciler_${new Date().toISOString().slice(0,10)}.xlsx`);
+    });
+
+    // Excel import — sihirbaz sayfasına yönlendir (Faz 5'te yapılacak)
+    document.getElementById("excel-import-btn").addEventListener("click", () => {
+      window.location.href = "/ogrenci/pages/students/import.html";
+    });
+
+    // Silme onay
+    document.getElementById("sil-onayla").addEventListener("click", async () => {
+      if (!silId) return;
+      try {
+        await ogrenciSil(silId);
+        bootstrap.Modal.getInstance(document.getElementById("sil-modal")).hide();
+        toast("Öğrenci silindi.", "success");
+        tumOgrenciler = tumOgrenciler.filter(o => o.id !== silId);
+        document.getElementById("kayit-sayisi").textContent = tumOgrenciler.length;
+        tabloYukle(tumOgrenciler);
+      } catch (err) {
+        toast("Silme işlemi başarısız: " + err.message, "danger");
+      }
+    });
+  }
+</script>
+</body>
+</html>

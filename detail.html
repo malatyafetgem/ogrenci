@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Detayı — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/ogrenci/assets/css/app.css">
+  <style>
+    .bilgi-satir { display: flex; gap: 8px; margin-bottom: 6px; font-size: .9rem; }
+    .bilgi-etiket { color: #6c757d; min-width: 130px; flex-shrink: 0; }
+    .bilgi-deger { font-weight: 500; }
+    .sekme-icerik { min-height: 300px; }
+    .zaman-noktasi {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #dee2e6; flex-shrink: 0; margin-top: 5px;
+    }
+    .zaman-noktasi.olumlu { background: #198754; }
+    .zaman-noktasi.olumsuz { background: #dc3545; }
+  </style>
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h3 class="mb-0" id="sayfa-baslik">Öğrenci Detayı</h3>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="/ogrenci/dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="/ogrenci/pages/students/list.html">Öğrenciler</a></li>
+              <li class="breadcrumb-item active" id="breadcrumb-ad">Detay</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <div id="yukleniyor" class="text-center py-5 text-muted">
+          <div class="spinner-border text-primary mb-3"></div>
+          <div>Yükleniyor...</div>
+        </div>
+
+        <div id="icerik" class="d-none">
+
+          <!-- Profil Satırı -->
+          <div class="card mb-3">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <img id="profil-foto" src="/ogrenci/assets/img/avatar-default.png"
+                     class="ogrenci-avatar-buyuk" alt="Fotoğraf">
+                <div class="flex-grow-1">
+                  <h4 class="mb-1" id="profil-ad"></h4>
+                  <div class="text-muted mb-2" id="profil-alt"></div>
+                  <div class="d-flex gap-2 flex-wrap" id="profil-rozetler"></div>
+                </div>
+                <div class="d-flex gap-2 no-print">
+                  <a id="duzenle-btn" href="#" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil me-1"></i>Düzenle
+                  </a>
+                  <button class="btn btn-sm btn-outline-primary" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>Yazdır
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sekmeler -->
+          <div class="card">
+            <div class="card-header p-0 no-print">
+              <ul class="nav nav-tabs" id="detay-sekmeler">
+                <li class="nav-item">
+                  <a class="nav-link active" data-bs-toggle="tab" href="#sekme-kisisel">
+                    <i class="bi bi-person me-1"></i><span class="d-none d-sm-inline">Kişisel</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-bs-toggle="tab" href="#sekme-aile">
+                    <i class="bi bi-house me-1"></i><span class="d-none d-sm-inline">Aile</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-bs-toggle="tab" href="#sekme-veli">
+                    <i class="bi bi-people me-1"></i><span class="d-none d-sm-inline">Veliler</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-bs-toggle="tab" href="#sekme-devamsizlik">
+                    <i class="bi bi-calendar-x me-1"></i><span class="d-none d-sm-inline">Devamsızlık</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-bs-toggle="tab" href="#sekme-davranis">
+                    <i class="bi bi-star-half me-1"></i><span class="d-none d-sm-inline">Davranış</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-bs-toggle="tab" href="#sekme-gorusme">
+                    <i class="bi bi-chat-dots me-1"></i><span class="d-none d-sm-inline">Görüşmeler</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div class="card-body sekme-icerik">
+              <div class="tab-content">
+
+                <!-- KİŞİSEL -->
+                <div class="tab-pane fade show active" id="sekme-kisisel">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <p class="form-bolum-baslik">Kimlik Bilgileri</p>
+                      <div id="kisisel-kimlik"></div>
+                    </div>
+                    <div class="col-md-6">
+                      <p class="form-bolum-baslik">Sağlık Bilgileri</p>
+                      <div id="kisisel-saglik"></div>
+                      <p class="form-bolum-baslik mt-3">Yetenekler</p>
+                      <div id="kisisel-yetenekler"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AİLE -->
+                <div class="tab-pane fade" id="sekme-aile">
+                  <div id="aile-bilgileri"></div>
+                </div>
+
+                <!-- VELİLER -->
+                <div class="tab-pane fade" id="sekme-veli">
+                  <div class="row g-3" id="veli-kartlar">
+                    <div class="col-12 text-muted text-center py-3">Yükleniyor...</div>
+                  </div>
+                </div>
+
+                <!-- DEVAMSIZLIK -->
+                <div class="tab-pane fade" id="sekme-devamsizlik">
+                  <!-- Özet -->
+                  <div class="row g-3 mb-3" id="devamsizlik-ozet"></div>
+                  <!-- Hızlı ekle -->
+                  <div class="d-flex justify-content-end mb-2 no-print">
+                    <a id="devamsizlik-ekle-btn" href="#" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-plus-circle me-1"></i>Devamsızlık Ekle
+                    </a>
+                  </div>
+                  <!-- Tablo -->
+                  <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Tarih</th><th>Tür</th><th>Miktar</th><th>Açıklama</th>
+                          <th class="no-print">İşlem</th>
+                        </tr>
+                      </thead>
+                      <tbody id="devamsizlik-tablo"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- DAVRANIŞ -->
+                <div class="tab-pane fade" id="sekme-davranis">
+                  <div class="d-flex justify-content-end mb-3 no-print">
+                    <a id="davranis-ekle-btn" href="#" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-plus-circle me-1"></i>Davranış Ekle
+                    </a>
+                  </div>
+                  <div id="davranis-liste"></div>
+                </div>
+
+                <!-- VELİ GÖRÜŞMELERİ -->
+                <div class="tab-pane fade" id="sekme-gorusme">
+                  <div class="d-flex justify-content-end mb-3 no-print">
+                    <a id="gorusme-ekle-btn" href="#" class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-plus-circle me-1"></i>Görüşme Ekle
+                    </a>
+                  </div>
+                  <div id="gorusme-liste"></div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div><!-- /icerik -->
+
+      </div>
+    </div>
+  </main>
+</div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+
+<script type="module">
+  import { requireAuth } from "/ogrenci/assets/js/core/auth.js";
+  import { layoutYukle } from "/ogrenci/assets/js/ui/layout.js";
+  import {
+    ogrenciGetir, velileriGetir, devamsizliklarGetir, devamsizlikHesapla,
+    davranislarGetir, gorusmeleriGetir, devamsizlikSil, davranisSil, gorusmeSil
+  } from "/ogrenci/assets/js/data/students.js";
+  import {
+    devamsizlikDurum, devamsizlikRenk, maddiDurumRenk, toast
+  } from "/ogrenci/assets/js/core/utils.js";
+
+  const AVATAR = "/ogrenci/assets/img/avatar-default.png";
+  let ogrId = null;
+
+  requireAuth(async () => {
+    layoutYukle();
+    const params = new URLSearchParams(location.search);
+    ogrId = params.get("id");
+    if (!ogrId) { location.href = "/ogrenci/pages/students/list.html"; return; }
+    await yukle();
+  });
+
+  async function yukle() {
+    const ogr = await ogrenciGetir(ogrId);
+    if (!ogr) { location.href = "/ogrenci/pages/students/list.html"; return; }
+
+    const tamAd = `${ogr.ad || ""} ${ogr.soyad || ""}`.trim();
+    document.title = `${tamAd} — ÖBS`;
+    document.getElementById("sayfa-baslik").textContent = tamAd;
+    document.getElementById("breadcrumb-ad").textContent = tamAd;
+    document.getElementById("duzenle-btn").href = `/ogrenci/pages/students/add-edit.html?id=${ogrId}`;
+    document.getElementById("devamsizlik-ekle-btn").href = `/ogrenci/pages/attendance/entry.html?id=${ogrId}`;
+    document.getElementById("davranis-ekle-btn").href = `/ogrenci/pages/behavior/entry.html?id=${ogrId}`;
+    document.getElementById("gorusme-ekle-btn").href = `/ogrenci/pages/meetings/entry.html?id=${ogrId}`;
+
+    // Profil
+    document.getElementById("profil-foto").src = ogr.fotograf_url || AVATAR;
+    document.getElementById("profil-ad").textContent = tamAd;
+    document.getElementById("profil-alt").textContent =
+      [ogr.sinif, ogr.numara ? `No: ${ogr.numara}` : ""].filter(Boolean).join(" · ");
+
+    // Rozetler
+    const rozetler = [];
+    if (ogr.cinsiyet) rozetler.push(`<span class="badge bg-secondary">${ogr.cinsiyet}</span>`);
+    if (ogr.yatililik) rozetler.push(`<span class="badge bg-info text-dark">${ogr.yatililik}</span>`);
+    if (ogr.maddi_durum) rozetler.push(
+      `<span class="badge bg-${maddiDurumRenk(ogr.maddi_durum)}">${ogr.maddi_durum}</span>`
+    );
+    document.getElementById("profil-rozetler").innerHTML = rozetler.join(" ");
+
+    // Kişisel bilgiler
+    document.getElementById("kisisel-kimlik").innerHTML = bilgiListesi([
+      ["TC Kimlik No", ogr.tc_kimlik],
+      ["Doğum Tarihi", ogr.dogum_tarihi],
+      ["Doğum Yeri", ogr.dogum_yeri],
+      ["Öğrenci No", ogr.numara],
+    ]);
+
+    document.getElementById("kisisel-saglik").innerHTML = bilgiListesi([
+      ["Hastalık", ogr.hastalik],
+      ["Engel", ogr.engel],
+      ["İlaç", ogr.ilac],
+    ]);
+
+    // Yetenekler
+    const yEl = document.getElementById("kisisel-yetenekler");
+    if (ogr.yetenekler && ogr.yetenekler.length > 0) {
+      yEl.innerHTML = ogr.yetenekler.map(y =>
+        `<span class="badge bg-light text-dark border me-1 mb-1">
+          <i class="bi bi-star-fill text-warning me-1"></i>${y.tur}: ${y.aciklama}
+        </span>`
+      ).join("");
+    } else {
+      yEl.innerHTML = `<span class="text-muted small">Kayıt yok</span>`;
+    }
+
+    // Aile bilgileri
+    document.getElementById("aile-bilgileri").innerHTML = `
+      <div class="row">
+        <div class="col-md-6">
+          ${bilgiListesi([
+            ["Ebeveyn Durumu", ogr.ebeveyn_durumu],
+            ["Birliktelik", ogr.birliktelik],
+            ["Beraberlik", ogr.beraberlik],
+            ["Maddi Durum", ogr.maddi_durum],
+          ])}
+        </div>
+      </div>`;
+
+    // Veliler
+    const veliler = await velileriGetir(ogrId);
+    yukleVeliKartlar(veliler, ogr);
+
+    // Devamsızlık
+    const devamsizliklar = await devamsizliklarGetir(ogrId);
+    yukleDevamsizlik(devamsizliklar);
+
+    // Davranış
+    const davranislar = await davranislarGetir(ogrId);
+    yukleDavranis(davranislar);
+
+    // Görüşmeler
+    const gorusmeler = await gorusmeleriGetir(ogrId);
+    yukleGorusmeler(gorusmeler);
+
+    document.getElementById("yukleniyor").classList.add("d-none");
+    document.getElementById("icerik").classList.remove("d-none");
+  }
+
+  function bilgiListesi(ciftler) {
+    return ciftler.map(([et, dg]) =>
+      `<div class="bilgi-satir">
+        <span class="bilgi-etiket">${et}</span>
+        <span class="bilgi-deger">${dg || '<span class="text-muted">—</span>'}</span>
+      </div>`
+    ).join("");
+  }
+
+  function yukleVeliKartlar(veliler, ogr) {
+    const kap = document.getElementById("veli-kartlar");
+    if (veliler.length === 0) {
+      kap.innerHTML = `<div class="col-12 text-muted text-center py-3">Veli kaydı yok.</div>`;
+      return;
+    }
+
+    kap.innerHTML = veliler.map(v => {
+      const pasif = (v.tur === "Anne" && ogr.ebeveyn_durumu === "Anne Vefat") ||
+                    (v.tur === "Baba" && ogr.ebeveyn_durumu === "Baba Vefat") ||
+                    ogr.ebeveyn_durumu === "İkisi De Vefat";
+      return `
+        <div class="col-md-6">
+          <div class="card ${pasif ? "opacity-50" : ""}">
+            <div class="card-header py-2">
+              <strong>${v.tur || "Veli"}</strong>
+              ${pasif ? '<span class="badge bg-danger ms-2">Vefat</span>' : ""}
+            </div>
+            <div class="card-body">
+              ${bilgiListesi([
+                ["Ad Soyad", `${v.ad || ""} ${v.soyad || ""}`.trim() || null],
+                ["Meslek", v.meslek],
+                ["Alan", v.alan],
+                ["Görev", v.gorev],
+                ["Telefon", v.telefon],
+                ["E-Posta", v.e_posta],
+                ["Ev Adresi", v.ev_adresi],
+                ["İş Adresi", v.is_adresi],
+                ["Şehir / İlçe", [v.sehir, v.ilce].filter(Boolean).join(" / ") || null],
+              ])}
+            </div>
+          </div>
+        </div>`;
+    }).join("");
+  }
+
+  function yukleDevamsizlik(kayitlar) {
+    const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
+    const durum = devamsizlikDurum(ozurlu, ozursuz);
+    const renk = devamsizlikRenk(durum);
+
+    document.getElementById("devamsizlik-ozet").innerHTML = `
+      <div class="col-4">
+        <div class="card text-center border-0 bg-light">
+          <div class="card-body py-2">
+            <div class="fs-4 fw-bold text-${renk}">${ozursuz}</div>
+            <div class="small text-muted">Özürsüz Gün</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card text-center border-0 bg-light">
+          <div class="card-body py-2">
+            <div class="fs-4 fw-bold">${ozurlu}</div>
+            <div class="small text-muted">Özürlü Gün</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="card text-center border-0 bg-light">
+          <div class="card-body py-2">
+            <div class="fs-4 fw-bold text-${renk}">${ozurlu + ozursuz}</div>
+            <div class="small text-muted">Toplam Gün</div>
+          </div>
+        </div>
+      </div>`;
+
+    const tbody = document.getElementById("devamsizlik-tablo");
+    if (kayitlar.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted">Devamsızlık kaydı yok.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = kayitlar.map(k => `
+      <tr>
+        <td>${k.tarih}</td>
+        <td><span class="badge ${k.tur === "Özürsüz" ? "bg-danger" : "bg-warning text-dark"}">${k.tur}</span></td>
+        <td>${k.miktar} (${k.gun_degeri} gün)</td>
+        <td>${k.aciklama || "—"}</td>
+        <td class="no-print">
+          <button class="btn btn-xs btn-outline-danger dev-sil-btn" data-id="${k.id}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>`).join("");
+
+    document.querySelectorAll(".dev-sil-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Bu devamsızlık kaydı silinsin mi?")) return;
+        try {
+          await devamsizlikSil(ogrId, btn.dataset.id);
+          toast("Kayıt silindi.", "success");
+          const guncel = await devamsizliklarGetir(ogrId);
+          yukleDevamsizlik(guncel);
+        } catch (e) { toast("Silinemedi: " + e.message, "danger"); }
+      });
+    });
+  }
+
+  function yukleDavranis(kayitlar) {
+    const kap = document.getElementById("davranis-liste");
+    if (kayitlar.length === 0) {
+      kap.innerHTML = `<p class="text-muted text-center py-3">Davranış kaydı yok.</p>`;
+      return;
+    }
+
+    kap.innerHTML = kayitlar.map(d => {
+      const olumlu = d.tur === "Olumlu";
+      return `
+        <div class="d-flex gap-3 mb-3 align-items-start">
+          <div class="zaman-noktasi ${olumlu ? "olumlu" : "olumsuz"} mt-1"></div>
+          <div class="flex-grow-1 border-bottom pb-2">
+            <div class="d-flex justify-content-between">
+              <span class="badge ${olumlu ? "badge-olumlu" : "badge-olumsuz"} text-white">
+                ${d.tur} — ${d.kategori || ""}
+              </span>
+              <small class="text-muted">${d.tarih}</small>
+            </div>
+            <p class="mb-0 mt-1 small">${d.aciklama || ""}</p>
+          </div>
+          <button class="btn btn-xs btn-outline-danger no-print dav-sil-btn" data-id="${d.id}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>`;
+    }).join("");
+
+    document.querySelectorAll(".dav-sil-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Bu davranış kaydı silinsin mi?")) return;
+        try {
+          await davranisSil(ogrId, btn.dataset.id);
+          toast("Kayıt silindi.", "success");
+          const guncel = await davranislarGetir(ogrId);
+          yukleDavranis(guncel);
+        } catch (e) { toast("Silinemedi: " + e.message, "danger"); }
+      });
+    });
+  }
+
+  function yukleGorusmeler(kayitlar) {
+    const kap = document.getElementById("gorusme-liste");
+    if (kayitlar.length === 0) {
+      kap.innerHTML = `<p class="text-muted text-center py-3">Görüşme kaydı yok.</p>`;
+      return;
+    }
+
+    kap.innerHTML = kayitlar.map(g => `
+      <div class="card mb-2">
+        <div class="card-body py-2">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <span class="badge bg-secondary me-1">${g.veli_tur || ""}</span>
+              <strong class="small">${g.veli_adi || ""}</strong>
+              <span class="text-muted small ms-2">· ${g.konu || ""}</span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <small class="text-muted">${g.tarih}</small>
+              <button class="btn btn-xs btn-outline-danger no-print gor-sil-btn" data-id="${g.id}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+          ${g.aciklama ? `<p class="mb-0 mt-1 small text-muted">${g.aciklama}</p>` : ""}
+        </div>
+      </div>`).join("");
+
+    document.querySelectorAll(".gor-sil-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Bu görüşme kaydı silinsin mi?")) return;
+        try {
+          await gorusmeSil(ogrId, btn.dataset.id);
+          toast("Kayıt silindi.", "success");
+          const guncel = await gorusmeleriGetir(ogrId);
+          yukleGorusmeler(guncel);
+        } catch (e) { toast("Silinemedi: " + e.message, "danger"); }
+      });
+    });
+  }
+</script>
+</body>
+</html>
