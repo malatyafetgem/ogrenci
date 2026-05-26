@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="file-redirect.js"></script>
   <title>Görüşme Listesi — ÖBS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -122,11 +123,11 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "auth.js";
-  import { layoutYukle } from "layout.js";
-  import { tumOgrencileriGetir, siniflarGetir, gorusmeleriGetir } from "students.js";
-  import { autocompleteYukle } from "autocomplete.js";
-  import { tarihtenDate } from "utils.js";
+  import { requireAuth } from "./auth.js";
+  import { layoutYukle } from "./layout.js";
+  import { tumOgrencileriGetir, siniflarGetir, gorusmeleriGetir } from "./students.js";
+  import { autocompleteYukle } from "./autocomplete.js";
+  import { tarihtenDate, sinifSiralamaAnahtari } from "./utils.js";
 
   let raporVerisi = [];
   let dt = null;
@@ -189,7 +190,7 @@
           <td>${g.tarih||"—"}</td>
           <td><a href="students-detail.html?id=${g.ogr.id}" class="text-decoration-none">
             ${g.ogr.ad} ${g.ogr.soyad}</a></td>
-          <td>${g.ogr.sinif||"—"}</td>
+          <td data-order="${attr(sinifSiralamaAnahtari(g.ogr.sinif))}">${g.ogr.sinif||"—"}</td>
           <td><span class="badge bg-secondary">${g.veli_tur||"—"}</span></td>
           <td>${g.veli_adi||"—"}</td>
           <td>${g.konu||"—"}</td>
@@ -218,6 +219,10 @@
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Görüşmeler");
     XLSX.writeFile(wb, `gorusmeler_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  function attr(value) {
+    return String(value ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
   }
 </script>
 </body>

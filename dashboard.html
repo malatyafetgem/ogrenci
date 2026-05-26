@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="file-redirect.js"></script>
   <title>Gösterge Paneli — Öğrenci Bilgi Sistemi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -152,13 +153,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script type="module">
-  import { requireAuth } from "auth.js";
-  import { layoutYukle } from "layout.js";
-  import { db } from "firebase-config.js";
+  import { requireAuth } from "./auth.js";
+  import { layoutYukle } from "./layout.js";
+  import { db } from "./firebase-config.js";
   import {
-    collection, getDocs, query, where, orderBy, limit
+    collection, getDocs, query, orderBy, limit
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { devamsizlikDurum, formatTamAd } from "utils.js";
+  import { devamsizlikDurum, formatTamAd, compareOgrenci, compareSinif } from "./utils.js";
 
   requireAuth(async () => {
     layoutYukle();
@@ -167,9 +168,7 @@
 
   async function yukleVeriler() {
     try {
-      const ogrSnap = await getDocs(
-        query(collection(db, "students"), where("durum", "==", "Aktif"))
-      );
+      const ogrSnap = await getDocs(collection(db, "students"));
 
       let toplam = 0, kiz = 0, erkek = 0, yatili = 0;
       const sinifSayac = {};
@@ -177,10 +176,12 @@
 
       ogrSnap.forEach(doc => {
         const o = doc.data();
+        if ((o.durum || "Aktif") !== "Aktif") return;
         toplam++;
-        if (o.cinsiyet === "Kız") kiz++; else erkek++;
+        if (o.cinsiyet === "Kız") kiz++;
+        if (o.cinsiyet === "Erkek") erkek++;
         if (o.yatililik && o.yatililik !== "Gündüzlü") yatili++;
-        sinifSayac[o.sinif] = (sinifSayac[o.sinif] || 0) + 1;
+        if (o.sinif) sinifSayac[o.sinif] = (sinifSayac[o.sinif] || 0) + 1;
         ogrenciler.push({ id: doc.id, ...o });
       });
 
@@ -190,11 +191,23 @@
 
       await yukleDevamsizlikUyarilari(ogrenciler);
       yukleGrafik(sinifSayac);
-      await yukleSonDavranislar();
+      await yukleSonDavranislar(ogrenciler);
 
     } catch (err) {
-      console.error("Dashboard verisi yüklenemedi:", err);
+      dashboardBosDurum(err.message);
     }
+  }
+
+  function dashboardBosDurum(mesaj) {
+    document.getElementById("kart-toplam").textContent = "0";
+    document.getElementById("kart-kizerkek").textContent = "0 / 0";
+    document.getElementById("kart-yatili").textContent = "0";
+    document.getElementById("kart-uyari").textContent = "0";
+    document.getElementById("devamsizlik-tablo").innerHTML =
+      `<tr><td colspan="5" class="text-center text-muted py-3">${mesaj || "Veri bulunamadı."}</td></tr>`;
+    document.getElementById("davranis-liste").innerHTML =
+      `<li class="list-group-item text-muted text-center">Kayıt yok</li>`;
+    yukleGrafik({});
   }
 
   async function yukleDevamsizlikUyarilari(ogrenciler) {
@@ -223,7 +236,7 @@
       return;
     }
 
-    uyarilar.sort((a, b) => (b.ozursuz + b.ozurlu) - (a.ozursuz + a.ozurlu));
+    uyarilar.sort((a, b) => compareOgrenci(a.ogr, b.ogr));
 
     tablo.innerHTML = uyarilar.map(({ ogr, ozurlu, ozursuz, durum }) => {
       const renk = durum === "kritik" ? "danger" : "warning";
@@ -239,7 +252,7 @@
   }
 
   function yukleGrafik(sinifSayac) {
-    const etiketler = Object.keys(sinifSayac).sort();
+    const etiketler = Object.keys(sinifSayac).sort(compareSinif);
     const veriler = etiketler.map(s => sinifSayac[s]);
     const renkler = [
       "#0d6efd","#6610f2","#6f42c1","#d63384","#dc3545",
@@ -259,22 +272,17 @@
     });
   }
 
-  async function yukleSonDavranislar() {
+  async function yukleSonDavranislar(ogrenciler) {
     const liste = document.getElementById("davranis-liste");
     const tümDavranislar = [];
 
-    const ogrSnap = await getDocs(
-      query(collection(db, "students"), where("durum", "==", "Aktif"), limit(50))
-    );
-
     const promises = [];
-    ogrSnap.forEach(doc => {
-      const ogr = doc.data();
+    ogrenciler.slice(0, 50).forEach(ogr => {
       const p = getDocs(
-        query(collection(db, "students", doc.id, "davranislar"), orderBy("tarih", "desc"), limit(3))
+        query(collection(db, "students", ogr.id, "davranislar"), orderBy("tarih", "desc"), limit(3))
       ).then(snap => {
         snap.forEach(d => {
-          tümDavranislar.push({ ...d.data(), ogrAd: `${ogr.ad || ""} ${ogr.soyad || ""}`.trim(), ogrId: doc.id });
+          tümDavranislar.push({ ...d.data(), ogrAd: `${ogr.ad || ""} ${ogr.soyad || ""}`.trim(), ogrId: ogr.id });
         });
       });
       promises.push(p);

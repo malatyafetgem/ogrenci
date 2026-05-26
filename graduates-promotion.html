@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="file-redirect.js"></script>
   <title>Yıl Sonu Sınıf Aktarımı — ÖBS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -93,13 +94,13 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "auth.js";
-  import { layoutYukle } from "layout.js";
-  import { db } from "firebase-config.js";
+  import { requireAuth } from "./auth.js";
+  import { layoutYukle } from "./layout.js";
+  import { db } from "./firebase-config.js";
   import {
     collection, getDocs, query, where, orderBy, doc, updateDoc, setDoc, getDoc
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast } from "utils.js";
+  import { toast, compareOgrenci } from "./utils.js";
 
   let ogrenciler = [];
   // Map: ogrenciId → seçilen işlem
@@ -112,10 +113,11 @@
   });
 
   async function yukle() {
-    const snap = await getDocs(
-      query(collection(db, "students"), where("durum", "==", "Aktif"), orderBy("sinif"))
-    );
-    ogrenciler = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const snap = await getDocs(collection(db, "students"));
+    ogrenciler = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(o => (o.durum || "Aktif") === "Aktif")
+      .sort(compareOgrenci);
     tabloGoster();
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("icerik").classList.remove("d-none");
@@ -123,11 +125,11 @@
 
   function sinifHesapla(sinif) {
     if (!sinif) return null;
-    const m = sinif.match(/^(\d+)(-([A-Za-zÇÖÜŞİĞçöüşığÇ]+))?$/);
+    const m = sinif.match(/^(\d+)\s*[-/.]?\s*([A-Za-zÇÖÜŞİĞçöüşığÇ]+)?$/);
     if (!m) return null;
     const no = parseInt(m[1]);
-    const sube = m[3] || "";
-    if (no < 12) return `${no + 1}${sube ? "-" + sube : ""}`;
+    const sube = m[2] || "";
+    if (no < 12) return `${no + 1}${sube}`;
     return "MEZUN"; // 12. sınıf
   }
 
@@ -199,8 +201,8 @@
             const veliler = velilerSnap.docs.map(d => d.data());
             const ilkVeli = veliler[0] || {};
             await setDoc(doc(db, "graduates", o.id), {
-              ad: o.ad, soyad: o.soyad, tc_kimlik: o.tc_kimlik,
-              mezuniyet_yili: buYil, fotograf_url: o.fotograf_url || "",
+              ad: o.ad, soyad: o.soyad, tc_kimlik: o.tc_kimlik, cinsiyet: o.cinsiyet || "",
+              mezuniyet_yili: buYil, fotograf_url: "",
               universite: "", bolum: "", meslek: "", notlar: "",
               telefon: "", e_posta: "",
               veli_telefon: ilkVeli.telefon || "",

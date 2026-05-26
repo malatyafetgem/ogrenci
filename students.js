@@ -1,22 +1,22 @@
 /**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db, storage } from "./firebase-config.js";
+import { db } from "./firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, query, where, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import {
-  ref, uploadBytes, getDownloadURL, deleteObject
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { compareOgrenci, compareSinif } from "./utils.js";
 
 const KOLEKSIYON = "students";
 
 /** Tüm aktif öğrencileri getir */
 export async function tumOgrencileriGetir() {
-  const q = query(collection(db, KOLEKSIYON), where("durum", "==", "Aktif"), orderBy("soyad"));
-  const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snap = await getDocs(collection(db, KOLEKSIYON));
+  return snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(o => (o.durum || "Aktif") === "Aktif")
+    .sort(compareOgrenci);
 }
 
 /** Tek öğrenci getir */
@@ -70,21 +70,6 @@ export async function ogrenciMezunEt(ogrenciNo, mezunVerisi) {
   });
   // students'ta durumu güncelle
   await updateDoc(doc(db, KOLEKSIYON, id), { durum: "Mezun" });
-}
-
-/** Fotoğraf yükle, URL döndür */
-export async function fotografYukle(ogrenciNo, dosya) {
-  const storageRef = ref(storage, `ogrenciler/${ogrenciNo}/profil_${Date.now()}`);
-  await uploadBytes(storageRef, dosya);
-  return getDownloadURL(storageRef);
-}
-
-/** Fotoğraf sil */
-export async function fotografSil(url) {
-  try {
-    const storageRef = ref(storage, url);
-    await deleteObject(storageRef);
-  } catch (_) { /* Dosya yoksa sessizce geç */ }
 }
 
 // ── Alt koleksiyon: Veliler ──────────────────────────────────────────────────
@@ -170,8 +155,11 @@ export async function gorusmeSil(ogrenciNo, kayitId) {
 // ── Yardımcı: Dinamik sınıf listesi ─────────────────────────────────────────
 
 export async function siniflarGetir() {
-  const snap = await getDocs(query(collection(db, KOLEKSIYON), where("durum", "==", "Aktif")));
+  const snap = await getDocs(collection(db, KOLEKSIYON));
   const set = new Set();
-  snap.forEach(d => { if (d.data().sinif) set.add(d.data().sinif); });
-  return [...set].sort();
+  snap.forEach(d => {
+    const veri = d.data();
+    if ((veri.durum || "Aktif") === "Aktif" && veri.sinif) set.add(veri.sinif);
+  });
+  return [...set].sort(compareSinif);
 }

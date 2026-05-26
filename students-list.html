@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="file-redirect.js"></script>
   <title>Öğrenci Listesi — ÖBS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -106,7 +107,7 @@
               <table id="ogrenci-tablo" class="table table-sm table-hover mb-0 align-middle">
                 <thead class="table-light">
                   <tr>
-                    <th style="width:50px">Foto</th>
+                    <th style="width:50px">Avatar</th>
                     <th>No</th>
                     <th>Ad Soyad</th>
                     <th>Sınıf</th>
@@ -132,17 +133,34 @@
               </div>
               <div class="modal-body">
                 <div id="import-adim-1">
-                  <p class="text-muted small mb-3">Excel dosyanızı seçin. Sütun eşleştirmesi otomatik yapılacaktır.</p>
+                  <p class="text-muted small mb-3">
+                    Excel dosyanızı seçin, sonra sistem alanlarını Excel sütunlarıyla eşleştirin.
+                    Öğrenci No her aktarımda eşleştirilmelidir. Öğrenci, anne ve baba adları
+                    ister tek parça "Adı Soyadı", ister ayrı "Ad" ve "Soyad" alanlarıyla aktarılabilir.
+                  </p>
+                  <div class="mb-3">
+                    <label class="form-label">Aktarım Tipi</label>
+                    <select class="form-select" id="import-modu">
+                      <option value="ekle-guncelle">Yeni öğrenci ekle / mevcutları güncelle</option>
+                      <option value="sadece-guncelle">Sadece mevcut öğrencileri numaraya göre güncelle</option>
+                    </select>
+                    <div class="form-text" id="import-modu-aciklama">
+                      Yeni öğrenci oluşturmak için Ad, Soyad ve Sınıf bilgileri de gerekir.
+                    </div>
+                  </div>
                   <div class="mb-3">
                     <label class="form-label">Excel Dosyası (.xlsx)</label>
                     <input type="file" class="form-control" id="import-dosya-input" accept=".xlsx,.xls">
                   </div>
                   <div id="import-onizleme" class="d-none">
-                    <h6>Bulunan Sütunlar → Eşleştirme</h6>
+                    <div id="import-hata" class="alert alert-warning d-none py-2 small"></div>
+                    <h6>Sütun Eşleştirme</h6>
                     <div id="eslestirme-tablo" class="table-responsive" style="max-height:300px;overflow-y:auto"></div>
                     <div class="mt-2">
                       <span class="badge bg-info" id="import-satir-sayisi"></span>
                     </div>
+                    <h6 class="mt-3">Önizleme</h6>
+                    <div id="import-preview" class="table-responsive small"></div>
                   </div>
                 </div>
                 <div id="import-ilerleme" class="d-none">
@@ -181,39 +199,71 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "auth.js";
-  import { layoutYukle } from "layout.js";
-  import { db } from "firebase-config.js";
+  import { requireAuth } from "./auth.js";
+  import { layoutYukle } from "./layout.js";
+  import { db } from "./firebase-config.js";
   import {
-    collection, getDocs, query, where, orderBy
+    collection, getDocs
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import {
-    tumOgrencileriGetir, ogrenciEkle, siniflarGetir,
+    ogrenciEkle, ogrenciGuncelle, noMevcutMu,
+    velileriGetir, veliEkleGuncelle, siniflarGetir,
     devamsizliklarGetir, devamsizlikHesapla
-  } from "students.js";
-  import { devamsizlikDurum, devamsizlikRenk, formatAd, formatSoyad, toast } from "utils.js";
+  } from "./students.js";
+  import {
+    devamsizlikDurum, devamsizlikRenk,
+    formatAd, formatSoyad, formatMetin, formatTelefon, toast,
+    compareOgrenci, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
+  } from "./utils.js";
+  import { avatarSrc } from "./avatar.js";
 
   let tumOgrenciler = [];
   let dt = null;
-  const VARSAYILAN_AVATAR = "avatar-default.png";
 
-  // Excel sütun eşleşme tablosu
-  const ESLESTIRME = {
-    "Adı": "ad", "Adı ": "ad",
-    "Soyadı": "soyad", "Soyadı ": "soyad",
-    "Sınıfı": "sinif",
-    "No": "numara",
-    "Cinsiyeti": "cinsiyet",
-    "Yatılılık": "yatililik",
-    "Hastalık": "hastalik",
-    "Engel": "engel",
-    "İlâç": "ilac", "İlaç": "ilac",
-    "T.C. Kimlik No": "tc_kimlik", "TC": "tc_kimlik",
-    "Doğum Tarihi": "dogum_tarihi",
-    "Doğum Yeri": "dogum_yeri",
-    "Birliktelik": "birliktelik",
-    "Beraberlik": "beraberlik"
-  };
+  const IMPORT_ALANLARI = [
+    { key: "numara", label: "Öğrenci No", required: true, aliases: ["no", "numara", "öğrenci no", "ogrenci no", "öğrenci numarası"] },
+    { key: "ad_soyad", label: "Öğrenci Adı Soyadı", aliases: ["ad soyad", "adı soyadı", "adi soyadi", "öğrenci adı soyadı", "ogrenci adi soyadi", "öğrenci ad soyad", "ogrenci ad soyad"] },
+    { key: "ad", label: "Ad", requiredForNew: true, aliases: ["ad", "adı", "adi", "öğrenci adı", "ogrenci adi"] },
+    { key: "soyad", label: "Soyad", requiredForNew: true, aliases: ["soyad", "soyadı", "soyadi"] },
+    { key: "sinif", label: "Sınıf", requiredForNew: true, aliases: ["sınıf", "sinif", "sınıfı", "sinifi"] },
+    { key: "cinsiyet", label: "Cinsiyet", aliases: ["cinsiyet", "cinsiyeti"] },
+    { key: "yatililik", label: "Yatılılık", aliases: ["yatılılık", "yatililik"] },
+    { key: "maddi_durum", label: "Maddi Durum", aliases: ["maddi durum", "maddi_durum"] },
+    { key: "geldigi_okul", label: "Geldiği Okulun Adı", aliases: ["geldiği okulun adı", "geldigi okulun adi", "geldiği okul", "geldigi okul", "geldiği okul adı", "geldigi okul adi", "mezun olduğu okul", "mezun oldugu okul", "okul adı", "okul adi"] },
+    { key: "tc_kimlik", label: "TC Kimlik", aliases: ["tc", "tc kimlik", "t.c. kimlik no", "t c kimlik no"] },
+    { key: "dogum_tarihi", label: "Doğum Tarihi", aliases: ["doğum tarihi", "dogum tarihi"] },
+    { key: "dogum_yeri", label: "Doğum Yeri", aliases: ["doğum yeri", "dogum yeri"] },
+    { key: "hastalik", label: "Hastalık", aliases: ["hastalık", "hastalik"] },
+    { key: "engel", label: "Engel", aliases: ["engel"] },
+    { key: "ilac", label: "İlaç", aliases: ["ilaç", "ilac", "ilâç"] },
+    { key: "ebeveyn_durumu", label: "Ebeveyn Durumu", aliases: ["yaşam", "yasam", "ebeveyn durumu"] },
+    { key: "birliktelik", label: "Birliktelik", aliases: ["birliktelik"] },
+    { key: "beraberlik", label: "Beraberlik", aliases: ["beraberlik"] },
+    { key: "baba_ad_soyad", label: "Baba Adı Soyadı", aliases: ["baba ad soyad", "baba adı soyadı", "baba adi soyadi", "baba adı ve soyadı", "baba adi ve soyadi"] },
+    { key: "baba_ad", label: "Baba Ad", aliases: ["adı.1", "adi.1", "baba adı", "baba adi"] },
+    { key: "baba_soyad", label: "Baba Soyad", aliases: ["soyadı.1", "soyadi.1", "baba soyadı", "baba soyadi"] },
+    { key: "baba_meslek", label: "Baba Meslek", aliases: ["mesleği", "meslegi", "baba mesleği"] },
+    { key: "baba_alan", label: "Baba Alan", aliases: ["alanı", "alani", "baba alan"] },
+    { key: "baba_gorev", label: "Baba Görev", aliases: ["görevi", "gorevi", "baba görev"] },
+    { key: "baba_telefon", label: "Baba Telefon", aliases: ["telefon", "baba telefon", "baba tel"] },
+    { key: "baba_e_posta", label: "Baba E-Posta", aliases: ["e-posta", "eposta", "baba e-posta"] },
+    { key: "baba_ev_adresi", label: "Baba Ev Adresi", aliases: ["ev adresi", "baba ev adresi"] },
+    { key: "baba_is_adresi", label: "Baba İş Adresi", aliases: ["iş adresi", "is adresi", "baba iş adresi"] },
+    { key: "baba_sehir", label: "Baba Şehir", aliases: ["şehir", "sehir", "baba şehir"] },
+    { key: "baba_ilce", label: "Baba İlçe", aliases: ["ilçe", "ilce", "baba ilçe"] },
+    { key: "anne_ad_soyad", label: "Anne Adı Soyadı", aliases: ["anne ad soyad", "anne adı soyadı", "anne adi soyadi", "anne adı ve soyadı", "anne adi ve soyadi"] },
+    { key: "anne_ad", label: "Anne Ad", aliases: ["adı.2", "adi.2", "anne adı", "anne adi"] },
+    { key: "anne_soyad", label: "Anne Soyad", aliases: ["soyadı.2", "soyadi.2", "anne soyadı", "anne soyadi"] },
+    { key: "anne_meslek", label: "Anne Meslek", aliases: ["mesleği.1", "meslegi.1", "anne mesleği"] },
+    { key: "anne_alan", label: "Anne Alan", aliases: ["alanı.1", "alani.1", "anne alan"] },
+    { key: "anne_gorev", label: "Anne Görev", aliases: ["görevi.1", "gorevi.1", "anne görev"] },
+    { key: "anne_telefon", label: "Anne Telefon", aliases: ["telefon.1", "anne telefon", "anne tel"] },
+    { key: "anne_e_posta", label: "Anne E-Posta", aliases: ["e-posta.1", "eposta.1", "anne e-posta"] },
+    { key: "anne_ev_adresi", label: "Anne Ev Adresi", aliases: ["ev adresi.1", "anne ev adresi"] },
+    { key: "anne_is_adresi", label: "Anne İş Adresi", aliases: ["iş adresi.1", "is adresi.1", "anne iş adresi"] },
+    { key: "anne_sehir", label: "Anne Şehir", aliases: ["şehir.1", "sehir.1", "anne şehir"] },
+    { key: "anne_ilce", label: "Anne İlçe", aliases: ["ilçe.1", "ilce.1", "anne ilçe"] }
+  ];
 
   requireAuth(async () => {
     layoutYukle();
@@ -228,7 +278,7 @@
       const o = document.createElement("option"); o.value = s; o.textContent = s;
       sinifSel.appendChild(o);
     });
-    await yukleOgrenciler();
+    await yukleOgrenciler({ durum: "Aktif" });
   }
 
   async function yukleOgrenciler(filtreler = {}) {
@@ -237,22 +287,21 @@
     if (dt) { dt.destroy(); dt = null; }
 
     try {
-      let q = query(collection(db, "students"), orderBy("soyad"));
-      if (filtreler.durum) {
-        q = query(collection(db, "students"), where("durum", "==", filtreler.durum), orderBy("soyad"));
-      }
-      const snap = await getDocs(q);
+      const snap = await getDocs(collection(db, "students"));
       let ogrenciler = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-      if (filtreler.sinif)      ogrenciler = ogrenciler.filter(o => o.sinif === filtreler.sinif);
-      if (filtreler.cinsiyet)   ogrenciler = ogrenciler.filter(o => o.cinsiyet === filtreler.cinsiyet);
-      if (filtreler.yatililik)  ogrenciler = ogrenciler.filter(o => o.yatililik === filtreler.yatililik);
+      if (filtreler.durum)     ogrenciler = ogrenciler.filter(o => (o.durum || "Aktif") === filtreler.durum);
+      if (filtreler.sinif)     ogrenciler = ogrenciler.filter(o => o.sinif === filtreler.sinif);
+      if (filtreler.cinsiyet)  ogrenciler = ogrenciler.filter(o => o.cinsiyet === filtreler.cinsiyet);
+      if (filtreler.yatililik) ogrenciler = ogrenciler.filter(o => o.yatililik === filtreler.yatililik);
+      ogrenciler.sort(compareOgrenci);
 
       tumOgrenciler = ogrenciler;
       tabloYukle(ogrenciler);
     } catch (err) {
-      console.error(err);
-      toast("Veri yüklenemedi!", "danger");
+      tumOgrenciler = [];
+      tabloYukle([]);
+      toast("Veri yüklenemedi: " + err.message, "danger");
     }
   }
 
@@ -265,19 +314,17 @@
       : veri.map(o => {
           const ad = o.ad || ""; const soyad = o.soyad || "";
           const tamAd = `${ad} ${soyad}`.trim();
-          const foto = o.fotograf_url
-            ? `<img src="${o.fotograf_url}" class="ogrenci-avatar" onerror="this.src='${VARSAYILAN_AVATAR}'">`
-            : `<img src="${VARSAYILAN_AVATAR}" class="ogrenci-avatar">`;
+          const foto = `<img src="${avatarSrc(o.cinsiyet)}" class="ogrenci-avatar" alt="">`;
           const durumRenk = o.durum === "Aktif" ? "success" : o.durum === "Mezun" ? "secondary" : "warning";
           return `<tr>
             <td>${foto}</td>
-            <td>${o.id}</td>
+            <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(o))}">${o.id}</td>
             <td>
               <a href="students-detail.html?id=${o.id}"
                  class="fw-semibold text-decoration-none">${tamAd}</a>
               <span class="badge bg-${durumRenk} ms-1" style="font-size:.65rem">${o.durum || ""}</span>
             </td>
-            <td>${o.sinif || "—"}</td>
+            <td data-order="${escapeAttr(sinifSiralamaAnahtari(o.sinif))}">${o.sinif || "—"}</td>
             <td>${o.cinsiyet || "—"}</td>
             <td><span class="badge bg-light text-dark border">${o.yatililik || "—"}</span></td>
             <td class="text-center" id="dev-${o.id}"><span class="text-muted">—</span></td>
@@ -304,6 +351,7 @@
           lengthMenu: "_MENU_ kayıt göster"
         },
         pageLength: 25,
+        order: [[3, "asc"], [1, "asc"]],
         columnDefs: [
           { orderable: false, targets: [0, 6, 7] }
         ]
@@ -353,12 +401,17 @@
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
 
     document.getElementById("excel-import-btn").addEventListener("click", () => {
+      importSifirla();
       const modal = new bootstrap.Modal(document.getElementById("import-modal"));
       modal.show();
     });
 
     document.getElementById("import-dosya-input").addEventListener("change", dosyaOku);
     document.getElementById("import-baslat-btn").addEventListener("click", importBaslat);
+    document.getElementById("import-modu").addEventListener("change", () => {
+      importModuAciklamaGuncelle();
+      previewGuncelle();
+    });
   }
 
   function excelExport() {
@@ -368,6 +421,7 @@
       "Sınıf": o.sinif,
       "Cinsiyet": o.cinsiyet,
       "Yatılılık": o.yatililik,
+      "Geldiği Okulun Adı": o.geldigi_okul,
       "TC Kimlik": o.tc_kimlik,
       "Doğum Tarihi": o.dogum_tarihi,
       "Durum": o.durum
@@ -379,46 +433,165 @@
   }
 
   let importVerisi = [];
+  let importSutunlari = [];
+  let importEslesme = {};
 
   function dosyaOku(e) {
     const dosya = e.target.files[0];
     if (!dosya) return;
+
     const reader = new FileReader();
     reader.onload = (ev) => {
-      const wb = XLSX.read(ev.target.result, { type: "binary" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const satirlar = XLSX.utils.sheet_to_json(ws, { defval: "" });
-      if (!satirlar.length) return;
+      try {
+        const wb = XLSX.read(ev.target.result, { type: "array", cellDates: true });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const satirlar = XLSX.utils.sheet_to_json(ws, { defval: "", raw: false });
+        if (!satirlar.length) {
+          importUyariGoster("Excel sayfasında aktarılacak satır bulunamadı.");
+          return;
+        }
 
-      // Eşleştirme tablosunu göster
-      const sutunlar = Object.keys(satirlar[0]);
-      let html = `<table class="table table-xs table-bordered small"><thead><tr>
-        <th>Excel Sütunu</th><th>Eşleşen Alan</th></tr></thead><tbody>`;
-      sutunlar.forEach(s => {
-        const eslesme = ESLESTIRME[s] || `<span class="text-muted">— (atlanacak)</span>`;
-        html += `<tr><td>${s}</td><td>${eslesme}</td></tr>`;
-      });
-      html += `</tbody></table>`;
+        const sutunSet = new Set();
+        satirlar.slice(0, 20).forEach(satir => {
+          Object.keys(satir).forEach(s => { if (String(s).trim()) sutunSet.add(s); });
+        });
 
-      document.getElementById("eslestirme-tablo").innerHTML = html;
-      document.getElementById("import-satir-sayisi").textContent = `${satirlar.length} satır bulundu`;
-      document.getElementById("import-onizleme").classList.remove("d-none");
-      document.getElementById("import-baslat-btn").classList.remove("d-none");
+        importVerisi = satirlar;
+        importSutunlari = [...sutunSet];
+        importEslesme = otomatikEslesme(importSutunlari);
 
-      importVerisi = satirlar;
+        eslestirmeGoster();
+        previewGuncelle();
+
+        document.getElementById("import-satir-sayisi").textContent =
+          `${importVerisi.length} satır, ${importSutunlari.length} sütun bulundu`;
+        document.getElementById("import-onizleme").classList.remove("d-none");
+        document.getElementById("import-baslat-btn").classList.remove("d-none");
+      } catch (err) {
+        importUyariGoster("Excel dosyası okunamadı: " + err.message);
+      }
     };
-    reader.readAsBinaryString(dosya);
+    reader.readAsArrayBuffer(dosya);
+  }
+
+  function otomatikEslesme(sutunlar) {
+    const sonuc = {};
+    const kullanilan = new Set();
+
+    for (const alan of IMPORT_ALANLARI) {
+      const adaylar = [alan.label, ...(alan.aliases || [])].map(normalizeBaslik);
+      const bulunan = sutunlar.find(s => !kullanilan.has(s) && adaylar.includes(normalizeBaslik(s)));
+      if (bulunan) {
+        sonuc[alan.key] = bulunan;
+        kullanilan.add(bulunan);
+      }
+    }
+    return sonuc;
+  }
+
+  function eslestirmeGoster() {
+    const rows = IMPORT_ALANLARI.map(alan => {
+      const required = alan.required ? `<span class="text-danger">*</span>` : "";
+      const requiredForNew = alan.requiredForNew
+        ? `<span class="badge bg-light text-dark border ms-1">Yeni kayıt</span>`
+        : "";
+      const options = [
+        `<option value="">— Seç / Atla —</option>`,
+        ...importSutunlari.map(s => {
+          const selected = importEslesme[alan.key] === s ? "selected" : "";
+          return `<option value="${escapeAttr(s)}" ${selected}>${escapeHtml(s)}</option>`;
+        })
+      ].join("");
+      return `<tr>
+        <td class="fw-semibold">${escapeHtml(alan.label)} ${required}${requiredForNew}</td>
+        <td>
+          <select class="form-select form-select-sm import-map" data-field="${alan.key}">
+            ${options}
+          </select>
+        </td>
+      </tr>`;
+    }).join("");
+
+    document.getElementById("eslestirme-tablo").innerHTML = `
+      <table class="table table-sm table-bordered align-middle mb-0">
+        <thead class="table-light">
+          <tr><th style="width:40%">Sistem Alanı</th><th>Excel Sütunu</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    document.querySelectorAll(".import-map").forEach(select => {
+      select.addEventListener("change", () => {
+        importEslesme[select.dataset.field] = select.value;
+        previewGuncelle();
+      });
+    });
+  }
+
+  function previewGuncelle() {
+    const eksikler = zorunluEksikler();
+    const baslatBtn = document.getElementById("import-baslat-btn");
+    baslatBtn.disabled = eksikler.length > 0 || importVerisi.length === 0;
+
+    if (eksikler.length) {
+      importUyariGoster(`Zorunlu alanları eşleştirin: ${eksikler.join(", ")}`);
+    } else {
+      importUyariGizle();
+    }
+
+    const previewRows = importVerisi.slice(0, 8).map((satir, idx) => {
+      const coz = satirCoz(satir);
+      let durum = `<span class="badge bg-success">Hazır</span>`;
+      if (coz.hatalar.length) {
+        durum = `<span class="badge bg-warning text-dark">${coz.hatalar.join(", ")}</span>`;
+      } else if (importModu() === "sadece-guncelle") {
+        durum = `<span class="badge bg-info text-dark">Numarayla güncellenecek</span>`;
+      } else if (coz.yeniKayitEksikleri.length) {
+        durum = `<span class="badge bg-secondary">Mevcutsa günceller, yeniyse atlanır</span>`;
+      }
+      return `<tr>
+        <td>${idx + 1}</td>
+        <td>${durum}</td>
+        <td>${escapeHtml(coz.numara)}</td>
+        <td>${escapeHtml(coz.ogrVeri.ad)}</td>
+        <td>${escapeHtml(coz.ogrVeri.soyad)}</td>
+        <td>${escapeHtml(coz.ogrVeri.sinif)}</td>
+        <td>${escapeHtml(coz.ogrVeri.cinsiyet)}</td>
+        <td>${escapeHtml(coz.babaVeri.telefon || "")}</td>
+        <td>${escapeHtml(coz.anneVeri.telefon || "")}</td>
+      </tr>`;
+    }).join("");
+
+    document.getElementById("import-preview").innerHTML = `
+      <table class="table table-sm table-bordered mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>#</th><th>Durum</th><th>No</th><th>Ad</th><th>Soyad</th>
+            <th>Sınıf</th><th>Cinsiyet</th><th>Baba Tel</th><th>Anne Tel</th>
+          </tr>
+        </thead>
+        <tbody>${previewRows || `<tr><td colspan="9" class="text-muted text-center">Önizlenecek satır yok.</td></tr>`}</tbody>
+      </table>`;
   }
 
   async function importBaslat() {
     if (!importVerisi.length) return;
+    const eksikler = zorunluEksikler();
+    if (eksikler.length) {
+      importUyariGoster(`Aktarım için zorunlu alanları eşleştirin: ${eksikler.join(", ")}`);
+      return;
+    }
+
     document.getElementById("import-adim-1").classList.add("d-none");
     document.getElementById("import-ilerleme").classList.remove("d-none");
+    document.getElementById("import-sonuc").classList.add("d-none");
     document.getElementById("import-baslat-btn").classList.add("d-none");
 
-    let basarili = 0, atlandi = 0;
+    let eklendi = 0, guncellendi = 0, atlandi = 0, hatali = 0, bulunamadi = 0;
+    const hatalar = [];
     const progressBar = document.getElementById("import-progress-bar");
     const durumMesaj = document.getElementById("import-durum-mesaj");
+    const mod = importModu();
 
     for (let i = 0; i < importVerisi.length; i++) {
       const satir = importVerisi[i];
@@ -426,43 +599,253 @@
       progressBar.style.width = yuzde + "%";
       durumMesaj.textContent = `${i + 1} / ${importVerisi.length} işleniyor...`;
 
-      try {
-        const numara = String(satir["No"] || "").trim();
-        if (!numara || !/^\d+$/.test(numara)) { atlandi++; continue; }
-
-        const veri = {
-          ad: formatAd(String(satir["Adı"] || satir["Adı "] || "")),
-          soyad: formatSoyad(String(satir["Soyadı"] || satir["Soyadı "] || "")),
-          sinif: String(satir["Sınıfı"] || "").trim(),
-          numara,
-          cinsiyet: String(satir["Cinsiyeti"] || "").trim(),
-          yatililik: String(satir["Yatılılık"] || "").trim(),
-          hastalik: String(satir["Hastalık"] || "").trim(),
-          engel: String(satir["Engel"] || "").trim(),
-          ilac: String(satir["İlâç"] || satir["İlaç"] || "").trim(),
-          tc_kimlik: String(satir["T.C. Kimlik No"] || satir["TC"] || "").trim(),
-          dogum_tarihi: String(satir["Doğum Tarihi"] || "").trim(),
-          dogum_yeri: String(satir["Doğum Yeri"] || "").trim(),
-          birliktelik: String(satir["Birliktelik"] || "").trim(),
-          beraberlik: String(satir["Beraberlik"] || "").trim(),
-          durum: "Aktif"
-        };
-
-        await ogrenciEkle(numara, veri);
-        basarili++;
-      } catch (err) {
-        console.warn("Satır atlandı:", satir, err);
+      const coz = satirCoz(satir);
+      if (coz.hatalar.length) {
         atlandi++;
+        if (hatalar.length < 5) hatalar.push(`${i + 2}. satır: ${coz.hatalar.join(", ")}`);
+        continue;
+      }
+
+      try {
+        const mevcut = await noMevcutMu(coz.numara);
+        if (mod === "sadece-guncelle" && !mevcut) {
+          bulunamadi++;
+          atlandi++;
+          if (hatalar.length < 12) hatalar.push(`${i + 2}. satır: Öğrenci no bulunamadı (${coz.numara})`);
+          continue;
+        }
+
+        if (mevcut) {
+          if (Object.keys(coz.ogrVeri).some(key => key !== "numara")) {
+            await ogrenciGuncelle(coz.numara, coz.ogrVeri);
+          }
+          guncellendi++;
+        } else {
+          if (coz.yeniKayitEksikleri.length) {
+            atlandi++;
+            if (hatalar.length < 12) {
+              hatalar.push(`${i + 2}. satır: Yeni öğrenci için eksik alan (${coz.yeniKayitEksikleri.join(", ")})`);
+            }
+            continue;
+          }
+          await ogrenciEkle(coz.numara, yeniOgrenciVerisi(coz));
+          eklendi++;
+        }
+
+        await veliAktar(coz.numara, "Baba", coz.babaVeri);
+        await veliAktar(coz.numara, "Anne", coz.anneVeri);
+      } catch (err) {
+        hatali++;
+        if (hatalar.length < 5) hatalar.push(`${i + 2}. satır: ${err.message}`);
       }
     }
 
     document.getElementById("import-ilerleme").classList.add("d-none");
     document.getElementById("import-sonuc").classList.remove("d-none");
-    document.getElementById("import-basari-mesaj").textContent =
-      `✓ ${basarili} öğrenci aktarıldı. ${atlandi > 0 ? `${atlandi} satır atlandı.` : ""}`;
 
-    importVerisi = [];
+    const sonucEl = document.getElementById("import-basari-mesaj");
+    sonucEl.className = `alert ${hatali || atlandi ? "alert-warning" : "alert-success"}`;
+    sonucEl.innerHTML = `
+      <strong>Aktarım tamamlandı.</strong><br>
+      Yeni: ${eklendi}, Güncellenen: ${guncellendi}, Bulunamayan No: ${bulunamadi}, Atlanan: ${atlandi}, Hatalı: ${hatali}
+      ${hatalar.length ? `<hr class="my-2"><div class="small">${hatalar.map(escapeHtml).join("<br>")}</div>` : ""}`;
+
     await yukleOgrenciler({ durum: "Aktif" });
+  }
+
+  function satirCoz(satir) {
+    const raw = {};
+    IMPORT_ALANLARI.forEach(alan => { raw[alan.key] = hucreDegeri(satir, alan.key); });
+
+    const numara = sadeceRakam(raw.numara);
+    const hatalar = [];
+
+    if (!numara) hatalar.push("Öğrenci No yok");
+
+    const ogrVeri = { numara };
+    const ogrAdSoyad = adSoyadAyir(raw.ad_soyad);
+    alanEkle(ogrVeri, "ad_soyad", ogrAdSoyad.ad, "ad");
+    alanEkle(ogrVeri, "ad_soyad", ogrAdSoyad.soyad, "soyad");
+    alanEkle(ogrVeri, "ad", formatAd(raw.ad));
+    alanEkle(ogrVeri, "soyad", formatSoyad(raw.soyad));
+    alanEkle(ogrVeri, "sinif", temiz(raw.sinif));
+    alanEkle(ogrVeri, "cinsiyet", normalizeCinsiyet(raw.cinsiyet));
+    alanEkle(ogrVeri, "yatililik", temiz(raw.yatililik));
+    alanEkle(ogrVeri, "maddi_durum", temiz(raw.maddi_durum));
+    alanEkle(ogrVeri, "geldigi_okul", formatMetin(raw.geldigi_okul));
+    alanEkle(ogrVeri, "tc_kimlik", sadeceRakam(raw.tc_kimlik));
+    alanEkle(ogrVeri, "dogum_tarihi", temiz(raw.dogum_tarihi));
+    alanEkle(ogrVeri, "dogum_yeri", formatMetin(raw.dogum_yeri));
+    alanEkle(ogrVeri, "hastalik", formatMetin(raw.hastalik));
+    alanEkle(ogrVeri, "engel", formatMetin(raw.engel));
+    alanEkle(ogrVeri, "ilac", formatMetin(raw.ilac));
+    alanEkle(ogrVeri, "ebeveyn_durumu", temiz(raw.ebeveyn_durumu));
+    alanEkle(ogrVeri, "birliktelik", temiz(raw.birliktelik));
+    alanEkle(ogrVeri, "beraberlik", temiz(raw.beraberlik));
+
+    const yeniKayitEksikleri = [];
+    if (!ogrVeri.ad) yeniKayitEksikleri.push("Ad");
+    if (!ogrVeri.soyad) yeniKayitEksikleri.push("Soyad");
+    if (!ogrVeri.sinif) yeniKayitEksikleri.push("Sınıf");
+
+    const babaVeri = veliVerisi("Baba", raw, "baba");
+    const anneVeri = veliVerisi("Anne", raw, "anne");
+
+    return { raw, numara, ogrVeri, babaVeri, anneVeri, hatalar, yeniKayitEksikleri };
+  }
+
+  function veliVerisi(tur, raw, prefix) {
+    const veri = { tur };
+    const parca = adSoyadAyir(raw[`${prefix}_ad_soyad`]);
+    alanEkle(veri, `${prefix}_ad_soyad`, parca.ad, "ad");
+    alanEkle(veri, `${prefix}_ad_soyad`, parca.soyad, "soyad");
+    alanEkle(veri, `${prefix}_ad`, formatAd(raw[`${prefix}_ad`]), "ad");
+    alanEkle(veri, `${prefix}_soyad`, formatSoyad(raw[`${prefix}_soyad`]), "soyad");
+    alanEkle(veri, `${prefix}_meslek`, formatMetin(raw[`${prefix}_meslek`]), "meslek");
+    alanEkle(veri, `${prefix}_alan`, formatMetin(raw[`${prefix}_alan`]), "alan");
+    alanEkle(veri, `${prefix}_gorev`, formatMetin(raw[`${prefix}_gorev`]), "gorev");
+    alanEkle(veri, `${prefix}_telefon`, formatTelefon(raw[`${prefix}_telefon`]), "telefon");
+    alanEkle(veri, `${prefix}_e_posta`, temiz(raw[`${prefix}_e_posta`]), "e_posta");
+    alanEkle(veri, `${prefix}_ev_adresi`, formatMetin(raw[`${prefix}_ev_adresi`]), "ev_adresi");
+    alanEkle(veri, `${prefix}_is_adresi`, formatMetin(raw[`${prefix}_is_adresi`]), "is_adresi");
+    alanEkle(veri, `${prefix}_sehir`, formatMetin(raw[`${prefix}_sehir`]), "sehir");
+    alanEkle(veri, `${prefix}_ilce`, formatMetin(raw[`${prefix}_ilce`]), "ilce");
+    return veri;
+  }
+
+  function adSoyadAyir(value) {
+    const temizDeger = temiz(value).replace(/\s+/g, " ");
+    if (!temizDeger) return { ad: "", soyad: "" };
+    const parcalar = temizDeger.split(" ");
+    if (parcalar.length === 1) return { ad: formatAd(parcalar[0]), soyad: "" };
+    const soyad = parcalar.pop();
+    return {
+      ad: formatAd(parcalar.join(" ")),
+      soyad: formatSoyad(soyad)
+    };
+  }
+
+  function alanEkle(veri, sourceKey, value, targetKey = sourceKey) {
+    if (!importEslesme[sourceKey]) return;
+    const temizDeger = temiz(value);
+    if (!temizDeger) return;
+    veri[targetKey] = temizDeger;
+  }
+
+  function yeniOgrenciVerisi(coz) {
+    return {
+      fotograf_url: "",
+      yetenekler: [],
+      ebeveyn_durumu: "İkisi De Hayatta",
+      durum: "Aktif",
+      ...coz.ogrVeri
+    };
+  }
+
+  function hucreDegeri(satir, alanKey) {
+    const sutun = importEslesme[alanKey];
+    if (!sutun) return "";
+    return temiz(satir[sutun]);
+  }
+
+  function zorunluEksikler() {
+    return IMPORT_ALANLARI
+      .filter(alan => alan.required && !importEslesme[alan.key])
+      .map(alan => alan.label);
+  }
+
+  function importModu() {
+    return document.getElementById("import-modu")?.value || "ekle-guncelle";
+  }
+
+  function importModuAciklamaGuncelle() {
+    const el = document.getElementById("import-modu-aciklama");
+    if (!el) return;
+    el.textContent = importModu() === "sadece-guncelle"
+      ? "Bu modda yeni öğrenci oluşturulmaz. Öğrenci No bulunamazsa satır atlanır ve sonuçta listelenir."
+      : "Yeni öğrenci oluşturmak için Ad, Soyad ve Sınıf bilgileri gerekir; mevcut öğrencilerde yalnızca gelen alanlar güncellenir.";
+  }
+
+  function normalizeBaslik(str) {
+    return String(str || "")
+      .trim()
+      .toLocaleLowerCase("tr-TR")
+      .replace(/ı/g, "i")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "");
+  }
+
+  function temiz(value) {
+    if (value instanceof Date) {
+      const gun = String(value.getDate()).padStart(2, "0");
+      const ay = String(value.getMonth() + 1).padStart(2, "0");
+      return `${gun}.${ay}.${value.getFullYear()}`;
+    }
+    return String(value ?? "").trim();
+  }
+
+  function sadeceRakam(value) {
+    return temiz(value).replace(/\D/g, "");
+  }
+
+  function normalizeCinsiyet(value) {
+    const v = temiz(value).toLocaleLowerCase("tr-TR");
+    if (v === "kız" || v === "kiz" || v === "k") return "Kız";
+    if (v === "erkek" || v === "e") return "Erkek";
+    return temiz(value);
+  }
+
+  function veliDoluMu(veri) {
+    return Object.entries(veri).some(([key, value]) => key !== "tur" && temiz(value));
+  }
+
+  async function veliAktar(ogrenciNo, tur, veri) {
+    if (!veliDoluMu(veri)) return;
+    const mevcutVeliler = await velileriGetir(ogrenciNo);
+    const mevcutId = mevcutVeliler.find(v => v.tur === tur)?.id || tur;
+    await veliEkleGuncelle(ogrenciNo, mevcutId, veri);
+  }
+
+  function importSifirla() {
+    importVerisi = [];
+    importSutunlari = [];
+    importEslesme = {};
+    document.getElementById("import-dosya-input").value = "";
+    document.getElementById("import-onizleme").classList.add("d-none");
+    document.getElementById("import-ilerleme").classList.add("d-none");
+    document.getElementById("import-sonuc").classList.add("d-none");
+    document.getElementById("import-adim-1").classList.remove("d-none");
+    document.getElementById("import-baslat-btn").classList.add("d-none");
+    document.getElementById("import-baslat-btn").disabled = false;
+    document.getElementById("import-progress-bar").style.width = "0%";
+    document.getElementById("eslestirme-tablo").innerHTML = "";
+    document.getElementById("import-preview").innerHTML = "";
+    importModuAciklamaGuncelle();
+    importUyariGizle();
+  }
+
+  function importUyariGoster(mesaj) {
+    const el = document.getElementById("import-hata");
+    el.textContent = mesaj;
+    el.classList.remove("d-none");
+  }
+
+  function importUyariGizle() {
+    document.getElementById("import-hata").classList.add("d-none");
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value);
   }
 </script>
 </body>

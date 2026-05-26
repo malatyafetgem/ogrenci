@@ -2,6 +2,7 @@
  * layout.js — Ortak sidebar ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js";
 
 // Aktif menü öğesini belirle
 function aktifMi(href) {
@@ -21,9 +22,9 @@ export function layoutYukle() {
 function yukleFooter() {
   const kap = document.getElementById("footer-kap");
   if (!kap) return;
-  kap.innerHTML = `
+  kap.outerHTML = `
     <footer class="app-footer">
-      <div class="float-end d-none d-sm-inline">Öğrenci Bilgi Sistemi</div>
+      <div class="float-end d-none d-sm-inline">v${APP_VERSION} · ${APP_UPDATED_AT}</div>
       <strong>© 2026 AYUSTASI</strong>
     </footer>`;
 }
@@ -31,12 +32,12 @@ function yukleFooter() {
 function yukleTopbar() {
   const kap = document.getElementById("topbar-kap");
   if (!kap) return;
-  kap.innerHTML = `
+  kap.outerHTML = `
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+            <a class="nav-link" href="#" id="sidebar-toggle" role="button" title="Menüyü Aç/Kapat">
               <i class="bi bi-list"></i>
             </a>
           </li>
@@ -53,6 +54,15 @@ function yukleTopbar() {
         </ul>
       </div>
     </nav>`;
+
+  document.getElementById("sidebar-toggle")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (window.matchMedia("(max-width: 767.98px)").matches) {
+      document.body.classList.toggle("sidebar-mobile-open");
+    } else {
+      document.body.classList.toggle("sidebar-collapsed");
+    }
+  });
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -150,7 +160,13 @@ function yukleSidebar() {
   }
 
   html += `</ul></nav></div></aside>`;
-  kap.innerHTML = html;
+  kap.outerHTML = html;
+
+  document.querySelectorAll(".app-sidebar a").forEach(link => {
+    link.addEventListener("click", () => {
+      document.body.classList.remove("sidebar-mobile-open");
+    });
+  });
 }
 
 function yukleBottomNav() {

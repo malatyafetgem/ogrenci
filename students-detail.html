@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="file-redirect.js"></script>
   <title>Öğrenci Detayı — ÖBS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -42,8 +43,7 @@
           <div class="card mb-3">
             <div class="card-body py-3">
               <div class="d-flex align-items-center gap-3 flex-wrap">
-                <img id="profil-foto" src="avatar-default.png"
-                     class="ogrenci-avatar-buyuk" alt="">
+                <img id="profil-foto" class="ogrenci-avatar-buyuk" alt="">
                 <div class="flex-grow-1">
                   <h4 class="mb-1" id="profil-ad"></h4>
                   <div class="d-flex gap-2 flex-wrap align-items-center" id="profil-rozetler"></div>
@@ -257,19 +257,19 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "auth.js";
-  import { layoutYukle } from "layout.js";
+  import { requireAuth } from "./auth.js";
+  import { layoutYukle } from "./layout.js";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil,
     davranislarGetir, davranisSil,
     gorusmeleriGetir, gorusmeSil
-  } from "students.js";
+  } from "./students.js";
   import {
     devamsizlikDurum, devamsizlikRenk, formatTelefon, toast
-  } from "utils.js";
+  } from "./utils.js";
+  import { avatarSrc } from "./avatar.js";
 
-  const AVATAR = "avatar-default.png";
   let ogrenciId = null;
   let tumDavranislar = [];
 
@@ -292,7 +292,7 @@
       document.getElementById("breadcrumb-ad").textContent = tamAd;
 
       // Profil
-      document.getElementById("profil-foto").src = o.fotograf_url || AVATAR;
+      document.getElementById("profil-foto").src = avatarSrc(o.cinsiyet);
       document.getElementById("profil-ad").textContent = tamAd;
       document.getElementById("profil-rozetler").innerHTML = [
         `<span class="badge bg-primary">${o.sinif || "—"}</span>`,
@@ -312,6 +312,7 @@
         ["TC Kimlik", o.tc_kimlik],
         ["Doğum Tarihi", o.dogum_tarihi],
         ["Doğum Yeri", o.dogum_yeri],
+        ["Geldiği Okulun Adı", o.geldigi_okul],
       ]);
 
       blokDoldur("blok-saglik", [

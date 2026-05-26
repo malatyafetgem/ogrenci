@@ -2,6 +2,103 @@
    app.css — Özel stiller
    ============================================= */
 
+/* AdminLTE, header/sidebar/main/footer elemanlarını .app-wrapper altında
+   doğrudan görmeyi bekler. Enjeksiyon kaplarını layout dışı bırak. */
+#topbar-kap,
+#sidebar-kap,
+#footer-kap {
+  display: contents;
+}
+
+/* --- Uygulama kabuğu: sabit üst bar + kaydırılabilir sol menü --- */
+:root {
+  --obs-sidebar-width: 300px;
+  --obs-header-height: 56px;
+}
+
+.app-wrapper {
+  min-height: 100vh;
+}
+
+.app-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: var(--obs-sidebar-width);
+  min-height: var(--obs-header-height);
+  z-index: 1040;
+  border-bottom: 1px solid #dee2e6;
+  transition: left .2s ease;
+}
+
+.app-sidebar {
+  position: fixed !important;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--obs-sidebar-width) !important;
+  min-width: var(--obs-sidebar-width);
+  max-width: var(--obs-sidebar-width);
+  z-index: 1035;
+  overflow: hidden;
+  transition: transform .2s ease;
+}
+
+.sidebar-brand {
+  min-height: var(--obs-header-height);
+}
+
+.sidebar-wrapper {
+  height: calc(100vh - var(--obs-header-height));
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 1rem;
+}
+
+.app-main {
+  margin-left: var(--obs-sidebar-width);
+  padding-top: var(--obs-header-height);
+  min-height: 100vh;
+  transition: margin-left .2s ease;
+}
+
+.app-footer {
+  margin-left: var(--obs-sidebar-width);
+  transition: margin-left .2s ease;
+}
+
+body.sidebar-collapsed .app-sidebar {
+  transform: translateX(calc(-1 * var(--obs-sidebar-width)));
+}
+
+body.sidebar-collapsed .app-header {
+  left: 0;
+}
+
+body.sidebar-collapsed .app-main,
+body.sidebar-collapsed .app-footer {
+  margin-left: 0;
+}
+
+@media (max-width: 767.98px) {
+  .app-header {
+    left: 0;
+  }
+
+  .app-sidebar {
+    transform: translateX(calc(-1 * var(--obs-sidebar-width)));
+  }
+
+  body.sidebar-mobile-open .app-sidebar {
+    transform: translateX(0);
+  }
+
+  .app-main,
+  .app-footer {
+    margin-left: 0;
+  }
+}
+
 /* --- Bottom Navbar (Telefon) --- */
 .bottom-navbar {
   position: fixed;

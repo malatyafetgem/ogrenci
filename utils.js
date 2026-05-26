@@ -143,8 +143,56 @@ export function bugun() {
  */
 export function tarihtenDate(str) {
   if (!str) return null;
+  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(str)) return null;
   const [g, a, y] = str.split(".");
   return new Date(`${y}-${a}-${g}`);
+}
+
+const TR_SIRALAYICI = new Intl.Collator("tr", { numeric: true, sensitivity: "base" });
+
+export function sinifParcala(sinif) {
+  const raw = String(sinif || "").trim();
+  const m = raw.match(/(\d{1,2})\s*\.?\s*(?:sınıf|sinif)?\s*[-/.]?\s*([A-Za-zÇĞİÖŞÜçğıöşü]+)?/i);
+  if (!m) return { seviye: Number.POSITIVE_INFINITY, sube: "", raw };
+  return {
+    seviye: Number(m[1]),
+    sube: String(m[2] || "").toLocaleUpperCase("tr-TR"),
+    raw
+  };
+}
+
+export function sinifSiralamaAnahtari(sinif) {
+  const p = sinifParcala(sinif);
+  const seviye = Number.isFinite(p.seviye) ? String(p.seviye).padStart(2, "0") : "99";
+  return `${seviye}-${p.sube || "ZZ"}-${p.raw}`;
+}
+
+export function compareSinif(a, b) {
+  const pa = sinifParcala(a);
+  const pb = sinifParcala(b);
+  if (pa.seviye !== pb.seviye) return pa.seviye - pb.seviye;
+  return TR_SIRALAYICI.compare(pa.sube, pb.sube) || TR_SIRALAYICI.compare(pa.raw, pb.raw);
+}
+
+function ogrenciNoHam(value) {
+  if (value && typeof value === "object") return value.numara ?? value.no ?? value.id ?? "";
+  return value ?? "";
+}
+
+export function ogrenciNoSiralamaAnahtari(value) {
+  const raw = String(ogrenciNoHam(value)).trim();
+  const sayi = raw.replace(/\D/g, "");
+  return `${sayi ? sayi.padStart(12, "0") : "999999999999"}-${raw}`;
+}
+
+export function compareOgrenciNo(a, b) {
+  return TR_SIRALAYICI.compare(ogrenciNoSiralamaAnahtari(a), ogrenciNoSiralamaAnahtari(b));
+}
+
+export function compareOgrenci(a, b) {
+  return compareSinif(a?.sinif, b?.sinif)
+    || compareOgrenciNo(a, b)
+    || TR_SIRALAYICI.compare(`${a?.soyad || ""} ${a?.ad || ""}`, `${b?.soyad || ""} ${b?.ad || ""}`);
 }
 
 /**

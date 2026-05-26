@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="file-redirect.js"></script>
   <title>Devamsızlık Gir — ÖBS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -136,9 +137,21 @@
           </div>
           <div class="card-body">
             <p class="text-muted small">
-              Excel dosyanızda en az şu sütunlar olmalıdır:
-              <strong>Öğrenci No, Tarih, Tür (Özürlü/Özürsüz), Miktar (Tam Gün/Yarım Gün)</strong>
+              Ayrıntılı aktarımda <strong>Öğrenci No, Tarih, Tür, Miktar</strong> sütunlarını;
+              toplam aktarımda <strong>Öğrenci No, Toplam Özürlü Devamsızlık, Toplam Özürsüz Devamsızlık</strong>
+              sütunlarını eşleştirmeden yükleyebilirsiniz. Öğrenci No yoksa öğrenci
+              <strong>Adı Soyadı</strong> veya ayrı <strong>Adı</strong> / <strong>Soyadı</strong> sütunlarıyla bulunabilir.
             </p>
+            <div class="mb-3">
+              <label class="form-label">Aktarım Tipi</label>
+              <select class="form-select" id="excel-aktarim-tipi">
+                <option value="detay">Ayrıntılı kayıtlar: tarih + tür + miktar</option>
+                <option value="toplam">Toplam kayıtlar: öğrenci no + toplam özürlü/özürsüz</option>
+              </select>
+              <div class="form-text">
+                Toplam aktarımda tarih aranmaz; her toplam türü öğrenciye tek özet kayıt olarak eklenir.
+              </div>
+            </div>
             <div class="mb-3">
               <label class="form-label">Excel Dosyası (.xlsx)</label>
               <input type="file" class="form-control" id="excel-dosya" accept=".xlsx,.xls">
@@ -153,7 +166,7 @@
               <div class="table-responsive">
                 <table class="table table-sm table-bordered" id="excel-onizleme-tablo">
                   <thead class="table-light">
-                    <tr>
+                    <tr id="excel-onizleme-head">
                       <th>Öğrenci No</th><th>Ad Soyad</th><th>Tarih</th>
                       <th>Tür</th><th>Miktar</th><th>Durum</th>
                     </tr>
@@ -182,16 +195,17 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "auth.js";
-  import { layoutYukle } from "layout.js";
+  import { requireAuth } from "./auth.js";
+  import { layoutYukle } from "./layout.js";
   import {
     tumOgrencileriGetir, devamsizlikEkle,
     devamsizliklarGetir, devamsizlikHesapla
-  } from "students.js";
-  import { devamsizlikDurum, toast } from "utils.js";
+  } from "./students.js";
+  import { devamsizlikDurum, toast } from "./utils.js";
 
   let tumOgrenciler = [];
   let excelSatirlar = [];
+  const TOPLAM_TARIH = "Toplam";
 
   requireAuth(async () => {
     layoutYukle();
@@ -334,30 +348,52 @@
       const wb = XLSX.read(e.target.result, { type: "array" });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const satirlar = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      const aktarimTipi = document.getElementById("excel-aktarim-tipi").value;
 
       excelSatirlar = [];
       const tbody = document.getElementById("excel-onizleme-tbody");
       tbody.innerHTML = "";
+      document.getElementById("excel-onizleme-head").innerHTML = aktarimTipi === "toplam"
+        ? `<th>Öğrenci No</th><th>Ad Soyad</th><th>Özürsüz Toplam</th><th>Özürlü Toplam</th><th>Durum</th>`
+        : `<th>Öğrenci No</th><th>Ad Soyad</th><th>Tarih</th><th>Tür</th><th>Miktar</th><th>Durum</th>`;
 
       satirlar.forEach((satir, i) => {
-        // Sütun adlarını normalize et
-        const no = String(satir["Öğrenci No"] || satir["No"] || satir["numara"] || "").trim();
-        const tarih = String(satir["Tarih"] || satir["tarih"] || "").trim();
-        const tur = String(satir["Tür"] || satir["tur"] || "Özürsüz").trim();
-        const miktar = String(satir["Miktar"] || satir["miktar"] || "Tam Gün").trim();
-        const aciklama = String(satir["Açıklama"] || satir["aciklama"] || "").trim();
+        const no = sadeceRakam(hucre(satir, ["Öğrenci No", "No", "Numara", "Ogrenci No", "Öğrenci Numarası"]));
+        const adBilgi = ogrenciAdBilgisi(satir);
+        const ogr = ogrenciBul(no, adBilgi);
+        const tamAd = ogr ? `${ogr.ad} ${ogr.soyad}` : (adBilgi.tam || "—");
+        const bulunanNo = no || (ogr?.numara || ogr?.id || "");
+        const noDurum = ogr
+          ? `${no ? "Numarayla" : "Ad soyad ile"} bulundu (${ogr.sinif || "Sınıf yok"})`
+          : no
+            ? "Bulunamadı"
+            : adBilgi.tam
+              ? "Ad soyad bulunamadı"
+              : "Öğrenci bilgisi yok";
 
-        const ogr = tumOgrenciler.find(o => String(o.numara || o.id) === no);
-        const durum = ogr ? "✅ Bulundu" : "❌ Bulunamadı";
-        const sinif = ogr ? `${durum} (${ogr.sinif})` : durum;
-        const tamAd = ogr ? `${ogr.ad} ${ogr.soyad}` : "—";
-        const satirRenk = ogr ? "" : "table-danger";
+        if (aktarimTipi === "toplam") {
+          const ozurlu = sayiOku(hucre(satir, ["Toplam Özürlü Devamsızlık", "Özürlü Devamsızlık", "Ozurlu Devamsizlik", "Toplam Özürlü Gün", "Özürlü", "Ozurlu", "Özürlü Toplam", "Toplam Özürlü"]));
+          const ozursuz = sayiOku(hucre(satir, ["Toplam Özürsüz Devamsızlık", "Özürsüz Devamsızlık", "Ozursuz Devamsizlik", "Toplam Özürsüz Gün", "Özürsüz", "Ozursuz", "Özürsüz Toplam", "Toplam Özürsüz"]));
+          const durum = ogr && (ozurlu > 0 || ozursuz > 0) ? noDurum : (ozurlu > 0 || ozursuz > 0 ? noDurum : "Toplam yok");
+          const satirRenk = !ogr || (!ozurlu && !ozursuz) ? "table-warning" : "";
+          excelSatirlar.push({ aktarimTipi, no: bulunanNo, ozurlu, ozursuz, ogrId: ogr?.id || null });
+          tbody.innerHTML += `<tr class="${satirRenk}">
+            <td>${bulunanNo || "—"}</td><td>${tamAd}</td><td>${ozursuz}</td><td>${ozurlu}</td><td>${durum}</td>
+          </tr>`;
+          return;
+        }
 
-        excelSatirlar.push({ no, tarih, tur, miktar, aciklama, ogrId: ogr?.id || null });
+        const tarih = String(hucre(satir, ["Tarih", "tarih"])).trim();
+        const tur = normalTur(hucre(satir, ["Tür", "Tur", "Devamsızlık Türü", "Devamsizlik Turu"]) || "Özürsüz");
+        const miktar = normalMiktar(hucre(satir, ["Miktar", "miktar", "Gün", "Gun"]) || "Tam Gün");
+        const aciklama = String(hucre(satir, ["Açıklama", "Aciklama", "Not"])).trim();
+        const satirRenk = ogr && tarih ? "" : "table-danger";
+
+        excelSatirlar.push({ aktarimTipi, no: bulunanNo, tarih, tur, miktar, aciklama, ogrId: ogr?.id || null });
 
         tbody.innerHTML += `<tr class="${satirRenk}">
-          <td>${no}</td><td>${tamAd}</td><td>${tarih}</td>
-          <td>${tur}</td><td>${miktar}</td><td>${sinif}</td>
+          <td>${bulunanNo || "—"}</td><td>${tamAd}</td><td>${tarih || "—"}</td>
+          <td>${tur}</td><td>${miktar}</td><td>${!tarih ? "Tarih yok" : noDurum}</td>
         </tr>`;
       });
 
@@ -368,32 +404,147 @@
   }
 
   async function excelAktar() {
-    const gecerli = excelSatirlar.filter(s => s.ogrId && s.tarih);
+    const aktarimTipi = excelSatirlar[0]?.aktarimTipi || document.getElementById("excel-aktarim-tipi").value;
+    const gecerli = aktarimTipi === "toplam"
+      ? excelSatirlar.filter(s => s.ogrId && (s.ozurlu > 0 || s.ozursuz > 0))
+      : excelSatirlar.filter(s => s.ogrId && s.tarih);
     if (gecerli.length === 0) { toast("Aktarılacak geçerli kayıt yok.", "warning"); return; }
 
     document.getElementById("excel-aktar-btn").disabled = true;
     document.getElementById("excel-aktar-btn").innerHTML =
       `<span class="spinner-border spinner-border-sm me-1"></span>Aktarılıyor...`;
 
-    let basarili = 0, hatali = 0;
+    let basarili = 0, hatali = 0, ogrenciSayisi = 0;
     for (const s of gecerli) {
       try {
-        await devamsizlikEkle(s.ogrId, {
-          tarih: s.tarih,
-          tur: s.tur,
-          miktar: s.miktar,
-          gun_degeri: s.miktar === "Yarım Gün" ? 0.5 : 1,
-          aciklama: s.aciklama
-        });
-        basarili++;
+        if (aktarimTipi === "toplam") {
+          let ogrenciyeEklendi = false;
+          if (s.ozursuz > 0) {
+            await devamsizlikEkle(s.ogrId, {
+              tarih: TOPLAM_TARIH,
+              tur: "Özürsüz",
+              miktar: "Toplam",
+              gun_degeri: s.ozursuz,
+              aciklama: "Excel toplam devamsızlık aktarımı"
+            });
+            basarili++;
+            ogrenciyeEklendi = true;
+          }
+          if (s.ozurlu > 0) {
+            await devamsizlikEkle(s.ogrId, {
+              tarih: TOPLAM_TARIH,
+              tur: "Özürlü",
+              miktar: "Toplam",
+              gun_degeri: s.ozurlu,
+              aciklama: "Excel toplam devamsızlık aktarımı"
+            });
+            basarili++;
+            ogrenciyeEklendi = true;
+          }
+          if (ogrenciyeEklendi) ogrenciSayisi++;
+        } else {
+          await devamsizlikEkle(s.ogrId, {
+            tarih: s.tarih,
+            tur: s.tur,
+            miktar: s.miktar,
+            gun_degeri: gunDegeri(s.miktar),
+            aciklama: s.aciklama
+          });
+          basarili++;
+        }
       } catch (_) { hatali++; }
     }
 
-    toast(`${basarili} kayıt aktarıldı${hatali > 0 ? `, ${hatali} hata` : ""}.`,
+    const mesaj = aktarimTipi === "toplam"
+      ? `${ogrenciSayisi} öğrenci için ${basarili} toplam kaydı aktarıldı${hatali > 0 ? `, ${hatali} hata` : ""}.`
+      : `${basarili} kayıt aktarıldı${hatali > 0 ? `, ${hatali} hata` : ""}.`;
+    toast(mesaj,
       hatali > 0 ? "warning" : "success");
     document.getElementById("excel-aktar-btn").disabled = false;
     document.getElementById("excel-aktar-btn").innerHTML =
       `<i class="bi bi-cloud-upload me-1"></i>Sisteme Aktar`;
+  }
+
+  function normalizeBaslik(str) {
+    return String(str || "")
+      .trim()
+      .toLocaleLowerCase("tr-TR")
+      .replace(/ı/g, "i")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "");
+  }
+
+  function hucre(satir, adaylar) {
+    const hedefler = adaylar.map(normalizeBaslik);
+    for (const [baslik, deger] of Object.entries(satir)) {
+      if (hedefler.includes(normalizeBaslik(baslik))) return deger;
+    }
+    return "";
+  }
+
+  function sadeceRakam(value) {
+    return String(value ?? "").replace(/\D/g, "");
+  }
+
+  function ogrenciBul(no, adBilgi = {}) {
+    const temizNo = sadeceRakam(no);
+    if (temizNo) return tumOgrenciler.find(o => sadeceRakam(o.numara || o.id) === temizNo);
+    const hedef = normalizeAdSoyad(adBilgi);
+    if (!hedef) return null;
+    const eslesen = tumOgrenciler.filter(o => normalizeAdSoyad({
+      ad: o.ad,
+      soyad: o.soyad,
+      tam: `${o.ad || ""} ${o.soyad || ""}`
+    }) === hedef);
+    return eslesen.length === 1 ? eslesen[0] : null;
+  }
+
+  function ogrenciAdBilgisi(satir) {
+    const birlesik = String(hucre(satir, [
+      "Öğrenci Adı Soyadı", "Ogrenci Adi Soyadi", "Adı Soyadı", "Adi Soyadi",
+      "Ad Soyad", "Öğrenci Ad Soyad", "Ogrenci Ad Soyad", "Öğrenci"
+    ]) || "").trim();
+    const ad = String(hucre(satir, ["Ad", "Adı", "Adi", "Öğrenci Adı", "Ogrenci Adi"]) || "").trim();
+    const soyad = String(hucre(satir, ["Soyad", "Soyadı", "Soyadi", "Öğrenci Soyadı", "Ogrenci Soyadi"]) || "").trim();
+    if (ad || soyad) return { ad, soyad, tam: `${ad} ${soyad}`.trim() };
+    const parca = adSoyadAyir(birlesik);
+    return { ...parca, tam: birlesik };
+  }
+
+  function adSoyadAyir(value) {
+    const temizDeger = String(value || "").trim().replace(/\s+/g, " ");
+    if (!temizDeger) return { ad: "", soyad: "" };
+    const parcalar = temizDeger.split(" ");
+    if (parcalar.length === 1) return { ad: parcalar[0], soyad: "" };
+    const soyad = parcalar.pop();
+    return { ad: parcalar.join(" "), soyad };
+  }
+
+  function normalizeAdSoyad(bilgi) {
+    const raw = bilgi?.ad || bilgi?.soyad
+      ? `${bilgi.ad || ""} ${bilgi.soyad || ""}`
+      : bilgi?.tam || "";
+    return normalizeBaslik(raw);
+  }
+
+  function sayiOku(value) {
+    const raw = String(value ?? "").replace(",", ".").match(/\d+(\.\d+)?/);
+    return raw ? Number(raw[0]) : 0;
+  }
+
+  function normalTur(value) {
+    const v = String(value ?? "").trim().toLocaleLowerCase("tr-TR");
+    return v.includes("özürlü") || v.includes("ozurlu") ? "Özürlü" : "Özürsüz";
+  }
+
+  function normalMiktar(value) {
+    const v = String(value ?? "").trim().toLocaleLowerCase("tr-TR");
+    return v.includes("yarım") || v.includes("yarim") || v === "0.5" || v === "0,5" ? "Yarım Gün" : "Tam Gün";
+  }
+
+  function gunDegeri(miktar) {
+    return miktar === "Yarım Gün" ? 0.5 : 1;
   }
 </script>
 </body>
