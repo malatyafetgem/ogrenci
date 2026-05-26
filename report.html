@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Görüşme Listesi — ÖBS</title>
+  <title>Devamsızlık Raporu — ÖBS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
@@ -19,11 +19,11 @@
     <div class="app-content-header">
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="col-sm-6"><h3 class="mb-0">Görüşme Listesi</h3></div>
+          <div class="col-sm-6"><h3 class="mb-0">Devamsızlık Raporu</h3></div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
               <li class="breadcrumb-item"><a href="/ogrenci/dashboard.html">Panel</a></li>
-              <li class="breadcrumb-item active">Görüşme Listesi</li>
+              <li class="breadcrumb-item active">Devamsızlık Raporu</li>
             </ol>
           </div>
         </div>
@@ -33,6 +33,7 @@
     <div class="app-content">
       <div class="container-fluid">
 
+        <!-- Filtreler -->
         <div class="card mb-3 no-print">
           <div class="card-body py-2">
             <div class="row g-2 align-items-end">
@@ -43,38 +44,42 @@
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Veli Türü</label>
-                <select id="filtre-veli" class="form-select form-select-sm">
+                <label class="form-label small mb-1">Tür</label>
+                <select id="filtre-tur" class="form-select form-select-sm">
                   <option value="">Tümü</option>
-                  <option>Anne</option><option>Baba</option><option>Diğer</option>
+                  <option>Özürsüz</option>
+                  <option>Özürlü</option>
                 </select>
               </div>
               <div class="col-6 col-md-2">
                 <label class="form-label small mb-1">Tarih Başlangıç</label>
-                <input type="text" class="form-control form-control-sm" id="filtre-bas">
+                <input type="text" class="form-control form-control-sm" id="filtre-bas" placeholder="GG.AA.YYYY">
               </div>
               <div class="col-6 col-md-2">
                 <label class="form-label small mb-1">Tarih Bitiş</label>
-                <input type="text" class="form-control form-control-sm" id="filtre-bit">
+                <input type="text" class="form-control form-control-sm" id="filtre-bit" placeholder="GG.AA.YYYY">
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Konu</label>
-                <input type="text" class="form-control form-control-sm" id="filtre-konu" list="konu-list" placeholder="Ara...">
-                <datalist id="konu-list"></datalist>
+                <label class="form-label small mb-1">Sadece Uyarılar</label>
+                <select id="filtre-uyari" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option value="uyari">Uyarı</option>
+                  <option value="kritik">Kritik</option>
+                </select>
               </div>
               <div class="col-6 col-md-1">
-                <button id="filtre-uygula" class="btn btn-sm btn-primary w-100"><i class="bi bi-search"></i></button>
+                <button id="filtre-uygula" class="btn btn-sm btn-primary w-100">
+                  <i class="bi bi-search"></i>
+                </button>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Tablo -->
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <h6 class="mb-0">
-              <i class="bi bi-chat-dots me-1"></i>Görüşmeler
-              <span class="badge bg-secondary ms-1" id="kayit-sayisi">—</span>
-            </h6>
+            <h6 class="mb-0"><i class="bi bi-calendar-x me-1"></i>Devamsızlık Özeti</h6>
             <div class="d-flex gap-2 no-print">
               <button class="btn btn-sm btn-success" id="excel-export-btn">
                 <i class="bi bi-file-earmark-excel me-1"></i>Excel
@@ -82,9 +87,6 @@
               <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
                 <i class="bi bi-printer me-1"></i>Yazdır
               </button>
-              <a href="/ogrenci/pages/meetings/entry.html" class="btn btn-sm btn-primary">
-                <i class="bi bi-plus-circle me-1"></i>Yeni Görüşme
-              </a>
             </div>
           </div>
           <div class="card-body p-0">
@@ -92,14 +94,19 @@
               <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
             </div>
             <div class="table-responsive d-none" id="tablo-kap">
-              <table id="gorusme-tablo" class="table table-sm table-hover mb-0">
+              <table id="rapor-tablo" class="table table-sm table-hover mb-0 align-middle">
                 <thead class="table-light">
                   <tr>
-                    <th>Tarih</th><th>Öğrenci</th><th>Sınıf</th>
-                    <th>Veli</th><th>Veli Adı</th><th>Konu</th><th>Açıklama</th>
+                    <th>No</th>
+                    <th>Ad Soyad</th>
+                    <th>Sınıf</th>
+                    <th class="text-center">Özürsüz</th>
+                    <th class="text-center">Özürlü</th>
+                    <th class="text-center">Toplam</th>
+                    <th class="text-center">Durum</th>
                   </tr>
                 </thead>
-                <tbody id="gorusme-tbody"></tbody>
+                <tbody id="rapor-tbody"></tbody>
               </table>
             </div>
           </div>
@@ -123,9 +130,8 @@
 <script type="module">
   import { requireAuth } from "/ogrenci/assets/js/core/auth.js";
   import { layoutYukle } from "/ogrenci/assets/js/ui/layout.js";
-  import { tumOgrencileriGetir, siniflarGetir, gorusmeleriGetir } from "/ogrenci/assets/js/data/students.js";
-  import { autocompleteYukle } from "/ogrenci/assets/js/data/autocomplete.js";
-  import { tarihtenDate } from "/ogrenci/assets/js/core/utils.js";
+  import { tumOgrencileriGetir, siniflarGetir, devamsizliklarGetir, devamsizlikHesapla } from "/ogrenci/assets/js/data/students.js";
+  import { devamsizlikDurum, devamsizlikRenk, tarihtenDate } from "/ogrenci/assets/js/core/utils.js";
 
   let raporVerisi = [];
   let dt = null;
@@ -134,72 +140,84 @@
     layoutYukle();
     const siniflar = await siniflarGetir();
     const sel = document.getElementById("filtre-sinif");
-    siniflar.forEach(s => { const o = document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
-
-    const konular = await autocompleteYukle("gorusme_konular");
-    const kl = document.getElementById("konu-list");
-    konular.forEach(k => { const o=document.createElement("option"); o.value=k; kl.appendChild(o); });
+    siniflar.forEach(s => { const o = document.createElement("option"); o.value = s; o.textContent = s; sel.appendChild(o); });
 
     flatpickr("#filtre-bas", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
     flatpickr("#filtre-bit", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
-    document.getElementById("filtre-uygula").addEventListener("click", yukle);
+
+    document.getElementById("filtre-uygula").addEventListener("click", yukleRapor);
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
-    await yukle();
+    await yukleRapor();
   });
 
-  async function yukle() {
+  async function yukleRapor() {
     document.getElementById("yukleniyor").classList.remove("d-none");
     document.getElementById("tablo-kap").classList.add("d-none");
     if (dt) { dt.destroy(); dt = null; }
 
     const filtSinif = document.getElementById("filtre-sinif").value;
-    const filtVeli  = document.getElementById("filtre-veli").value;
+    const filtTur   = document.getElementById("filtre-tur").value;
     const filtBas   = document.getElementById("filtre-bas").value;
     const filtBit   = document.getElementById("filtre-bit").value;
-    const filtKonu  = document.getElementById("filtre-konu").value.trim().toLowerCase();
+    const filtUyari = document.getElementById("filtre-uyari").value;
 
     const ogrenciler = await tumOgrencileriGetir();
     raporVerisi = [];
 
     for (const ogr of ogrenciler) {
       if (filtSinif && ogr.sinif !== filtSinif) continue;
-      let kayitlar = await gorusmeleriGetir(ogr.id);
-      if (filtVeli) kayitlar = kayitlar.filter(g => g.veli_tur === filtVeli);
-      if (filtKonu) kayitlar = kayitlar.filter(g => (g.konu||"").toLowerCase().includes(filtKonu));
+      let kayitlar = await devamsizliklarGetir(ogr.id);
+
+      // Tarih filtresi
       if (filtBas || filtBit) {
-        kayitlar = kayitlar.filter(g => {
-          const t = tarihtenDate(g.tarih);
+        kayitlar = kayitlar.filter(k => {
+          const t = tarihtenDate(k.tarih);
           if (!t) return true;
           if (filtBas && t < tarihtenDate(filtBas)) return false;
           if (filtBit && t > tarihtenDate(filtBit)) return false;
           return true;
         });
       }
-      kayitlar.forEach(g => raporVerisi.push({ ogr, ...g }));
+
+      // Tür filtresi
+      if (filtTur) kayitlar = kayitlar.filter(k => k.tur === filtTur);
+
+      const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
+      const durum = devamsizlikDurum(ozurlu, ozursuz);
+
+      if (filtUyari && durum !== filtUyari) continue;
+
+      raporVerisi.push({ ogr, ozurlu, ozursuz, durum });
     }
 
-    raporVerisi.sort((a, b) => (b.tarih||"").localeCompare(a.tarih||""));
-    document.getElementById("kayit-sayisi").textContent = raporVerisi.length;
+    const tbody = document.getElementById("rapor-tbody");
+    if (raporVerisi.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`;
+    } else {
+      tbody.innerHTML = raporVerisi.map(({ ogr, ozurlu, ozursuz, durum }) => {
+        const renk = devamsizlikRenk(durum);
+        const tamAd = `${ogr.ad} ${ogr.soyad}`.trim();
+        const etiket = durum === "kritik" ? "Kritik" : durum === "uyari" ? "Uyarı" : "Normal";
+        return `<tr>
+          <td>${ogr.numara || ogr.id}</td>
+          <td><a href="/ogrenci/pages/students/detail.html?id=${ogr.id}" class="text-decoration-none">${tamAd}</a></td>
+          <td>${ogr.sinif || "—"}</td>
+          <td class="text-center">${ozursuz}</td>
+          <td class="text-center">${ozurlu}</td>
+          <td class="text-center fw-semibold">${ozurlu + ozursuz}</td>
+          <td class="text-center"><span class="badge bg-${renk}">${etiket}</span></td>
+        </tr>`;
+      }).join("");
 
-    const tbody = document.getElementById("gorusme-tbody");
-    tbody.innerHTML = raporVerisi.length === 0
-      ? `<tr><td colspan="7" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
-      : raporVerisi.map(g => `<tr>
-          <td>${g.tarih||"—"}</td>
-          <td><a href="/ogrenci/pages/students/detail.html?id=${g.ogr.id}" class="text-decoration-none">
-            ${g.ogr.ad} ${g.ogr.soyad}</a></td>
-          <td>${g.ogr.sinif||"—"}</td>
-          <td><span class="badge bg-secondary">${g.veli_tur||"—"}</span></td>
-          <td>${g.veli_adi||"—"}</td>
-          <td>${g.konu||"—"}</td>
-          <td class="small text-muted">${g.aciklama||"—"}</td>
-        </tr>`).join("");
-
-    if (raporVerisi.length > 0) {
-      dt = new DataTable("#gorusme-tablo", {
-        language: { search: "Ara:", info: "_TOTAL_ kayıt",
-          paginate: { next: "İleri", previous: "Geri" } },
-        pageLength: 25, order: [[0, "desc"]]
+      dt = new DataTable("#rapor-tablo", {
+        language: {
+          search: "Ara:", lengthMenu: "_MENU_ kayıt",
+          info: "_TOTAL_ kayıt içinden _START_–_END_",
+          infoEmpty: "Kayıt yok", zeroRecords: "Bulunamadı",
+          paginate: { first: "İlk", last: "Son", next: "İleri", previous: "Geri" }
+        },
+        pageLength: 25,
+        order: [[5, "desc"]]
       });
     }
 
@@ -208,15 +226,20 @@
   }
 
   function excelExport() {
-    const satirlar = raporVerisi.map(g => ({
-      "Tarih": g.tarih, "Ad": g.ogr.ad, "Soyad": g.ogr.soyad, "Sınıf": g.ogr.sinif,
-      "Veli Türü": g.veli_tur, "Veli Adı": g.veli_adi,
-      "Konu": g.konu, "Açıklama": g.aciklama
+    const satirlar = raporVerisi.map(({ ogr, ozurlu, ozursuz, durum }) => ({
+      "No": ogr.numara || ogr.id,
+      "Ad": ogr.ad,
+      "Soyad": ogr.soyad,
+      "Sınıf": ogr.sinif,
+      "Özürsüz Gün": ozursuz,
+      "Özürlü Gün": ozurlu,
+      "Toplam Gün": ozurlu + ozursuz,
+      "Durum": durum === "kritik" ? "Kritik" : durum === "uyari" ? "Uyarı" : "Normal"
     }));
     const ws = XLSX.utils.json_to_sheet(satirlar);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Görüşmeler");
-    XLSX.writeFile(wb, `gorusmeler_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Devamsızlık");
+    XLSX.writeFile(wb, `devamsizlik_raporu_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 </script>
 </body>

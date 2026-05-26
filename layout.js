@@ -15,6 +15,17 @@ export function layoutYukle() {
   yukleTopbar();
   yukleSidebar();
   yukleBottomNav();
+  yukleFooter();
+}
+
+function yukleFooter() {
+  const kap = document.getElementById("footer-kap");
+  if (!kap) return;
+  kap.innerHTML = `
+    <footer class="app-footer">
+      <div class="float-end d-none d-sm-inline">Öğrenci Bilgi Sistemi</div>
+      <strong>© 2026 AYUSTASI</strong>
+    </footer>`;
 }
 
 function yukleTopbar() {

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Devamsızlık Gir — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="/ogrenci/assets/css/app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6"><h3 class="mb-0">Devamsızlık Gir</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="/ogrenci/dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item active">Devamsızlık Gir</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <!-- Yöntem seçimi -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card h-100 border-primary" id="kart-manuel" style="cursor:pointer">
+              <div class="card-body text-center py-4">
+                <i class="bi bi-person-check fs-1 text-primary mb-2"></i>
+                <h5>Manuel Giriş</h5>
+                <p class="text-muted small mb-0">Öğrenci arayarak tek tek devamsızlık ekle</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card h-100" id="kart-excel" style="cursor:pointer">
+              <div class="card-body text-center py-4">
+                <i class="bi bi-file-earmark-excel fs-1 text-success mb-2"></i>
+                <h5>Excel'den Aktar</h5>
+                <p class="text-muted small mb-0">Yoklama tablosunu yükleyerek toplu aktar</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manuel Giriş Formu -->
+        <div class="card mb-3" id="bolum-manuel">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-person-check me-1"></i> Manuel Devamsızlık Girişi</h6>
+          </div>
+          <div class="card-body">
+            <div id="hata-mesaji" class="alert alert-danger d-none"></div>
+            <div id="basari-mesaji" class="alert alert-success d-none"></div>
+
+            <div class="row g-3">
+              <!-- Öğrenci Ara -->
+              <div class="col-md-5">
+                <label class="form-label">Öğrenci <span class="text-danger">*</span></label>
+                <div class="position-relative">
+                  <input type="text" class="form-control" id="ogr-ara"
+                         placeholder="Ad, soyad veya numara ile ara..." autocomplete="off">
+                  <div id="ara-sonuclar" class="ac-dropdown d-none"></div>
+                </div>
+                <input type="hidden" id="secili-ogr-id">
+                <div id="secili-ogr-bilgi" class="mt-2 d-none">
+                  <span class="badge bg-primary" id="secili-ogr-ad"></span>
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Tarih <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="d-tarih" placeholder="GG.AA.YYYY">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label">Tür <span class="text-danger">*</span></label>
+                <select class="form-select" id="d-tur">
+                  <option value="Özürsüz">Özürsüz</option>
+                  <option value="Özürlü">Özürlü</option>
+                </select>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label">Miktar <span class="text-danger">*</span></label>
+                <select class="form-select" id="d-miktar">
+                  <option value="Tam Gün">Tam Gün</option>
+                  <option value="Yarım Gün">Yarım Gün</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Açıklama</label>
+                <input type="text" class="form-control" id="d-aciklama" placeholder="İsteğe bağlı">
+              </div>
+
+              <!-- Mevcut devamsızlık özeti -->
+              <div class="col-12 d-none" id="devamsizlik-ozet-kap">
+                <div class="alert alert-info mb-0 py-2">
+                  <small>
+                    <strong id="ozet-ogr-ad"></strong> —
+                    Özürsüz: <strong id="ozet-ozursuz"></strong> gün ·
+                    Özürlü: <strong id="ozet-ozurlu"></strong> gün
+                    <span id="ozet-uyari" class="ms-2 badge bg-warning text-dark d-none">Uyarı</span>
+                    <span id="ozet-kritik" class="ms-2 badge bg-danger d-none">Kritik</span>
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <button type="button" class="btn btn-primary" id="kaydet-btn">
+                  <span id="kaydet-metin"><i class="bi bi-save me-1"></i>Kaydet</span>
+                  <span id="kaydet-yuklen" class="d-none">
+                    <span class="spinner-border spinner-border-sm me-1"></span>Kaydediliyor...
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Excel Import -->
+        <div class="card d-none" id="bolum-excel">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-file-earmark-excel me-1"></i> Excel'den Devamsızlık Aktar</h6>
+          </div>
+          <div class="card-body">
+            <p class="text-muted small">
+              Excel dosyanızda en az şu sütunlar olmalıdır:
+              <strong>Öğrenci No, Tarih, Tür (Özürlü/Özürsüz), Miktar (Tam Gün/Yarım Gün)</strong>
+            </p>
+            <div class="mb-3">
+              <label class="form-label">Excel Dosyası (.xlsx)</label>
+              <input type="file" class="form-control" id="excel-dosya" accept=".xlsx,.xls">
+            </div>
+            <button type="button" class="btn btn-success" id="excel-yukle-btn">
+              <i class="bi bi-upload me-1"></i>Yükle ve Önizle
+            </button>
+
+            <!-- Önizleme tablosu -->
+            <div class="mt-4 d-none" id="excel-onizleme-kap">
+              <h6>Önizleme <span class="badge bg-secondary" id="excel-satir-sayisi"></span></h6>
+              <div class="table-responsive">
+                <table class="table table-sm table-bordered" id="excel-onizleme-tablo">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Öğrenci No</th><th>Ad Soyad</th><th>Tarih</th>
+                      <th>Tür</th><th>Miktar</th><th>Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody id="excel-onizleme-tbody"></tbody>
+                </table>
+              </div>
+              <button type="button" class="btn btn-primary mt-2" id="excel-aktar-btn">
+                <i class="bi bi-cloud-upload me-1"></i>Sisteme Aktar
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+<div id="footer-kap"></div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { requireAuth } from "/ogrenci/assets/js/core/auth.js";
+  import { layoutYukle } from "/ogrenci/assets/js/ui/layout.js";
+  import {
+    tumOgrencileriGetir, devamsizlikEkle,
+    devamsizliklarGetir, devamsizlikHesapla
+  } from "/ogrenci/assets/js/data/students.js";
+  import { devamsizlikDurum, toast } from "/ogrenci/assets/js/core/utils.js";
+
+  let tumOgrenciler = [];
+  let excelSatirlar = [];
+
+  requireAuth(async () => {
+    layoutYukle();
+    tumOgrenciler = await tumOgrencileriGetir();
+    baglayici();
+    flatpickr("#d-tarih", { locale: "tr", dateFormat: "d.m.Y", defaultDate: "today" });
+
+    // URL'den öğrenci id geliyorsa otomatik seç
+    const params = new URLSearchParams(location.search);
+    const ogrId = params.get("id");
+    if (ogrId) {
+      const ogr = tumOgrenciler.find(o => o.id === ogrId);
+      if (ogr) ogrenciSec(ogr);
+    }
+  });
+
+  function baglayici() {
+    // Yöntem kartları
+    document.getElementById("kart-manuel").addEventListener("click", () => {
+      document.getElementById("kart-manuel").classList.add("border-primary");
+      document.getElementById("kart-excel").classList.remove("border-primary");
+      document.getElementById("bolum-manuel").classList.remove("d-none");
+      document.getElementById("bolum-excel").classList.add("d-none");
+    });
+    document.getElementById("kart-excel").addEventListener("click", () => {
+      document.getElementById("kart-excel").classList.add("border-primary");
+      document.getElementById("kart-manuel").classList.remove("border-primary");
+      document.getElementById("bolum-excel").classList.remove("d-none");
+      document.getElementById("bolum-manuel").classList.add("d-none");
+    });
+
+    // Öğrenci arama
+    const araEl = document.getElementById("ogr-ara");
+    const sonucEl = document.getElementById("ara-sonuclar");
+    araEl.addEventListener("input", () => {
+      const q = araEl.value.trim().toLowerCase();
+      if (q.length < 2) { sonucEl.classList.add("d-none"); return; }
+      const eslesen = tumOgrenciler.filter(o =>
+        `${o.ad} ${o.soyad} ${o.numara}`.toLowerCase().includes(q)
+      ).slice(0, 8);
+      if (eslesen.length === 0) { sonucEl.classList.add("d-none"); return; }
+      sonucEl.innerHTML = eslesen.map(o =>
+        `<div class="ac-item" data-id="${o.id}">
+          <strong>${o.ad} ${o.soyad}</strong>
+          <span class="text-muted ms-2 small">${o.sinif} · No: ${o.numara}</span>
+        </div>`
+      ).join("");
+      sonucEl.classList.remove("d-none");
+      sonucEl.querySelectorAll(".ac-item").forEach(el => {
+        el.addEventListener("click", () => {
+          const ogr = tumOgrenciler.find(o => o.id === el.dataset.id);
+          ogrenciSec(ogr);
+          sonucEl.classList.add("d-none");
+        });
+      });
+    });
+
+    document.addEventListener("click", e => {
+      if (!araEl.contains(e.target)) sonucEl.classList.add("d-none");
+    });
+
+    // Kaydet
+    document.getElementById("kaydet-btn").addEventListener("click", kaydet);
+
+    // Excel
+    document.getElementById("excel-yukle-btn").addEventListener("click", excelOnizle);
+    document.getElementById("excel-aktar-btn").addEventListener("click", excelAktar);
+  }
+
+  async function ogrenciSec(ogr) {
+    document.getElementById("ogr-ara").value = `${ogr.ad} ${ogr.soyad}`;
+    document.getElementById("secili-ogr-id").value = ogr.id;
+    document.getElementById("secili-ogr-ad").textContent = `${ogr.ad} ${ogr.soyad} · ${ogr.sinif}`;
+    document.getElementById("secili-ogr-bilgi").classList.remove("d-none");
+
+    // Mevcut devamsızlık özetini göster
+    const kayitlar = await devamsizliklarGetir(ogr.id);
+    const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
+    const durum = devamsizlikDurum(ozurlu, ozursuz);
+    document.getElementById("ozet-ogr-ad").textContent = `${ogr.ad} ${ogr.soyad}`;
+    document.getElementById("ozet-ozursuz").textContent = ozursuz;
+    document.getElementById("ozet-ozurlu").textContent = ozurlu;
+    document.getElementById("ozet-uyari").classList.toggle("d-none", durum !== "uyari");
+    document.getElementById("ozet-kritik").classList.toggle("d-none", durum !== "kritik");
+    document.getElementById("devamsizlik-ozet-kap").classList.remove("d-none");
+  }
+
+  async function kaydet() {
+    const ogrId = document.getElementById("secili-ogr-id").value;
+    const tarih = document.getElementById("d-tarih").value.trim();
+    const tur = document.getElementById("d-tur").value;
+    const miktar = document.getElementById("d-miktar").value;
+    const aciklama = document.getElementById("d-aciklama").value.trim();
+    const hataEl = document.getElementById("hata-mesaji");
+    const basariEl = document.getElementById("basari-mesaji");
+
+    hataEl.classList.add("d-none");
+    basariEl.classList.add("d-none");
+
+    if (!ogrId || !tarih) {
+      hataEl.textContent = "Öğrenci seçin ve tarih girin.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
+
+    document.getElementById("kaydet-metin").classList.add("d-none");
+    document.getElementById("kaydet-yuklen").classList.remove("d-none");
+    document.getElementById("kaydet-btn").disabled = true;
+
+    try {
+      await devamsizlikEkle(ogrId, {
+        tarih,
+        tur,
+        miktar,
+        gun_degeri: miktar === "Tam Gün" ? 1 : 0.5,
+        aciklama
+      });
+      basariEl.textContent = "Devamsızlık kaydedildi.";
+      basariEl.classList.remove("d-none");
+      document.getElementById("d-aciklama").value = "";
+      // Özeti güncelle
+      const ogr = tumOgrenciler.find(o => o.id === ogrId);
+      if (ogr) await ogrenciSec(ogr);
+    } catch (err) {
+      hataEl.textContent = "Kayıt hatası: " + err.message;
+      hataEl.classList.remove("d-none");
+    } finally {
+      document.getElementById("kaydet-metin").classList.remove("d-none");
+      document.getElementById("kaydet-yuklen").classList.add("d-none");
+      document.getElementById("kaydet-btn").disabled = false;
+    }
+  }
+
+  function excelOnizle() {
+    const dosya = document.getElementById("excel-dosya").files[0];
+    if (!dosya) { toast("Lütfen bir Excel dosyası seçin.", "warning"); return; }
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      const wb = XLSX.read(e.target.result, { type: "array" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const satirlar = XLSX.utils.sheet_to_json(ws, { defval: "" });
+
+      excelSatirlar = [];
+      const tbody = document.getElementById("excel-onizleme-tbody");
+      tbody.innerHTML = "";
+
+      satirlar.forEach((satir, i) => {
+        // Sütun adlarını normalize et
+        const no = String(satir["Öğrenci No"] || satir["No"] || satir["numara"] || "").trim();
+        const tarih = String(satir["Tarih"] || satir["tarih"] || "").trim();
+        const tur = String(satir["Tür"] || satir["tur"] || "Özürsüz").trim();
+        const miktar = String(satir["Miktar"] || satir["miktar"] || "Tam Gün").trim();
+        const aciklama = String(satir["Açıklama"] || satir["aciklama"] || "").trim();
+
+        const ogr = tumOgrenciler.find(o => String(o.numara || o.id) === no);
+        const durum = ogr ? "✅ Bulundu" : "❌ Bulunamadı";
+        const sinif = ogr ? `${durum} (${ogr.sinif})` : durum;
+        const tamAd = ogr ? `${ogr.ad} ${ogr.soyad}` : "—";
+        const satirRenk = ogr ? "" : "table-danger";
+
+        excelSatirlar.push({ no, tarih, tur, miktar, aciklama, ogrId: ogr?.id || null });
+
+        tbody.innerHTML += `<tr class="${satirRenk}">
+          <td>${no}</td><td>${tamAd}</td><td>${tarih}</td>
+          <td>${tur}</td><td>${miktar}</td><td>${sinif}</td>
+        </tr>`;
+      });
+
+      document.getElementById("excel-satir-sayisi").textContent = excelSatirlar.length + " satır";
+      document.getElementById("excel-onizleme-kap").classList.remove("d-none");
+    };
+    reader.readAsArrayBuffer(dosya);
+  }
+
+  async function excelAktar() {
+    const gecerli = excelSatirlar.filter(s => s.ogrId && s.tarih);
+    if (gecerli.length === 0) { toast("Aktarılacak geçerli kayıt yok.", "warning"); return; }
+
+    document.getElementById("excel-aktar-btn").disabled = true;
+    document.getElementById("excel-aktar-btn").innerHTML =
+      `<span class="spinner-border spinner-border-sm me-1"></span>Aktarılıyor...`;
+
+    let basarili = 0, hatali = 0;
+    for (const s of gecerli) {
+      try {
+        await devamsizlikEkle(s.ogrId, {
+          tarih: s.tarih,
+          tur: s.tur,
+          miktar: s.miktar,
+          gun_degeri: s.miktar === "Yarım Gün" ? 0.5 : 1,
+          aciklama: s.aciklama
+        });
+        basarili++;
+      } catch (_) { hatali++; }
+    }
+
+    toast(`${basarili} kayıt aktarıldı${hatali > 0 ? `, ${hatali} hata` : ""}.`,
+      hatali > 0 ? "warning" : "success");
+    document.getElementById("excel-aktar-btn").disabled = false;
+    document.getElementById("excel-aktar-btn").innerHTML =
+      `<i class="bi bi-cloud-upload me-1"></i>Sisteme Aktar`;
+  }
+</script>
+</body>
+</html>
