@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Detayı — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6"><h3 class="mb-0" id="sayfa-baslik">Öğrenci Detayı</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="students-list.html">Öğrenciler</a></li>
+              <li class="breadcrumb-item active" id="breadcrumb-ad">Detay</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <div id="yukleniyor" class="text-center py-5 text-muted">
+          <div class="spinner-border text-primary mb-3"></div><div>Yükleniyor...</div>
+        </div>
+
+        <div id="icerik" class="d-none">
+
+          <!-- Profil Başlık -->
+          <div class="card mb-3">
+            <div class="card-body py-3">
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <img id="profil-foto" src="avatar-default.png"
+                     class="ogrenci-avatar-buyuk" alt="">
+                <div class="flex-grow-1">
+                  <h4 class="mb-1" id="profil-ad"></h4>
+                  <div class="d-flex gap-2 flex-wrap align-items-center" id="profil-rozetler"></div>
+                </div>
+                <div class="d-flex gap-2 no-print">
+                  <a href="#" id="duzenle-btn" class="btn btn-primary btn-sm">
+                    <i class="bi bi-pencil me-1"></i>Düzenle
+                  </a>
+                  <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>Yazdır
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sekmeler -->
+          <ul class="nav nav-tabs mb-3 no-print" id="sekme-nav">
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="tab" href="#sekme-kisisel">
+                <i class="bi bi-person me-1"></i>Kişisel
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#sekme-veli">
+                <i class="bi bi-people me-1"></i>Veliler
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#sekme-devamsizlik">
+                <i class="bi bi-calendar-x me-1"></i>Devamsızlık
+                <span class="badge bg-secondary ms-1" id="dev-sayac">—</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#sekme-davranis">
+                <i class="bi bi-star-half me-1"></i>Davranış
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" href="#sekme-gorusme">
+                <i class="bi bi-chat-dots me-1"></i>Veli Görüşmeleri
+              </a>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+
+            <!-- KİŞİSEL BİLGİLER -->
+            <div class="tab-pane fade show active" id="sekme-kisisel">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-id-card me-1"></i>Kimlik & Doğum</h6></div>
+                    <div class="card-body" id="blok-kimlik"></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-heart-pulse me-1"></i>Sağlık Bilgileri</h6></div>
+                    <div class="card-body" id="blok-saglik"></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-house me-1"></i>Aile Durumu</h6></div>
+                    <div class="card-body" id="blok-aile"></div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-trophy me-1"></i>Yetenek & Hobiler</h6></div>
+                    <div class="card-body" id="blok-yetenek"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- VELİ BİLGİLERİ -->
+            <div class="tab-pane fade" id="sekme-veli">
+              <div class="row g-3" id="veli-kartlar">
+                <div class="col-12 text-center text-muted py-3">Yükleniyor...</div>
+              </div>
+            </div>
+
+            <!-- DEVAMSIZLIK -->
+            <div class="tab-pane fade" id="sekme-devamsizlik">
+              <div class="row g-3 mb-3">
+                <div class="col-6 col-md-3">
+                  <div class="card text-center">
+                    <div class="card-body py-2">
+                      <div class="small text-muted">Özürsüz</div>
+                      <div class="fs-4 fw-bold text-danger" id="dev-ozursuz">—</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="card text-center">
+                    <div class="card-body py-2">
+                      <div class="small text-muted">Özürlü</div>
+                      <div class="fs-4 fw-bold text-warning" id="dev-ozurlu">—</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="card text-center">
+                    <div class="card-body py-2">
+                      <div class="small text-muted">Toplam</div>
+                      <div class="fs-4 fw-bold" id="dev-toplam">—</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="card text-center">
+                    <div class="card-body py-2">
+                      <div class="small text-muted">Durum</div>
+                      <div id="dev-durum-rozet">—</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Tarih</th>
+                          <th>Tür</th>
+                          <th>Miktar</th>
+                          <th>Açıklama</th>
+                          <th class="no-print">Sil</th>
+                        </tr>
+                      </thead>
+                      <tbody id="dev-tablo"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- DAVRANIŞ -->
+            <div class="tab-pane fade" id="sekme-davranis">
+              <div class="card">
+                <div class="card-header d-flex gap-2 align-items-center no-print">
+                  <select id="davranis-filtre" class="form-select form-select-sm" style="max-width:150px">
+                    <option value="">Tümü</option>
+                    <option value="Olumlu">Olumlu</option>
+                    <option value="Olumsuz">Olumsuz</option>
+                  </select>
+                  <h6 class="mb-0 ms-auto"><i class="bi bi-star-half me-1"></i>Davranış Kayıtları</h6>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Tarih</th>
+                          <th>Tür</th>
+                          <th>Kategori</th>
+                          <th>Açıklama</th>
+                          <th>Veli Görüşmesi</th>
+                          <th class="no-print">Sil</th>
+                        </tr>
+                      </thead>
+                      <tbody id="davranis-tablo"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- VELİ GÖRÜŞMELERİ -->
+            <div class="tab-pane fade" id="sekme-gorusme">
+              <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h6 class="mb-0"><i class="bi bi-chat-dots me-1"></i>Görüşme Kayıtları</h6>
+                  <a id="gorusme-ekle-link" href="#" class="btn btn-sm btn-primary no-print">
+                    <i class="bi bi-plus me-1"></i>Görüşme Gir
+                  </a>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Tarih</th>
+                          <th>Veli</th>
+                          <th>Konu</th>
+                          <th>Açıklama</th>
+                          <th class="no-print">Sil</th>
+                        </tr>
+                      </thead>
+                      <tbody id="gorusme-tablo"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /tab-content -->
+        </div><!-- /icerik -->
+      </div>
+    </div>
+  </main>
+</div>
+<div id="footer-kap"></div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+
+<script type="module">
+  import { requireAuth } from "auth.js";
+  import { layoutYukle } from "layout.js";
+  import {
+    ogrenciGetir, velileriGetir,
+    devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil,
+    davranislarGetir, davranisSil,
+    gorusmeleriGetir, gorusmeSil
+  } from "students.js";
+  import {
+    devamsizlikDurum, devamsizlikRenk, formatTelefon, toast
+  } from "utils.js";
+
+  const AVATAR = "avatar-default.png";
+  let ogrenciId = null;
+  let tumDavranislar = [];
+
+  requireAuth(async () => {
+    layoutYukle();
+    const params = new URLSearchParams(location.search);
+    ogrenciId = params.get("id");
+    if (!ogrenciId) { location.href = "students-list.html"; return; }
+    await yukle();
+  });
+
+  async function yukle() {
+    try {
+      const o = await ogrenciGetir(ogrenciId);
+      if (!o) { location.href = "students-list.html"; return; }
+
+      const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
+      document.title = `${tamAd} — ÖBS`;
+      document.getElementById("sayfa-baslik").textContent = tamAd;
+      document.getElementById("breadcrumb-ad").textContent = tamAd;
+
+      // Profil
+      document.getElementById("profil-foto").src = o.fotograf_url || AVATAR;
+      document.getElementById("profil-ad").textContent = tamAd;
+      document.getElementById("profil-rozetler").innerHTML = [
+        `<span class="badge bg-primary">${o.sinif || "—"}</span>`,
+        `<span class="badge bg-secondary">${o.cinsiyet || "—"}</span>`,
+        `<span class="badge bg-info text-dark">${o.yatililik || "—"}</span>`,
+        o.durum !== "Aktif" ? `<span class="badge bg-warning text-dark">${o.durum}</span>` : ""
+      ].join("");
+
+      document.getElementById("duzenle-btn").href =
+        `students-add-edit.html?id=${ogrenciId}`;
+      document.getElementById("gorusme-ekle-link").href =
+        `meetings-entry.html?id=${ogrenciId}`;
+
+      // Bloklar
+      blokDoldur("blok-kimlik", [
+        ["Öğrenci No", o.id],
+        ["TC Kimlik", o.tc_kimlik],
+        ["Doğum Tarihi", o.dogum_tarihi],
+        ["Doğum Yeri", o.dogum_yeri],
+      ]);
+
+      blokDoldur("blok-saglik", [
+        ["Hastalık", o.hastalik],
+        ["Engel", o.engel],
+        ["İlaç", o.ilac],
+      ]);
+
+      blokDoldur("blok-aile", [
+        ["Ebeveyn Durumu", o.ebeveyn_durum],
+        ["Birliktelik", o.birliktelik],
+        ["Kiminle Yaşıyor", o.beraberlik],
+        ["Maddi Durum", o.maddi_durum],
+      ]);
+
+      // Yetenekler
+      const yetEl = document.getElementById("blok-yetenek");
+      if (o.yetenekler && o.yetenekler.length > 0) {
+        yetEl.innerHTML = o.yetenekler.map(y =>
+          `<div class="d-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-star-fill text-warning small"></i>
+            <span class="small"><strong>${y.tur}</strong> — ${y.aciklama}</span>
+          </div>`
+        ).join("");
+      } else {
+        yetEl.innerHTML = `<span class="text-muted small">Kayıt yok</span>`;
+      }
+
+      // Diğer sekmeleri yükle
+      await Promise.all([
+        yukleVeliler(),
+        yukleDevamsizlik(),
+        yukleDavranis(),
+        yukleGorusmeler()
+      ]);
+
+      document.getElementById("yukleniyor").classList.add("d-none");
+      document.getElementById("icerik").classList.remove("d-none");
+
+    } catch (err) {
+      console.error(err);
+      toast("Veriler yüklenemedi: " + err.message, "danger");
+    }
+  }
+
+  function blokDoldur(elId, alanlar) {
+    const el = document.getElementById(elId);
+    el.innerHTML = alanlar.map(([et, dg]) => `
+      <div class="d-flex justify-content-between mb-2 small border-bottom pb-1">
+        <span class="text-muted">${et}</span>
+        <span class="fw-semibold text-end">${dg || '<span class="text-muted">—</span>'}</span>
+      </div>`).join("");
+  }
+
+  async function yukleVeliler() {
+    const veliler = await velileriGetir(ogrenciId);
+    const kap = document.getElementById("veli-kartlar");
+    if (!veliler.length) {
+      kap.innerHTML = `<div class="col-12 text-muted text-center py-3">Veli kaydı yok.</div>`;
+      return;
+    }
+    kap.innerHTML = veliler.map(v => {
+      const turRenk = v.tur === "Baba" ? "primary" : v.tur === "Anne" ? "danger" : "secondary";
+      return `<div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">
+            <h6 class="mb-0">
+              <span class="badge bg-${turRenk} me-1">${v.tur}</span>
+              ${v.ad || ""} ${v.soyad || ""}
+            </h6>
+          </div>
+          <div class="card-body">
+            ${veliSatir("Meslek", [v.meslek, v.alan, v.gorev].filter(Boolean).join(" / "))}
+            ${veliSatir("Telefon", formatTelefon(v.telefon || ""))}
+            ${veliSatir("E-Posta", v.e_posta)}
+            ${veliSatir("Ev Adresi", v.ev_adresi)}
+            ${veliSatir("İş Adresi", v.is_adresi)}
+            ${veliSatir("Şehir / İlçe", [v.sehir, v.ilce].filter(Boolean).join(" / "))}
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function veliSatir(et, dg) {
+    if (!dg) return "";
+    return `<div class="d-flex justify-content-between mb-1 small border-bottom pb-1">
+      <span class="text-muted">${et}</span>
+      <span class="fw-semibold text-end" style="max-width:60%">${dg}</span>
+    </div>`;
+  }
+
+  async function yukleDevamsizlik() {
+    const kayitlar = await devamsizliklarGetir(ogrenciId);
+    const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
+    const toplam = ozurlu + ozursuz;
+    const durum = devamsizlikDurum(ozurlu, ozursuz);
+    const renk = devamsizlikRenk(durum);
+
+    document.getElementById("dev-ozursuz").textContent = ozursuz;
+    document.getElementById("dev-ozurlu").textContent = ozurlu;
+    document.getElementById("dev-toplam").textContent = toplam;
+    document.getElementById("dev-sayac").textContent = toplam;
+    document.getElementById("dev-durum-rozet").innerHTML =
+      `<span class="badge bg-${renk} fs-6">${durum === "normal" ? "Normal" : durum === "uyari" ? "Uyarı" : "Kritik"}</span>`;
+
+    const tbody = document.getElementById("dev-tablo");
+    tbody.innerHTML = kayitlar.length === 0
+      ? `<tr><td colspan="5" class="text-center text-muted py-3">Devamsızlık kaydı yok.</td></tr>`
+      : kayitlar.map(k => `<tr>
+          <td>${k.tarih || "—"}</td>
+          <td><span class="badge ${k.tur === "Özürsüz" ? "bg-danger" : "bg-warning text-dark"}">${k.tur}</span></td>
+          <td>${k.miktar || "—"}</td>
+          <td>${k.aciklama || "—"}</td>
+          <td class="no-print">
+            <button class="btn btn-xs btn-outline-danger" onclick="silDevamsizlik('${k.id}')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>`).join("");
+  }
+
+  async function yukleDavranis() {
+    tumDavranislar = await davranislarGetir(ogrenciId);
+    davranisTabloGoster(tumDavranislar);
+
+    document.getElementById("davranis-filtre").addEventListener("change", (e) => {
+      const filtre = e.target.value;
+      davranisTabloGoster(filtre ? tumDavranislar.filter(d => d.tur === filtre) : tumDavranislar);
+    });
+  }
+
+  function davranisTabloGoster(liste) {
+    const tbody = document.getElementById("davranis-tablo");
+    tbody.innerHTML = liste.length === 0
+      ? `<tr><td colspan="6" class="text-center text-muted py-3">Kayıt yok.</td></tr>`
+      : liste.map(d => {
+          const renk = d.tur === "Olumlu" ? "success" : "danger";
+          return `<tr>
+            <td>${d.tarih || "—"}</td>
+            <td><span class="badge bg-${renk}">${d.tur}</span></td>
+            <td>${d.kategori || "—"}</td>
+            <td>${d.aciklama || "—"}</td>
+            <td>${d.veli_gorusmesi ? '<i class="bi bi-check-circle text-success"></i>' : "—"}</td>
+            <td class="no-print">
+              <button class="btn btn-xs btn-outline-danger" onclick="silDavranis('${d.id}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>`;
+        }).join("");
+  }
+
+  async function yukleGorusmeler() {
+    const gorusmeler = await gorusmeleriGetir(ogrenciId);
+    const tbody = document.getElementById("gorusme-tablo");
+    tbody.innerHTML = gorusmeler.length === 0
+      ? `<tr><td colspan="5" class="text-center text-muted py-3">Görüşme kaydı yok.</td></tr>`
+      : gorusmeler.map(g => `<tr>
+          <td>${g.tarih || "—"}</td>
+          <td>${g.veli_tur || "—"}</td>
+          <td>${g.konu || "—"}</td>
+          <td>${g.aciklama || "—"}</td>
+          <td class="no-print">
+            <button class="btn btn-xs btn-outline-danger" onclick="silGorusme('${g.id}')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>`).join("");
+  }
+
+  // Global silme fonksiyonları (onclick ile kullanılır)
+  window.silDevamsizlik = async (kayitId) => {
+    if (!confirm("Bu devamsızlık kaydı silinecek. Emin misiniz?")) return;
+    try {
+      await devamsizlikSil(ogrenciId, kayitId);
+      toast("Devamsızlık kaydı silindi.", "success");
+      await yukleDevamsizlik();
+    } catch (err) { toast("Hata: " + err.message, "danger"); }
+  };
+
+  window.silDavranis = async (kayitId) => {
+    if (!confirm("Bu davranış kaydı silinecek. Emin misiniz?")) return;
+    try {
+      await davranisSil(ogrenciId, kayitId);
+      toast("Davranış kaydı silindi.", "success");
+      tumDavranislar = await davranislarGetir(ogrenciId);
+      davranisTabloGoster(tumDavranislar);
+    } catch (err) { toast("Hata: " + err.message, "danger"); }
+  };
+
+  window.silGorusme = async (kayitId) => {
+    if (!confirm("Bu görüşme kaydı silinecek. Emin misiniz?")) return;
+    try {
+      await gorusmeSil(ogrenciId, kayitId);
+      toast("Görüşme kaydı silindi.", "success");
+      await yukleGorusmeler();
+    } catch (err) { toast("Hata: " + err.message, "danger"); }
+  };
+</script>
+</body>
+</html>

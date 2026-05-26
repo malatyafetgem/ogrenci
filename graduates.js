@@ -1,7 +1,7 @@
 /**
  * graduates.js — Mezun Firestore CRUD işlemleri
  */
-import { db } from "../core/firebase-config.js";
+import { db } from "./firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";

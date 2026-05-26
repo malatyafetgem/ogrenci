@@ -1,10 +1,6 @@
 import { auth } from "./firebase-config.js";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// Giriş sayfasının kök yolu (GitHub Pages base path)
-const BASE = "/ogrenci";
-const LOGIN_PAGE = `${BASE}/index.html`;
-
 /**
  * Oturum gerektiren sayfalarda çağrılır.
  * Giriş yoksa login sayfasına yönlendirir.
@@ -12,7 +8,7 @@ const LOGIN_PAGE = `${BASE}/index.html`;
 export function requireAuth(callback) {
   onAuthStateChanged(auth, (user) => {
     if (!user) {
-      window.location.href = LOGIN_PAGE;
+      window.location.href = "index.html";
     } else {
       if (callback) callback(user);
     }
@@ -26,7 +22,7 @@ export function requireAuth(callback) {
 export function redirectIfLoggedIn() {
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      window.location.href = `${BASE}/dashboard.html`;
+      window.location.href = "dashboard.html";
     }
   });
 }
@@ -43,7 +39,7 @@ export async function login(email, password) {
  */
 export async function logout() {
   await signOut(auth);
-  window.location.href = LOGIN_PAGE;
+  window.location.href = "index.html";
 }
 
 /**

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Listesi — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6"><h3 class="mb-0">Öğrenci Listesi</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item active">Öğrenciler</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <!-- Filtreler -->
+        <div class="card mb-3 no-print">
+          <div class="card-body py-2">
+            <div class="row g-2 align-items-end">
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Sınıf</label>
+                <select id="filtre-sinif" class="form-select form-select-sm">
+                  <option value="">Tüm Sınıflar</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Cinsiyet</label>
+                <select id="filtre-cinsiyet" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option>Erkek</option>
+                  <option>Kız</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Yatılılık</label>
+                <select id="filtre-yatililik" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option>Gündüzlü</option>
+                  <option>Paralı Yatılı</option>
+                  <option>Parasız Yatılı</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Durum</label>
+                <select id="filtre-durum" class="form-select form-select-sm">
+                  <option value="Aktif">Aktif</option>
+                  <option value="">Tümü</option>
+                  <option value="Mezun">Mezun</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-4 d-flex gap-2">
+                <button id="filtre-uygula" class="btn btn-sm btn-primary">
+                  <i class="bi bi-search me-1"></i>Filtrele
+                </button>
+                <button id="filtre-temizle" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-x me-1"></i>Temizle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="mb-0">
+              <i class="bi bi-people me-1"></i>Öğrenciler
+              <span class="badge bg-secondary ms-1" id="kayit-sayisi">—</span>
+            </h6>
+            <div class="d-flex gap-2 no-print flex-wrap">
+              <a href="students-add-edit.html" class="btn btn-sm btn-primary">
+                <i class="bi bi-person-plus me-1"></i>Yeni Öğrenci
+              </a>
+              <button class="btn btn-sm btn-success" id="excel-export-btn">
+                <i class="bi bi-file-earmark-excel me-1"></i>Excel
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" id="excel-import-btn">
+                <i class="bi bi-upload me-1"></i>Excel İçe Aktar
+              </button>
+              <input type="file" id="excel-dosya" accept=".xlsx,.xls" class="d-none">
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div id="yukleniyor" class="text-center py-4 text-muted">
+              <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
+            </div>
+            <div class="table-responsive d-none" id="tablo-kap">
+              <table id="ogrenci-tablo" class="table table-sm table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width:50px">Foto</th>
+                    <th>No</th>
+                    <th>Ad Soyad</th>
+                    <th>Sınıf</th>
+                    <th>Cinsiyet</th>
+                    <th>Yatılılık</th>
+                    <th class="text-center">Devamsızlık</th>
+                    <th class="no-print">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="ogrenci-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Excel Import Modal -->
+        <div class="modal fade" id="import-modal" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-upload me-2"></i>Excel'den Öğrenci Aktar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div id="import-adim-1">
+                  <p class="text-muted small mb-3">Excel dosyanızı seçin. Sütun eşleştirmesi otomatik yapılacaktır.</p>
+                  <div class="mb-3">
+                    <label class="form-label">Excel Dosyası (.xlsx)</label>
+                    <input type="file" class="form-control" id="import-dosya-input" accept=".xlsx,.xls">
+                  </div>
+                  <div id="import-onizleme" class="d-none">
+                    <h6>Bulunan Sütunlar → Eşleştirme</h6>
+                    <div id="eslestirme-tablo" class="table-responsive" style="max-height:300px;overflow-y:auto"></div>
+                    <div class="mt-2">
+                      <span class="badge bg-info" id="import-satir-sayisi"></span>
+                    </div>
+                  </div>
+                </div>
+                <div id="import-ilerleme" class="d-none">
+                  <div class="progress mb-2">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated"
+                         id="import-progress-bar" style="width:0%"></div>
+                  </div>
+                  <div id="import-durum-mesaj" class="text-muted small text-center">Aktarılıyor...</div>
+                </div>
+                <div id="import-sonuc" class="d-none">
+                  <div class="alert alert-success" id="import-basari-mesaj"></div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary d-none" id="import-baslat-btn">
+                  <i class="bi bi-play-fill me-1"></i>Aktarmayı Başlat
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+<div id="footer-kap"></div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { requireAuth } from "auth.js";
+  import { layoutYukle } from "layout.js";
+  import { db } from "firebase-config.js";
+  import {
+    collection, getDocs, query, where, orderBy
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import {
+    tumOgrencileriGetir, ogrenciEkle, siniflarGetir,
+    devamsizliklarGetir, devamsizlikHesapla
+  } from "students.js";
+  import { devamsizlikDurum, devamsizlikRenk, formatAd, formatSoyad, toast } from "utils.js";
+
+  let tumOgrenciler = [];
+  let dt = null;
+  const VARSAYILAN_AVATAR = "avatar-default.png";
+
+  // Excel sütun eşleşme tablosu
+  const ESLESTIRME = {
+    "Adı": "ad", "Adı ": "ad",
+    "Soyadı": "soyad", "Soyadı ": "soyad",
+    "Sınıfı": "sinif",
+    "No": "numara",
+    "Cinsiyeti": "cinsiyet",
+    "Yatılılık": "yatililik",
+    "Hastalık": "hastalik",
+    "Engel": "engel",
+    "İlâç": "ilac", "İlaç": "ilac",
+    "T.C. Kimlik No": "tc_kimlik", "TC": "tc_kimlik",
+    "Doğum Tarihi": "dogum_tarihi",
+    "Doğum Yeri": "dogum_yeri",
+    "Birliktelik": "birliktelik",
+    "Beraberlik": "beraberlik"
+  };
+
+  requireAuth(async () => {
+    layoutYukle();
+    await ilkYukle();
+    baglayici();
+  });
+
+  async function ilkYukle() {
+    const siniflar = await siniflarGetir();
+    const sinifSel = document.getElementById("filtre-sinif");
+    siniflar.forEach(s => {
+      const o = document.createElement("option"); o.value = s; o.textContent = s;
+      sinifSel.appendChild(o);
+    });
+    await yukleOgrenciler();
+  }
+
+  async function yukleOgrenciler(filtreler = {}) {
+    document.getElementById("yukleniyor").classList.remove("d-none");
+    document.getElementById("tablo-kap").classList.add("d-none");
+    if (dt) { dt.destroy(); dt = null; }
+
+    try {
+      let q = query(collection(db, "students"), orderBy("soyad"));
+      if (filtreler.durum) {
+        q = query(collection(db, "students"), where("durum", "==", filtreler.durum), orderBy("soyad"));
+      }
+      const snap = await getDocs(q);
+      let ogrenciler = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (filtreler.sinif)      ogrenciler = ogrenciler.filter(o => o.sinif === filtreler.sinif);
+      if (filtreler.cinsiyet)   ogrenciler = ogrenciler.filter(o => o.cinsiyet === filtreler.cinsiyet);
+      if (filtreler.yatililik)  ogrenciler = ogrenciler.filter(o => o.yatililik === filtreler.yatililik);
+
+      tumOgrenciler = ogrenciler;
+      tabloYukle(ogrenciler);
+    } catch (err) {
+      console.error(err);
+      toast("Veri yüklenemedi!", "danger");
+    }
+  }
+
+  function tabloYukle(veri) {
+    document.getElementById("kayit-sayisi").textContent = veri.length;
+    const tbody = document.getElementById("ogrenci-tbody");
+
+    tbody.innerHTML = veri.length === 0
+      ? `<tr><td colspan="8" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
+      : veri.map(o => {
+          const ad = o.ad || ""; const soyad = o.soyad || "";
+          const tamAd = `${ad} ${soyad}`.trim();
+          const foto = o.fotograf_url
+            ? `<img src="${o.fotograf_url}" class="ogrenci-avatar" onerror="this.src='${VARSAYILAN_AVATAR}'">`
+            : `<img src="${VARSAYILAN_AVATAR}" class="ogrenci-avatar">`;
+          const durumRenk = o.durum === "Aktif" ? "success" : o.durum === "Mezun" ? "secondary" : "warning";
+          return `<tr>
+            <td>${foto}</td>
+            <td>${o.id}</td>
+            <td>
+              <a href="students-detail.html?id=${o.id}"
+                 class="fw-semibold text-decoration-none">${tamAd}</a>
+              <span class="badge bg-${durumRenk} ms-1" style="font-size:.65rem">${o.durum || ""}</span>
+            </td>
+            <td>${o.sinif || "—"}</td>
+            <td>${o.cinsiyet || "—"}</td>
+            <td><span class="badge bg-light text-dark border">${o.yatililik || "—"}</span></td>
+            <td class="text-center" id="dev-${o.id}"><span class="text-muted">—</span></td>
+            <td class="no-print">
+              <a href="students-detail.html?id=${o.id}" class="btn btn-xs btn-outline-info me-1" title="Detay">
+                <i class="bi bi-eye"></i>
+              </a>
+              <a href="students-add-edit.html?id=${o.id}" class="btn btn-xs btn-outline-primary me-1" title="Düzenle">
+                <i class="bi bi-pencil"></i>
+              </a>
+            </td>
+          </tr>`;
+        }).join("");
+
+    document.getElementById("yukleniyor").classList.add("d-none");
+    document.getElementById("tablo-kap").classList.remove("d-none");
+
+    if (veri.length > 0) {
+      dt = new DataTable("#ogrenci-tablo", {
+        language: {
+          search: "Ara:", info: "_TOTAL_ kayıt içinden _START_–_END_",
+          zeroRecords: "Bulunamadı",
+          paginate: { next: "İleri", previous: "Geri" },
+          lengthMenu: "_MENU_ kayıt göster"
+        },
+        pageLength: 25,
+        columnDefs: [
+          { orderable: false, targets: [0, 6, 7] }
+        ]
+      });
+    }
+
+    // Devamsızlık sayılarını arka planda yükle
+    yukleDevamsizliklar(veri);
+  }
+
+  async function yukleDevamsizliklar(veri) {
+    for (const o of veri.slice(0, 50)) { // İlk 50'si
+      try {
+        const kayitlar = await devamsizliklarGetir(o.id);
+        const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
+        const durum = devamsizlikDurum(ozurlu, ozursuz);
+        const el = document.getElementById(`dev-${o.id}`);
+        if (!el) continue;
+        if (durum === "normal" && ozurlu + ozursuz === 0) {
+          el.innerHTML = `<span class="text-muted small">—</span>`;
+        } else {
+          const renk = devamsizlikRenk(durum);
+          el.innerHTML = `<span class="badge bg-${renk}">${ozursuz}/${ozurlu}</span>`;
+        }
+      } catch (_) {}
+    }
+  }
+
+  function baglayici() {
+    document.getElementById("filtre-uygula").addEventListener("click", () => {
+      yukleOgrenciler({
+        sinif: document.getElementById("filtre-sinif").value,
+        cinsiyet: document.getElementById("filtre-cinsiyet").value,
+        yatililik: document.getElementById("filtre-yatililik").value,
+        durum: document.getElementById("filtre-durum").value
+      });
+    });
+
+    document.getElementById("filtre-temizle").addEventListener("click", () => {
+      document.getElementById("filtre-sinif").value = "";
+      document.getElementById("filtre-cinsiyet").value = "";
+      document.getElementById("filtre-yatililik").value = "";
+      document.getElementById("filtre-durum").value = "Aktif";
+      yukleOgrenciler({ durum: "Aktif" });
+    });
+
+    document.getElementById("excel-export-btn").addEventListener("click", excelExport);
+
+    document.getElementById("excel-import-btn").addEventListener("click", () => {
+      const modal = new bootstrap.Modal(document.getElementById("import-modal"));
+      modal.show();
+    });
+
+    document.getElementById("import-dosya-input").addEventListener("change", dosyaOku);
+    document.getElementById("import-baslat-btn").addEventListener("click", importBaslat);
+  }
+
+  function excelExport() {
+    const satirlar = tumOgrenciler.map(o => ({
+      "No": o.id,
+      "Ad": o.ad, "Soyad": o.soyad,
+      "Sınıf": o.sinif,
+      "Cinsiyet": o.cinsiyet,
+      "Yatılılık": o.yatililik,
+      "TC Kimlik": o.tc_kimlik,
+      "Doğum Tarihi": o.dogum_tarihi,
+      "Durum": o.durum
+    }));
+    const ws = XLSX.utils.json_to_sheet(satirlar);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Öğrenciler");
+    XLSX.writeFile(wb, `ogrenciler_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  let importVerisi = [];
+
+  function dosyaOku(e) {
+    const dosya = e.target.files[0];
+    if (!dosya) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const wb = XLSX.read(ev.target.result, { type: "binary" });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const satirlar = XLSX.utils.sheet_to_json(ws, { defval: "" });
+      if (!satirlar.length) return;
+
+      // Eşleştirme tablosunu göster
+      const sutunlar = Object.keys(satirlar[0]);
+      let html = `<table class="table table-xs table-bordered small"><thead><tr>
+        <th>Excel Sütunu</th><th>Eşleşen Alan</th></tr></thead><tbody>`;
+      sutunlar.forEach(s => {
+        const eslesme = ESLESTIRME[s] || `<span class="text-muted">— (atlanacak)</span>`;
+        html += `<tr><td>${s}</td><td>${eslesme}</td></tr>`;
+      });
+      html += `</tbody></table>`;
+
+      document.getElementById("eslestirme-tablo").innerHTML = html;
+      document.getElementById("import-satir-sayisi").textContent = `${satirlar.length} satır bulundu`;
+      document.getElementById("import-onizleme").classList.remove("d-none");
+      document.getElementById("import-baslat-btn").classList.remove("d-none");
+
+      importVerisi = satirlar;
+    };
+    reader.readAsBinaryString(dosya);
+  }
+
+  async function importBaslat() {
+    if (!importVerisi.length) return;
+    document.getElementById("import-adim-1").classList.add("d-none");
+    document.getElementById("import-ilerleme").classList.remove("d-none");
+    document.getElementById("import-baslat-btn").classList.add("d-none");
+
+    let basarili = 0, atlandi = 0;
+    const progressBar = document.getElementById("import-progress-bar");
+    const durumMesaj = document.getElementById("import-durum-mesaj");
+
+    for (let i = 0; i < importVerisi.length; i++) {
+      const satir = importVerisi[i];
+      const yuzde = Math.round(((i + 1) / importVerisi.length) * 100);
+      progressBar.style.width = yuzde + "%";
+      durumMesaj.textContent = `${i + 1} / ${importVerisi.length} işleniyor...`;
+
+      try {
+        const numara = String(satir["No"] || "").trim();
+        if (!numara || !/^\d+$/.test(numara)) { atlandi++; continue; }
+
+        const veri = {
+          ad: formatAd(String(satir["Adı"] || satir["Adı "] || "")),
+          soyad: formatSoyad(String(satir["Soyadı"] || satir["Soyadı "] || "")),
+          sinif: String(satir["Sınıfı"] || "").trim(),
+          numara,
+          cinsiyet: String(satir["Cinsiyeti"] || "").trim(),
+          yatililik: String(satir["Yatılılık"] || "").trim(),
+          hastalik: String(satir["Hastalık"] || "").trim(),
+          engel: String(satir["Engel"] || "").trim(),
+          ilac: String(satir["İlâç"] || satir["İlaç"] || "").trim(),
+          tc_kimlik: String(satir["T.C. Kimlik No"] || satir["TC"] || "").trim(),
+          dogum_tarihi: String(satir["Doğum Tarihi"] || "").trim(),
+          dogum_yeri: String(satir["Doğum Yeri"] || "").trim(),
+          birliktelik: String(satir["Birliktelik"] || "").trim(),
+          beraberlik: String(satir["Beraberlik"] || "").trim(),
+          durum: "Aktif"
+        };
+
+        await ogrenciEkle(numara, veri);
+        basarili++;
+      } catch (err) {
+        console.warn("Satır atlandı:", satir, err);
+        atlandi++;
+      }
+    }
+
+    document.getElementById("import-ilerleme").classList.add("d-none");
+    document.getElementById("import-sonuc").classList.remove("d-none");
+    document.getElementById("import-basari-mesaj").textContent =
+      `✓ ${basarili} öğrenci aktarıldı. ${atlandi > 0 ? `${atlandi} satır atlandı.` : ""}`;
+
+    importVerisi = [];
+    await yukleOgrenciler({ durum: "Aktif" });
+  }
+</script>
+</body>
+</html>

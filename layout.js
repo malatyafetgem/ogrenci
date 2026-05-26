@@ -3,12 +3,12 @@
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
 
-const BASE = "/ogrenci";
-
 // Aktif menü öğesini belirle
 function aktifMi(href) {
   const mevcut = window.location.pathname;
-  return mevcut.endsWith(href) ? 'active' : '';
+  // Hem tam yol hem de sadece dosya adı karşılaştırması
+  const dosyaAdi = href.split("/").pop();
+  return mevcut.endsWith(href) || mevcut.endsWith(dosyaAdi) ? "active" : "";
 }
 
 export function layoutYukle() {
@@ -41,7 +41,7 @@ function yukleTopbar() {
             </a>
           </li>
         </ul>
-        <a href="${BASE}/dashboard.html" class="navbar-brand ms-2">
+        <a href="dashboard.html" class="navbar-brand ms-2">
           <span class="brand-text fw-semibold">Öğrenci Bilgi Sistemi</span>
         </a>
         <ul class="navbar-nav ms-auto">
@@ -69,55 +69,55 @@ function yukleSidebar() {
     {
       baslik: null,
       ogeler: [
-        { href: `${BASE}/dashboard.html`, ikon: "bi-speedometer2", etiket: "Gösterge Paneli" }
+        { href: "dashboard.html", ikon: "bi-speedometer2", etiket: "Gösterge Paneli" }
       ]
     },
     {
       baslik: "Öğrenciler",
       ogeler: [
-        { href: `${BASE}/pages/students/list.html`, ikon: "bi-people", etiket: "Öğrenci Listesi" },
-        { href: `${BASE}/pages/students/add-edit.html`, ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle" }
+        { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
+        { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle" }
       ]
     },
     {
       baslik: "Listeler",
       ogeler: [
-        { href: `${BASE}/pages/phone-list.html`, ikon: "bi-telephone-fill", etiket: "Toplu Telefon Listesi" },
-        { href: `${BASE}/pages/parents/list.html`, ikon: "bi-people-fill", etiket: "Veli Listesi" }
+        { href: "phone-list.html", ikon: "bi-telephone-fill", etiket: "Toplu Telefon Listesi" },
+        { href: "parents-list.html", ikon: "bi-people-fill", etiket: "Veli Listesi" }
       ]
     },
     {
       baslik: "Devamsızlık",
       ogeler: [
-        { href: `${BASE}/pages/attendance/entry.html`, ikon: "bi-calendar-x", etiket: "Devamsızlık Gir" },
-        { href: `${BASE}/pages/attendance/report.html`, ikon: "bi-calendar-check", etiket: "Devamsızlık Raporu" }
+        { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık Gir" },
+        { href: "attendance-report.html", ikon: "bi-calendar-check", etiket: "Devamsızlık Raporu" }
       ]
     },
     {
       baslik: "Davranış",
       ogeler: [
-        { href: `${BASE}/pages/behavior/entry.html`, ikon: "bi-star-half", etiket: "Davranış Gir" },
-        { href: `${BASE}/pages/behavior/report.html`, ikon: "bi-bar-chart", etiket: "Davranış Raporu" }
+        { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış Gir" },
+        { href: "behavior-report.html", ikon: "bi-bar-chart", etiket: "Davranış Raporu" }
       ]
     },
     {
       baslik: "Veli Görüşmeleri",
       ogeler: [
-        { href: `${BASE}/pages/meetings/entry.html`, ikon: "bi-chat-dots", etiket: "Görüşme Gir" },
-        { href: `${BASE}/pages/meetings/list.html`, ikon: "bi-chat-square-text", etiket: "Görüşme Listesi" }
+        { href: "meetings-entry.html", ikon: "bi-chat-dots", etiket: "Görüşme Gir" },
+        { href: "meetings-list.html", ikon: "bi-chat-square-text", etiket: "Görüşme Listesi" }
       ]
     },
     {
       baslik: "Mezunlar",
       ogeler: [
-        { href: `${BASE}/pages/graduates/list.html`, ikon: "bi-mortarboard", etiket: "Mezun Listesi" },
-        { href: `${BASE}/pages/graduates/promotion.html`, ikon: "bi-arrow-up-circle", etiket: "Yıl Sonu Aktarımı" }
+        { href: "graduates-list.html", ikon: "bi-mortarboard", etiket: "Mezun Listesi" },
+        { href: "graduates-promotion.html", ikon: "bi-arrow-up-circle", etiket: "Yıl Sonu Aktarımı" }
       ]
     },
     {
       baslik: "Sistem",
       ogeler: [
-        { href: `${BASE}/pages/settings/index.html`, ikon: "bi-gear", etiket: "Ayarlar" }
+        { href: "settings.html", ikon: "bi-gear", etiket: "Ayarlar" }
       ]
     }
   ];
@@ -125,7 +125,7 @@ function yukleSidebar() {
   let html = `
     <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
       <div class="sidebar-brand">
-        <a href="${BASE}/dashboard.html" class="brand-link">
+        <a href="dashboard.html" class="brand-link">
           <span class="brand-text fw-semibold fs-6">📚 ÖBS</span>
         </a>
       </div>
@@ -158,10 +158,10 @@ function yukleBottomNav() {
   if (!kap) return;
 
   const ogeler = [
-    { href: `${BASE}/dashboard.html`, ikon: "bi-speedometer2", etiket: "Panel" },
-    { href: `${BASE}/pages/students/list.html`, ikon: "bi-people", etiket: "Öğrenciler" },
-    { href: `${BASE}/pages/attendance/entry.html`, ikon: "bi-calendar-x", etiket: "Devamsızlık" },
-    { href: `${BASE}/pages/behavior/entry.html`, ikon: "bi-star-half", etiket: "Davranış" }
+    { href: "dashboard.html", ikon: "bi-speedometer2", etiket: "Panel" },
+    { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenciler" },
+    { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık" },
+    { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış" }
   ];
 
   let html = `
@@ -192,11 +192,11 @@ function yukleBottomNav() {
       </div>
       <div class="offcanvas-body">
         <div class="row g-3 text-center">
-          ${offcanvasOge(`${BASE}/pages/phone-list.html`, "bi-telephone-fill", "Telefon Listesi")}
-          ${offcanvasOge(`${BASE}/pages/parents/list.html`, "bi-people-fill", "Veli Listesi")}
-          ${offcanvasOge(`${BASE}/pages/meetings/entry.html`, "bi-chat-dots", "Veli Görüşmesi")}
-          ${offcanvasOge(`${BASE}/pages/graduates/list.html`, "bi-mortarboard", "Mezunlar")}
-          ${offcanvasOge(`${BASE}/pages/settings/index.html`, "bi-gear", "Ayarlar")}
+          ${offcanvasOge("phone-list.html", "bi-telephone-fill", "Telefon Listesi")}
+          ${offcanvasOge("parents-list.html", "bi-people-fill", "Veli Listesi")}
+          ${offcanvasOge("meetings-entry.html", "bi-chat-dots", "Veli Görüşmesi")}
+          ${offcanvasOge("graduates-list.html", "bi-mortarboard", "Mezunlar")}
+          ${offcanvasOge("settings.html", "bi-gear", "Ayarlar")}
         </div>
       </div>
     </div>`;

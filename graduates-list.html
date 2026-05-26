@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mezun Listesi — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6"><h3 class="mb-0">Mezun Listesi</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item active">Mezunlar</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <!-- Filtreler -->
+        <div class="card mb-3 no-print">
+          <div class="card-body py-2">
+            <div class="row g-2 align-items-end">
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Mezuniyet Yılı</label>
+                <select id="filtre-yil" class="form-select form-select-sm">
+                  <option value="">Tüm Yıllar</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Üniversite</label>
+                <input type="text" class="form-control form-control-sm" id="filtre-uni"
+                       list="uni-list" placeholder="Ara..." autocomplete="off">
+                <datalist id="uni-list"></datalist>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Bölüm</label>
+                <input type="text" class="form-control form-control-sm" id="filtre-bolum"
+                       list="bolum-list" placeholder="Ara..." autocomplete="off">
+                <datalist id="bolum-list"></datalist>
+              </div>
+              <div class="col-6 col-md-3 d-flex gap-2">
+                <button id="filtre-uygula" class="btn btn-sm btn-primary">
+                  <i class="bi bi-search me-1"></i>Uygula
+                </button>
+                <button id="filtre-temizle" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-x me-1"></i>Temizle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="mb-0">
+              <i class="bi bi-mortarboard me-1"></i>Mezunlar
+              <span class="badge bg-secondary ms-1" id="kayit-sayisi">—</span>
+            </h6>
+            <div class="d-flex gap-2 no-print">
+              <button class="btn btn-sm btn-success" id="excel-export-btn">
+                <i class="bi bi-file-earmark-excel me-1"></i>Excel
+              </button>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <div id="yukleniyor" class="text-center py-4 text-muted">
+              <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
+            </div>
+            <div class="table-responsive d-none" id="tablo-kap">
+              <table id="mezun-tablo" class="table table-sm table-hover mb-0 align-middle">
+                <thead class="table-light">
+                  <tr>
+                    <th>No</th>
+                    <th>Ad Soyad</th>
+                    <th class="text-center">Yıl</th>
+                    <th>Üniversite</th>
+                    <th>Bölüm</th>
+                    <th>Meslek</th>
+                    <th>Telefon</th>
+                    <th class="no-print">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="mezun-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+<div id="footer-kap"></div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { requireAuth } from "auth.js";
+  import { layoutYukle } from "layout.js";
+  import { tumMezunlarGetir, mezunYillariGetir } from "graduates.js";
+  import { autocompleteYukle } from "autocomplete.js";
+
+  let tumMezunlar = [];
+  let dt = null;
+
+  requireAuth(async () => {
+    layoutYukle();
+    await ilkYukle();
+    baglayici();
+  });
+
+  async function ilkYukle() {
+    // Yıl filtresi
+    const yillar = await mezunYillariGetir();
+    const yilSel = document.getElementById("filtre-yil");
+    yillar.forEach(y => {
+      const o = document.createElement("option"); o.value = y; o.textContent = y; yilSel.appendChild(o);
+    });
+
+    // Autocomplete: üniversite, bölüm
+    const uniler = await autocompleteYukle("universiteler");
+    const uniList = document.getElementById("uni-list");
+    uniler.forEach(u => { const o = document.createElement("option"); o.value = u; uniList.appendChild(o); });
+
+    const bolumler = await autocompleteYukle("bolumler");
+    const bolumList = document.getElementById("bolum-list");
+    bolumler.forEach(b => { const o = document.createElement("option"); o.value = b; bolumList.appendChild(o); });
+
+    tumMezunlar = await tumMezunlarGetir();
+    tabloYukle(tumMezunlar);
+  }
+
+  function tabloYukle(veri) {
+    if (dt) { dt.destroy(); dt = null; }
+    document.getElementById("kayit-sayisi").textContent = veri.length;
+
+    const tbody = document.getElementById("mezun-tbody");
+    tbody.innerHTML = veri.length === 0
+      ? `<tr><td colspan="8" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
+      : veri.map(m => {
+          const tamAd = `${m.ad || ""} ${m.soyad || ""}`.trim();
+          return `<tr>
+            <td>${m.id}</td>
+            <td>
+              <a href="graduates-detail.html?id=${m.id}"
+                 class="fw-semibold text-decoration-none">${tamAd}</a>
+            </td>
+            <td class="text-center">
+              <span class="badge bg-secondary">${m.mezuniyet_yili || "—"}</span>
+            </td>
+            <td>${m.universite || '<span class="text-muted">—</span>'}</td>
+            <td>${m.bolum || '<span class="text-muted">—</span>'}</td>
+            <td>${m.meslek || '<span class="text-muted">—</span>'}</td>
+            <td>${m.telefon || '<span class="text-muted">—</span>'}</td>
+            <td class="no-print">
+              <a href="graduates-detail.html?id=${m.id}"
+                 class="btn btn-xs btn-outline-primary">
+                <i class="bi bi-pencil"></i>
+              </a>
+            </td>
+          </tr>`;
+        }).join("");
+
+    if (veri.length > 0) {
+      dt = new DataTable("#mezun-tablo", {
+        language: {
+          search: "Ara:", info: "_TOTAL_ kayıt içinden _START_–_END_",
+          zeroRecords: "Bulunamadı",
+          paginate: { next: "İleri", previous: "Geri" }
+        },
+        pageLength: 25,
+        columnDefs: [{ orderable: false, targets: [7] }]
+      });
+    }
+
+    document.getElementById("yukleniyor").classList.add("d-none");
+    document.getElementById("tablo-kap").classList.remove("d-none");
+  }
+
+  function filtrele() {
+    const yil   = document.getElementById("filtre-yil").value;
+    const uni   = document.getElementById("filtre-uni").value.trim().toLowerCase();
+    const bolum = document.getElementById("filtre-bolum").value.trim().toLowerCase();
+
+    const sonuc = tumMezunlar.filter(m =>
+      (!yil   || String(m.mezuniyet_yili) === yil) &&
+      (!uni   || (m.universite || "").toLowerCase().includes(uni)) &&
+      (!bolum || (m.bolum || "").toLowerCase().includes(bolum))
+    );
+    tabloYukle(sonuc);
+  }
+
+  function baglayici() {
+    document.getElementById("filtre-uygula").addEventListener("click", filtrele);
+    document.getElementById("filtre-temizle").addEventListener("click", () => {
+      document.getElementById("filtre-yil").value = "";
+      document.getElementById("filtre-uni").value = "";
+      document.getElementById("filtre-bolum").value = "";
+      tabloYukle(tumMezunlar);
+    });
+    document.getElementById("excel-export-btn").addEventListener("click", excelExport);
+  }
+
+  function excelExport() {
+    const satirlar = tumMezunlar.map(m => ({
+      "No": m.id,
+      "Ad": m.ad, "Soyad": m.soyad,
+      "Mezuniyet Yılı": m.mezuniyet_yili,
+      "Üniversite": m.universite,
+      "Bölüm": m.bolum,
+      "Meslek": m.meslek,
+      "Telefon": m.telefon,
+      "E-Posta": m.e_posta,
+      "Veli Telefon": m.veli_telefon,
+      "Notlar": m.notlar
+    }));
+    const ws = XLSX.utils.json_to_sheet(satirlar);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Mezunlar");
+    XLSX.writeFile(wb, `mezunlar_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+</script>
+</body>
+</html>

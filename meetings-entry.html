@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Veli Görüşmesi Gir — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6"><h3 class="mb-0">Veli Görüşmesi Gir</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item active">Görüşme Gir</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+        <div class="card" style="max-width:640px; margin:0 auto">
+          <div class="card-body">
+            <div id="hata-mesaji" class="alert alert-danger d-none"></div>
+            <div id="basari-mesaji" class="alert alert-success d-none"></div>
+
+            <div class="row g-3">
+              <!-- Öğrenci -->
+              <div class="col-12">
+                <label class="form-label">Öğrenci <span class="text-danger">*</span></label>
+                <div class="position-relative">
+                  <input type="text" class="form-control" id="ogr-ara"
+                         placeholder="Ad, soyad veya numara..." autocomplete="off">
+                  <div id="ara-sonuclar" class="ac-dropdown d-none"></div>
+                </div>
+                <input type="hidden" id="secili-ogr-id">
+                <div id="secili-ogr-bilgi" class="mt-1 d-none">
+                  <span class="badge bg-primary" id="secili-ogr-ad"></span>
+                </div>
+              </div>
+
+              <!-- Tarih -->
+              <div class="col-md-4">
+                <label class="form-label">Görüşme Tarihi <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="g-tarih" placeholder="GG.AA.YYYY">
+              </div>
+
+              <!-- Veli türü -->
+              <div class="col-md-4">
+                <label class="form-label">Veli <span class="text-danger">*</span></label>
+                <select class="form-select" id="g-veli-tur">
+                  <option value="">Seçin</option>
+                  <option>Anne</option>
+                  <option>Baba</option>
+                  <option>Diğer</option>
+                </select>
+              </div>
+
+              <!-- Veli adı -->
+              <div class="col-md-4">
+                <label class="form-label">Veli Adı</label>
+                <input type="text" class="form-control" id="g-veli-adi"
+                       placeholder="Otomatik dolabilir">
+              </div>
+
+              <!-- Konu -->
+              <div class="col-12">
+                <label class="form-label">Görüşme Konusu <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="g-konu"
+                       list="konu-list" autocomplete="off"
+                       placeholder="Örn: Devamsızlık, Başarı Durumu...">
+                <datalist id="konu-list"></datalist>
+              </div>
+
+              <!-- Açıklama -->
+              <div class="col-12">
+                <label class="form-label">Açıklama / Notlar</label>
+                <textarea class="form-control" id="g-aciklama" rows="4"
+                          placeholder="Görüşme özeti..."></textarea>
+              </div>
+
+              <div class="col-12">
+                <button type="button" class="btn btn-primary w-100" id="kaydet-btn">
+                  <span id="kaydet-metin"><i class="bi bi-save me-1"></i>Kaydet</span>
+                  <span id="kaydet-yuklen" class="d-none">
+                    <span class="spinner-border spinner-border-sm me-1"></span>Kaydediliyor...
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="footer-kap"></div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+
+<script type="module">
+  import { requireAuth } from "auth.js";
+  import { layoutYukle } from "layout.js";
+  import { tumOgrencileriGetir, velileriGetir, gorusmeEkle } from "students.js";
+  import { formatMetin, formatAd } from "utils.js";
+  import { autocompleteYukle, autocompleteGuncelle } from "autocomplete.js";
+
+  let tumOgrenciler = [];
+  let seciliOgrVeliler = [];
+
+  requireAuth(async () => {
+    layoutYukle();
+    tumOgrenciler = await tumOgrencileriGetir();
+
+    // Konu autocomplete
+    const konular = await autocompleteYukle("gorusme_konular");
+    const konuList = document.getElementById("konu-list");
+    konular.forEach(k => { const o = document.createElement("option"); o.value = k; konuList.appendChild(o); });
+
+    flatpickr("#g-tarih", { locale: "tr", dateFormat: "d.m.Y", defaultDate: "today" });
+    baglayici();
+
+    // URL'den öğrenci gelebilir
+    const params = new URLSearchParams(location.search);
+    const ogrId = params.get("id");
+    if (ogrId) {
+      const ogr = tumOgrenciler.find(o => o.id === ogrId);
+      if (ogr) await ogrenciSec(ogr);
+    }
+  });
+
+  async function ogrenciSec(ogr) {
+    document.getElementById("ogr-ara").value = `${ogr.ad} ${ogr.soyad}`;
+    document.getElementById("secili-ogr-id").value = ogr.id;
+    document.getElementById("secili-ogr-ad").textContent = `${ogr.ad} ${ogr.soyad} · ${ogr.sinif}`;
+    document.getElementById("secili-ogr-bilgi").classList.remove("d-none");
+    document.getElementById("ara-sonuclar").classList.add("d-none");
+    seciliOgrVeliler = await velileriGetir(ogr.id);
+  }
+
+  function baglayici() {
+    const araEl = document.getElementById("ogr-ara");
+    const sonucEl = document.getElementById("ara-sonuclar");
+
+    araEl.addEventListener("input", () => {
+      const q = araEl.value.trim().toLowerCase();
+      if (q.length < 2) { sonucEl.classList.add("d-none"); return; }
+      const eslesen = tumOgrenciler.filter(o =>
+        `${o.ad} ${o.soyad} ${o.numara}`.toLowerCase().includes(q)).slice(0, 8);
+      if (!eslesen.length) { sonucEl.classList.add("d-none"); return; }
+      sonucEl.innerHTML = eslesen.map(o =>
+        `<div class="ac-item" data-id="${o.id}">
+          <strong>${o.ad} ${o.soyad}</strong>
+          <span class="text-muted ms-2 small">${o.sinif} · No: ${o.numara}</span>
+        </div>`).join("");
+      sonucEl.classList.remove("d-none");
+      sonucEl.querySelectorAll(".ac-item").forEach(el =>
+        el.addEventListener("click", async () => {
+          const ogr = tumOgrenciler.find(o => o.id === el.dataset.id);
+          await ogrenciSec(ogr);
+        })
+      );
+    });
+    document.addEventListener("click", e => { if (!araEl.contains(e.target)) sonucEl.classList.add("d-none"); });
+
+    // Veli türü seçilince adını otomatik doldur
+    document.getElementById("g-veli-tur").addEventListener("change", () => {
+      const tur = document.getElementById("g-veli-tur").value;
+      const veli = seciliOgrVeliler.find(v => v.tur === tur);
+      if (veli) {
+        document.getElementById("g-veli-adi").value =
+          `${veli.ad || ""} ${veli.soyad || ""}`.trim();
+      }
+    });
+
+    document.getElementById("kaydet-btn").addEventListener("click", kaydet);
+  }
+
+  async function kaydet() {
+    const ogrId   = document.getElementById("secili-ogr-id").value;
+    const tarih   = document.getElementById("g-tarih").value.trim();
+    const veliTur = document.getElementById("g-veli-tur").value;
+    const veliAdi = document.getElementById("g-veli-adi").value.trim();
+    const konu    = document.getElementById("g-konu").value.trim();
+    const aciklama= document.getElementById("g-aciklama").value.trim();
+    const hataEl  = document.getElementById("hata-mesaji");
+    const basariEl= document.getElementById("basari-mesaji");
+
+    hataEl.classList.add("d-none");
+    basariEl.classList.add("d-none");
+
+    if (!ogrId || !tarih || !veliTur || !konu) {
+      hataEl.textContent = "Öğrenci, tarih, veli türü ve konu zorunludur.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
+
+    document.getElementById("kaydet-metin").classList.add("d-none");
+    document.getElementById("kaydet-yuklen").classList.remove("d-none");
+    document.getElementById("kaydet-btn").disabled = true;
+
+    try {
+      await gorusmeEkle(ogrId, {
+        tarih,
+        veli_tur: veliTur,
+        veli_adi: formatAd(veliAdi),
+        konu: formatMetin(konu),
+        aciklama
+      });
+      await autocompleteGuncelle("gorusme_konular", konu);
+      basariEl.textContent = "Görüşme kaydedildi.";
+      basariEl.classList.remove("d-none");
+      document.getElementById("g-konu").value = "";
+      document.getElementById("g-aciklama").value = "";
+      document.getElementById("g-veli-tur").value = "";
+      document.getElementById("g-veli-adi").value = "";
+    } catch (err) {
+      hataEl.textContent = "Kayıt hatası: " + err.message;
+      hataEl.classList.remove("d-none");
+    } finally {
+      document.getElementById("kaydet-metin").classList.remove("d-none");
+      document.getElementById("kaydet-yuklen").classList.add("d-none");
+      document.getElementById("kaydet-btn").disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

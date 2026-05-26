@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Davranış Raporu — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6"><h3 class="mb-0">Davranış Raporu</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item active">Davranış Raporu</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <!-- Filtreler -->
+        <div class="card mb-3 no-print">
+          <div class="card-body py-2">
+            <div class="row g-2 align-items-end">
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Sınıf</label>
+                <select id="filtre-sinif" class="form-select form-select-sm">
+                  <option value="">Tüm Sınıflar</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Tür</label>
+                <select id="filtre-tur" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option>Olumlu</option>
+                  <option>Olumsuz</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Kategori</label>
+                <select id="filtre-kategori" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option>Yardımseverlik</option><option>Sosyal Katkı</option>
+                  <option>Başarılı Davranış</option><option>Disiplin</option>
+                  <option>Kıyafet</option><option>Telefon Kullanımı</option>
+                  <option>Derse Geç Kalma</option><option>Kavga</option>
+                  <option>Kopya</option><option>Diğer</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Tarih Başlangıç</label>
+                <input type="text" class="form-control form-control-sm" id="filtre-bas" placeholder="GG.AA.YYYY">
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Tarih Bitiş</label>
+                <input type="text" class="form-control form-control-sm" id="filtre-bit" placeholder="GG.AA.YYYY">
+              </div>
+              <div class="col-6 col-md-1">
+                <button id="filtre-uygula" class="btn btn-sm btn-primary w-100">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- Grafik -->
+          <div class="col-12 col-md-4">
+            <div class="card h-100">
+              <div class="card-header"><h6 class="mb-0">Kategori Dağılımı</h6></div>
+              <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="kategori-grafik" width="260" height="260"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tablo -->
+          <div class="col-12 col-md-8">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Kayıtlar <span class="badge bg-secondary ms-1" id="kayit-sayisi">—</span></h6>
+                <div class="d-flex gap-2 no-print">
+                  <button class="btn btn-sm btn-success" id="excel-export-btn">
+                    <i class="bi bi-file-earmark-excel me-1"></i>Excel
+                  </button>
+                  <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>Yazdır
+                  </button>
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="yukleniyor" class="text-center py-4 text-muted">
+                  <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
+                </div>
+                <div class="table-responsive d-none" id="tablo-kap">
+                  <table id="davranis-tablo" class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Tarih</th><th>Öğrenci</th><th>Sınıf</th>
+                        <th>Tür</th><th>Kategori</th><th>Açıklama</th>
+                      </tr>
+                    </thead>
+                    <tbody id="davranis-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+<div id="footer-kap"></div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { requireAuth } from "auth.js";
+  import { layoutYukle } from "layout.js";
+  import { tumOgrencileriGetir, siniflarGetir, davranislarGetir } from "students.js";
+  import { tarihtenDate } from "utils.js";
+
+  let raporVerisi = [];
+  let dt = null;
+  let grafik = null;
+
+  requireAuth(async () => {
+    layoutYukle();
+    const siniflar = await siniflarGetir();
+    const sel = document.getElementById("filtre-sinif");
+    siniflar.forEach(s => { const o = document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
+    flatpickr("#filtre-bas", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
+    flatpickr("#filtre-bit", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
+    document.getElementById("filtre-uygula").addEventListener("click", yukleRapor);
+    document.getElementById("excel-export-btn").addEventListener("click", excelExport);
+    await yukleRapor();
+  });
+
+  async function yukleRapor() {
+    document.getElementById("yukleniyor").classList.remove("d-none");
+    document.getElementById("tablo-kap").classList.add("d-none");
+    if (dt) { dt.destroy(); dt = null; }
+
+    const filtSinif    = document.getElementById("filtre-sinif").value;
+    const filtTur      = document.getElementById("filtre-tur").value;
+    const filtKategori = document.getElementById("filtre-kategori").value;
+    const filtBas      = document.getElementById("filtre-bas").value;
+    const filtBit      = document.getElementById("filtre-bit").value;
+
+    const ogrenciler = await tumOgrencileriGetir();
+    raporVerisi = [];
+
+    for (const ogr of ogrenciler) {
+      if (filtSinif && ogr.sinif !== filtSinif) continue;
+      let kayitlar = await davranislarGetir(ogr.id);
+      if (filtTur)      kayitlar = kayitlar.filter(k => k.tur === filtTur);
+      if (filtKategori) kayitlar = kayitlar.filter(k => k.kategori === filtKategori);
+      if (filtBas || filtBit) {
+        kayitlar = kayitlar.filter(k => {
+          const t = tarihtenDate(k.tarih);
+          if (!t) return true;
+          if (filtBas && t < tarihtenDate(filtBas)) return false;
+          if (filtBit && t > tarihtenDate(filtBit)) return false;
+          return true;
+        });
+      }
+      kayitlar.forEach(k => raporVerisi.push({ ogr, ...k }));
+    }
+
+    raporVerisi.sort((a, b) => (b.tarih || "").localeCompare(a.tarih || ""));
+    document.getElementById("kayit-sayisi").textContent = raporVerisi.length;
+
+    const tbody = document.getElementById("davranis-tbody");
+    tbody.innerHTML = raporVerisi.length === 0
+      ? `<tr><td colspan="6" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
+      : raporVerisi.map(d => {
+          const olumlu = d.tur === "Olumlu";
+          const tamAd = `${d.ogr.ad} ${d.ogr.soyad}`.trim();
+          return `<tr>
+            <td>${d.tarih || "—"}</td>
+            <td><a href="students-detail.html?id=${d.ogr.id}" class="text-decoration-none">${tamAd}</a></td>
+            <td>${d.ogr.sinif || "—"}</td>
+            <td><span class="badge ${olumlu ? "bg-success" : "bg-danger"}">${d.tur}</span></td>
+            <td>${d.kategori || "—"}</td>
+            <td class="small text-muted">${d.aciklama || "—"}</td>
+          </tr>`;
+        }).join("");
+
+    if (raporVerisi.length > 0) {
+      dt = new DataTable("#davranis-tablo", {
+        language: { search: "Ara:", info: "_TOTAL_ kayıt", zeroRecords: "Bulunamadı",
+          paginate: { next: "İleri", previous: "Geri" } },
+        pageLength: 20, order: [[0, "desc"]]
+      });
+    }
+
+    // Grafik
+    const kategoriSayac = {};
+    raporVerisi.forEach(d => { kategoriSayac[d.kategori] = (kategoriSayac[d.kategori] || 0) + 1; });
+    const etiketler = Object.keys(kategoriSayac);
+    const veriler = etiketler.map(k => kategoriSayac[k]);
+    const renkler = ["#0d6efd","#198754","#dc3545","#ffc107","#6f42c1","#0dcaf0","#fd7e14","#6c757d","#d63384","#20c997"];
+
+    if (grafik) grafik.destroy();
+    grafik = new Chart(document.getElementById("kategori-grafik"), {
+      type: "doughnut",
+      data: { labels: etiketler, datasets: [{ data: veriler, backgroundColor: renkler.slice(0, etiketler.length) }] },
+      options: { plugins: { legend: { position: "bottom", labels: { font: { size: 11 } } } }, cutout: "55%" }
+    });
+
+    document.getElementById("yukleniyor").classList.add("d-none");
+    document.getElementById("tablo-kap").classList.remove("d-none");
+  }
+
+  function excelExport() {
+    const satirlar = raporVerisi.map(d => ({
+      "Tarih": d.tarih, "Ad": d.ogr.ad, "Soyad": d.ogr.soyad, "Sınıf": d.ogr.sinif,
+      "Tür": d.tur, "Kategori": d.kategori, "Açıklama": d.aciklama
+    }));
+    const ws = XLSX.utils.json_to_sheet(satirlar);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Davranış");
+    XLSX.writeFile(wb, `davranis_raporu_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+</script>
+</body>
+</html>

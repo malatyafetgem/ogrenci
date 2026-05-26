@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Öğrenci Ekle / Düzenle — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h3 class="mb-0" id="sayfa-baslik">Yeni Öğrenci</h3>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="students-list.html">Öğrenciler</a></li>
+              <li class="breadcrumb-item active" id="breadcrumb-son">Yeni</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+        <div id="yukleniyor" class="text-center py-5 text-muted d-none">
+          <div class="spinner-border text-primary mb-3"></div>
+        </div>
+
+        <div class="card" id="form-kart">
+          <div class="card-body">
+            <div id="hata-mesaji" class="alert alert-danger d-none"></div>
+
+            <!-- 1. KİŞİSEL BİLGİLER -->
+            <p class="form-bolum-baslik">1. Kişisel Bilgiler</p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Ad <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="f-ad" autocomplete="off">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Soyad <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="f-soyad" autocomplete="off">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Öğrenci No <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="f-numara" inputmode="numeric"
+                       placeholder="Sadece rakam" autocomplete="off">
+                <div class="invalid-feedback" id="no-hata">Bu numara zaten kullanımda.</div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Sınıf <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="f-sinif" list="sinif-list" autocomplete="off"
+                       placeholder="Örn: 9-A">
+                <datalist id="sinif-list"></datalist>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Cinsiyet</label>
+                <select class="form-select" id="f-cinsiyet">
+                  <option value="">Seçin</option>
+                  <option>Erkek</option>
+                  <option>Kız</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Yatılılık</label>
+                <select class="form-select" id="f-yatililik">
+                  <option value="">Seçin</option>
+                  <option>Gündüzlü</option>
+                  <option>Paralı Yatılı</option>
+                  <option>Parasız Yatılı</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Maddi Durum</label>
+                <select class="form-select" id="f-maddi-durum">
+                  <option value="">Seçin</option>
+                  <option>Düşük</option>
+                  <option>Orta</option>
+                  <option>İyi</option>
+                  <option>Çok İyi</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Fotoğraf</label>
+                <input type="file" class="form-control" id="f-fotograf" accept="image/*">
+                <div class="mt-2">
+                  <img id="foto-onizleme" src="avatar-default.png"
+                       style="width:80px;height:80px;object-fit:cover;border-radius:50%;display:none;">
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. KİMLİK & DOĞUM -->
+            <p class="form-bolum-baslik">2. Kimlik & Doğum</p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">TC Kimlik No</label>
+                <input type="text" class="form-control" id="f-tc" maxlength="11" inputmode="numeric">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Doğum Tarihi</label>
+                <input type="text" class="form-control" id="f-dogum-tarihi" placeholder="GG.AA.YYYY">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Doğum Yeri</label>
+                <input type="text" class="form-control" id="f-dogum-yeri" list="dogum-yeri-list" autocomplete="off">
+                <datalist id="dogum-yeri-list"></datalist>
+              </div>
+            </div>
+
+            <!-- 3. SAĞLIK -->
+            <p class="form-bolum-baslik">3. Sağlık Bilgileri</p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Hastalık</label>
+                <input type="text" class="form-control" id="f-hastalik">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Engel</label>
+                <input type="text" class="form-control" id="f-engel">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">İlaç</label>
+                <input type="text" class="form-control" id="f-ilac">
+              </div>
+            </div>
+
+            <!-- 4. YETENEKLER -->
+            <p class="form-bolum-baslik">4. Yetenekler</p>
+            <div id="yetenekler-kap"></div>
+            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="yetenek-ekle-btn">
+              <i class="bi bi-plus-circle me-1"></i>Yetenek Ekle
+            </button>
+
+            <!-- 5. AİLE DURUMU -->
+            <p class="form-bolum-baslik">5. Aile Durumu</p>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Ebeveyn Durumu</label>
+                <select class="form-select" id="f-ebeveyn-durum">
+                  <option>İkisi De Hayatta</option>
+                  <option>Anne Vefat</option>
+                  <option>Baba Vefat</option>
+                  <option>İkisi De Vefat</option>
+                </select>
+              </div>
+              <div class="col-md-4" id="birliktelik-alan">
+                <label class="form-label">Birliktelik</label>
+                <select class="form-select" id="f-birliktelik">
+                  <option value="">Seçin</option>
+                  <option>Birlikte</option>
+                  <option>Ayrı</option>
+                </select>
+              </div>
+              <div class="col-md-4 d-none" id="beraberlik-alan">
+                <label class="form-label">Öğrenci Kiminle Yaşıyor?</label>
+                <select class="form-select" id="f-beraberlik">
+                  <option value="">Seçin</option>
+                  <option>Anne</option>
+                  <option>Baba</option>
+                  <option>Her İkisi</option>
+                  <option>Diğer</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 6. BABA BİLGİLERİ -->
+            <p class="form-bolum-baslik" id="baba-baslik">6. Baba Bilgileri</p>
+            <div id="baba-form">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">Ad</label>
+                  <input type="text" class="form-control" id="b-ad">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Soyad</label>
+                  <input type="text" class="form-control" id="b-soyad">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Meslek</label>
+                  <input type="text" class="form-control" id="b-meslek" list="meslek-list" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Alan</label>
+                  <input type="text" class="form-control" id="b-alan" list="alan-list" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Görev</label>
+                  <input type="text" class="form-control" id="b-gorev" list="gorev-list" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Telefon</label>
+                  <input type="text" class="form-control" id="b-tel" inputmode="numeric">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">E-Posta</label>
+                  <input type="email" class="form-control" id="b-eposta">
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label">Ev Adresi</label>
+                  <input type="text" class="form-control" id="b-ev-adres">
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label">İş Adresi</label>
+                  <input type="text" class="form-control" id="b-is-adres">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Şehir (İl)</label>
+                  <input type="text" class="form-control" id="b-sehir" list="il-list" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">İlçe</label>
+                  <input type="text" class="form-control" id="b-ilce" list="ilce-list-b" autocomplete="off">
+                  <datalist id="ilce-list-b"></datalist>
+                </div>
+              </div>
+            </div>
+
+            <!-- 7. ANNE BİLGİLERİ -->
+            <p class="form-bolum-baslik" id="anne-baslik">7. Anne Bilgileri</p>
+            <div id="anne-form">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <label class="form-label">Ad</label>
+                  <input type="text" class="form-control" id="a-ad">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Soyad</label>
+                  <input type="text" class="form-control" id="a-soyad">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Meslek</label>
+                  <input type="text" class="form-control" id="a-meslek" list="meslek-list" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Alan</label>
+                  <input type="text" class="form-control" id="a-alan" list="alan-list" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Görev</label>
+                  <input type="text" class="form-control" id="a-gorev" list="gorev-list" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Telefon</label>
+                  <input type="text" class="form-control" id="a-tel" inputmode="numeric">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">E-Posta</label>
+                  <input type="email" class="form-control" id="a-eposta">
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label">Ev Adresi</label>
+                  <input type="text" class="form-control" id="a-ev-adres">
+                </div>
+                <div class="col-md-5">
+                  <label class="form-label">İş Adresi</label>
+                  <input type="text" class="form-control" id="a-is-adres">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Şehir (İl)</label>
+                  <input type="text" class="form-control" id="a-sehir" list="il-list" autocomplete="off">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">İlçe</label>
+                  <input type="text" class="form-control" id="a-ilce" list="ilce-list-a" autocomplete="off">
+                  <datalist id="ilce-list-a"></datalist>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ortak datalistler -->
+            <datalist id="il-list"></datalist>
+            <datalist id="meslek-list"></datalist>
+            <datalist id="alan-list"></datalist>
+            <datalist id="gorev-list"></datalist>
+
+            <!-- Kaydet -->
+            <div class="d-flex gap-2 justify-content-end mt-4">
+              <a href="students-list.html" class="btn btn-secondary">Vazgeç</a>
+              <button type="button" class="btn btn-primary" id="kaydet-btn">
+                <span id="kaydet-metin">Kaydet</span>
+                <span id="kaydet-yuklen" class="d-none">
+                  <span class="spinner-border spinner-border-sm me-1"></span>Kaydediliyor...
+                </span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+
+<script type="module">
+  import { requireAuth } from "auth.js";
+  import { layoutYukle } from "layout.js";
+  import {
+    ogrenciGetir, ogrenciEkle, ogrenciGuncelle, fotografYukle,
+    velileriGetir, veliEkleGuncelle, siniflarGetir, noMevcutMu
+  } from "students.js";
+  import {
+    formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
+    gecerliOgrenciNo, gecerliTc
+  } from "utils.js";
+  import { autocompleteYukle, autocompleteGuncelle } from "autocomplete.js";
+
+  const params = new URLSearchParams(location.search);
+  const duzenlemeId = params.get("id");
+  let mevcutOgr = null;
+  let mevcutVeliler = [];
+  let yetenekSayac = 0;
+
+  requireAuth(async () => {
+    layoutYukle();
+    await ilkYukle();
+    baglaFormat(document.getElementById("f-ad"), "ad");
+    baglaFormat(document.getElementById("f-soyad"), "soyad");
+    baglaFormat(document.getElementById("b-ad"), "ad");
+    baglaFormat(document.getElementById("b-soyad"), "soyad");
+    baglaFormat(document.getElementById("a-ad"), "ad");
+    baglaFormat(document.getElementById("a-soyad"), "soyad");
+    ["b-meslek","b-alan","b-gorev","b-ev-adres","b-is-adres","b-sehir","b-ilce",
+     "a-meslek","a-alan","a-gorev","a-ev-adres","a-is-adres","a-sehir","a-ilce",
+     "f-dogum-yeri"].forEach(id => baglaFormat(document.getElementById(id), "metin"));
+    baglaFormat(document.getElementById("b-tel"), "telefon");
+    baglaFormat(document.getElementById("a-tel"), "telefon");
+    baglaOlaylar();
+    flatpickr("#f-dogum-tarihi", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
+  });
+
+  async function ilkYukle() {
+    // Autocomplete verileri
+    await yukleAutocomplete();
+
+    // Sınıf datalist
+    const siniflar = await siniflarGetir();
+    const sinifList = document.getElementById("sinif-list");
+    siniflar.forEach(s => {
+      const opt = document.createElement("option"); opt.value = s; sinifList.appendChild(opt);
+    });
+
+    if (duzenlemeId) {
+      document.getElementById("sayfa-baslik").textContent = "Öğrenci Düzenle";
+      document.getElementById("breadcrumb-son").textContent = "Düzenle";
+      mevcutOgr = await ogrenciGetir(duzenlemeId);
+      if (!mevcutOgr) { location.href = "students-list.html"; return; }
+      mevcutVeliler = await velileriGetir(duzenlemeId);
+      formuDoldur(mevcutOgr, mevcutVeliler);
+    }
+  }
+
+  async function yukleAutocomplete() {
+    const iller = await autocompleteYukle("iller");
+    const ilList = document.getElementById("il-list");
+    iller.forEach(il => { const o=document.createElement("option"); o.value=il; ilList.appendChild(o); });
+
+    const meslekler = await autocompleteYukle("meslekler");
+    const mesLst = document.getElementById("meslek-list");
+    meslekler.forEach(m => { const o=document.createElement("option"); o.value=m; mesLst.appendChild(o); });
+
+    const alanlar = await autocompleteYukle("alanlar");
+    const alanLst = document.getElementById("alan-list");
+    alanlar.forEach(a => { const o=document.createElement("option"); o.value=a; alanLst.appendChild(o); });
+
+    const gorevler = await autocompleteYukle("gorevler");
+    const gorLst = document.getElementById("gorev-list");
+    gorevler.forEach(g => { const o=document.createElement("option"); o.value=g; gorLst.appendChild(o); });
+
+    const dogumYerleri = await autocompleteYukle("dogum_yerleri");
+    const dyLst = document.getElementById("dogum-yeri-list");
+    dogumYerleri.forEach(d => { const o=document.createElement("option"); o.value=d; dyLst.appendChild(o); });
+  }
+
+  function formuDoldur(ogr, veliler) {
+    const g = id => document.getElementById(id);
+    g("f-ad").value = ogr.ad || "";
+    g("f-soyad").value = ogr.soyad || "";
+    g("f-numara").value = ogr.numara || ogr.id || "";
+    g("f-numara").disabled = true; // Düzenlemede no değiştirilemez
+    g("f-sinif").value = ogr.sinif || "";
+    g("f-cinsiyet").value = ogr.cinsiyet || "";
+    g("f-yatililik").value = ogr.yatililik || "";
+    g("f-maddi-durum").value = ogr.maddi_durum || "";
+    g("f-tc").value = ogr.tc_kimlik || "";
+    g("f-dogum-tarihi").value = ogr.dogum_tarihi || "";
+    g("f-dogum-yeri").value = ogr.dogum_yeri || "";
+    g("f-hastalik").value = ogr.hastalik || "";
+    g("f-engel").value = ogr.engel || "";
+    g("f-ilac").value = ogr.ilac || "";
+    g("f-ebeveyn-durum").value = ogr.ebeveyn_durumu || "İkisi De Hayatta";
+    g("f-birliktelik").value = ogr.birliktelik || "";
+    g("f-beraberlik").value = ogr.beraberlik || "";
+
+    // Fotoğraf
+    if (ogr.fotograf_url) {
+      const fo = g("foto-onizleme");
+      fo.src = ogr.fotograf_url;
+      fo.style.display = "block";
+    }
+
+    // Yetenekler
+    if (ogr.yetenekler) {
+      ogr.yetenekler.forEach(y => yeteneKEkle(y.tur, y.aciklama));
+    }
+
+    // Veliler
+    const baba = veliler.find(v => v.tur === "Baba") || {};
+    const anne = veliler.find(v => v.tur === "Anne") || {};
+    veliFormuDoldur("b", baba);
+    veliFormuDoldur("a", anne);
+
+    ebeveynDurumGuncelle();
+    birliktelikGuncelle();
+  }
+
+  function veliFormuDoldur(pre, v) {
+    const g = id => document.getElementById(id);
+    g(`${pre}-ad`).value = v.ad || "";
+    g(`${pre}-soyad`).value = v.soyad || "";
+    g(`${pre}-meslek`).value = v.meslek || "";
+    g(`${pre}-alan`).value = v.alan || "";
+    g(`${pre}-gorev`).value = v.gorev || "";
+    g(`${pre}-tel`).value = v.telefon || "";
+    g(`${pre}-eposta`).value = v.e_posta || "";
+    g(`${pre}-ev-adres`).value = v.ev_adresi || "";
+    g(`${pre}-is-adres`).value = v.is_adresi || "";
+    g(`${pre}-sehir`).value = v.sehir || "";
+    g(`${pre}-ilce`).value = v.ilce || "";
+  }
+
+  function yeteneKEkle(tur = "", aciklama = "") {
+    const i = yetenekSayac++;
+    const kap = document.getElementById("yetenekler-kap");
+    const div = document.createElement("div");
+    div.className = "yetenek-satir";
+    div.id = `yetenek-${i}`;
+    div.innerHTML = `
+      <select class="form-select form-select-sm" style="width:140px" id="y-tur-${i}">
+        <option>Sanat</option><option>Spor</option><option>Müzik</option><option>Diğer</option>
+      </select>
+      <input type="text" class="form-control form-control-sm" id="y-aciklama-${i}"
+             placeholder="Açıklama (örn: Keman çalıyor)" value="${aciklama}">
+      <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('yetenek-${i}').remove()">
+        <i class="bi bi-x"></i>
+      </button>`;
+    kap.appendChild(div);
+    if (tur) document.getElementById(`y-tur-${i}`).value = tur;
+  }
+
+  function yetenekleriTopla() {
+    const sonuc = [];
+    document.querySelectorAll("[id^='yetenek-']").forEach(div => {
+      const i = div.id.split("-")[1];
+      const tur = document.getElementById(`y-tur-${i}`)?.value || "";
+      const aciklama = document.getElementById(`y-aciklama-${i}`)?.value.trim() || "";
+      if (aciklama) sonuc.push({ tur, aciklama });
+    });
+    return sonuc;
+  }
+
+  function ebeveynDurumGuncelle() {
+    const durum = document.getElementById("f-ebeveyn-durum").value;
+    const babaForm = document.getElementById("baba-form");
+    const anneForm = document.getElementById("anne-form");
+    const birliktelikAlan = document.getElementById("birliktelik-alan");
+
+    babaForm.style.opacity = (durum === "Baba Vefat" || durum === "İkisi De Vefat") ? "0.4" : "1";
+    anneForm.style.opacity = (durum === "Anne Vefat" || durum === "İkisi De Vefat") ? "0.4" : "1";
+    birliktelikAlan.classList.toggle("d-none", durum !== "İkisi De Hayatta");
+  }
+
+  function birliktelikGuncelle() {
+    const val = document.getElementById("f-birliktelik").value;
+    document.getElementById("beraberlik-alan").classList.toggle("d-none", val !== "Ayrı");
+
+    // Adres senkronizasyonu: Birlikte ise baba adresini anne'ye kopyala (veya tam tersi)
+    if (val === "Birlikte") {
+      const bSehir = document.getElementById("b-sehir");
+      const aSehir = document.getElementById("a-sehir");
+      const bEvAdres = document.getElementById("b-ev-adres");
+      const aEvAdres = document.getElementById("a-ev-adres");
+      const bIlce = document.getElementById("b-ilce");
+      const aIlce = document.getElementById("a-ilce");
+
+      function senkronize(kaynak, hedef) {
+        kaynak.addEventListener("input", () => { hedef.value = kaynak.value; });
+      }
+      senkronize(bSehir, aSehir); senkronize(aSehir, bSehir);
+      senkronize(bEvAdres, aEvAdres); senkronize(aEvAdres, bEvAdres);
+      senkronize(bIlce, aIlce); senkronize(aIlce, bIlce);
+    }
+  }
+
+  function baglaOlaylar() {
+    document.getElementById("yetenek-ekle-btn").addEventListener("click", () => yeteneKEkle());
+    document.getElementById("f-ebeveyn-durum").addEventListener("change", ebeveynDurumGuncelle);
+    document.getElementById("f-birliktelik").addEventListener("change", birliktelikGuncelle);
+
+    // Fotoğraf önizleme
+    document.getElementById("f-fotograf").addEventListener("change", (e) => {
+      const dosya = e.target.files[0];
+      if (!dosya) return;
+      const url = URL.createObjectURL(dosya);
+      const fo = document.getElementById("foto-onizleme");
+      fo.src = url; fo.style.display = "block";
+    });
+
+    // Kaydet
+    document.getElementById("kaydet-btn").addEventListener("click", kaydet);
+  }
+
+  async function kaydet() {
+    const g = id => document.getElementById(id).value.trim();
+    const hataEl = document.getElementById("hata-mesaji");
+    hataEl.classList.add("d-none");
+
+    const ad = formatAd(g("f-ad"));
+    const soyad = formatSoyad(g("f-soyad"));
+    const numara = g("f-numara");
+    const sinif = g("f-sinif");
+
+    // Validasyon
+    if (!ad || !soyad || !numara || !sinif) {
+      hataEl.textContent = "Ad, soyad, öğrenci numarası ve sınıf zorunludur.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
+    if (!gecerliOgrenciNo(numara)) {
+      hataEl.textContent = "Öğrenci numarası sadece rakamlardan oluşmalıdır.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
+
+    // Yeni kayıt ise numara çakışma kontrolü
+    if (!duzenlemeId) {
+      const var_mi = await noMevcutMu(numara);
+      if (var_mi) {
+        document.getElementById("f-numara").classList.add("is-invalid");
+        return;
+      }
+    }
+
+    // Yükleniyor
+    document.getElementById("kaydet-metin").classList.add("d-none");
+    document.getElementById("kaydet-yuklen").classList.remove("d-none");
+    document.getElementById("kaydet-btn").disabled = true;
+
+    try {
+      // Fotoğraf yükle
+      let fotografUrl = mevcutOgr?.fotograf_url || "";
+      const fotoInput = document.getElementById("f-fotograf");
+      if (fotoInput.files[0]) {
+        fotografUrl = await fotografYukle(numara, fotoInput.files[0]);
+      }
+
+      const verilecekId = duzenlemeId || numara;
+
+      const ogrVeri = {
+        ad, soyad,
+        numara,
+        sinif: g("f-sinif"),
+        cinsiyet: g("f-cinsiyet"),
+        yatililik: g("f-yatililik"),
+        maddi_durum: g("f-maddi-durum"),
+        fotograf_url: fotografUrl,
+        tc_kimlik: g("f-tc"),
+        dogum_tarihi: g("f-dogum-tarihi"),
+        dogum_yeri: formatMetin(g("f-dogum-yeri")),
+        hastalik: g("f-hastalik"),
+        engel: g("f-engel"),
+        ilac: g("f-ilac"),
+        yetenekler: yetenekleriTopla(),
+        ebeveyn_durumu: g("f-ebeveyn-durum"),
+        birliktelik: g("f-birliktelik"),
+        beraberlik: g("f-beraberlik"),
+      };
+
+      if (duzenlemeId) {
+        await ogrenciGuncelle(duzenlemeId, ogrVeri);
+      } else {
+        await ogrenciEkle(numara, ogrVeri);
+      }
+
+      // Veli verileri
+      const babaVeri = {
+        tur: "Baba",
+        ad: formatAd(document.getElementById("b-ad").value),
+        soyad: formatSoyad(document.getElementById("b-soyad").value),
+        meslek: formatMetin(document.getElementById("b-meslek").value),
+        alan: formatMetin(document.getElementById("b-alan").value),
+        gorev: formatMetin(document.getElementById("b-gorev").value),
+        telefon: formatTelefon(document.getElementById("b-tel").value),
+        e_posta: document.getElementById("b-eposta").value.trim(),
+        ev_adresi: formatMetin(document.getElementById("b-ev-adres").value),
+        is_adresi: formatMetin(document.getElementById("b-is-adres").value),
+        sehir: formatMetin(document.getElementById("b-sehir").value),
+        ilce: formatMetin(document.getElementById("b-ilce").value),
+      };
+
+      const anneVeri = {
+        tur: "Anne",
+        ad: formatAd(document.getElementById("a-ad").value),
+        soyad: formatSoyad(document.getElementById("a-soyad").value),
+        meslek: formatMetin(document.getElementById("a-meslek").value),
+        alan: formatMetin(document.getElementById("a-alan").value),
+        gorev: formatMetin(document.getElementById("a-gorev").value),
+        telefon: formatTelefon(document.getElementById("a-tel").value),
+        e_posta: document.getElementById("a-eposta").value.trim(),
+        ev_adresi: formatMetin(document.getElementById("a-ev-adres").value),
+        is_adresi: formatMetin(document.getElementById("a-is-adres").value),
+        sehir: formatMetin(document.getElementById("a-sehir").value),
+        ilce: formatMetin(document.getElementById("a-ilce").value),
+      };
+
+      const babaId = mevcutVeliler.find(v => v.tur === "Baba")?.id || null;
+      const anneId = mevcutVeliler.find(v => v.tur === "Anne")?.id || null;
+      await veliEkleGuncelle(verilecekId, babaId, babaVeri);
+      await veliEkleGuncelle(verilecekId, anneId, anneVeri);
+
+      // Autocomplete güncelle
+      const guncelleler = [
+        ["meslekler", babaVeri.meslek], ["meslekler", anneVeri.meslek],
+        ["alanlar", babaVeri.alan], ["alanlar", anneVeri.alan],
+        ["gorevler", babaVeri.gorev], ["gorevler", anneVeri.gorev],
+        ["dogum_yerleri", ogrVeri.dogum_yeri],
+      ];
+      for (const [alan, deger] of guncelleler) {
+        if (deger) await autocompleteGuncelle(alan, deger);
+      }
+
+      toast(duzenlemeId ? "Öğrenci güncellendi." : "Öğrenci eklendi.", "success");
+      setTimeout(() => { location.href = `students-detail.html?id=${verilecekId}`; }, 800);
+
+    } catch (err) {
+      console.error(err);
+      hataEl.textContent = "Kayıt sırasında hata oluştu: " + err.message;
+      hataEl.classList.remove("d-none");
+    } finally {
+      document.getElementById("kaydet-metin").classList.remove("d-none");
+      document.getElementById("kaydet-yuklen").classList.add("d-none");
+      document.getElementById("kaydet-btn").disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

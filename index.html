@@ -82,11 +82,9 @@
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  const DASHBOARD = "dashboard.html";
-
   // Zaten giriş yapılmışsa direkt dashboard'a
   onAuthStateChanged(auth, user => {
-    if (user) window.location.href = DASHBOARD;
+    if (user) window.location.href = "dashboard.html";
   });
 
   const emailEl   = document.getElementById("email");
@@ -97,14 +95,12 @@
   const btnYuklen = document.getElementById("btn-yuklen");
   const gozIkon   = document.getElementById("goz-ikon");
 
-  // Göz butonu — sadece type değiştir, submit tetikleme
   document.getElementById("sifre-goster").addEventListener("click", () => {
     const gizli = sifreEl.type === "password";
     sifreEl.type = gizli ? "text" : "password";
     gozIkon.className = gizli ? "bi bi-eye-slash" : "bi bi-eye";
   });
 
-  // Enter ile giriş
   sifreEl.addEventListener("keydown", e => { if (e.key === "Enter") gir(); });
   emailEl.addEventListener("keydown", e => { if (e.key === "Enter") sifreEl.focus(); });
 
@@ -128,7 +124,6 @@
 
     try {
       await signInWithEmailAndPassword(auth, email, sifre);
-      // onAuthStateChanged tetiklenerek yönlendirir
     } catch (err) {
       let mesaj = "Giriş başarısız. Bilgileri kontrol edin.";
       if (["auth/invalid-credential","auth/wrong-password","auth/user-not-found"].includes(err.code)) {

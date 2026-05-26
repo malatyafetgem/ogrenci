@@ -3,19 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Toplu Telefon Listesi — ÖBS</title>
+  <title>Görüşme Listesi — ÖBS</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="app.css">
-  <style>
-    @media print {
-      .card-header, .no-print { display: none !important; }
-      table { font-size: 11px !important; }
-      .print-baslik { display: block !important; text-align: center; margin-bottom: 1rem; }
-    }
-    .print-baslik { display: none; }
-  </style>
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -26,11 +19,11 @@
     <div class="app-content-header">
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="col-sm-6"><h3 class="mb-0">Toplu Telefon Listesi</h3></div>
+          <div class="col-sm-6"><h3 class="mb-0">Görüşme Listesi</h3></div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
               <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
-              <li class="breadcrumb-item active">Telefon Listesi</li>
+              <li class="breadcrumb-item active">Görüşme Listesi</li>
             </ol>
           </div>
         </div>
@@ -40,7 +33,6 @@
     <div class="app-content">
       <div class="container-fluid">
 
-        <!-- Filtre -->
         <div class="card mb-3 no-print">
           <div class="card-body py-2">
             <div class="row g-2 align-items-end">
@@ -51,28 +43,27 @@
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Cinsiyet</label>
-                <select id="filtre-cinsiyet" class="form-select form-select-sm">
+                <label class="form-label small mb-1">Veli Türü</label>
+                <select id="filtre-veli" class="form-select form-select-sm">
                   <option value="">Tümü</option>
-                  <option>Erkek</option><option>Kız</option>
+                  <option>Anne</option><option>Baba</option><option>Diğer</option>
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Yatılılık</label>
-                <select id="filtre-yatililik" class="form-select form-select-sm">
-                  <option value="">Tümü</option>
-                  <option>Gündüzlü</option>
-                  <option>Paralı Yatılı</option>
-                  <option>Parasız Yatılı</option>
-                </select>
+                <label class="form-label small mb-1">Tarih Başlangıç</label>
+                <input type="text" class="form-control form-control-sm" id="filtre-bas">
               </div>
               <div class="col-6 col-md-2">
-                <button id="filtre-uygula" class="btn btn-sm btn-primary">
-                  <i class="bi bi-search me-1"></i>Uygula
-                </button>
-                <button id="filtre-temizle" class="btn btn-sm btn-outline-secondary ms-1">
-                  <i class="bi bi-x"></i>
-                </button>
+                <label class="form-label small mb-1">Tarih Bitiş</label>
+                <input type="text" class="form-control form-control-sm" id="filtre-bit">
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Konu</label>
+                <input type="text" class="form-control form-control-sm" id="filtre-konu" list="konu-list" placeholder="Ara...">
+                <datalist id="konu-list"></datalist>
+              </div>
+              <div class="col-6 col-md-1">
+                <button id="filtre-uygula" class="btn btn-sm btn-primary w-100"><i class="bi bi-search"></i></button>
               </div>
             </div>
           </div>
@@ -81,7 +72,7 @@
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h6 class="mb-0">
-              <i class="bi bi-telephone-fill me-1"></i>Telefon Listesi
+              <i class="bi bi-chat-dots me-1"></i>Görüşmeler
               <span class="badge bg-secondary ms-1" id="kayit-sayisi">—</span>
             </h6>
             <div class="d-flex gap-2 no-print">
@@ -91,32 +82,24 @@
               <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
                 <i class="bi bi-printer me-1"></i>Yazdır
               </button>
+              <a href="meetings-entry.html" class="btn btn-sm btn-primary">
+                <i class="bi bi-plus-circle me-1"></i>Yeni Görüşme
+              </a>
             </div>
           </div>
           <div class="card-body p-0">
-            <!-- Yazdırma başlığı -->
-            <div class="print-baslik p-3">
-              <h5>Malatya FETGEM — Öğrenci Telefon Listesi</h5>
-              <div id="print-sinif-bilgi" class="text-muted"></div>
-            </div>
-
             <div id="yukleniyor" class="text-center py-4 text-muted">
               <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
             </div>
             <div class="table-responsive d-none" id="tablo-kap">
-              <table id="telefon-tablo" class="table table-sm table-hover mb-0">
+              <table id="gorusme-tablo" class="table table-sm table-hover mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th>No</th>
-                    <th>Ad Soyad</th>
-                    <th>Sınıf</th>
-                    <th>Baba Adı</th>
-                    <th>Baba Tel</th>
-                    <th>Anne Adı</th>
-                    <th>Anne Tel</th>
+                    <th>Tarih</th><th>Öğrenci</th><th>Sınıf</th>
+                    <th>Veli</th><th>Veli Adı</th><th>Konu</th><th>Açıklama</th>
                   </tr>
                 </thead>
-                <tbody id="telefon-tbody"></tbody>
+                <tbody id="gorusme-tbody"></tbody>
               </table>
             </div>
           </div>
@@ -133,14 +116,18 @@
 <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
   import { requireAuth } from "auth.js";
   import { layoutYukle } from "layout.js";
-  import { tumOgrencileriGetir, siniflarGetir, velileriGetir } from "students.js";
+  import { tumOgrencileriGetir, siniflarGetir, gorusmeleriGetir } from "students.js";
+  import { autocompleteYukle } from "autocomplete.js";
+  import { tarihtenDate } from "utils.js";
 
-  let tumVerisi = [];
+  let raporVerisi = [];
   let dt = null;
 
   requireAuth(async () => {
@@ -149,11 +136,13 @@
     const sel = document.getElementById("filtre-sinif");
     siniflar.forEach(s => { const o = document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
 
+    const konular = await autocompleteYukle("gorusme_konular");
+    const kl = document.getElementById("konu-list");
+    konular.forEach(k => { const o=document.createElement("option"); o.value=k; kl.appendChild(o); });
+
+    flatpickr("#filtre-bas", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
+    flatpickr("#filtre-bit", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
     document.getElementById("filtre-uygula").addEventListener("click", yukle);
-    document.getElementById("filtre-temizle").addEventListener("click", () => {
-      ["filtre-sinif","filtre-cinsiyet","filtre-yatililik"].forEach(id => document.getElementById(id).value = "");
-      yukle();
-    });
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
     await yukle();
   });
@@ -163,60 +152,54 @@
     document.getElementById("tablo-kap").classList.add("d-none");
     if (dt) { dt.destroy(); dt = null; }
 
-    const filtSinif    = document.getElementById("filtre-sinif").value;
-    const filtCinsiyet = document.getElementById("filtre-cinsiyet").value;
-    const filtYatililik= document.getElementById("filtre-yatililik").value;
+    const filtSinif = document.getElementById("filtre-sinif").value;
+    const filtVeli  = document.getElementById("filtre-veli").value;
+    const filtBas   = document.getElementById("filtre-bas").value;
+    const filtBit   = document.getElementById("filtre-bit").value;
+    const filtKonu  = document.getElementById("filtre-konu").value.trim().toLowerCase();
 
     const ogrenciler = await tumOgrencileriGetir();
-    tumVerisi = [];
+    raporVerisi = [];
 
     for (const ogr of ogrenciler) {
-      if (filtSinif     && ogr.sinif     !== filtSinif)     continue;
-      if (filtCinsiyet  && ogr.cinsiyet  !== filtCinsiyet)  continue;
-      if (filtYatililik && ogr.yatililik !== filtYatililik) continue;
-
-      const veliler = await velileriGetir(ogr.id);
-      const baba = veliler.find(v => v.tur === "Baba") || {};
-      const anne = veliler.find(v => v.tur === "Anne") || {};
-
-      tumVerisi.push({
-        no: ogr.numara || ogr.id,
-        tamAd: `${ogr.ad} ${ogr.soyad}`.trim(),
-        sinif: ogr.sinif || "",
-        ogrId: ogr.id,
-        babaAd: `${baba.ad||""} ${baba.soyad||""}`.trim(),
-        babaTel: baba.telefon || "",
-        anneAd: `${anne.ad||""} ${anne.soyad||""}`.trim(),
-        anneTel: anne.telefon || ""
-      });
+      if (filtSinif && ogr.sinif !== filtSinif) continue;
+      let kayitlar = await gorusmeleriGetir(ogr.id);
+      if (filtVeli) kayitlar = kayitlar.filter(g => g.veli_tur === filtVeli);
+      if (filtKonu) kayitlar = kayitlar.filter(g => (g.konu||"").toLowerCase().includes(filtKonu));
+      if (filtBas || filtBit) {
+        kayitlar = kayitlar.filter(g => {
+          const t = tarihtenDate(g.tarih);
+          if (!t) return true;
+          if (filtBas && t < tarihtenDate(filtBas)) return false;
+          if (filtBit && t > tarihtenDate(filtBit)) return false;
+          return true;
+        });
+      }
+      kayitlar.forEach(g => raporVerisi.push({ ogr, ...g }));
     }
 
-    // Sınıfa göre sırala, sonra ada göre
-    tumVerisi.sort((a, b) => a.sinif.localeCompare(b.sinif) || a.tamAd.localeCompare(b.tamAd));
+    raporVerisi.sort((a, b) => (b.tarih||"").localeCompare(a.tarih||""));
+    document.getElementById("kayit-sayisi").textContent = raporVerisi.length;
 
-    document.getElementById("kayit-sayisi").textContent = tumVerisi.length;
-
-    const sinifBilgi = filtSinif ? `${filtSinif} Sınıfı` : "Tüm Sınıflar";
-    document.getElementById("print-sinif-bilgi").textContent = sinifBilgi;
-
-    const tbody = document.getElementById("telefon-tbody");
-    tbody.innerHTML = tumVerisi.length === 0
+    const tbody = document.getElementById("gorusme-tbody");
+    tbody.innerHTML = raporVerisi.length === 0
       ? `<tr><td colspan="7" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
-      : tumVerisi.map(r => `<tr>
-          <td>${r.no}</td>
-          <td><a href="students-detail.html?id=${r.ogrId}" class="text-decoration-none fw-semibold">${r.tamAd}</a></td>
-          <td>${r.sinif}</td>
-          <td>${r.babaAd || "—"}</td>
-          <td>${r.babaTel || "—"}</td>
-          <td>${r.anneAd || "—"}</td>
-          <td>${r.anneTel || "—"}</td>
+      : raporVerisi.map(g => `<tr>
+          <td>${g.tarih||"—"}</td>
+          <td><a href="students-detail.html?id=${g.ogr.id}" class="text-decoration-none">
+            ${g.ogr.ad} ${g.ogr.soyad}</a></td>
+          <td>${g.ogr.sinif||"—"}</td>
+          <td><span class="badge bg-secondary">${g.veli_tur||"—"}</span></td>
+          <td>${g.veli_adi||"—"}</td>
+          <td>${g.konu||"—"}</td>
+          <td class="small text-muted">${g.aciklama||"—"}</td>
         </tr>`).join("");
 
-    if (tumVerisi.length > 0) {
-      dt = new DataTable("#telefon-tablo", {
+    if (raporVerisi.length > 0) {
+      dt = new DataTable("#gorusme-tablo", {
         language: { search: "Ara:", info: "_TOTAL_ kayıt",
           paginate: { next: "İleri", previous: "Geri" } },
-        pageLength: 50, order: [[2, "asc"], [1, "asc"]]
+        pageLength: 25, order: [[0, "desc"]]
       });
     }
 
@@ -225,15 +208,15 @@
   }
 
   function excelExport() {
-    const satirlar = tumVerisi.map(r => ({
-      "No": r.no, "Ad Soyad": r.tamAd, "Sınıf": r.sinif,
-      "Baba Adı": r.babaAd, "Baba Tel": r.babaTel,
-      "Anne Adı": r.anneAd, "Anne Tel": r.anneTel
+    const satirlar = raporVerisi.map(g => ({
+      "Tarih": g.tarih, "Ad": g.ogr.ad, "Soyad": g.ogr.soyad, "Sınıf": g.ogr.sinif,
+      "Veli Türü": g.veli_tur, "Veli Adı": g.veli_adi,
+      "Konu": g.konu, "Açıklama": g.aciklama
     }));
     const ws = XLSX.utils.json_to_sheet(satirlar);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Telefon Listesi");
-    XLSX.writeFile(wb, `telefon_listesi_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, "Görüşmeler");
+    XLSX.writeFile(wb, `gorusmeler_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 </script>
 </body>

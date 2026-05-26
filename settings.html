@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayarlar — ÖBS</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6"><h3 class="mb-0">Ayarlar</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item active">Ayarlar</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+        <div class="row g-3">
+
+          <!-- Mevcut Sınıflar -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-diagram-3 me-1"></i>Mevcut Sınıflar</h6>
+              </div>
+              <div class="card-body">
+                <p class="text-muted small">Sistemdeki aktif öğrencilerden otomatik oluşturulur.</p>
+                <div id="sinif-liste" class="d-flex flex-wrap gap-2">
+                  <span class="text-muted">Yükleniyor...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Firestore Güvenlik Kuralları Hatırlatma -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-shield-lock me-1"></i>Güvenlik Kuralları</h6>
+              </div>
+              <div class="card-body">
+                <p class="text-muted small mb-2">
+                  Firebase Console → Firestore → Rules bölümüne aşağıdaki kuralları yapıştırın:
+                </p>
+                <pre class="bg-light p-2 rounded small" style="font-size:.72rem;overflow-x:auto">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null;
+    }
+    match /students/{ogrenciNo} {
+      allow read, write: if isAdmin();
+      match /veliler/{id}       { allow read, write: if isAdmin(); }
+      match /devamsizliklar/{id}{ allow read, write: if isAdmin(); }
+      match /davranislar/{id}   { allow read, write: if isAdmin(); }
+      match /veligorusmeleri/{id}{ allow read, write: if isAdmin(); }
+    }
+    match /graduates/{id} {
+      allow read, write: if isAdmin();
+    }
+    match /_autocomplete/{id} {
+      allow read, write: if isAdmin();
+    }
+  }
+}</pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sistem Bilgisi -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-1"></i>Sistem Bilgisi</h6>
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between small border-bottom pb-2 mb-2">
+                  <span class="text-muted">Toplam Aktif Öğrenci</span>
+                  <span class="fw-bold" id="info-ogrenci">—</span>
+                </div>
+                <div class="d-flex justify-content-between small border-bottom pb-2 mb-2">
+                  <span class="text-muted">Toplam Mezun</span>
+                  <span class="fw-bold" id="info-mezun">—</span>
+                </div>
+                <div class="d-flex justify-content-between small border-bottom pb-2 mb-2">
+                  <span class="text-muted">Firebase Proje</span>
+                  <span class="fw-bold">ogrenci-226bd</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                  <span class="text-muted">Sürüm</span>
+                  <span class="fw-bold">v2.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Autocomplete Yönetimi -->
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-list-check me-1"></i>Otomatik Tamamlama Listeleri</h6>
+              </div>
+              <div class="card-body">
+                <p class="text-muted small">Veri girildiğinde otomatik kaydedilen tamamlama değerleri.</p>
+                <div class="row g-2 mb-2">
+                  <div class="col">
+                    <select class="form-select form-select-sm" id="ac-alan-sel">
+                      <option value="universiteler">Üniversiteler</option>
+                      <option value="bolumler">Bölümler</option>
+                      <option value="meslekler">Meslekler</option>
+                      <option value="konular">Görüşme Konuları</option>
+                    </select>
+                  </div>
+                  <div class="col-auto">
+                    <button class="btn btn-sm btn-outline-secondary" id="ac-yukle-btn">Yükle</button>
+                  </div>
+                </div>
+                <div id="ac-degerler" class="d-flex flex-wrap gap-1" style="max-height:150px;overflow-y:auto"></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div id="footer-kap"></div>
+<div id="bottom-nav-kap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+
+<script type="module">
+  import { requireAuth } from "auth.js";
+  import { layoutYukle } from "layout.js";
+  import { db } from "firebase-config.js";
+  import {
+    collection, getDocs, query, where
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { siniflarGetir } from "students.js";
+  import { autocompleteYukle } from "autocomplete.js";
+
+  requireAuth(async () => {
+    layoutYukle();
+    await yukle();
+  });
+
+  async function yukle() {
+    // Sınıf listesi
+    const siniflar = await siniflarGetir();
+    const sinifEl = document.getElementById("sinif-liste");
+    sinifEl.innerHTML = siniflar.length
+      ? siniflar.map(s => `<span class="badge bg-primary fs-6 px-3 py-2">${s}</span>`).join("")
+      : `<span class="text-muted">Henüz öğrenci eklenmemiş.</span>`;
+
+    // Sayılar
+    const ogrSnap = await getDocs(query(collection(db, "students"), where("durum", "==", "Aktif")));
+    document.getElementById("info-ogrenci").textContent = ogrSnap.size;
+
+    const mezunSnap = await getDocs(collection(db, "graduates"));
+    document.getElementById("info-mezun").textContent = mezunSnap.size;
+
+    // Autocomplete
+    document.getElementById("ac-yukle-btn").addEventListener("click", async () => {
+      const alan = document.getElementById("ac-alan-sel").value;
+      const degerler = await autocompleteYukle(alan);
+      const el = document.getElementById("ac-degerler");
+      el.innerHTML = degerler.length
+        ? degerler.map(d => `<span class="badge bg-light text-dark border">${d}</span>`).join("")
+        : `<span class="text-muted small">Henüz değer yok.</span>`;
+    });
+  }
+</script>
+</body>
+</html>

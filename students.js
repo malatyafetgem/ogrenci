@@ -1,7 +1,7 @@
 /**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db, storage } from "../core/firebase-config.js";
+import { db, storage } from "./firebase-config.js";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, query, where, orderBy
