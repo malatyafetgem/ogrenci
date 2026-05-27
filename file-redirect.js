@@ -25,8 +25,8 @@
         warning.innerHTML = `
           <div style="max-width:520px;background:#fff;border:1px solid #dee2e6;border-radius:8px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.08)">
             <h2 style="margin-top:0">Yerel sunucu gerekli</h2>
-            <p>Bu sistem modul dosyalari kullandigi icin dosyaya cift tiklayarak acilmaz.</p>
-            <p>Adres cubuguna su adresi yazin:</p>
+            <p>Bu sistem modul ve Firebase dosyalari kullandigi icin index dosyasina cift tiklayarak tam calismaz.</p>
+            <p><strong>baslat.bat</strong> dosyasini acin veya adres cubuguna su adresi yazin:</p>
             <p><strong>${LOCAL_BASE}</strong></p>
           </div>`;
         document.body.innerHTML = "";

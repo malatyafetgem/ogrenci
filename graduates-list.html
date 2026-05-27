@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Mezun Listesi — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -81,10 +81,10 @@
           </div>
           <div class="card-body p-0">
             <div id="yukleniyor" class="text-center py-4 text-muted d-none">
-              <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
+              <div class="spinner-border text-primary mb-2"></div><div>Hazırlanıyor...</div>
             </div>
             <div class="table-responsive" id="tablo-kap">
-              <table id="mezun-tablo" class="table table-sm table-hover mb-0 align-middle">
+              <table id="mezun-tablo" class="table table-sm table-hover mb-0 align-middle table-fit-desktop">
                 <thead class="table-light">
                   <tr>
                     <th>No</th>
@@ -120,11 +120,11 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
-  import { tumMezunlarGetir, mezunYillariGetir } from "./graduates.js";
-  import { autocompleteYukle } from "./autocomplete.js";
-  import { escapeHtml, escapeAttr } from "./utils.js";
+  import { requireAuth } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
+  import { tumMezunlarGetir, mezunYillariGetir } from "./graduates.js?v=20260527-10";
+  import { autocompleteYukle } from "./autocomplete.js?v=20260527-10";
+  import { escapeHtml, escapeAttr } from "./utils.js?v=20260527-10";
 
   let tumMezunlar = [];
   let dt = null;
@@ -268,3 +268,7 @@
 </script>
 </body>
 </html>
+
+
+
+

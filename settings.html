@@ -1,13 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Ayarlar — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -31,76 +31,79 @@
 
     <div class="app-content">
       <div class="container-fluid">
+        <div class="alert alert-warning d-flex align-items-start gap-2">
+          <i class="bi bi-shield-lock fs-4"></i>
+          <div>
+            <strong>Bu sayfa yalnızca Admin içindir.</strong>
+            Toplu silme ve içe aktarma işlemleri geri alınamaz. İşlem öncesinde oturum şifresi yeniden istenir.
+          </div>
+        </div>
+
+        <div id="islem-durum" class="alert d-none"></div>
+
         <div class="row g-3">
-
-          <!-- Mevcut Sınıflar -->
-          <div class="col-md-6">
-            <div class="card">
+          <div class="col-lg-5">
+            <div class="card h-100">
               <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-diagram-3 me-1"></i>Mevcut Sınıflar</h6>
+                <h6 class="mb-0"><i class="bi bi-database-down me-1"></i>Verileri İçe / Dışa Aktar</h6>
               </div>
               <div class="card-body">
-                <p class="text-muted small">Sistemdeki aktif öğrencilerden otomatik oluşturulur.</p>
-                <div id="sinif-liste" class="d-flex flex-wrap gap-2">
-                  <span class="text-muted">Yükleniyor...</span>
+                <p class="text-muted small">
+                  Dışa aktarma JSON yedek dosyası indirir. İçe aktarma aynı biçimdeki yedeği sisteme yazar; mevcut kayıtları silmez, aynı ID'leri günceller.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                  <button type="button" class="btn btn-success" id="yedek-disari-btn">
+                    <i class="bi bi-download me-1"></i>Dışa Aktar
+                  </button>
+                  <button type="button" class="btn btn-outline-primary" id="yedek-ice-btn">
+                    <i class="bi bi-upload me-1"></i>İçe Aktar
+                  </button>
+                  <input type="file" class="d-none" id="yedek-dosya" accept="application/json,.json">
                 </div>
+                <div class="small text-muted mt-3" id="surum-bilgi">Hazırlanıyor...</div>
               </div>
             </div>
           </div>
 
-          <!-- Sistem Bilgisi -->
-          <div class="col-md-6">
-            <div class="card">
+          <div class="col-lg-7">
+            <div class="card h-100 border-danger">
               <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-info-circle me-1"></i>Sistem Bilgisi</h6>
+                <h6 class="mb-0 text-danger"><i class="bi bi-trash3 me-1"></i>Toplu Silme</h6>
               </div>
               <div class="card-body">
-                <div class="d-flex justify-content-between small border-bottom pb-2 mb-2">
-                  <span class="text-muted">Toplam Aktif Öğrenci</span>
-                  <span class="fw-bold" id="info-ogrenci">—</span>
-                </div>
-                <div class="d-flex justify-content-between small border-bottom pb-2 mb-2">
-                  <span class="text-muted">Toplam Mezun</span>
-                  <span class="fw-bold" id="info-mezun">—</span>
-                </div>
-                <div class="d-flex justify-content-between small border-bottom pb-2 mb-2">
-                  <span class="text-muted">Firebase Proje</span>
-                  <span class="fw-bold">ogrenci-226bd</span>
-                </div>
-                <div class="d-flex justify-content-between small">
-                  <span class="text-muted">Sürüm</span>
-                  <span class="fw-bold" id="info-surum">—</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Autocomplete Yönetimi -->
-          <div class="col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-list-check me-1"></i>Otomatik Tamamlama Listeleri</h6>
-              </div>
-              <div class="card-body">
-                <p class="text-muted small">Veri girildiğinde otomatik kaydedilen tamamlama değerleri.</p>
-                <div class="row g-2 mb-2">
-                  <div class="col">
-                    <select class="form-select form-select-sm" id="ac-alan-sel">
-                      <option value="universiteler">Üniversiteler</option>
-                      <option value="bolumler">Bölümler</option>
-                      <option value="meslekler">Meslekler</option>
-                      <option value="gorusme_konular">Görüşme Konuları</option>
-                    </select>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="students">
+                      <i class="bi bi-people me-2"></i>Öğrenci Toplu Sil
+                    </button>
                   </div>
-                  <div class="col-auto">
-                    <button class="btn btn-sm btn-outline-secondary" id="ac-yukle-btn">Yükle</button>
+                  <div class="col-md-6">
+                    <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="devamsizliklar">
+                      <i class="bi bi-calendar-x me-2"></i>Devamsızlık Toplu Sil
+                    </button>
+                  </div>
+                  <div class="col-md-6">
+                    <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="davranislar">
+                      <i class="bi bi-star-half me-2"></i>Davranış Toplu Sil
+                    </button>
+                  </div>
+                  <div class="col-md-6">
+                    <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="veligorusmeleri">
+                      <i class="bi bi-chat-dots me-2"></i>Görüşme Toplu Sil
+                    </button>
+                  </div>
+                  <div class="col-12">
+                    <button type="button" class="btn btn-danger w-100 text-start toplu-sil-btn" data-sil-tur="tum-sistem">
+                      <i class="bi bi-exclamation-octagon me-2"></i>Tüm Sistemi Sil
+                    </button>
                   </div>
                 </div>
-                <div id="ac-degerler" class="d-flex flex-wrap gap-1" style="max-height:150px;overflow-y:auto"></div>
+                <p class="text-muted small mt-3 mb-0">
+                  Öğrenci toplu silme, öğrencilere bağlı veli, devamsızlık, davranış ve görüşme kayıtlarını da siler.
+                </p>
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -109,52 +112,395 @@
 <div id="footer-kap"></div>
 <div id="bottom-nav-kap"></div>
 
+<div class="modal fade" id="guvenlik-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="guvenlik-baslik">İşlemi Onayla</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger small" id="guvenlik-aciklama"></div>
+        <div class="mb-3">
+          <label class="form-label">Oturum şifresi</label>
+          <input type="password" class="form-control" id="guvenlik-sifre" autocomplete="current-password">
+          <div class="form-text">Şifre sadece Firebase yeniden doğrulaması için kullanılır, dosyaya kaydedilmez.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Onay metni</label>
+          <input type="text" class="form-control" id="guvenlik-onay">
+          <div class="form-text">Devam etmek için <strong id="guvenlik-onay-metin">SİL</strong> yazın.</div>
+        </div>
+        <div id="guvenlik-hata" class="alert alert-warning d-none py-2 small"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Vazgeç</button>
+        <button type="button" class="btn btn-danger" id="guvenlik-onayla-btn">
+          <i class="bi bi-shield-check me-1"></i>Onayla
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
-  import { db } from "./firebase-config.js";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
+  import { db } from "./firebase-config.js?v=20260527-10";
   import {
-    collection, getDocs, query, where
+    EmailAuthProvider, reauthenticateWithCredential
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import {
+    collection, collectionGroup, doc, getDocs, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { siniflarGetir } from "./students.js";
-  import { autocompleteYukle } from "./autocomplete.js";
-  import { escapeHtml } from "./utils.js";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js";
+  import { toast, bugun } from "./utils.js?v=20260527-10";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260527-10";
+
+  const ALT_KOLEKSIYONLAR = ["veliler", "devamsizliklar", "davranislar", "veligorusmeleri"];
+  const ALT_ETIKETLER = {
+    veliler: "Veli",
+    devamsizliklar: "Devamsızlık",
+    davranislar: "Davranış",
+    veligorusmeleri: "Görüşme"
+  };
+  const SILME_ISLEMLERI = {
+    students: {
+      baslik: "Öğrenci Toplu Sil",
+      aciklama: "Tüm öğrenciler ve öğrencilere bağlı veli, devamsızlık, davranış, görüşme kayıtları silinecek.",
+      calistir: silTumOgrenciler
+    },
+    devamsizliklar: {
+      baslik: "Devamsızlık Toplu Sil",
+      aciklama: "Tüm öğrencilerin devamsızlık kayıtları silinecek.",
+      calistir: () => silTumAltKoleksiyon("devamsizliklar")
+    },
+    davranislar: {
+      baslik: "Davranış Toplu Sil",
+      aciklama: "Tüm öğrencilerin davranış kayıtları silinecek.",
+      calistir: () => silTumAltKoleksiyon("davranislar")
+    },
+    veligorusmeleri: {
+      baslik: "Görüşme Toplu Sil",
+      aciklama: "Tüm öğrencilerin veli görüşmesi kayıtları silinecek.",
+      calistir: () => silTumAltKoleksiyon("veligorusmeleri")
+    },
+    "tum-sistem": {
+      baslik: "Tüm Sistemi Sil",
+      aciklama: "Öğrenciler, bağlı kayıtlar, mezunlar ve otomatik tamamlama listeleri silinecek.",
+      calistir: silTumSistem
+    }
+  };
+
+  let bekleyenIslem = null;
+  let guvenlikModal = null;
 
   requireAdmin(async () => {
     layoutYukle();
-    await yukle();
+    guvenlikModal = new bootstrap.Modal(document.getElementById("guvenlik-modal"));
+    document.getElementById("surum-bilgi").textContent = `Sürüm v${APP_VERSION} · ${APP_UPDATED_AT}`;
+    document.querySelectorAll(".toplu-sil-btn").forEach(btn => {
+      btn.addEventListener("click", () => silmeOnayiIste(btn.dataset.silTur));
+    });
+    document.getElementById("yedek-disari-btn").addEventListener("click", yedekDisariAktar);
+    document.getElementById("yedek-ice-btn").addEventListener("click", () => document.getElementById("yedek-dosya").click());
+    document.getElementById("yedek-dosya").addEventListener("change", yedekDosyaSecildi);
+    document.getElementById("guvenlik-onayla-btn").addEventListener("click", guvenlikOnayla);
   });
 
-  async function yukle() {
-    document.getElementById("info-surum").textContent = `v${APP_VERSION} · ${APP_UPDATED_AT}`;
-
-    // Sınıf listesi
-    const siniflar = await siniflarGetir();
-    const sinifEl = document.getElementById("sinif-liste");
-    sinifEl.innerHTML = siniflar.length
-      ? siniflar.map(s => `<span class="badge bg-primary fs-6 px-3 py-2">${escapeHtml(s)}</span>`).join("")
-      : `<span class="text-muted">Henüz öğrenci eklenmemiş.</span>`;
-
-    // Sayılar
-    const ogrSnap = await getDocs(query(collection(db, "students"), where("durum", "==", "Aktif")));
-    document.getElementById("info-ogrenci").textContent = ogrSnap.size;
-
-    const mezunSnap = await getDocs(collection(db, "graduates"));
-    document.getElementById("info-mezun").textContent = mezunSnap.size;
-
-    // Autocomplete
-    document.getElementById("ac-yukle-btn").addEventListener("click", async () => {
-      const alan = document.getElementById("ac-alan-sel").value;
-      const degerler = await autocompleteYukle(alan);
-      const el = document.getElementById("ac-degerler");
-      el.innerHTML = degerler.length
-        ? degerler.map(d => `<span class="badge bg-light text-dark border">${escapeHtml(d)}</span>`).join("")
-        : `<span class="text-muted small">Henüz değer yok.</span>`;
+  function silmeOnayiIste(tur) {
+    const islem = SILME_ISLEMLERI[tur];
+    if (!islem) return;
+    guvenlikIste({
+      ...islem,
+      onayMetni: tur === "tum-sistem" ? "TÜMÜNÜ SİL" : "SİL"
     });
+  }
+
+  function guvenlikIste(islem) {
+    bekleyenIslem = islem;
+    document.getElementById("guvenlik-baslik").textContent = islem.baslik;
+    document.getElementById("guvenlik-aciklama").textContent = islem.aciklama;
+    document.getElementById("guvenlik-onay-metin").textContent = islem.onayMetni;
+    document.getElementById("guvenlik-sifre").value = "";
+    document.getElementById("guvenlik-onay").value = "";
+    document.getElementById("guvenlik-hata").classList.add("d-none");
+    guvenlikModal.show();
+  }
+
+  async function guvenlikOnayla() {
+    if (!bekleyenIslem) return;
+    const hataEl = document.getElementById("guvenlik-hata");
+    const sifre = document.getElementById("guvenlik-sifre").value;
+    const onay = document.getElementById("guvenlik-onay").value.trim().toLocaleUpperCase("tr-TR");
+    const beklenen = bekleyenIslem.onayMetni.toLocaleUpperCase("tr-TR");
+    hataEl.classList.add("d-none");
+
+    if (!sifre || onay !== beklenen) {
+      hataEl.textContent = `Şifreyi girip onay alanına ${bekleyenIslem.onayMetni} yazın.`;
+      hataEl.classList.remove("d-none");
+      return;
+    }
+
+    const btn = document.getElementById("guvenlik-onayla-btn");
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>İşleniyor...`;
+    try {
+      await yenidenDogrula(sifre);
+      guvenlikModal.hide();
+      await bekleyenIslem.calistir();
+      toast("İşlem tamamlandı.", "success");
+    } catch (err) {
+      hataEl.textContent = `İşlem yapılamadı: ${err.message}`;
+      hataEl.classList.remove("d-none");
+      toast("İşlem yapılamadı: " + err.message, "danger");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `<i class="bi bi-shield-check me-1"></i>Onayla`;
+    }
+  }
+
+  async function yenidenDogrula(sifre) {
+    const user = getCurrentUser();
+    if (!user?.email) throw new Error("Şifre doğrulaması için e-posta oturumu bulunamadı.");
+    const credential = EmailAuthProvider.credential(user.email, sifre);
+    await reauthenticateWithCredential(user, credential);
+  }
+
+  function durumYaz(mesaj, tip = "info") {
+    const el = document.getElementById("islem-durum");
+    el.className = `alert alert-${tip}`;
+    el.textContent = mesaj;
+  }
+
+  function durumGizle() {
+    document.getElementById("islem-durum").className = "alert d-none";
+  }
+
+  function batchYonetici() {
+    let batch = writeBatch(db);
+    let adet = 0;
+    let toplam = 0;
+    return {
+      async ekle(fn) {
+        fn(batch);
+        adet++;
+        toplam++;
+        if (adet >= 450) {
+          await batch.commit();
+          batch = writeBatch(db);
+          adet = 0;
+        }
+      },
+      async bitir() {
+        if (adet > 0) await batch.commit();
+        return toplam;
+      }
+    };
+  }
+
+  async function silTumAltKoleksiyon(altKoleksiyon) {
+    durumYaz(`${ALT_ETIKETLER[altKoleksiyon] || "Kayıt"} kayıtları okunuyor...`);
+    const manager = batchYonetici();
+    const belgeler = await altKoleksiyonBelgeleriGetir(altKoleksiyon);
+    durumYaz(`${belgeler.length} kayıt siliniyor...`);
+    for (const belge of belgeler) {
+      await manager.ekle(batch => batch.delete(belge.ref));
+    }
+    const toplam = await manager.bitir();
+    durumYaz(`${toplam} kayıt silindi.`, "success");
+  }
+
+  async function silTumOgrenciler() {
+    durumYaz("Öğrenciler ve bağlı kayıtlar siliniyor...");
+    const manager = batchYonetici();
+    for (const alt of ALT_KOLEKSIYONLAR) {
+      const belgeler = await altKoleksiyonBelgeleriGetir(alt);
+      durumYaz(`${ALT_ETIKETLER[alt]} kayıtları siliniyor... (${belgeler.length})`);
+      for (const belge of belgeler) {
+        await manager.ekle(batch => batch.delete(belge.ref));
+      }
+    }
+
+    const ogrSnap = await getDocs(collection(db, "students"));
+    durumYaz(`Öğrenciler siliniyor... (${ogrSnap.size})`);
+    for (const ogrDoc of ogrSnap.docs) {
+      await manager.ekle(batch => batch.delete(ogrDoc.ref));
+    }
+    const toplam = await manager.bitir();
+    durumYaz(`${toplam} öğrenci ve bağlı kayıt silindi.`, "success");
+  }
+
+  async function silKoleksiyon(koleksiyon) {
+    const manager = batchYonetici();
+    const snap = await getDocs(collection(db, koleksiyon));
+    for (const belge of snap.docs) {
+      await manager.ekle(batch => batch.delete(belge.ref));
+    }
+    return manager.bitir();
+  }
+
+  async function silTumSistem() {
+    durumYaz("Tüm sistem siliniyor...");
+    await silTumOgrenciler();
+    const mezun = await silKoleksiyon("graduates");
+    const autocomplete = await silKoleksiyon("_autocomplete");
+    durumYaz(`Tüm sistem silindi. Mezun: ${mezun}, otomatik tamamlama: ${autocomplete}.`, "success");
+  }
+
+  async function yedekDisariAktar() {
+    const btn = document.getElementById("yedek-disari-btn");
+    const eskiHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Hazırlanıyor...`;
+    durumYaz("Yedek hazırlanıyor...");
+    try {
+      const [students, graduates, autocomplete] = await Promise.all([
+        ogrencileriYedekle(),
+        koleksiyonuYedekle("graduates", "Mezunlar okunuyor..."),
+        koleksiyonuYedekle("_autocomplete", "Otomatik tamamlama listeleri okunuyor...")
+      ]);
+      const veri = {
+        tur: "ogrenci-bilgileri-yedek",
+        surum: APP_VERSION,
+        tarih: bugun(),
+        students,
+        graduates,
+        autocomplete
+      };
+      const blob = new Blob([JSON.stringify(veri, null, 2)], { type: "application/json;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ogrenci_bilgileri_yedek_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      durumYaz(`Yedek dosyası indirildi. Öğrenci: ${students.length}, mezun: ${graduates.length}.`, "success");
+    } catch (err) {
+      durumYaz("Yedek alınamadı: " + err.message, "danger");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = eskiHtml;
+    }
+  }
+
+  async function koleksiyonuYedekle(koleksiyon, mesaj = "Kayıtlar okunuyor...") {
+    durumYaz(mesaj);
+    const snap = await getDocs(collection(db, koleksiyon));
+    return snap.docs.map(d => ({ id: d.id, data: d.data() }));
+  }
+
+  async function ogrencileriYedekle() {
+    durumYaz("Öğrenciler okunuyor...");
+    const snap = await getDocs(collection(db, "students"));
+    const liste = snap.docs.map(ogr => ({ id: ogr.id, data: ogr.data() }));
+    const ogrMap = new Map(liste.map(ogr => [ogr.id, ogr]));
+
+    for (const alt of ALT_KOLEKSIYONLAR) {
+      durumYaz(`${ALT_ETIKETLER[alt]} kayıtları okunuyor...`);
+      const altKayitlar = await altKoleksiyonlariYedekle(alt, snap.docs);
+      for (const ogr of liste) ogr[alt] = [];
+      for (const kayit of altKayitlar) {
+        if (!ogrMap.has(kayit.ogrenciId)) continue;
+        ogrMap.get(kayit.ogrenciId)[alt].push({ id: kayit.id, data: kayit.data });
+      }
+    }
+    return liste;
+  }
+
+  async function altKoleksiyonlariYedekle(alt, ogrDocs) {
+    try {
+      const snap = await getDocs(collectionGroup(db, alt));
+      return snap.docs.map(d => ({
+        ogrenciId: d.ref.parent.parent?.id || "",
+        id: d.id,
+        data: d.data()
+      }));
+    } catch (_) {
+      const liste = [];
+      for (const ogr of ogrDocs) {
+        const snap = await getDocs(collection(db, "students", ogr.id, alt));
+        snap.docs.forEach(d => liste.push({ ogrenciId: ogr.id, id: d.id, data: d.data() }));
+      }
+      return liste;
+    }
+  }
+
+  async function altKoleksiyonBelgeleriGetir(altKoleksiyon) {
+    try {
+      const snap = await getDocs(collectionGroup(db, altKoleksiyon));
+      return snap.docs;
+    } catch (_) {
+      const ogrSnap = await getDocs(collection(db, "students"));
+      const belgeler = [];
+      for (const ogrDoc of ogrSnap.docs) {
+        const snap = await getDocs(collection(db, "students", ogrDoc.id, altKoleksiyon));
+        belgeler.push(...snap.docs);
+      }
+      return belgeler;
+    }
+  }
+
+  function yedekDosyaSecildi(e) {
+    const dosya = e.target.files[0];
+    e.target.value = "";
+    if (!dosya) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const veri = JSON.parse(reader.result);
+        if (veri.tur !== "ogrenci-bilgileri-yedek") {
+          throw new Error("Bu dosya Öğrenci Bilgileri yedeği gibi görünmüyor.");
+        }
+        guvenlikIste({
+          baslik: "Verileri İçe Aktar",
+          aciklama: "Yedek dosyasındaki veriler sisteme yazılacak. Aynı ID'ye sahip kayıtlar güncellenir.",
+          onayMetni: "İÇE AKTAR",
+          calistir: () => yedekIceAktar(veri)
+        });
+      } catch (err) {
+        durumYaz("Dosya okunamadı: " + err.message, "danger");
+      }
+    };
+    reader.readAsText(dosya, "utf-8");
+  }
+
+  async function yedekIceAktar(veri) {
+    durumYaz("Yedek içe aktarılıyor...");
+    const manager = batchYonetici();
+    for (const ogr of veri.students || []) {
+      if (!ogr.id) continue;
+      await manager.ekle(batch => batch.set(doc(db, "students", String(ogr.id)), kayitVerisi(ogr)));
+      for (const alt of ALT_KOLEKSIYONLAR) {
+        for (const altKayit of ogr[alt] || []) {
+          if (!altKayit.id) continue;
+          await manager.ekle(batch => batch.set(
+            doc(db, "students", String(ogr.id), alt, String(altKayit.id)),
+            kayitVerisi(altKayit)
+          ));
+        }
+      }
+    }
+    for (const mezun of veri.graduates || []) {
+      if (!mezun.id) continue;
+      await manager.ekle(batch => batch.set(doc(db, "graduates", String(mezun.id)), kayitVerisi(mezun)));
+    }
+    for (const ac of veri.autocomplete || []) {
+      if (!ac.id) continue;
+      await manager.ekle(batch => batch.set(doc(db, "_autocomplete", String(ac.id)), kayitVerisi(ac)));
+    }
+    const toplam = await manager.bitir();
+    durumYaz(`${toplam} kayıt içe aktarıldı.`, "success");
+  }
+
+  function kayitVerisi(kayit) {
+    if (kayit.data && typeof kayit.data === "object") return kayit.data;
+    const { id, veliler, devamsizliklar, davranislar, veligorusmeleri, ...data } = kayit;
+    return data;
   }
 </script>
 </body>

@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Devamsızlık Raporu — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -92,10 +92,10 @@
           </div>
           <div class="card-body p-0">
             <div id="yukleniyor" class="text-center py-4 text-muted d-none">
-              <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
+              <div class="spinner-border text-primary mb-2"></div><div>Hazırlanıyor...</div>
             </div>
             <div class="table-responsive" id="tablo-kap">
-              <table id="rapor-tablo" class="table table-sm table-hover mb-0 align-middle">
+              <table id="rapor-tablo" class="table table-sm table-hover mb-0 align-middle table-fit-desktop">
                 <thead class="table-light">
                   <tr>
                     <th>No</th>
@@ -132,14 +132,14 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
-  import { tumOgrencileriGetir, siniflarGetir, tumDevamsizliklariGetir, devamsizlikHesapla } from "./students.js";
+  import { requireAuth } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
+  import { tumOgrencileriGetir, siniflarGetir, tumDevamsizliklariGetir, devamsizlikHesapla } from "./students.js?v=20260527-10";
   import {
-    devamsizlikDurum, devamsizlikRenk, tarihtenDate,
-    sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari,
+    devamsizlikDurum, devamsizlikRenk, devamsizlikGunDegeriAralik,
+    sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari, sayiEtiketiTR,
     escapeHtml, escapeAttr
-  } from "./utils.js";
+  } from "./utils.js?v=20260527-10";
 
   let raporVerisi = [];
   let dt = null;
@@ -193,15 +193,10 @@
       if (filtSinif && ogr.sinif !== filtSinif) continue;
       let kayitlar = kayitlarByOgrenci.get(ogr.id) || [];
 
-      // Tarih filtresi
       if (filtBas || filtBit) {
-        kayitlar = kayitlar.filter(k => {
-          const t = tarihtenDate(k.tarih);
-          if (!t) return false;
-          if (filtBas && t < tarihtenDate(filtBas)) return false;
-          if (filtBit && t > tarihtenDate(filtBit)) return false;
-          return true;
-        });
+        kayitlar = kayitlar
+          .map(k => ({ ...k, gun_degeri: devamsizlikGunDegeriAralik(k, filtBas, filtBit) }))
+          .filter(k => k.gun_degeri > 0);
       }
 
       // Tür filtresi
@@ -227,9 +222,9 @@
           <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(ogr))}">${escapeHtml(ogr.numara || ogr.id)}</td>
           <td><a href="students-detail.html?id=${escapeAttr(ogr.id)}" class="text-decoration-none">${escapeHtml(tamAd)}</a></td>
           <td data-order="${escapeAttr(sinifSiralamaAnahtari(ogr.sinif))}">${escapeHtml(ogr.sinif || "—")}</td>
-          <td class="text-center">${ozursuz}</td>
-          <td class="text-center">${ozurlu}</td>
-          <td class="text-center fw-semibold">${ozurlu + ozursuz}</td>
+          <td class="text-center">${sayiEtiketiTR(ozursuz)}</td>
+          <td class="text-center">${sayiEtiketiTR(ozurlu)}</td>
+          <td class="text-center fw-semibold">${sayiEtiketiTR(ozurlu + ozursuz)}</td>
           <td class="text-center"><span class="badge bg-${renk}">${etiket}</span></td>
         </tr>`;
       }).join("");

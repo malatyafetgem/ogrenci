@@ -1,13 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Öğrenci Detayı — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -34,7 +34,7 @@
       <div class="container-fluid">
 
         <div id="yukleniyor" class="text-center py-5 text-muted">
-          <div class="spinner-border text-primary mb-3"></div><div>Yükleniyor...</div>
+          <div class="spinner-border text-primary mb-3"></div><div>Hazırlanıyor...</div>
         </div>
 
         <div id="icerik" class="d-none">
@@ -125,7 +125,7 @@
             <!-- VELİ BİLGİLERİ -->
             <div class="tab-pane fade" id="sekme-veli">
               <div class="row g-3" id="veli-kartlar">
-                <div class="col-12 text-center text-muted py-3">Yükleniyor...</div>
+                <div class="col-12 text-center text-muted py-3">Hazırlanıyor...</div>
               </div>
             </div>
 
@@ -260,18 +260,19 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil,
     davranislarGetir, davranisSil,
     gorusmeleriGetir, gorusmeSil
-  } from "./students.js";
+  } from "./students.js?v=20260527-10";
   import {
-    devamsizlikDurum, devamsizlikRenk, formatTelefon, toast, escapeHtml, escapeAttr
-  } from "./utils.js";
-  import { avatarSrc } from "./avatar.js?v=20260526-5";
+    devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
+    devamsizlikTarihEtiketi, formatTelefon, sayiEtiketiTR, toast, escapeHtml, escapeAttr
+  } from "./utils.js?v=20260527-10";
+  import { avatarSrc } from "./avatar.js?v=20260527-10";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -326,7 +327,7 @@
       ]);
 
       blokDoldur("blok-aile", [
-        ["Ebeveyn Durumu", o.ebeveyn_durum],
+        ["Ebeveyn Durumu", ebeveynDurumuNormalize(o.ebeveyn_durumu)],
         ["Birliktelik", o.birliktelik],
         ["Kiminle Yaşıyor", o.beraberlik],
         ["Maddi Durum", o.maddi_durum],
@@ -409,6 +410,11 @@
     </div>`;
   }
 
+  function ebeveynDurumuNormalize(value) {
+    const durum = value || "";
+    return durum.startsWith("İkisi ") ? durum.replace(/\sDe\s/, " de ") : durum;
+  }
+
   async function yukleDevamsizlik() {
     const kayitlar = await devamsizliklarGetir(ogrenciId);
     const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
@@ -416,10 +422,10 @@
     const durum = devamsizlikDurum(ozurlu, ozursuz);
     const renk = devamsizlikRenk(durum);
 
-    document.getElementById("dev-ozursuz").textContent = ozursuz;
-    document.getElementById("dev-ozurlu").textContent = ozurlu;
-    document.getElementById("dev-toplam").textContent = toplam;
-    document.getElementById("dev-sayac").textContent = toplam;
+    document.getElementById("dev-ozursuz").textContent = sayiEtiketiTR(ozursuz);
+    document.getElementById("dev-ozurlu").textContent = sayiEtiketiTR(ozurlu);
+    document.getElementById("dev-toplam").textContent = sayiEtiketiTR(toplam);
+    document.getElementById("dev-sayac").textContent = sayiEtiketiTR(toplam);
     document.getElementById("dev-durum-rozet").innerHTML =
       `<span class="badge bg-${renk} fs-6">${durum === "normal" ? "Normal" : durum === "uyari" ? "Uyarı" : "Kritik"}</span>`;
 
@@ -427,9 +433,9 @@
     tbody.innerHTML = kayitlar.length === 0
       ? `<tr><td colspan="5" class="text-center text-muted py-3">Devamsızlık kaydı yok.</td></tr>`
       : kayitlar.map(k => `<tr>
-          <td data-label="Tarih">${escapeHtml(k.tarih || "—")}</td>
+          <td data-label="Tarih">${escapeHtml(devamsizlikTarihEtiketi(k) || "—")}</td>
           <td data-label="Tür"><span class="badge ${k.tur === "Özürsüz" ? "bg-danger" : "bg-warning text-dark"}">${escapeHtml(k.tur)}</span></td>
-          <td data-label="Miktar">${escapeHtml(k.miktar || "—")}</td>
+          <td data-label="Miktar">${escapeHtml(devamsizlikMiktarEtiketi(k) || "—")}</td>
           <td data-label="Açıklama">${escapeHtml(k.aciklama || "—")}</td>
           <td data-label="İşlem" class="no-print">
             <button class="btn btn-xs btn-outline-danger" data-admin-only onclick="silDevamsizlik('${escapeAttr(k.id)}')">
@@ -525,3 +531,7 @@
 </script>
 </body>
 </html>
+
+
+
+

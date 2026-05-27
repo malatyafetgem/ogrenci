@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Davranış Gir — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
   <style>
     .tur-buton { font-size: 1.1rem; padding: 1rem 2rem; border-width: 2px; }
     .tur-buton.secili-olumlu { background: #198754; color: #fff; border-color: #198754; }
@@ -112,10 +112,10 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
-  import { tumOgrencileriGetir, davranisEkle } from "./students.js";
-  import { escapeHtml, escapeAttr } from "./utils.js";
+  import { requireAdmin } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
+  import { tumOgrencileriGetir, davranisEkle } from "./students.js?v=20260527-10";
+  import { escapeHtml, escapeAttr } from "./utils.js?v=20260527-10";
 
   const KATEGORILER = {
     Olumlu:  ["Yardımseverlik", "Sosyal Katkı", "Başarılı Davranış", "Diğer"],
@@ -241,3 +241,7 @@
 </script>
 </body>
 </html>
+
+
+
+

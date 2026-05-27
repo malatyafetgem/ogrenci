@@ -1,13 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Gösterge Paneli — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -37,7 +37,7 @@
         <!-- Özet Kartlar -->
         <div class="row g-3 mb-4">
           <div class="col-12 col-md-4">
-            <div class="card text-white bg-primary h-100">
+            <div class="card text-white bg-primary dashboard-summary-card h-100">
               <div class="card-body d-flex align-items-center gap-3">
                 <i class="bi bi-people-fill fs-2 opacity-75"></i>
                 <div>
@@ -51,7 +51,7 @@
             </div>
           </div>
           <div class="col-12 col-md-4">
-            <div class="card text-white bg-success h-100">
+            <div class="card text-white bg-success dashboard-summary-card h-100">
               <div class="card-body d-flex align-items-center gap-3">
                 <i class="bi bi-house-fill fs-2 opacity-75"></i>
                 <div>
@@ -65,7 +65,7 @@
             </div>
           </div>
           <div class="col-12 col-md-4">
-            <div class="card text-white bg-warning h-100">
+            <div class="card text-white bg-warning dashboard-summary-card h-100">
               <div class="card-body d-flex align-items-center gap-3">
                 <i class="bi bi-exclamation-triangle-fill fs-2 opacity-75"></i>
                 <div>
@@ -140,7 +140,7 @@
                       </tr>
                     </thead>
                     <tbody id="devamsizlik-tablo">
-                      <tr><td colspan="5" class="text-center text-muted py-3">Yükleniyor...</td></tr>
+                      <tr><td colspan="5" class="text-center text-muted py-3">Veriler hazırlanıyor...</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -157,7 +157,7 @@
               </div>
               <div class="card-body p-0">
                 <ul class="list-group list-group-flush" id="davranis-liste">
-                  <li class="list-group-item text-muted text-center">Yükleniyor...</li>
+                  <li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>
                 </ul>
               </div>
             </div>
@@ -176,17 +176,23 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
-  import { db } from "./firebase-config.js";
+  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
+  import { db } from "./firebase-config.js?v=20260527-10";
   import {
     collection, getDocs
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { tumDevamsizliklariGetir, tumDavranislariGetir, ogrenciSil } from "./students.js";
-  import { devamsizlikDurum, compareSinif, compareOgrenciNo, compareTarihDesc, toast, escapeHtml, escapeAttr } from "./utils.js";
+  import { tumDevamsizliklariGetir, tumDavranislariGetir, ogrenciSil } from "./students.js?v=20260527-10";
+  import {
+    devamsizlikDurum, devamsizlikGunDegeri,
+    compareSinif, compareOgrenciNo, compareTarihDesc,
+    sayiEtiketiTR, toast, escapeHtml, escapeAttr
+  } from "./utils.js?v=20260527-10";
 
   let tumOgrenciler = [];
   let seciliOgrenci = null;
+  const DASHBOARD_CACHE_KEY = "obs-dashboard-cache-v2";
+  const DASHBOARD_CACHE_TTL = 5 * 60 * 1000;
 
   requireAuth(async () => {
     layoutYukle();
@@ -195,44 +201,115 @@
   });
 
   async function yukleVeriler() {
+    const cacheUygulandi = dashboardCacheUygula(dashboardCacheOku());
+
     try {
-      const [ogrSnap, devamsizliklar, davranislar] = await Promise.all([
-        getDocs(collection(db, "students")),
+      const ogrSnap = await getDocs(collection(db, "students"));
+      const ozet = ogrenciOzetHazirla(ogrSnap);
+      tumOgrencileriAyarla(ozet.ogrenciler);
+      dashboardOzetGoster(ozet);
+      if (!cacheUygulandi) kayitPanelleriniHazirla();
+
+      const [devamsizliklar, davranislar] = await Promise.all([
         tumDevamsizliklariGetir(),
         tumDavranislariGetir()
       ]);
-
-      let toplam = 0, kiz = 0, erkek = 0, gunduzlu = 0, parali = 0, parasiz = 0;
-      const ogrenciler = [];
-
-      ogrSnap.forEach(doc => {
-        const o = doc.data();
-        if ((o.durum || "Aktif") !== "Aktif") return;
-        toplam++;
-        if (o.cinsiyet === "Kız") kiz++;
-        if (o.cinsiyet === "Erkek") erkek++;
-        if (o.yatililik === "Paralı Yatılı") parali++;
-        else if (o.yatililik === "Parasız Yatılı") parasiz++;
-        else gunduzlu++;
-        ogrenciler.push({ id: doc.id, ...o });
-      });
-      ogrenciler.sort((a, b) => compareSinif(a.sinif, b.sinif) || compareOgrenciNo(a, b));
-      tumOgrenciler = ogrenciler;
-      if (seciliOgrenci && !tumOgrenciler.some(o => o.id === seciliOgrenci.id)) {
-        ogrenciSeciminiTemizle();
-      }
-
-      document.getElementById("kart-toplam").textContent = toplam;
-      document.getElementById("kart-toplam-detay").textContent = `(${kiz} Kız, ${erkek} Erkek)`;
-      document.getElementById("kart-yatili").textContent = `${gunduzlu} / ${parali + parasiz}`;
-      document.getElementById("kart-yatili-detay").textContent = `(${parali} Paralı / ${parasiz} Parasız Yatılı)`;
-
-      yukleDevamsizlikUyarilari(ogrenciler, devamsizliklar);
-      yukleSonDavranislar(ogrenciler, davranislar);
+      yukleDevamsizlikUyarilari(ozet.ogrenciler, devamsizliklar);
+      yukleSonDavranislar(ozet.ogrenciler, davranislar);
+      dashboardCacheYaz(ozet);
 
     } catch (err) {
-      dashboardBosDurum(err.message);
+      if (!cacheUygulandi) dashboardBosDurum(err.message);
+      else toast("Güncel veriler alınamadı, son kaydedilen görünüm gösteriliyor.", "warning");
     }
+  }
+
+  function ogrenciOzetHazirla(ogrSnap) {
+    let toplam = 0, kiz = 0, erkek = 0, gunduzlu = 0, parali = 0, parasiz = 0;
+    const ogrenciler = [];
+
+    ogrSnap.forEach(doc => {
+      const o = doc.data();
+      if ((o.durum || "Aktif") !== "Aktif") return;
+      toplam++;
+      if (o.cinsiyet === "Kız") kiz++;
+      if (o.cinsiyet === "Erkek") erkek++;
+      if (o.yatililik === "Paralı Yatılı") parali++;
+      else if (o.yatililik === "Parasız Yatılı") parasiz++;
+      else gunduzlu++;
+      ogrenciler.push({ id: doc.id, ...o });
+    });
+    ogrenciler.sort((a, b) => compareSinif(a.sinif, b.sinif) || compareOgrenciNo(a, b));
+    return { toplam, kiz, erkek, gunduzlu, parali, parasiz, ogrenciler };
+  }
+
+  function tumOgrencileriAyarla(ogrenciler) {
+    tumOgrenciler = ogrenciler;
+    if (seciliOgrenci && !tumOgrenciler.some(o => o.id === seciliOgrenci.id)) {
+      ogrenciSeciminiTemizle();
+    }
+  }
+
+  function dashboardOzetGoster({ toplam = 0, kiz = 0, erkek = 0, gunduzlu = 0, parali = 0, parasiz = 0 }) {
+    document.getElementById("kart-toplam").textContent = toplam;
+    document.getElementById("kart-toplam-detay").textContent = `(${kiz} Kız, ${erkek} Erkek)`;
+    document.getElementById("kart-yatili").textContent = `${gunduzlu} / ${parali + parasiz}`;
+    document.getElementById("kart-yatili-detay").textContent = `(${parali} Paralı / ${parasiz} Parasız Yatılı)`;
+  }
+
+  function kayitPanelleriniHazirla() {
+    document.getElementById("devamsizlik-tablo").innerHTML =
+      `<tr><td colspan="5" class="text-center text-muted py-3">Veriler hazırlanıyor...</td></tr>`;
+    document.getElementById("davranis-liste").innerHTML =
+      `<li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>`;
+  }
+
+  function dashboardCacheOku() {
+    try {
+      const raw = localStorage.getItem(DASHBOARD_CACHE_KEY);
+      if (!raw) return null;
+      const cache = JSON.parse(raw);
+      if (!cache?.zaman || Date.now() - cache.zaman > DASHBOARD_CACHE_TTL) return null;
+      return cache;
+    } catch {
+      return null;
+    }
+  }
+
+  function dashboardCacheUygula(cache) {
+    if (!cache) return false;
+    if (Array.isArray(cache.ogrenciler)) tumOgrencileriAyarla(cache.ogrenciler);
+    if (cache.ozet) dashboardOzetGoster(cache.ozet);
+    if (cache.kartUyari !== undefined) document.getElementById("kart-uyari").textContent = cache.kartUyari;
+    if (cache.devamsizlikHtml) document.getElementById("devamsizlik-tablo").innerHTML = cache.devamsizlikHtml;
+    if (cache.davranisHtml) document.getElementById("davranis-liste").innerHTML = cache.davranisHtml;
+    return true;
+  }
+
+  function dashboardCacheYaz(ozet) {
+    try {
+      const { ogrenciler: cacheDisi, ...ozetSayilar } = ozet;
+      localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify({
+        zaman: Date.now(),
+        ozet: ozetSayilar,
+        ogrenciler: tumOgrenciler.map(ogrenciCacheOzet),
+        kartUyari: document.getElementById("kart-uyari").textContent,
+        devamsizlikHtml: document.getElementById("devamsizlik-tablo").innerHTML,
+        davranisHtml: document.getElementById("davranis-liste").innerHTML
+      }));
+    } catch {
+      // Tarayıcı depolaması doluysa yalnızca anlık ekranla devam edilir.
+    }
+  }
+
+  function ogrenciCacheOzet(o) {
+    return {
+      id: o.id,
+      ad: o.ad || "",
+      soyad: o.soyad || "",
+      sinif: o.sinif || "",
+      numara: o.numara || o.id || ""
+    };
   }
 
   function dashboardBosDurum(mesaj) {
@@ -257,7 +334,7 @@
     devamsizliklar.forEach(k => {
       if (!ogrById.has(k.ogrenciId)) return;
       const mevcut = toplamlar.get(k.ogrenciId) || { ozurlu: 0, ozursuz: 0 };
-      const gun = Number(k.gun_degeri) || 0;
+      const gun = devamsizlikGunDegeri(k);
       if (k.tur === "Özürlü") mevcut.ozurlu += gun;
       else mevcut.ozursuz += gun;
       toplamlar.set(k.ogrenciId, mevcut);
@@ -293,8 +370,8 @@
       return `<tr>
         <td><a href="students-detail.html?id=${escapeAttr(ogr.id)}" class="text-decoration-none">${escapeHtml(tam)}</a></td>
         <td>${escapeHtml(ogr.sinif || "—")}</td>
-        <td class="text-center">${ozursuz}</td>
-        <td class="text-center">${ozurlu}</td>
+        <td class="text-center">${sayiEtiketiTR(ozursuz)}</td>
+        <td class="text-center">${sayiEtiketiTR(ozurlu)}</td>
         <td class="text-center"><span class="badge bg-${renk}">${durum === "kritik" ? "Kritik" : "Uyarı"}</span></td>
       </tr>`;
     }).join("");
@@ -460,3 +537,7 @@
 </script>
 </body>
 </html>
+
+
+
+

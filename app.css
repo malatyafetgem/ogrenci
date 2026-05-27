@@ -2,7 +2,7 @@
    app.css — Özel stiller
    ============================================= */
 
-/* AdminLTE, header/sidebar/main/footer elemanlarını .app-wrapper altında
+/* AdminLTE, header/main/footer elemanlarını .app-wrapper altında
    doğrudan görmeyi bekler. Enjeksiyon kaplarını layout dışı bırak. */
 #topbar-kap,
 #sidebar-kap,
@@ -10,10 +10,13 @@
   display: contents;
 }
 
-/* --- Uygulama kabuğu: sabit üst bar + kaydırılabilir sol menü --- */
+/* --- Uygulama kabuğu: sabit üst bar --- */
 :root {
-  --obs-sidebar-width: 300px;
   --obs-header-height: 56px;
+  --obs-primary: #0d6efd;
+  --obs-surface: #ffffff;
+  --obs-border: #d9e1ea;
+  --obs-soft-shadow: 0 2px 10px rgba(15, 23, 42, .07);
 }
 
 .app-wrapper {
@@ -27,28 +30,31 @@
   margin-right: auto;
 }
 
+.app-header > .container-fluid {
+  width: 100%;
+  max-width: 1320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: .75rem;
+  padding-right: .75rem;
+  gap: .8rem;
+}
+
 .app-header {
   position: fixed;
   top: 0;
   right: 0;
-  left: var(--obs-sidebar-width);
+  left: 0;
   min-height: var(--obs-header-height);
   z-index: 1040;
-  border-bottom: 1px solid #dee2e6;
-  transition: left .2s ease;
+  border-bottom: 1px solid var(--obs-border);
+  background: rgba(255,255,255,.96) !important;
+  box-shadow: 0 1px 10px rgba(15, 23, 42, .06);
+  backdrop-filter: blur(10px);
 }
 
 .app-sidebar {
-  position: fixed !important;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: var(--obs-sidebar-width) !important;
-  min-width: var(--obs-sidebar-width);
-  max-width: var(--obs-sidebar-width);
-  z-index: 1035;
-  overflow: hidden;
-  transition: transform .2s ease;
+  display: none !important;
 }
 
 .sidebar-brand {
@@ -63,23 +69,27 @@
 }
 
 .app-main {
-  margin-left: var(--obs-sidebar-width);
+  margin-left: 0;
   padding-top: var(--obs-header-height);
   min-height: 100vh;
-  transition: margin-left .2s ease;
 }
 
 .brand-logo-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  background: linear-gradient(135deg, #0d6efd, #20c997);
-  box-shadow: 0 4px 10px rgba(13,110,253,.22);
+  color: #0f766e;
+  background: #eefaf7;
+  border: 1px solid #cbece4;
+  box-shadow: 0 3px 10px rgba(15, 118, 110, .1);
   flex: 0 0 auto;
+}
+
+.brand-logo-mark i {
+  font-size: 1.12rem;
 }
 
 .brand-logo-mark-sm {
@@ -88,17 +98,78 @@
   margin-right: .45rem;
 }
 
+.navbar-brand {
+  border-radius: 12px;
+  color: #111827;
+  margin-right: 0;
+  min-width: 0;
+  padding: .28rem .55rem .28rem .28rem;
+}
+
+.navbar-brand:hover {
+  background: #f8fafc;
+}
+
+.brand-text {
+  color: #172033;
+  font-size: 1.08rem;
+  font-weight: 800 !important;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
 .brand-link {
   gap: .45rem;
 }
 
+.top-menu {
+  align-items: center;
+  gap: .2rem;
+  background: #f5f8fc;
+  border: 1px solid #e2eaf3;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+  padding: .25rem;
+}
+
+.top-menu .nav-link {
+  color: #334155;
+  border-radius: 9px;
+  font-weight: 600;
+  padding: .46rem .72rem;
+}
+
+.top-menu .nav-link:hover,
+.top-menu .nav-link.active {
+  color: #0b5ed7;
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(15, 23, 42, .08);
+}
+
+.dropdown-menu {
+  border-color: var(--obs-border);
+  border-radius: 8px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, .12);
+}
+
+.dropdown-item {
+  border-radius: 6px;
+  margin: .08rem .35rem;
+  width: calc(100% - .7rem);
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+  color: #0b5ed7;
+  background: #eef5ff;
+}
+
 .app-footer {
-  margin-left: var(--obs-sidebar-width);
-  transition: margin-left .2s ease;
+  margin-left: 0;
 }
 
 body.sidebar-collapsed .app-sidebar {
-  transform: translateX(calc(-1 * var(--obs-sidebar-width)));
+  display: none !important;
 }
 
 body.sidebar-collapsed .app-header {
@@ -111,22 +182,37 @@ body.sidebar-collapsed .app-footer {
 }
 
 @media (max-width: 767.98px) {
+  .app-header > .container-fluid {
+    max-width: none;
+  }
+
   .app-header {
     left: 0;
   }
 
   .app-sidebar {
     display: none !important;
-    transform: translateX(calc(-1 * var(--obs-sidebar-width)));
   }
 
   body.sidebar-mobile-open .app-sidebar {
-    transform: translateX(calc(-1 * var(--obs-sidebar-width)));
+    display: none !important;
   }
 
   .app-main,
   .app-footer {
     margin-left: 0;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .brand-logo-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+
+  .brand-text {
+    font-size: 1rem;
   }
 }
 
@@ -168,6 +254,62 @@ body.sidebar-collapsed .app-footer {
   color: #0d6efd;
 }
 
+.mobile-more-menu {
+  display: grid;
+  gap: 1rem;
+}
+
+.mobile-more-group {
+  margin: 0;
+}
+
+.mobile-more-group h6 {
+  color: #475569;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  margin: 0 0 .5rem;
+  text-transform: uppercase;
+}
+
+.mobile-more-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .6rem;
+}
+
+.mobile-more-item {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  color: #1f2937;
+  text-decoration: none;
+  background: #fff;
+  border: 1px solid var(--obs-border);
+  border-radius: 8px;
+  padding: .7rem .75rem;
+  box-shadow: 0 1px 5px rgba(15, 23, 42, .06);
+}
+
+.mobile-more-item i {
+  color: #0d6efd;
+  font-size: 1.2rem;
+}
+
+.mobile-more-item span {
+  min-width: 0;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.mobile-more-item:active,
+.mobile-more-item:hover {
+  color: #0b5ed7;
+  border-color: #9ec5fe;
+  background: #f4f8ff;
+}
+
 /* Telefonda içerik alanına alt navbar kadar padding ekle */
 @media (max-width: 767.98px) {
   .app-wrapper,
@@ -183,7 +325,67 @@ body.sidebar-collapsed .app-footer {
 
 /* Kart gölgesi */
 .card {
-  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  border-color: var(--obs-border);
+  border-radius: 8px;
+  box-shadow: var(--obs-soft-shadow);
+}
+
+.btn {
+  border-radius: 6px;
+}
+
+.table-hover tbody tr:hover {
+  --bs-table-bg-state: #f6f9fc;
+}
+
+.table-responsive > .table {
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .table-fit-desktop {
+    width: 100% !important;
+    table-layout: auto;
+  }
+
+  .table-fit-desktop th,
+  .table-fit-desktop td {
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .table-fit-desktop td {
+    line-height: 1.35;
+  }
+
+  .dt-container {
+    width: 100%;
+  }
+}
+
+.dashboard-summary-card {
+  --summary-accent: #0d6efd;
+  color: #1f2937 !important;
+  background: #fff !important;
+  border-left: 5px solid var(--summary-accent);
+  box-shadow: -7px 0 16px rgba(15, 23, 42, .08), 0 1px 5px rgba(15, 23, 42, .05);
+}
+
+.dashboard-summary-card.bg-primary { --summary-accent: #0d6efd; }
+.dashboard-summary-card.bg-success { --summary-accent: #198754; }
+.dashboard-summary-card.bg-warning { --summary-accent: #f2b705; }
+
+.dashboard-summary-card .small {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.dashboard-summary-card .bi {
+  color: var(--summary-accent);
+}
+
+.dashboard-summary-card [class*="opacity-"] {
+  opacity: 1 !important;
 }
 
 /* Öğrenci fotoğraf küçük resim */

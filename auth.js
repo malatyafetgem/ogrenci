@@ -1,10 +1,8 @@
-import { auth } from "./firebase-config.js";
+import { auth } from "./firebase-config.js?v=20260527-10";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// Gerçek Admin UID değerini buraya ekleyin. Liste boşken kurulum modu açıktır.
-const ADMIN_UIDS = [
-  // "FIREBASE_ADMIN_UID"
-].filter(Boolean);
+// Sistemde yalnızca bu Firebase UID Admin kabul edilir.
+const ADMIN_UIDS = ["zpaTsm2L7FSCqLA8BDkxI7bX9vM2"];
 
 /**
  * Oturum gerektiren sayfalarda çağrılır.
@@ -25,7 +23,6 @@ export function requireAuth(callback) {
 
 export function isAdminUser(user = getCurrentUser()) {
   if (!user) return false;
-  if (ADMIN_UIDS.length === 0) return true;
   return ADMIN_UIDS.includes(user.uid);
 }
 

@@ -1,14 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Öğrenci Ekle / Düzenle — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -157,10 +157,10 @@
               <div class="col-md-4">
                 <label class="form-label">Ebeveyn Durumu</label>
                 <select class="form-select" id="f-ebeveyn-durum">
-                  <option>İkisi De Hayatta</option>
+                  <option>İkisi de Hayatta</option>
                   <option>Anne Vefat</option>
                   <option>Baba Vefat</option>
-                  <option>İkisi De Vefat</option>
+                  <option>İkisi de Vefat</option>
                 </select>
               </div>
               <div class="col-md-4" id="birliktelik-alan">
@@ -318,18 +318,18 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
+  import { requireAdmin } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
   import {
     ogrenciGetir, ogrenciEkle, ogrenciGuncelle,
     velileriGetir, veliEkleGuncelle, siniflarGetir, noMevcutMu
-  } from "./students.js";
+  } from "./students.js?v=20260527-10";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
     gecerliOgrenciNo, gecerliTc, escapeAttr
-  } from "./utils.js";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js";
-  import { avatarSrc } from "./avatar.js?v=20260526-5";
+  } from "./utils.js?v=20260527-10";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260527-10";
+  import { avatarSrc } from "./avatar.js?v=20260527-10";
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");
@@ -418,7 +418,7 @@
     g("f-hastalik").value = ogr.hastalik || "";
     g("f-engel").value = ogr.engel || "";
     g("f-ilac").value = ogr.ilac || "";
-    g("f-ebeveyn-durum").value = ogr.ebeveyn_durumu || "İkisi De Hayatta";
+    g("f-ebeveyn-durum").value = ebeveynDurumuNormalize(ogr.ebeveyn_durumu);
     g("f-birliktelik").value = ogr.birliktelik || "";
     g("f-beraberlik").value = ogr.beraberlik || "";
 
@@ -484,15 +484,20 @@
     return sonuc;
   }
 
+  function ebeveynDurumuNormalize(value) {
+    const durum = value || "İkisi de Hayatta";
+    return durum.startsWith("İkisi ") ? durum.replace(/\sDe\s/, " de ") : durum;
+  }
+
   function ebeveynDurumGuncelle() {
     const durum = document.getElementById("f-ebeveyn-durum").value;
     const babaForm = document.getElementById("baba-form");
     const anneForm = document.getElementById("anne-form");
     const birliktelikAlan = document.getElementById("birliktelik-alan");
 
-    babaForm.style.opacity = (durum === "Baba Vefat" || durum === "İkisi De Vefat") ? "0.4" : "1";
-    anneForm.style.opacity = (durum === "Anne Vefat" || durum === "İkisi De Vefat") ? "0.4" : "1";
-    birliktelikAlan.classList.toggle("d-none", durum !== "İkisi De Hayatta");
+    babaForm.style.opacity = (durum === "Baba Vefat" || durum === "İkisi de Vefat") ? "0.4" : "1";
+    anneForm.style.opacity = (durum === "Anne Vefat" || durum === "İkisi de Vefat") ? "0.4" : "1";
+    birliktelikAlan.classList.toggle("d-none", durum !== "İkisi de Hayatta");
   }
 
   function birliktelikGuncelle() {
@@ -559,7 +564,7 @@
       }
     }
 
-    // Yükleniyor
+    // Kaydetme durumu
     document.getElementById("kaydet-metin").classList.add("d-none");
     document.getElementById("kaydet-yuklen").classList.remove("d-none");
     document.getElementById("kaydet-btn").disabled = true;
@@ -664,3 +669,7 @@
 </script>
 </body>
 </html>
+
+
+
+

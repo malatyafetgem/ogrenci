@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Devamsızlık Gir — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -94,10 +94,8 @@
 
               <div class="col-md-2">
                 <label class="form-label">Miktar <span class="text-danger">*</span></label>
-                <select class="form-select" id="d-miktar">
-                  <option value="Tam Gün">Tam Gün</option>
-                  <option value="Yarım Gün">Yarım Gün</option>
-                </select>
+                <input type="text" class="form-control" id="d-miktar" value="1"
+                       inputmode="decimal" placeholder="0,5 / 1 / 2">
               </div>
 
               <div class="col-12">
@@ -130,75 +128,75 @@
           </div>
         </div>
 
-        <!-- Excel Import -->
-        <div class="card d-none" id="bolum-excel">
-          <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-file-earmark-excel me-1"></i> Excel'den Devamsızlık Aktar</h6>
-          </div>
-          <div class="card-body">
-            <p class="text-muted small">
-              Ayrıntılı aktarımda <strong>Öğrenci No, Tarih, Tür, Miktar</strong> sütunlarını;
-              toplam aktarımda <strong>Öğrenci No, Toplam Özürlü Devamsızlık, Toplam Özürsüz Devamsızlık</strong>
-              sütunlarını eşleştirmeden yükleyebilirsiniz. Öğrenci No yoksa öğrenci
-              <strong>Adı Soyadı</strong> veya ayrı <strong>Adı</strong> / <strong>Soyadı</strong> sütunlarıyla bulunabilir.
-            </p>
-            <div class="mb-3">
-              <label class="form-label">Aktarım Tipi</label>
-              <select class="form-select" id="excel-aktarim-tipi">
-                <option value="detay">Ayrıntılı kayıtlar: tarih + tür + miktar</option>
-                <option value="toplam">Toplam kayıtlar: öğrenci no + toplam özürlü/özürsüz</option>
-              </select>
-              <div class="form-text">
-                Toplam aktarımda tarih aranmaz; her toplam türü öğrenciye tek özet kayıt olarak eklenir.
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Excel Dosyası (.xlsx)</label>
-              <input type="file" class="form-control" id="excel-dosya" accept=".xlsx,.xls">
-            </div>
-            <button type="button" class="btn btn-success" id="excel-yukle-btn">
-              <span id="excel-yukle-metin"><i class="bi bi-upload me-1"></i>Yükle ve Önizle</span>
-              <span id="excel-yukle-yuklen" class="d-none">
-                <span class="spinner-border spinner-border-sm me-1"></span>Okunuyor...
-              </span>
-            </button>
-            <div id="excel-hata" class="alert alert-warning d-none mt-3 py-2 small"></div>
-            <div id="excel-ilerleme" class="d-none mt-3">
-              <div class="progress mb-2">
-                <div class="progress-bar progress-bar-striped progress-bar-animated"
-                     id="excel-progress-bar" style="width:0%"></div>
-              </div>
-              <div id="excel-durum-mesaj" class="text-muted small text-center">Aktarılıyor...</div>
-            </div>
-            <div id="excel-sonuc" class="alert d-none mt-3"></div>
-
-            <!-- Önizleme tablosu -->
-            <div class="mt-4 d-none" id="excel-onizleme-kap">
-              <h6>Önizleme <span class="badge bg-secondary" id="excel-satir-sayisi"></span></h6>
-              <div class="table-responsive">
-                <table class="table table-sm table-bordered" id="excel-onizleme-tablo">
-                  <thead class="table-light">
-                    <tr id="excel-onizleme-head">
-                      <th>Öğrenci No</th><th>Ad Soyad</th><th>Tarih</th>
-                      <th>Tür</th><th>Miktar</th><th>Durum</th>
-                    </tr>
-                  </thead>
-                  <tbody id="excel-onizleme-tbody"></tbody>
-                </table>
-              </div>
-              <button type="button" class="btn btn-primary mt-2" id="excel-aktar-btn">
-                <i class="bi bi-cloud-upload me-1"></i>Sisteme Aktar
-              </button>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </main>
 </div>
 <div id="footer-kap"></div>
 <div id="bottom-nav-kap"></div>
+
+<!-- Excel Import Modal -->
+<div class="modal fade" id="excel-modal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-file-earmark-excel me-2"></i>Excel'den Devamsızlık Aktar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="excel-adim-1">
+          <p class="text-muted small mb-3">
+            Beklenen dosyada <strong>Öğr. No</strong>, <strong>Tarihi</strong>, <strong>Miktarı</strong> ve
+            <strong>Nedeni</strong> sütunları bulunur. Sütun adları farklı gelirse aşağıdaki eşleştirmeden düzeltebilirsiniz.
+            <strong>Nedeni</strong> sütunu isteğe bağlıdır; kısaltma varsa sistemdeki türü belirler.
+            Geçerli kodlar: ÖY, SY, D, Y, İ, C, S, SH, SV. Nedeni boş gelen satırlar aktarılır;
+            bu listenin dışındaki kodlar aktarılmaz. Miktar bilgisi Excel'deki <strong>Miktar</strong>
+            sütunundan alınır; 0,5 ve 1 seçili tarih, 2 ve üzeri seçili tarihten başlayan gün aralığıdır.
+          </p>
+          <div class="mb-3">
+            <label class="form-label">Excel Dosyası (.xls / .xlsx)</label>
+            <input type="file" class="form-control" id="excel-dosya" accept=".xlsx,.xls">
+          </div>
+          <div id="excel-hata" class="alert alert-warning d-none py-2 small"></div>
+          <div id="excel-onizleme-kap" class="d-none">
+            <h6>Sütun Eşleştirme</h6>
+            <div id="excel-eslestirme" class="table-responsive" style="max-height:260px;overflow-y:auto"></div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+              <h6 class="mb-0">Önizleme <span class="badge bg-secondary" id="excel-satir-sayisi"></span></h6>
+              <span class="small text-muted" id="excel-ozet"></span>
+            </div>
+            <div class="table-responsive mt-2">
+              <table class="table table-sm table-bordered align-middle mb-0" id="excel-onizleme-tablo">
+                <thead class="table-light">
+                  <tr>
+                    <th>#</th><th>Öğrenci No</th><th>Öğrenci</th><th>Tarih</th>
+                    <th>Neden</th><th>Tür</th><th>Miktar</th><th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody id="excel-onizleme-tbody"></tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-2" id="excel-pager"></div>
+          </div>
+        </div>
+        <div id="excel-ilerleme" class="d-none">
+          <div class="progress mb-2">
+            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                 id="excel-progress-bar" style="width:0%"></div>
+          </div>
+          <div id="excel-durum-mesaj" class="text-muted small text-center">Aktarılıyor...</div>
+        </div>
+        <div id="excel-sonuc" class="alert d-none mt-3"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+        <button type="button" class="btn btn-primary d-none" id="excel-aktar-btn">
+          <i class="bi bi-cloud-upload me-1"></i>Sisteme Aktar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
@@ -207,17 +205,44 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
+  import { requireAdmin } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
   import {
     tumOgrencileriGetir, devamsizlikEkle,
     devamsizliklarGetir, devamsizlikHesapla
-  } from "./students.js";
-  import { devamsizlikDurum, toast, bugun, formatTarih, escapeHtml, escapeAttr } from "./utils.js";
+  } from "./students.js?v=20260527-10";
+  import {
+    devamsizlikDurum, devamsizlikKapsananTarihler, devamsizlikMiktarEtiketi,
+    devamsizlikMiktarSayisi, devamsizlikTarihEtiketi, sayiEtiketiTR,
+    toast, formatTarih, escapeHtml, escapeAttr
+  } from "./utils.js?v=20260527-10";
 
   let tumOgrenciler = [];
   let excelSatirlar = [];
-  const TOPLAM_TARIH = bugun();
+  let excelVerisi = [];
+  let excelSutunlari = [];
+  let excelEslesme = {};
+  let excelSayfa = 1;
+  const EXCEL_SAYFA_BOYUTU = 50;
+
+  const EXCEL_ALANLARI = [
+    { key: "ogrenci_no", label: "Öğrenci No", required: true, aliases: ["Öğr. No", "Öğr No", "Öğrenci No", "Ogr No", "Ogrenci No", "No", "Numara"] },
+    { key: "tarih", label: "Tarih", required: true, aliases: ["Tarihi", "Tarih", "Devamsızlık Tarihi", "Devamsizlik Tarihi"] },
+    { key: "miktar", label: "Miktar", required: true, aliases: ["Miktarı", "Miktar", "Gün", "Gun"] },
+    { key: "neden", label: "Neden Kodu", aliases: ["Nedeni", "Neden", "Kod", "Kısaltma", "Kisaltma"] }
+  ];
+
+  const NEDEN_TANIMLARI = {
+    "ÖY": { tur: "Özürsüz" },
+    "SY": { tur: "Özürsüz" },
+    "D":  { tur: "Özürsüz" },
+    "Y":  { tur: "Özürsüz" },
+    "İ":  { tur: "Özürlü" },
+    "C":  { tur: "Özürlü" },
+    "S":  { tur: "Özürlü" },
+    "SH": { tur: "Özürlü" },
+    "SV": { tur: "Özürlü" }
+  };
 
   requireAdmin(async () => {
     layoutYukle();
@@ -240,13 +265,11 @@
       document.getElementById("kart-manuel").classList.add("border-primary");
       document.getElementById("kart-excel").classList.remove("border-primary");
       document.getElementById("bolum-manuel").classList.remove("d-none");
-      document.getElementById("bolum-excel").classList.add("d-none");
     });
     document.getElementById("kart-excel").addEventListener("click", () => {
       document.getElementById("kart-excel").classList.add("border-primary");
       document.getElementById("kart-manuel").classList.remove("border-primary");
-      document.getElementById("bolum-excel").classList.remove("d-none");
-      document.getElementById("bolum-manuel").classList.add("d-none");
+      excelSihirbazAc();
     });
 
     // Öğrenci arama
@@ -283,8 +306,12 @@
     document.getElementById("kaydet-btn").addEventListener("click", kaydet);
 
     // Excel
-    document.getElementById("excel-yukle-btn").addEventListener("click", excelOnizle);
+    document.getElementById("excel-dosya").addEventListener("change", excelDosyaOku);
     document.getElementById("excel-aktar-btn").addEventListener("click", excelAktar);
+    document.getElementById("excel-modal").addEventListener("hidden.bs.modal", () => {
+      document.getElementById("kart-manuel").classList.add("border-primary");
+      document.getElementById("kart-excel").classList.remove("border-primary");
+    });
   }
 
   async function ogrenciSec(ogr) {
@@ -298,8 +325,8 @@
     const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
     const durum = devamsizlikDurum(ozurlu, ozursuz);
     document.getElementById("ozet-ogr-ad").textContent = `${ogr.ad} ${ogr.soyad}`;
-    document.getElementById("ozet-ozursuz").textContent = ozursuz;
-    document.getElementById("ozet-ozurlu").textContent = ozurlu;
+    document.getElementById("ozet-ozursuz").textContent = sayiEtiketiTR(ozursuz);
+    document.getElementById("ozet-ozurlu").textContent = sayiEtiketiTR(ozurlu);
     document.getElementById("ozet-uyari").classList.toggle("d-none", durum !== "uyari");
     document.getElementById("ozet-kritik").classList.toggle("d-none", durum !== "kritik");
     document.getElementById("devamsizlik-ozet-kap").classList.remove("d-none");
@@ -323,18 +350,27 @@
       return;
     }
 
+    const devamsizlik = devamsizlikVerisiOlustur(tarih, tur, miktar, aciklama);
+    if (!devamsizlik) {
+      hataEl.textContent = "Miktar alanına 0,5 veya daha büyük bir sayı girin.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
+
     document.getElementById("kaydet-metin").classList.add("d-none");
     document.getElementById("kaydet-yuklen").classList.remove("d-none");
     document.getElementById("kaydet-btn").disabled = true;
 
     try {
-      await devamsizlikEkle(ogrId, {
-        tarih,
-        tur,
-        miktar,
-        gun_degeri: miktar === "Tam Gün" ? 1 : 0.5,
-        aciklama
-      });
+      const mevcutKayitlar = await devamsizliklarGetir(ogrId);
+      const cakisanlar = cakisanTarihler(devamsizlik.kapsanan_tarihler, mevcutKayitlar);
+      if (cakisanlar.length) {
+        hataEl.textContent = `Bu öğrenci için aynı tarihli kayıt var: ${cakisanlar.join(", ")}.`;
+        hataEl.classList.remove("d-none");
+        return;
+      }
+
+      await devamsizlikEkle(ogrId, devamsizlik);
       basariEl.textContent = "Devamsızlık kaydedildi.";
       basariEl.classList.remove("d-none");
       document.getElementById("d-aciklama").value = "";
@@ -351,189 +387,342 @@
     }
   }
 
-  function excelOnizle() {
-    const dosya = document.getElementById("excel-dosya").files[0];
-    if (!dosya) { toast("Lütfen bir Excel dosyası seçin.", "warning"); return; }
+  function devamsizlikVerisiOlustur(tarih, tur, miktarRaw, aciklama = "") {
+    const gunDegeri = devamsizlikMiktarSayisi(miktarRaw);
+    if (!Number.isFinite(gunDegeri) || gunDegeri <= 0) return null;
 
+    const veri = {
+      tarih: formatTarih(tarih),
+      tur,
+      miktar: sayiEtiketiTR(gunDegeri),
+      gun_degeri: gunDegeri,
+      aciklama
+    };
+    const kapsananTarihler = devamsizlikKapsananTarihler(veri);
+    if (!kapsananTarihler.length) return null;
+    veri.kapsanan_tarihler = kapsananTarihler;
+    if (kapsananTarihler.length > 1) {
+      veri.tarih_bitis = kapsananTarihler[kapsananTarihler.length - 1];
+    }
+    return veri;
+  }
+
+  function cakisanTarihler(tarihler, kayitlar) {
+    const mevcut = new Set(
+      kayitlar.flatMap(kayit => devamsizlikKapsananTarihler(kayit))
+    );
+    return tarihler.filter(tarih => mevcut.has(tarih));
+  }
+
+  function excelSihirbazAc() {
     excelDurumSifirla();
-    document.getElementById("excel-yukle-btn").disabled = true;
-    document.getElementById("excel-yukle-metin").classList.add("d-none");
-    document.getElementById("excel-yukle-yuklen").classList.remove("d-none");
+    new bootstrap.Modal(document.getElementById("excel-modal")).show();
+  }
+
+  function excelDosyaOku(e) {
+    const dosya = e.target.files[0];
+    if (!dosya) return;
+    excelDurumSifirla(false);
 
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = ev => {
       try {
-        const wb = XLSX.read(e.target.result, { type: "array", cellDates: true });
+        const wb = XLSX.read(ev.target.result, { type: "array", cellDates: true });
         const ws = wb.Sheets[wb.SheetNames[0]];
         const satirlar = XLSX.utils.sheet_to_json(ws, { defval: "", raw: false });
         if (!satirlar.length) {
           excelHataGoster("Excel sayfasında aktarılacak satır bulunamadı.");
           return;
         }
-        const aktarimTipi = document.getElementById("excel-aktarim-tipi").value;
 
-        excelSatirlar = [];
-        const tbody = document.getElementById("excel-onizleme-tbody");
-        tbody.innerHTML = "";
-        document.getElementById("excel-onizleme-head").innerHTML = aktarimTipi === "toplam"
-          ? `<th>Öğrenci No</th><th>Ad Soyad</th><th>Özürsüz Toplam</th><th>Özürlü Toplam</th><th>Durum</th>`
-          : `<th>Öğrenci No</th><th>Ad Soyad</th><th>Tarih</th><th>Tür</th><th>Miktar</th><th>Durum</th>`;
-
-        satirlar.forEach((satir) => {
-          const no = sadeceRakam(hucre(satir, ["Öğrenci No", "No", "Numara", "Ogrenci No", "Öğrenci Numarası"]));
-          const adBilgi = ogrenciAdBilgisi(satir);
-          const ogr = ogrenciBul(no, adBilgi);
-          const tamAd = ogr ? `${ogr.ad} ${ogr.soyad}` : (adBilgi.tam || "—");
-          const bulunanNo = no || (ogr?.numara || ogr?.id || "");
-          const noDurum = ogr
-            ? `${no ? "Numarayla" : "Ad soyad ile"} bulundu (${ogr.sinif || "Sınıf yok"})`
-            : no
-              ? "Bulunamadı"
-              : adBilgi.tam
-                ? "Ad soyad bulunamadı"
-                : "Öğrenci bilgisi yok";
-
-          if (aktarimTipi === "toplam") {
-            const ozurlu = sayiOku(hucre(satir, ["Toplam Özürlü Devamsızlık", "Özürlü Devamsızlık", "Ozurlu Devamsizlik", "Toplam Özürlü Gün", "Özürlü", "Ozurlu", "Özürlü Toplam", "Toplam Özürlü"]));
-            const ozursuz = sayiOku(hucre(satir, ["Toplam Özürsüz Devamsızlık", "Özürsüz Devamsızlık", "Ozursuz Devamsizlik", "Toplam Özürsüz Gün", "Özürsüz", "Ozursuz", "Özürsüz Toplam", "Toplam Özürsüz"]));
-            const durum = ogr && (ozurlu > 0 || ozursuz > 0) ? noDurum : (ozurlu > 0 || ozursuz > 0 ? noDurum : "Toplam yok");
-            const satirRenk = !ogr || (!ozurlu && !ozursuz) ? "table-warning" : "";
-            excelSatirlar.push({ aktarimTipi, no: bulunanNo, ozurlu, ozursuz, ogrId: ogr?.id || null });
-            tbody.innerHTML += `<tr class="${satirRenk}">
-              <td>${escapeHtml(bulunanNo || "—")}</td><td>${escapeHtml(tamAd)}</td><td>${ozursuz}</td><td>${ozurlu}</td><td>${escapeHtml(durum)}</td>
-            </tr>`;
-            return;
-          }
-
-          const tarih = formatTarih(hucre(satir, ["Tarih", "tarih"]));
-          const tur = normalTur(hucre(satir, ["Tür", "Tur", "Devamsızlık Türü", "Devamsizlik Turu"]) || "Özürsüz");
-          const miktar = normalMiktar(hucre(satir, ["Miktar", "miktar", "Gün", "Gun"]) || "Tam Gün");
-          const aciklama = String(hucre(satir, ["Açıklama", "Aciklama", "Not"])).trim();
-          const satirRenk = ogr && tarih ? "" : "table-danger";
-
-          excelSatirlar.push({ aktarimTipi, no: bulunanNo, tarih, tur, miktar, aciklama, ogrId: ogr?.id || null });
-
-          tbody.innerHTML += `<tr class="${satirRenk}">
-            <td>${escapeHtml(bulunanNo || "—")}</td><td>${escapeHtml(tamAd)}</td><td>${escapeHtml(tarih || "—")}</td>
-            <td>${escapeHtml(tur)}</td><td>${escapeHtml(miktar)}</td><td>${escapeHtml(!tarih ? "Tarih yok" : noDurum)}</td>
-          </tr>`;
+        const sutunSet = new Set();
+        satirlar.forEach(satir => {
+          Object.keys(satir).forEach(s => { if (String(s).trim()) sutunSet.add(s); });
         });
 
-        document.getElementById("excel-satir-sayisi").textContent = excelSatirlar.length + " satır";
+        excelVerisi = satirlar;
+        excelSutunlari = [...sutunSet];
+        excelEslesme = otomatikExcelEslesme(excelSutunlari);
+        excelSayfa = 1;
+        excelEslestirmeGoster();
+        excelOnizlemeGuncelle();
         document.getElementById("excel-onizleme-kap").classList.remove("d-none");
+        document.getElementById("excel-aktar-btn").classList.remove("d-none");
       } catch (err) {
         excelHataGoster("Excel dosyası okunamadı: " + err.message);
-      } finally {
-        document.getElementById("excel-yukle-btn").disabled = false;
-        document.getElementById("excel-yukle-metin").classList.remove("d-none");
-        document.getElementById("excel-yukle-yuklen").classList.add("d-none");
       }
     };
-    reader.onerror = () => {
-      excelHataGoster("Excel dosyası okunamadı.");
-      document.getElementById("excel-yukle-btn").disabled = false;
-      document.getElementById("excel-yukle-metin").classList.remove("d-none");
-      document.getElementById("excel-yukle-yuklen").classList.add("d-none");
-    };
+    reader.onerror = () => excelHataGoster("Excel dosyası okunamadı.");
     reader.readAsArrayBuffer(dosya);
   }
 
+  function otomatikExcelEslesme(sutunlar) {
+    const sonuc = {};
+    const kullanilan = new Set();
+    EXCEL_ALANLARI.forEach(alan => {
+      const adaylar = [alan.label, ...(alan.aliases || [])].map(normalizeBaslik);
+      const bulunan = sutunlar.find(s => !kullanilan.has(s) && adaylar.includes(normalizeBaslik(s)));
+      if (bulunan) {
+        sonuc[alan.key] = bulunan;
+        kullanilan.add(bulunan);
+      }
+    });
+    return sonuc;
+  }
+
+  function excelEslestirmeGoster() {
+    const rows = EXCEL_ALANLARI.map(alan => {
+      const options = [
+        `<option value="">— Seç / Atla —</option>`,
+        ...excelSutunlari.map(s => {
+          const selected = excelEslesme[alan.key] === s ? "selected" : "";
+          return `<option value="${escapeAttr(s)}" ${selected}>${escapeHtml(s)}</option>`;
+        })
+      ].join("");
+      return `<tr>
+        <td class="fw-semibold">${escapeHtml(alan.label)}${alan.required ? ' <span class="text-danger">*</span>' : ""}</td>
+        <td>
+          <select class="form-select form-select-sm excel-map" data-field="${alan.key}">
+            ${options}
+          </select>
+        </td>
+      </tr>`;
+    }).join("");
+
+    document.getElementById("excel-eslestirme").innerHTML = `
+      <table class="table table-sm table-bordered align-middle mb-0">
+        <thead class="table-light">
+          <tr><th style="width:35%">Sistem Alanı</th><th>Excel Sütunu</th></tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    document.querySelectorAll(".excel-map").forEach(select => {
+      select.addEventListener("change", () => {
+        excelEslesme[select.dataset.field] = select.value;
+        excelSayfa = 1;
+        excelOnizlemeGuncelle();
+      });
+    });
+  }
+
+  function excelOnizlemeGuncelle() {
+    const eksikler = excelZorunluEksikler();
+    const aktarBtn = document.getElementById("excel-aktar-btn");
+    aktarBtn.disabled = eksikler.length > 0 || !excelVerisi.length;
+
+    if (eksikler.length) {
+      excelHataGoster(`Zorunlu alanları eşleştirin: ${eksikler.join(", ")}`);
+    } else {
+      excelHataGizle();
+    }
+
+    excelSatirlar = excelDosyaTekrarlariniIsaretle(excelVerisi.map((satir, idx) => excelSatirCoz(satir, idx)));
+    const aktarilabilir = excelSatirlar.filter(s => s.aktar).length;
+    const atlanacak = excelSatirlar.filter(s => s.atla).length;
+    const hatali = excelSatirlar.filter(s => !s.aktar && !s.atla).length;
+
+    document.getElementById("excel-satir-sayisi").textContent =
+      `${excelVerisi.length} satır, ${excelSutunlari.length} sütun`;
+    document.getElementById("excel-ozet").textContent =
+      `${aktarilabilir} aktarılacak, ${atlanacak} alınmayacak, ${hatali} sorunlu`;
+
+    excelOnizlemeSayfasiniGoster();
+  }
+
+  function excelOnizlemeSayfasiniGoster() {
+    const toplamSayfa = Math.max(1, Math.ceil(excelSatirlar.length / EXCEL_SAYFA_BOYUTU));
+    excelSayfa = Math.min(Math.max(1, excelSayfa), toplamSayfa);
+    const bas = (excelSayfa - 1) * EXCEL_SAYFA_BOYUTU;
+    const gorunenSatirlar = excelSatirlar.slice(bas, bas + EXCEL_SAYFA_BOYUTU);
+
+    document.getElementById("excel-onizleme-tbody").innerHTML = gorunenSatirlar.map(s => {
+      const renk = s.aktar ? "" : s.atla ? "table-secondary" : "table-danger";
+      const durum = s.aktar
+        ? `<span class="badge bg-success">Hazır</span>`
+        : s.atla
+          ? `<span class="badge bg-secondary">Alınmayacak</span>`
+          : `<span class="badge bg-danger">${escapeHtml(s.durum)}</span>`;
+      return `<tr class="${renk}">
+        <td>${s.index + 1}</td>
+        <td>${escapeHtml(s.no || "—")}</td>
+        <td>${escapeHtml(s.ogrAd || "—")}</td>
+        <td>${escapeHtml(s.tarihEtiketi || s.tarih || "—")}</td>
+        <td>${escapeHtml(s.neden || "—")}</td>
+        <td>${escapeHtml(s.tur || "—")}</td>
+        <td>${escapeHtml(s.miktar || "—")}</td>
+        <td>${durum}</td>
+      </tr>`;
+    }).join("") || `<tr><td colspan="8" class="text-center text-muted py-3">Önizlenecek satır yok.</td></tr>`;
+
+    const pager = document.getElementById("excel-pager");
+    if (!excelSatirlar.length) {
+      pager.innerHTML = "";
+      return;
+    }
+    const ilk = bas + 1;
+    const son = Math.min(bas + EXCEL_SAYFA_BOYUTU, excelSatirlar.length);
+    pager.innerHTML = `
+      <span class="small text-muted">${ilk}-${son} / ${excelSatirlar.length} satır</span>
+      <div class="btn-group btn-group-sm">
+        <button type="button" class="btn btn-outline-secondary" id="excel-onceki-sayfa" ${excelSayfa <= 1 ? "disabled" : ""}>
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <button type="button" class="btn btn-outline-secondary disabled">Sayfa ${excelSayfa} / ${toplamSayfa}</button>
+        <button type="button" class="btn btn-outline-secondary" id="excel-sonraki-sayfa" ${excelSayfa >= toplamSayfa ? "disabled" : ""}>
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>`;
+    document.getElementById("excel-onceki-sayfa")?.addEventListener("click", () => {
+      excelSayfa--;
+      excelOnizlemeSayfasiniGoster();
+    });
+    document.getElementById("excel-sonraki-sayfa")?.addEventListener("click", () => {
+      excelSayfa++;
+      excelOnizlemeSayfasiniGoster();
+    });
+  }
+
+  function excelSatirCoz(satir, index) {
+    const no = sadeceRakam(hucre(satir, excelEslesme.ogrenci_no));
+    const tarih = excelTarihOku(hucre(satir, excelEslesme.tarih));
+    const neden = nedenKoduNormalize(hucre(satir, excelEslesme.neden));
+    const miktarHucre = hucre(satir, excelEslesme.miktar);
+    const ogr = ogrenciBul(no);
+    const tanim = neden ? NEDEN_TANIMLARI[neden] || null : { tur: "Özürsüz" };
+    const veri = tanim && tarih ? devamsizlikVerisiOlustur(
+      tarih,
+      tanim.tur,
+      miktarHucre,
+      neden ? `Neden: ${neden}` : ""
+    ) : null;
+    const temel = {
+      index,
+      no,
+      tarih,
+      tarihEtiketi: veri ? devamsizlikTarihEtiketi(veri) : tarih,
+      neden,
+      tanim,
+      veri,
+      tarihler: veri?.kapsanan_tarihler || [],
+      ogrId: ogr?.id || null,
+      ogrAd: ogr ? `${ogr.ad || ""} ${ogr.soyad || ""}`.trim() : "",
+      tur: tanim?.tur || "",
+      miktar: veri ? devamsizlikMiktarEtiketi(veri) : "",
+      gunDegeri: 0,
+      aktar: false,
+      atla: false,
+      durum: ""
+    };
+
+    if (!no) return { ...temel, durum: "Öğrenci no yok" };
+    if (!ogr) return { ...temel, durum: "Öğrenci bulunamadı" };
+    if (!tarih) return { ...temel, durum: "Tarih yok" };
+    if (!tanim) return { ...temel, durum: `Tanımsız neden: ${neden}` };
+    if (!veri) return { ...temel, durum: "Miktar yok/geçersiz" };
+
+    return {
+      ...temel,
+      tur: tanim.tur,
+      gunDegeri: veri.gun_degeri,
+      aktar: true,
+      durum: "Hazır"
+    };
+  }
+
+  function excelDosyaTekrarlariniIsaretle(satirlar) {
+    const gorulen = new Set();
+    return satirlar.map(satir => {
+      if (!satir.aktar || !satir.no || !satir.tarihler?.length) return satir;
+      const tekrarTarih = satir.tarihler.find(tarih => gorulen.has(`${satir.no}|${tarih}`));
+      if (tekrarTarih) {
+        return {
+          ...satir,
+          aktar: false,
+          atla: true,
+          durum: `Aynı dosyada tekrar: ${tekrarTarih}`
+        };
+      }
+      satir.tarihler.forEach(tarih => gorulen.add(`${satir.no}|${tarih}`));
+      return satir;
+    });
+  }
+
+  async function sistemdeAyniTarihVar(ogrId, tarihler, cache) {
+    if (!cache.has(ogrId)) {
+      cache.set(ogrId, await devamsizliklarGetir(ogrId));
+    }
+    return cakisanTarihler(tarihler, cache.get(ogrId)).length > 0;
+  }
+
   async function excelAktar() {
-    const aktarimTipi = excelSatirlar[0]?.aktarimTipi || document.getElementById("excel-aktarim-tipi").value;
-    const gecerli = aktarimTipi === "toplam"
-      ? excelSatirlar.filter(s => s.ogrId && (s.ozurlu > 0 || s.ozursuz > 0))
-      : excelSatirlar.filter(s => s.ogrId && s.tarih);
-    if (gecerli.length === 0) {
+    const aktarilacaklar = excelSatirlar.filter(s => s.aktar);
+    if (!aktarilacaklar.length) {
       excelSonucGoster("Aktarılacak geçerli kayıt yok.", "warning");
       toast("Aktarılacak geçerli kayıt yok.", "warning");
       return;
     }
 
     const aktarBtn = document.getElementById("excel-aktar-btn");
-    const aktarilacaklar = aktarimTipi === "toplam"
-      ? gecerli.flatMap(s => {
-          const kayitlar = [];
-          if (s.ozursuz > 0) {
-            kayitlar.push({
-              ogrId: s.ogrId,
-              veri: {
-                tarih: TOPLAM_TARIH,
-                tur: "Özürsüz",
-                miktar: "Toplam",
-                gun_degeri: s.ozursuz,
-                aciklama: "Excel toplam devamsızlık aktarımı"
-              }
-            });
-          }
-          if (s.ozurlu > 0) {
-            kayitlar.push({
-              ogrId: s.ogrId,
-              veri: {
-                tarih: TOPLAM_TARIH,
-                tur: "Özürlü",
-                miktar: "Toplam",
-                gun_degeri: s.ozurlu,
-                aciklama: "Excel toplam devamsızlık aktarımı"
-              }
-            });
-          }
-          return kayitlar;
-        })
-      : gecerli.map(s => ({
-          ogrId: s.ogrId,
-          veri: {
-            tarih: s.tarih,
-            tur: s.tur,
-            miktar: s.miktar,
-            gun_degeri: gunDegeri(s.miktar),
-            aciklama: s.aciklama
-          }
-        }));
-
     aktarBtn.disabled = true;
-    aktarBtn.innerHTML =
-      `<span class="spinner-border spinner-border-sm me-1"></span>Aktarılıyor...`;
-    document.getElementById("excel-hata").classList.add("d-none");
-    document.getElementById("excel-sonuc").classList.add("d-none");
+    aktarBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Aktarılıyor...`;
+    document.getElementById("excel-adim-1").classList.add("d-none");
     document.getElementById("excel-ilerleme").classList.remove("d-none");
+    document.getElementById("excel-sonuc").classList.add("d-none");
     excelIlerlemeGuncelle(0, aktarilacaklar.length, "Aktarım başlıyor...");
 
-    let basarili = 0, hatali = 0, islenen = 0;
-    const toplamOgrencileri = new Set();
-    for (const kayit of aktarilacaklar) {
+    let basarili = 0, hatali = 0, tekrar = 0;
+    const mevcutKayitCache = new Map();
+    for (let i = 0; i < aktarilacaklar.length; i++) {
+      const s = aktarilacaklar[i];
       try {
-        await devamsizlikEkle(kayit.ogrId, kayit.veri);
+        if (await sistemdeAyniTarihVar(s.ogrId, s.tarihler, mevcutKayitCache)) {
+          tekrar++;
+          excelIlerlemeGuncelle(i + 1, aktarilacaklar.length, `${i + 1}/${aktarilacaklar.length} kayıt işlendi`);
+          continue;
+        }
+        await devamsizlikEkle(s.ogrId, s.veri);
+        mevcutKayitCache.get(s.ogrId)?.push(s.veri);
         basarili++;
-        if (aktarimTipi === "toplam") toplamOgrencileri.add(kayit.ogrId);
       } catch (_) {
         hatali++;
-      } finally {
-        islenen++;
-        excelIlerlemeGuncelle(islenen, aktarilacaklar.length, `${islenen}/${aktarilacaklar.length} kayıt işlendi`);
       }
+      excelIlerlemeGuncelle(i + 1, aktarilacaklar.length, `${i + 1}/${aktarilacaklar.length} kayıt işlendi`);
     }
 
-    const mesaj = aktarimTipi === "toplam"
-      ? `${toplamOgrencileri.size} öğrenci için ${basarili} toplam kaydı aktarıldı${hatali > 0 ? `, ${hatali} hata` : ""}.`
-      : `${basarili} kayıt aktarıldı${hatali > 0 ? `, ${hatali} hata` : ""}.`;
-    const sonucTipi = hatali > 0 ? "warning" : "success";
-    excelSonucGoster(mesaj, sonucTipi);
-    toast(mesaj, sonucTipi);
+    const dosyadaAtlanan = excelSatirlar.filter(s => s.atla).length;
+    const atlanan = dosyadaAtlanan + tekrar;
+    const sorunlu = excelSatirlar.length - aktarilacaklar.length - dosyadaAtlanan;
+    const mesaj = `${basarili} kayıt aktarıldı${atlanan ? `, ${atlanan} kayıt alınmadı` : ""}${sorunlu ? `, ${sorunlu} sorunlu satır atlandı` : ""}${hatali ? `, ${hatali} hata` : ""}.`;
+    const tip = hatali || sorunlu ? "warning" : "success";
+    excelSonucGoster(mesaj, tip);
+    toast(mesaj, tip);
     aktarBtn.disabled = false;
-    aktarBtn.innerHTML =
-      `<i class="bi bi-cloud-upload me-1"></i>Sisteme Aktar`;
+    aktarBtn.innerHTML = `<i class="bi bi-cloud-upload me-1"></i>Sisteme Aktar`;
   }
 
-  function excelDurumSifirla() {
+  function excelDurumSifirla(dosyaInputTemizle = true) {
     excelSatirlar = [];
+    excelVerisi = [];
+    excelSutunlari = [];
+    excelEslesme = {};
+    excelSayfa = 1;
+    if (dosyaInputTemizle) document.getElementById("excel-dosya").value = "";
+    document.getElementById("excel-adim-1").classList.remove("d-none");
     document.getElementById("excel-hata").classList.add("d-none");
     document.getElementById("excel-hata").textContent = "";
     document.getElementById("excel-sonuc").className = "alert d-none mt-3";
     document.getElementById("excel-sonuc").textContent = "";
     document.getElementById("excel-ilerleme").classList.add("d-none");
     document.getElementById("excel-onizleme-kap").classList.add("d-none");
+    document.getElementById("excel-aktar-btn").classList.add("d-none");
+    document.getElementById("excel-aktar-btn").disabled = false;
+    document.getElementById("excel-aktar-btn").innerHTML = `<i class="bi bi-cloud-upload me-1"></i>Sisteme Aktar`;
     document.getElementById("excel-satir-sayisi").textContent = "";
+    document.getElementById("excel-ozet").textContent = "";
+    document.getElementById("excel-eslestirme").innerHTML = "";
     document.getElementById("excel-onizleme-tbody").innerHTML = "";
+    document.getElementById("excel-pager").innerHTML = "";
     excelIlerlemeGuncelle(0, 0, "Aktarılıyor...");
   }
 
@@ -541,6 +730,12 @@
     const hataEl = document.getElementById("excel-hata");
     hataEl.textContent = mesaj;
     hataEl.classList.remove("d-none");
+  }
+
+  function excelHataGizle() {
+    const hataEl = document.getElementById("excel-hata");
+    hataEl.textContent = "";
+    hataEl.classList.add("d-none");
   }
 
   function excelSonucGoster(mesaj, tip = "success") {
@@ -558,6 +753,12 @@
     document.getElementById("excel-durum-mesaj").textContent = mesaj;
   }
 
+  function excelZorunluEksikler() {
+    return EXCEL_ALANLARI
+      .filter(alan => alan.required && !excelEslesme[alan.key])
+      .map(alan => alan.label);
+  }
+
   function normalizeBaslik(str) {
     return String(str || "")
       .trim()
@@ -568,10 +769,12 @@
       .replace(/[^a-z0-9]+/g, "");
   }
 
-  function hucre(satir, adaylar) {
-    const hedefler = adaylar.map(normalizeBaslik);
+  function hucre(satir, sutun) {
+    if (!sutun) return "";
+    if (Object.prototype.hasOwnProperty.call(satir, sutun)) return satir[sutun];
+    const hedef = normalizeBaslik(sutun);
     for (const [baslik, deger] of Object.entries(satir)) {
-      if (hedefler.includes(normalizeBaslik(baslik))) return deger;
+      if (normalizeBaslik(baslik) === hedef) return deger;
     }
     return "";
   }
@@ -580,64 +783,38 @@
     return String(value ?? "").replace(/\D/g, "");
   }
 
-  function ogrenciBul(no, adBilgi = {}) {
+  function ogrenciBul(no) {
     const temizNo = sadeceRakam(no);
-    if (temizNo) return tumOgrenciler.find(o => sadeceRakam(o.numara || o.id) === temizNo);
-    const hedef = normalizeAdSoyad(adBilgi);
-    if (!hedef) return null;
-    const eslesen = tumOgrenciler.filter(o => normalizeAdSoyad({
-      ad: o.ad,
-      soyad: o.soyad,
-      tam: `${o.ad || ""} ${o.soyad || ""}`
-    }) === hedef);
-    return eslesen.length === 1 ? eslesen[0] : null;
+    if (!temizNo) return null;
+    return tumOgrenciler.find(o => sadeceRakam(o.numara || o.id) === temizNo) || null;
   }
 
-  function ogrenciAdBilgisi(satir) {
-    const birlesik = String(hucre(satir, [
-      "Öğrenci Adı Soyadı", "Ogrenci Adi Soyadi", "Adı Soyadı", "Adi Soyadi",
-      "Ad Soyad", "Öğrenci Ad Soyad", "Ogrenci Ad Soyad", "Öğrenci"
-    ]) || "").trim();
-    const ad = String(hucre(satir, ["Ad", "Adı", "Adi", "Öğrenci Adı", "Ogrenci Adi"]) || "").trim();
-    const soyad = String(hucre(satir, ["Soyad", "Soyadı", "Soyadi", "Öğrenci Soyadı", "Ogrenci Soyadi"]) || "").trim();
-    if (ad || soyad) return { ad, soyad, tam: `${ad} ${soyad}`.trim() };
-    const parca = adSoyadAyir(birlesik);
-    return { ...parca, tam: birlesik };
+  function excelTarihOku(value) {
+    if (value instanceof Date && !Number.isNaN(value.getTime())) return formatTarih(value);
+    const formatted = formatTarih(value);
+    if (/^\d{2}\.\d{2}\.\d{4}$/.test(formatted)) return formatted;
+    const raw = String(value ?? "").trim();
+    const slash = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+    if (slash) {
+      const [, d, m, y] = slash;
+      const yil = y.length === 2 ? `20${y}` : y;
+      return `${d.padStart(2, "0")}.${m.padStart(2, "0")}.${yil}`;
+    }
+    const serial = Number(raw.replace(",", "."));
+    if (Number.isFinite(serial) && serial > 25000 && serial < 60000) {
+      const base = new Date(Date.UTC(1899, 11, 30));
+      base.setUTCDate(base.getUTCDate() + Math.floor(serial));
+      return formatTarih(new Date(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate()));
+    }
+    return "";
   }
 
-  function adSoyadAyir(value) {
-    const temizDeger = String(value || "").trim().replace(/\s+/g, " ");
-    if (!temizDeger) return { ad: "", soyad: "" };
-    const parcalar = temizDeger.split(" ");
-    if (parcalar.length === 1) return { ad: parcalar[0], soyad: "" };
-    const soyad = parcalar.pop();
-    return { ad: parcalar.join(" "), soyad };
-  }
-
-  function normalizeAdSoyad(bilgi) {
-    const raw = bilgi?.ad || bilgi?.soyad
-      ? `${bilgi.ad || ""} ${bilgi.soyad || ""}`
-      : bilgi?.tam || "";
-    return normalizeBaslik(raw);
-  }
-
-  function sayiOku(value) {
-    const raw = String(value ?? "").replace(",", ".").match(/\d+(\.\d+)?/);
-    return raw ? Number(raw[0]) : 0;
-  }
-
-  function normalTur(value) {
-    const v = String(value ?? "").trim().toLocaleLowerCase("tr-TR");
-    return v.includes("özürlü") || v.includes("ozurlu") ? "Özürlü" : "Özürsüz";
-  }
-
-  function normalMiktar(value) {
-    const v = String(value ?? "").trim().toLocaleLowerCase("tr-TR");
-    return v.includes("yarım") || v.includes("yarim") || v === "0.5" || v === "0,5" ? "Yarım Gün" : "Tam Gün";
-  }
-
-  function gunDegeri(miktar) {
-    return miktar === "Yarım Gün" ? 0.5 : 1;
+  function nedenKoduNormalize(value) {
+    return String(value ?? "")
+      .trim()
+      .toLocaleUpperCase("tr-TR")
+      .replace(/\s+/g, "")
+      .replace(/\./g, "");
   }
 </script>
 </body>

@@ -152,6 +152,41 @@ export function formatTarih(tarihStr) {
   return raw;
 }
 
+export function sayiOkuTR(value) {
+  const raw = String(value ?? "").trim().replace(",", ".");
+  const eslesen = raw.match(/\d+(\.\d+)?/);
+  return eslesen ? Number(eslesen[0]) : 0;
+}
+
+export function sayiEtiketiTR(value) {
+  const sayi = Number(value);
+  if (!Number.isFinite(sayi)) return "";
+  const yuvarlanmis = Math.round(sayi * 100) / 100;
+  return String(yuvarlanmis).replace(".", ",");
+}
+
+export function devamsizlikMiktarSayisi(value) {
+  const yalin = String(value ?? "")
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  if (yalin.includes("yarim")) return 0.5;
+  if (yalin.includes("tam")) return 1;
+  return sayiOkuTR(value);
+}
+
+export function devamsizlikGunDegeri(kayit) {
+  const gun = devamsizlikMiktarSayisi(kayit?.gun_degeri ?? kayit?.miktar);
+  return gun > 0 ? gun : 0;
+}
+
+export function devamsizlikMiktarEtiketi(kayit) {
+  const gun = typeof kayit === "object" ? devamsizlikGunDegeri(kayit) : devamsizlikMiktarSayisi(kayit);
+  return gun > 0 ? sayiEtiketiTR(gun) : "";
+}
+
 /**
  * Bugünün tarihini GG.AA.YYYY olarak döndürür.
  */
@@ -171,6 +206,60 @@ export function tarihtenDate(str) {
   if (!/^\d{2}\.\d{2}\.\d{4}$/.test(str)) return null;
   const [g, a, y] = str.split(".");
   return new Date(`${y}-${a}-${g}`);
+}
+
+export function tarihEkle(str, gun) {
+  const tarih = tarihtenDate(formatTarih(str));
+  if (!tarih) return "";
+  tarih.setDate(tarih.getDate() + gun);
+  return formatTarih(tarih);
+}
+
+export function devamsizlikGunDagilimi(kayit) {
+  const baslangic = formatTarih(kayit?.tarih || "");
+  const toplamGun = devamsizlikGunDegeri(kayit);
+  if (!baslangic || toplamGun <= 0) return [];
+
+  const gunSayisi = toplamGun > 1 ? Math.ceil(toplamGun) : 1;
+  return Array.from({ length: gunSayisi }, (_, index) => {
+    const kalan = toplamGun - index;
+    const gun = toplamGun <= 1 ? toplamGun : Math.min(1, Math.max(0, kalan));
+    return {
+      tarih: tarihEkle(baslangic, index),
+      gun
+    };
+  }).filter(item => item.tarih && item.gun > 0);
+}
+
+export function devamsizlikKapsananTarihler(kayit) {
+  if (Array.isArray(kayit?.kapsanan_tarihler) && kayit.kapsanan_tarihler.length) {
+    return kayit.kapsanan_tarihler.map(formatTarih).filter(Boolean);
+  }
+  return devamsizlikGunDagilimi(kayit).map(item => item.tarih);
+}
+
+export function devamsizlikTarihEtiketi(kayit) {
+  const tarihler = devamsizlikKapsananTarihler(kayit);
+  if (tarihler.length > 1) return `${tarihler[0]} - ${tarihler[tarihler.length - 1]}`;
+  return formatTarih(kayit?.tarih || "") || "";
+}
+
+export function devamsizlikGunDegeriAralik(kayit, baslangic, bitis) {
+  const bas = baslangic ? tarihtenDate(formatTarih(baslangic)) : null;
+  const bit = bitis ? tarihtenDate(formatTarih(bitis)) : null;
+  return devamsizlikGunDagilimi(kayit)
+    .filter(({ tarih }) => {
+      const t = tarihtenDate(tarih);
+      if (!t) return false;
+      if (bas && t < bas) return false;
+      if (bit && t > bit) return false;
+      return true;
+    })
+    .reduce((toplam, item) => toplam + item.gun, 0);
+}
+
+export function devamsizlikTarihleOrtusur(kayit, baslangic, bitis) {
+  return devamsizlikGunDegeriAralik(kayit, baslangic, bitis) > 0;
 }
 
 export function tarihSiralamaAnahtari(str) {

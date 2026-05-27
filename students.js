@@ -1,14 +1,34 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js";
+import { db } from "./firebase-config.js?v=20260527-10";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, collectionGroup
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { bugun, compareOgrenci, compareSinif, compareTarihDesc, formatTarih, tarihSiralamaAnahtari } from "./utils.js";
+import {
+  bugun, compareOgrenci, compareSinif, compareTarihDesc,
+  devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
+} from "./utils.js?v=20260527-10";
 
 const KOLEKSIYON = "students";
+let ogrenciCachePromise = null;
+
+function ogrenciCacheTemizle() {
+  ogrenciCachePromise = null;
+}
+
+async function tumOgrenciBelgeleriGetir() {
+  if (!ogrenciCachePromise) {
+    ogrenciCachePromise = getDocs(collection(db, KOLEKSIYON))
+      .then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      .catch(err => {
+        ogrenciCacheTemizle();
+        throw err;
+      });
+  }
+  return ogrenciCachePromise;
+}
 
 function altKayit(d) {
   return {
@@ -50,9 +70,8 @@ function tarihliVeri(veri) {
 
 /** Tüm aktif öğrencileri getir */
 export async function tumOgrencileriGetir() {
-  const snap = await getDocs(collection(db, KOLEKSIYON));
-  return snap.docs
-    .map(d => ({ id: d.id, ...d.data() }))
+  const ogrenciler = await tumOgrenciBelgeleriGetir();
+  return ogrenciler
     .filter(o => (o.durum || "Aktif") === "Aktif")
     .sort(compareOgrenci);
 }
@@ -77,6 +96,7 @@ export async function ogrenciEkle(ogrenciNo, veri) {
     durum: "Aktif",
     olusturma_tarihi: bugun()
   });
+  ogrenciCacheTemizle();
 }
 
 /** Öğrenci güncelle */
@@ -85,6 +105,7 @@ export async function ogrenciGuncelle(ogrenciNo, veri) {
     ...veri,
     guncelleme_tarihi: bugun()
   });
+  ogrenciCacheTemizle();
 }
 
 /** Öğrenci sil (tüm alt koleksiyonlarla — güvenli silme) */
@@ -96,6 +117,7 @@ export async function ogrenciSil(ogrenciNo) {
     for (const d of snap.docs) await deleteDoc(d.ref);
   }
   await deleteDoc(doc(db, KOLEKSIYON, id));
+  ogrenciCacheTemizle();
 }
 
 /** Öğrencinin mezun olmasını işle */
@@ -108,6 +130,7 @@ export async function ogrenciMezunEt(ogrenciNo, mezunVerisi) {
   });
   // students'ta durumu güncelle
   await updateDoc(doc(db, KOLEKSIYON, id), { durum: "Mezun" });
+  ogrenciCacheTemizle();
 }
 
 // ── Alt koleksiyon: Veliler ──────────────────────────────────────────────────
@@ -150,7 +173,7 @@ export async function devamsizlikSil(ogrenciNo, kayitId) {
 export function devamsizlikHesapla(kayitlar) {
   let ozurlu = 0, ozursuz = 0;
   for (const k of kayitlar) {
-    const gun = Number(k.gun_degeri) || 0;
+    const gun = devamsizlikGunDegeri(k);
     if (k.tur === "Özürlü") ozurlu += gun;
     else ozursuz += gun;
   }
@@ -213,10 +236,9 @@ export async function tumGorusmeleriGetir() {
 // ── Yardımcı: Dinamik sınıf listesi ─────────────────────────────────────────
 
 export async function siniflarGetir() {
-  const snap = await getDocs(collection(db, KOLEKSIYON));
   const set = new Set();
-  snap.forEach(d => {
-    const veri = d.data();
+  const ogrenciler = await tumOgrenciBelgeleriGetir();
+  ogrenciler.forEach(veri => {
     if ((veri.durum || "Aktif") === "Aktif" && veri.sinif) set.add(veri.sinif);
   });
   return [...set].sort(compareSinif);

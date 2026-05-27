@@ -1,13 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js"></script>
+  <script src="file-redirect.js?v=20260527-10"></script>
   <title>Yıl Sonu Sınıf Aktarımı — Öğrenci Bilgileri</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260526-5">
+  <link rel="stylesheet" href="app.css?v=20260527-10">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -43,7 +43,7 @@
         </div>
 
         <div id="yukleniyor" class="text-center py-4 text-muted">
-          <div class="spinner-border text-primary mb-2"></div><div>Yükleniyor...</div>
+          <div class="spinner-border text-primary mb-2"></div><div>Hazırlanıyor...</div>
         </div>
 
         <div id="icerik" class="d-none">
@@ -94,13 +94,13 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js";
-  import { layoutYukle } from "./layout.js?v=20260526-5";
-  import { db } from "./firebase-config.js";
+  import { requireAdmin } from "./auth.js?v=20260527-10";
+  import { layoutYukle } from "./layout.js?v=20260527-10";
+  import { db } from "./firebase-config.js?v=20260527-10";
   import {
     collection, getDocs, doc, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, compareOgrenci, sinifParcala, escapeHtml, escapeAttr, bugun } from "./utils.js";
+  import { toast, compareOgrenci, sinifParcala, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260527-10";
 
   let ogrenciler = [];
   // Map: ogrenciId → seçilen işlem
@@ -273,3 +273,7 @@
 </script>
 </body>
 </html>
+
+
+
+

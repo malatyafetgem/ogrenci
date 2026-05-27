@@ -1,10 +1,61 @@
 ﻿/**
- * layout.js — Ortak sidebar ve bottom navbar'ı sayfaya enjekte eder.
+ * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260527-10";
 
 let layoutYuklendi = false;
+
+const MENU_GRUPLARI = [
+  {
+    baslik: "Öğrenciler",
+    ogeler: [
+      { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
+      { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true }
+    ]
+  },
+  {
+    baslik: "Listeler",
+    ogeler: [
+      { href: "phone-list.html", ikon: "bi-telephone-fill", etiket: "Toplu Telefon Listesi" },
+      { href: "parents-list.html", ikon: "bi-people-fill", etiket: "Veli Listesi" }
+    ]
+  },
+  {
+    baslik: "Devamsızlık",
+    ogeler: [
+      { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık Gir", adminOnly: true },
+      { href: "attendance-report.html", ikon: "bi-calendar-check", etiket: "Devamsızlık Raporu" }
+    ]
+  },
+  {
+    baslik: "Davranış",
+    ogeler: [
+      { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış Gir", adminOnly: true },
+      { href: "behavior-report.html", ikon: "bi-bar-chart", etiket: "Davranış Raporu" }
+    ]
+  },
+  {
+    baslik: "Veli Görüşmeleri",
+    ogeler: [
+      { href: "meetings-entry.html", ikon: "bi-chat-dots", etiket: "Görüşme Gir", adminOnly: true },
+      { href: "meetings-list.html", ikon: "bi-chat-square-text", etiket: "Görüşme Listesi" }
+    ]
+  },
+  {
+    baslik: "Mezunlar",
+    ogeler: [
+      { href: "graduates-list.html", ikon: "bi-mortarboard", etiket: "Mezun Listesi" },
+      { href: "graduates-promotion.html", ikon: "bi-arrow-up-circle", etiket: "Yıl Sonu Aktarımı", adminOnly: true }
+    ]
+  },
+  {
+    baslik: "Ayarlar",
+    href: "settings.html",
+    ikon: "bi-gear",
+    adminOnly: true
+  }
+];
 
 // Aktif menü öğesini belirle
 function aktifMi(href) {
@@ -39,17 +90,13 @@ function yukleTopbar() {
   kap.outerHTML = `
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
-        <ul class="navbar-nav d-none d-md-flex">
-          <li class="nav-item">
-            <a class="nav-link" href="#" id="sidebar-toggle" role="button" title="Menüyü Aç/Kapat">
-              <i class="bi bi-list"></i>
-            </a>
-          </li>
-        </ul>
-        <a href="dashboard.html" class="navbar-brand ms-2 d-flex align-items-center gap-2">
-          <span class="brand-logo-mark"><i class="bi bi-person-vcard-fill"></i></span>
+        <a href="dashboard.html" class="navbar-brand d-flex align-items-center gap-2">
+          <span class="brand-logo-mark"><i class="bi bi-journal-bookmark-fill"></i></span>
           <span class="brand-text fw-semibold">Öğrenci Bilgileri</span>
         </a>
+        <ul class="navbar-nav d-none d-md-flex ms-3 top-menu">
+          ${MENU_GRUPLARI.map(topMenuDropdown).join("")}
+        </ul>
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
             <a class="nav-link" href="#" id="cikis-btn" title="Çıkış Yap">
@@ -60,18 +107,9 @@ function yukleTopbar() {
       </div>
     </nav>`;
 
-  document.getElementById("sidebar-toggle")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (window.matchMedia("(max-width: 767.98px)").matches) {
-      document.body.classList.toggle("sidebar-mobile-open");
-    } else {
-      document.body.classList.toggle("sidebar-collapsed");
-    }
-  });
-
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js");
+    const { logout } = await import("./auth.js?v=20260527-10");
     logout();
   });
 }
@@ -79,100 +117,34 @@ function yukleTopbar() {
 function yukleSidebar() {
   const kap = document.getElementById("sidebar-kap");
   if (!kap) return;
+  kap.innerHTML = "";
+}
 
-  const menu = [
-    {
-      baslik: null,
-      ogeler: [
-        { href: "dashboard.html", ikon: "bi-speedometer2", etiket: "Gösterge Paneli" }
-      ]
-    },
-    {
-      baslik: "Öğrenciler",
-      ogeler: [
-        { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
-        { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true }
-      ]
-    },
-    {
-      baslik: "Listeler",
-      ogeler: [
-        { href: "phone-list.html", ikon: "bi-telephone-fill", etiket: "Toplu Telefon Listesi" },
-        { href: "parents-list.html", ikon: "bi-people-fill", etiket: "Veli Listesi" }
-      ]
-    },
-    {
-      baslik: "Devamsızlık",
-      ogeler: [
-        { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık Gir", adminOnly: true },
-        { href: "attendance-report.html", ikon: "bi-calendar-check", etiket: "Devamsızlık Raporu" }
-      ]
-    },
-    {
-      baslik: "Davranış",
-      ogeler: [
-        { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış Gir", adminOnly: true },
-        { href: "behavior-report.html", ikon: "bi-bar-chart", etiket: "Davranış Raporu" }
-      ]
-    },
-    {
-      baslik: "Veli Görüşmeleri",
-      ogeler: [
-        { href: "meetings-entry.html", ikon: "bi-chat-dots", etiket: "Görüşme Gir", adminOnly: true },
-        { href: "meetings-list.html", ikon: "bi-chat-square-text", etiket: "Görüşme Listesi" }
-      ]
-    },
-    {
-      baslik: "Mezunlar",
-      ogeler: [
-        { href: "graduates-list.html", ikon: "bi-mortarboard", etiket: "Mezun Listesi" },
-        { href: "graduates-promotion.html", ikon: "bi-arrow-up-circle", etiket: "Yıl Sonu Aktarımı", adminOnly: true }
-      ]
-    },
-    {
-      baslik: "Sistem",
-      ogeler: [
-        { href: "settings.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true }
-      ]
-    }
-  ];
-
-  let html = `
-    <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-      <div class="sidebar-brand">
-        <a href="dashboard.html" class="brand-link">
-          <span class="brand-logo-mark brand-logo-mark-sm"><i class="bi bi-person-vcard-fill"></i></span>
-          <span class="brand-text fw-semibold fs-6">Öğrenci Bilgileri</span>
-        </a>
-      </div>
-      <div class="sidebar-wrapper">
-        <nav class="mt-2">
-          <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">`;
-
-  for (const grup of menu) {
-    if (grup.baslik) {
-      html += `<li class="nav-header">${grup.baslik}</li>`;
-    }
-    for (const oge of grup.ogeler) {
-      const aktif = aktifMi(oge.href);
-      html += `
-        <li class="nav-item">
-          <a href="${oge.href}" class="nav-link ${aktif}" ${oge.adminOnly ? "data-admin-only" : ""}>
-            <i class="nav-icon bi ${oge.ikon}"></i>
-            <p>${oge.etiket}</p>
-          </a>
-        </li>`;
-    }
+function topMenuDropdown(grup) {
+  if (grup.href) {
+    return `
+    <li class="nav-item">
+      <a class="nav-link ${aktifMi(grup.href)}" href="${grup.href}" ${grup.adminOnly ? "data-admin-only" : ""}>
+        ${grup.baslik}
+      </a>
+    </li>`;
   }
 
-  html += `</ul></nav></div></aside>`;
-  kap.outerHTML = html;
-
-  document.querySelectorAll(".app-sidebar a").forEach(link => {
-    link.addEventListener("click", () => {
-      document.body.classList.remove("sidebar-mobile-open");
-    });
-  });
+  const aktif = grup.ogeler.some(oge => aktifMi(oge.href));
+  return `
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle ${aktif ? "active" : ""}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        ${grup.baslik}
+      </a>
+      <ul class="dropdown-menu">
+        ${grup.ogeler.map(oge => `
+          <li>
+            <a class="dropdown-item ${aktifMi(oge.href)}" href="${oge.href}" ${oge.adminOnly ? "data-admin-only" : ""}>
+              <i class="bi ${oge.ikon} me-2"></i>${oge.etiket}
+            </a>
+          </li>`).join("")}
+      </ul>
+    </li>`;
 }
 
 function yukleBottomNav() {
@@ -213,19 +185,8 @@ function yukleBottomNav() {
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
       </div>
       <div class="offcanvas-body">
-        <div class="row g-3 text-center">
-          ${offcanvasOge("students-add-edit.html", "bi-person-plus", "Yeni Öğrenci", true)}
-          ${offcanvasOge("phone-list.html", "bi-telephone-fill", "Telefon")}
-          ${offcanvasOge("parents-list.html", "bi-people-fill", "Veli")}
-          ${offcanvasOge("attendance-entry.html", "bi-calendar-x", "Devamsızlık Gir", true)}
-          ${offcanvasOge("attendance-report.html", "bi-calendar-check", "Devamsızlık Raporu")}
-          ${offcanvasOge("behavior-entry.html", "bi-star-half", "Davranış Gir", true)}
-          ${offcanvasOge("behavior-report.html", "bi-bar-chart", "Davranış Raporu")}
-          ${offcanvasOge("meetings-entry.html", "bi-chat-dots", "Görüşme Gir", true)}
-          ${offcanvasOge("meetings-list.html", "bi-chat-square-text", "Görüşmeler")}
-          ${offcanvasOge("graduates-list.html", "bi-mortarboard", "Mezunlar")}
-          ${offcanvasOge("graduates-promotion.html", "bi-arrow-up-circle", "Yıl Sonu", true)}
-          ${offcanvasOge("settings.html", "bi-gear", "Ayarlar", true)}
+        <div class="mobile-more-menu">
+          ${MENU_GRUPLARI.map(offcanvasGrup).join("")}
         </div>
       </div>
     </div>`;
@@ -233,16 +194,32 @@ function yukleBottomNav() {
   kap.innerHTML = html;
 }
 
+function offcanvasGrup(grup) {
+  if (grup.href) {
+    return `
+    <section class="mobile-more-group">
+      <h6>${grup.baslik}</h6>
+      <div class="mobile-more-grid">
+        ${offcanvasOge(grup.href, grup.ikon, grup.baslik, grup.adminOnly)}
+      </div>
+    </section>`;
+  }
+
+  return `
+    <section class="mobile-more-group">
+      <h6>${grup.baslik}</h6>
+      <div class="mobile-more-grid">
+        ${grup.ogeler.map(oge => offcanvasOge(oge.href, oge.ikon, oge.etiket, oge.adminOnly)).join("")}
+      </div>
+    </section>`;
+}
+
 function offcanvasOge(href, ikon, etiket, adminOnly = false) {
   return `
-    <div class="col-3">
-      <a href="${href}" class="text-decoration-none text-body" ${adminOnly ? "data-admin-only" : ""}>
-        <div class="p-2">
-          <i class="bi ${ikon} fs-3"></i>
-          <div class="small mt-1">${etiket}</div>
-        </div>
-      </a>
-    </div>`;
+    <a href="${href}" class="mobile-more-item" ${adminOnly ? "data-admin-only" : ""}>
+      <i class="bi ${ikon}"></i>
+      <span>${etiket}</span>
+    </a>`;
 }
 
 if (document.readyState === "loading") {
