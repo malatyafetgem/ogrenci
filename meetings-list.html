@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-10"></script>
-  <title>Görüşme Listesi — Öğrenci Bilgileri</title>
+  <script src="file-redirect.js?v=20260527-18"></script>
+  <title>Görüşme Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-10">
+  <link rel="stylesheet" href="app.css?v=20260527-18">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -80,7 +80,7 @@
               <button class="btn btn-sm btn-success" id="excel-export-btn">
                 <i class="bi bi-file-earmark-excel me-1"></i>Excel
               </button>
-              <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+              <button class="btn btn-sm btn-outline-secondary" data-obs-print>
                 <i class="bi bi-printer me-1"></i>Yazdır
               </button>
               <a href="meetings-entry.html" class="btn btn-sm btn-primary">
@@ -93,7 +93,7 @@
               <div class="spinner-border text-primary mb-2"></div><div>Hazırlanıyor...</div>
             </div>
             <div class="table-responsive" id="tablo-kap">
-              <table id="gorusme-tablo" class="table table-sm table-hover mb-0 table-fit-desktop">
+              <table id="gorusme-tablo" class="table table-sm table-hover mb-0 table-fit-desktop print-landscape print-nowrap">
                 <thead class="table-light">
                   <tr>
                     <th>Tarih</th><th>Öğrenci</th><th>Sınıf</th>
@@ -125,11 +125,11 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260527-10";
-  import { layoutYukle } from "./layout.js?v=20260527-10";
-  import { tumOgrencileriGetir, siniflarGetir, tumGorusmeleriGetir } from "./students.js?v=20260527-10";
-  import { autocompleteYukle } from "./autocomplete.js?v=20260527-10";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260527-10";
+  import { requireAuth } from "./auth.js?v=20260527-18";
+  import { layoutYukle } from "./layout.js?v=20260527-18";
+  import { tumOgrencileriGetir, siniflarGetir, tumGorusmeleriGetir } from "./students.js?v=20260527-18";
+  import { autocompleteYukle } from "./autocomplete.js?v=20260527-18";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260527-18";
 
   let raporVerisi = [];
   let dt = null;

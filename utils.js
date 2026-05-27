@@ -357,10 +357,12 @@ export function gecerliTc(tc) {
 
 /**
  * Devamsızlık eşik durumu döndürür.
- * Dön: "normal" | "uyari" | "kritik"
+ * Dön: "normal" | "uyari" | "kritik" | "kaldi"
  */
 export function devamsizlikDurum(ozurlu, ozursuz) {
-  if (ozursuz >= 10 || ozurlu >= 20) return "kritik";
+  const toplam = ozurlu + ozursuz;
+  if (ozursuz >= 10 || toplam >= 30) return "kaldi";
+  if (ozurlu >= 20) return "kritik";
   if (ozursuz >= 5 || ozurlu >= 10) return "uyari";
   return "normal";
 }
@@ -370,6 +372,7 @@ export function devamsizlikDurum(ozurlu, ozursuz) {
  */
 export function devamsizlikRenk(durum) {
   switch (durum) {
+    case "kaldi":  return "dark";
     case "kritik": return "danger";
     case "uyari":  return "warning";
     default:       return "success";

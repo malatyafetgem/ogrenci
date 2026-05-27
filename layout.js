@@ -2,14 +2,18 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260527-10";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260527-18";
 
 let layoutYuklendi = false;
+let yazdirmaBaglandi = false;
+let yazdirmaDtDurumlari = [];
+let yazdirmaHazir = false;
 
 const MENU_GRUPLARI = [
   {
     baslik: "Öğrenciler",
     ogeler: [
+      { href: "dashboard.html#ogrenci-ara", ikon: "bi-search", etiket: "Öğrenci Ara" },
       { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
       { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true }
     ]
@@ -72,6 +76,7 @@ export function layoutYukle() {
   yukleSidebar();
   yukleBottomNav();
   yukleFooter();
+  baglaYazdirmaYardimcilari();
 }
 
 function yukleFooter() {
@@ -82,6 +87,287 @@ function yukleFooter() {
       <div class="float-end d-none d-sm-inline">v${APP_VERSION} · ${APP_UPDATED_AT}</div>
       <strong>© 2026 AYUSTASI</strong>
     </footer>`;
+}
+
+function baglaYazdirmaYardimcilari() {
+  if (yazdirmaBaglandi) return;
+  yazdirmaBaglandi = true;
+  yazdirmaBasliginiGuncelle();
+  window.obsYazdir = obsYazdir;
+  document.addEventListener("click", yazdirmaTiklamaDinle);
+  window.addEventListener("beforeprint", () => {
+    if (!yazdirmaHazir) yazdirmayaHazirla();
+  });
+  window.addEventListener("afterprint", yazdirmaHazirliginiTemizle);
+}
+
+function yazdirmaTiklamaDinle(e) {
+  const hedef = e.target.closest?.("[data-obs-print]");
+  if (!hedef) return;
+  e.preventDefault();
+  obsYazdir();
+}
+
+function obsYazdir() {
+  yazdirmayaHazirla();
+  setTimeout(() => {
+    try {
+      window.print();
+    } catch {
+      yazdirmaHazirliginiTemizle();
+    }
+  }, 180);
+}
+
+function yazdirmayaHazirla() {
+  yazdirmaBasliginiGuncelle();
+  if (yazdirmaDtDurumlari.length === 0) dataTableTumSatirlariGoster();
+  yazdirmaSayfaSinifiGuncelle();
+  yazdirmaTabloBasliklariEkle();
+  ogrenciListesiYazdirmaTablolariEkle();
+  yazdirmaHazir = true;
+}
+
+function yazdirmaHazirliginiTemizle() {
+  yazdirmaGeciciSatirlariTemizle();
+  ogrenciListesiYazdirmaTablolariTemizle();
+  dataTableSayfalamayiGeriAl();
+  yazdirmaTabloBasliklariTemizle();
+  document.body.classList.remove("obs-print-landscape");
+  document.querySelectorAll(".obs-print-wide-card").forEach(card => card.classList.remove("obs-print-wide-card"));
+  yazdirmaHazir = false;
+}
+
+function yazdirmaBasliginiGuncelle() {
+  const baslik = document.querySelector(".app-content-header h3")?.textContent?.trim()
+    || document.title
+    || "Öğrenci Bilgileri";
+  document.body.dataset.printTitle = baslik;
+}
+
+function yazdirmaSayfaSinifiGuncelle() {
+  document.querySelectorAll(".obs-print-wide-card").forEach(card => card.classList.remove("obs-print-wide-card"));
+  const genisTablolar = Array.from(document.querySelectorAll(".print-landscape"))
+    .filter(el => el.offsetParent !== null || el.getClientRects().length > 0);
+  genisTablolar.forEach(table => table.closest(".card")?.classList.add("obs-print-wide-card"));
+  const yatayGerekli = genisTablolar
+    .some(el => el.offsetParent !== null || el.getClientRects().length > 0);
+  document.body.classList.toggle("obs-print-landscape", yatayGerekli);
+}
+
+function yazdirmaTabloBasliklariEkle() {
+  yazdirmaTabloBasliklariTemizle();
+  const sayfaBaslik = document.body.dataset.printTitle || document.title || "Öğrenci Bilgileri";
+  document.querySelectorAll("table").forEach(table => {
+    if (table.closest(".no-print") || !table.tHead) return;
+    if (table.closest("[data-obs-print-student-pages]")) return;
+    if (document.body.classList.contains("obs-student-print-pages") && table.id === "ogrenci-tablo") return;
+    const ilkBaslikSatiri = Array.from(table.tHead.rows).find(row => row.cells.length);
+    if (!ilkBaslikSatiri) return;
+    const kolonSayisi = Math.max(1, Array.from(ilkBaslikSatiri.cells).filter(cell => !cell.classList.contains("no-print")).length);
+    const tabloBaslik = tabloBasligiBul(table);
+    const tamBaslik = tabloBaslik && tabloBaslik !== sayfaBaslik
+      ? `${sayfaBaslik} - ${tabloBaslik}`
+      : sayfaBaslik;
+    const row = table.tHead.insertRow(0);
+    row.setAttribute("data-obs-print-title-row", "true");
+    const cell = document.createElement("th");
+    cell.colSpan = kolonSayisi;
+    cell.textContent = tamBaslik;
+    row.appendChild(cell);
+  });
+}
+
+function yazdirmaTabloBasliklariTemizle() {
+  document.querySelectorAll("[data-obs-print-title-row]").forEach(row => row.remove());
+}
+
+function yazdirmaGeciciSatirlariTemizle() {
+  document.querySelectorAll("[data-obs-print-class-row]").forEach(row => row.remove());
+}
+
+function ogrenciListesiYazdirmaTablolariTemizle() {
+  document.querySelectorAll("[data-obs-print-student-pages]").forEach(el => el.remove());
+  document.querySelectorAll(".obs-print-original-student-table").forEach(el => el.classList.remove("obs-print-original-student-table"));
+  document.body.classList.remove("obs-student-print-pages");
+}
+
+function ogrenciListesiYazdirmaTablolariEkle() {
+  ogrenciListesiYazdirmaTablolariTemizle();
+  const table = document.getElementById("ogrenci-tablo");
+  if (!table?.tHead || !table?.tBodies?.[0]) return;
+
+  const rows = Array.from(table.tBodies[0].rows)
+    .filter(row => row.cells.length >= 7 && !row.querySelector("td[colspan]"));
+  if (!rows.length) return;
+
+  const basliklar = ogrenciListesiYazdirmaBasliklari(table);
+  if (!basliklar.length) return;
+
+  const sinifIndex = basliklar.findIndex(baslik => baslik.toLocaleLowerCase("tr-TR") === "sınıf");
+  const devamsizlikIndex = basliklar.findIndex(baslik => baslik.toLocaleLowerCase("tr-TR").includes("devamsızlık"));
+  const gruplar = new Map();
+  for (const row of rows) {
+    const hucreler = Array.from(row.cells).filter(cell => !cell.classList.contains("no-print"));
+    const sinif = (hucreler[sinifIndex]?.textContent || document.getElementById("filtre-sinif")?.value || "").trim() || "Sınıf";
+    if (!gruplar.has(sinif)) gruplar.set(sinif, []);
+    gruplar.get(sinif).push(hucreler);
+  }
+
+  const kapsayici = document.createElement("div");
+  kapsayici.setAttribute("data-obs-print-student-pages", "true");
+
+  Array.from(gruplar.entries()).forEach(([sinif, hucreGruplari], index) => {
+    const bolum = document.createElement("section");
+    bolum.className = "obs-print-student-page";
+    if (index === 0) bolum.classList.add("obs-print-first-student-page");
+
+    const printTable = document.createElement("table");
+    printTable.className = "table table-sm mb-0 align-middle print-student-page-table";
+
+    const thead = printTable.createTHead();
+    const titleRow = thead.insertRow();
+    titleRow.setAttribute("data-obs-print-title-row", "true");
+    titleRow.className = "obs-student-print-title-row";
+    const titleCell = document.createElement("th");
+    titleCell.colSpan = basliklar.length;
+    titleCell.textContent = `${sinif} Öğrenci Listesi`;
+    titleRow.appendChild(titleCell);
+
+    const headerRow = thead.insertRow();
+    headerRow.className = "obs-student-print-column-row";
+    basliklar.forEach(baslik => {
+      const th = document.createElement("th");
+      th.textContent = baslik;
+      headerRow.appendChild(th);
+    });
+
+    const tbody = printTable.createTBody();
+    hucreGruplari.forEach(hucreler => {
+      const tr = tbody.insertRow();
+      hucreler.forEach((cell, cellIndex) => {
+        const td = tr.insertCell();
+        td.textContent = cellIndex === devamsizlikIndex
+          ? ogrenciListesiYazdirmaDevamsizlikMetni(cell.textContent)
+          : ogrenciListesiYazdirmaHucreMetni(cell);
+      });
+    });
+
+    bolum.appendChild(printTable);
+    kapsayici.appendChild(bolum);
+  });
+
+  const tabloKapsayici = table.closest(".table-responsive") || table.parentElement;
+  tabloKapsayici?.classList.add("obs-print-original-student-table");
+  (tabloKapsayici || table).after(kapsayici);
+  document.body.classList.add("obs-student-print-pages");
+}
+
+function ogrenciListesiYazdirmaBasliklari(table) {
+  const headerRows = Array.from(table.tHead?.rows || []);
+  const headerRow = headerRows.reverse().find(row => row.cells.length);
+  if (!headerRow) return [];
+  return Array.from(headerRow.cells)
+    .filter(cell => !cell.classList.contains("no-print"))
+    .map(cell => {
+      const clone = cell.cloneNode(true);
+      clone.querySelectorAll(".dt-column-order").forEach(el => el.remove());
+      return clone.textContent.replace(/\s+/g, " ").trim();
+    })
+    .filter(Boolean);
+}
+
+function ogrenciListesiYazdirmaHucreMetni(cell) {
+  return (cell?.textContent || "").replace(/\s+/g, " ").trim() || "—";
+}
+
+function ogrenciListesiYazdirmaDevamsizlikMetni(value) {
+  const temiz = (value || "").replace(/\s+/g, " ").trim();
+  if (!temiz || temiz === "—" || temiz === "-") return "—";
+  const eslesme = temiz.replace(/\s+/g, "").match(/^(\d+(?:[.,]\d+)?)\/(\d+(?:[.,]\d+)?)$/);
+  if (!eslesme) return temiz;
+  const ozursuz = eslesme[1].replace(".", ",");
+  const ozurlu = eslesme[2].replace(".", ",");
+  return `${ozursuz} Ö.süz / ${ozurlu} Ö.lü`;
+}
+
+function tabloBasligiBul(table) {
+  if (table.classList.contains("print-landscape")) return "";
+  const card = table.closest(".card");
+  const cardBaslik = card?.querySelector(".card-header h6, .card-header h5, .card-header h4")?.textContent?.trim();
+  if (cardBaslik) return cardBaslik.replace(/\s+/g, " ");
+  const printBaslik = table.closest(".card-body")?.querySelector(".print-baslik h5")?.textContent?.trim();
+  if (printBaslik) return printBaslik.replace(/\s+/g, " ");
+  return "";
+}
+
+function dataTableKaynak() {
+  if (window.DataTable?.tables && window.DataTable?.Api) {
+    return { tables: window.DataTable.tables.bind(window.DataTable), Api: window.DataTable.Api };
+  }
+  const jqueryDataTable = window.jQuery?.fn?.dataTable;
+  if (jqueryDataTable?.tables && jqueryDataTable?.Api) {
+    return { tables: jqueryDataTable.tables.bind(jqueryDataTable), Api: jqueryDataTable.Api };
+  }
+  return null;
+}
+
+function dataTableTumSatirlariGoster() {
+  const kaynak = dataTableKaynak();
+  if (!kaynak) return;
+  try {
+    const tumTablolar = kaynak.tables({ api: true });
+    yazdirmaDtDurumlari = [];
+    if (tumTablolar?.iterator) {
+      tumTablolar.iterator("table", function(settings) {
+        const api = dataTableApiOlustur(kaynak, settings, this);
+        dataTableSayfayiGenislet(api);
+      });
+    } else {
+      dataTableSayfayiGenislet(tumTablolar);
+    }
+  } catch {
+    yazdirmaDtDurumlari = [];
+  }
+}
+
+function dataTableApiOlustur(kaynak, settings, baglam) {
+  if (baglam?.page?.len) return baglam;
+  if (baglam?.api) {
+    try {
+      const api = baglam.api();
+      if (api?.page?.len) return api;
+    } catch {}
+  }
+  if (kaynak.Api) {
+    try {
+      return new kaynak.Api(settings);
+    } catch {}
+  }
+  return null;
+}
+
+function dataTableSayfayiGenislet(api) {
+  if (!api?.page?.len || !api?.page?.info) return;
+  try {
+    const bilgi = api.page.info();
+    const uzunluk = api.page.len();
+    if (!bilgi || uzunluk === undefined || uzunluk === -1) return;
+    yazdirmaDtDurumlari.push({ api, sayfa: bilgi.page, uzunluk });
+    api.page.len(-1).draw(false);
+  } catch {}
+}
+
+function dataTableSayfalamayiGeriAl() {
+  for (const durum of yazdirmaDtDurumlari) {
+    try {
+      durum.api.page.len(durum.uzunluk).draw(false);
+      durum.api.page(durum.sayfa).draw(false);
+    } catch {
+      // Yazdırma sonrası tablo zaten yenilendiyse geri alma sessizce atlanır.
+    }
+  }
+  yazdirmaDtDurumlari = [];
 }
 
 function yukleTopbar() {
@@ -109,7 +395,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260527-10");
+    const { logout } = await import("./auth.js?v=20260527-18");
     logout();
   });
 }

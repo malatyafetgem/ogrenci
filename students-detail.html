@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-10"></script>
-  <title>Öğrenci Detayı — Öğrenci Bilgileri</title>
+  <script src="file-redirect.js?v=20260527-18"></script>
+  <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-10">
+  <link rel="stylesheet" href="app.css?v=20260527-18">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -52,7 +52,7 @@
                   <a href="#" id="duzenle-btn" class="btn btn-primary btn-sm" data-admin-only>
                     <i class="bi bi-pencil me-1"></i>Düzenle
                   </a>
-                  <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                  <button class="btn btn-outline-secondary btn-sm" data-obs-print>
                     <i class="bi bi-printer me-1"></i>Yazdır
                   </button>
                 </div>
@@ -92,7 +92,7 @@
 
           <div class="tab-content">
 
-            <!-- KİŞİSEL BİLGİLER -->
+            <!-- Kİ�?İSEL BİLGİLER -->
             <div class="tab-pane fade show active" id="sekme-kisisel">
               <div class="row g-3">
                 <div class="col-md-6">
@@ -188,7 +188,7 @@
               </div>
             </div>
 
-            <!-- DAVRANIŞ -->
+            <!-- DAVRANI�? -->
             <div class="tab-pane fade" id="sekme-davranis">
               <div class="card">
                 <div class="card-header d-flex gap-2 align-items-center no-print">
@@ -219,7 +219,7 @@
               </div>
             </div>
 
-            <!-- VELİ GÖRÜŞMELERİ -->
+            <!-- VELİ GÖRÜ�?MELERİ -->
             <div class="tab-pane fade" id="sekme-gorusme">
               <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -260,19 +260,20 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260527-10";
-  import { layoutYukle } from "./layout.js?v=20260527-10";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260527-18";
+  import { layoutYukle } from "./layout.js?v=20260527-18";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil,
     davranislarGetir, davranisSil,
     gorusmeleriGetir, gorusmeSil
-  } from "./students.js?v=20260527-10";
+  } from "./students.js?v=20260527-18";
   import {
     devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
-    devamsizlikTarihEtiketi, formatTelefon, sayiEtiketiTR, toast, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260527-10";
-  import { avatarSrc } from "./avatar.js?v=20260527-10";
+    devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
+    formatTelefon, sayiEtiketiTR, toast, escapeHtml, escapeAttr
+  } from "./utils.js?v=20260527-18";
+  import { avatarSrc } from "./avatar.js?v=20260527-18";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -291,7 +292,7 @@
       if (!o) { location.href = "students-list.html"; return; }
 
       const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
-      document.title = `${tamAd} — Öğrenci Bilgileri`;
+      document.title = tamAd || "Öğrenci Detayı";
       document.getElementById("sayfa-baslik").textContent = tamAd;
       document.getElementById("breadcrumb-ad").textContent = tamAd;
 
@@ -395,7 +396,7 @@
             ${veliSatir("E-Posta", v.e_posta)}
             ${veliSatir("Ev Adresi", v.ev_adresi)}
             ${veliSatir("İş Adresi", v.is_adresi)}
-            ${veliSatir("Şehir / İlçe", [v.sehir, v.ilce].filter(Boolean).join(" / "))}
+            ${veliSatir("�?ehir / İlçe", [v.sehir, v.ilce].filter(Boolean).join(" / "))}
           </div>
         </div>
       </div>`;
@@ -427,15 +428,16 @@
     document.getElementById("dev-toplam").textContent = sayiEtiketiTR(toplam);
     document.getElementById("dev-sayac").textContent = sayiEtiketiTR(toplam);
     document.getElementById("dev-durum-rozet").innerHTML =
-      `<span class="badge bg-${renk} fs-6">${durum === "normal" ? "Normal" : durum === "uyari" ? "Uyarı" : "Kritik"}</span>`;
+      `<span class="badge bg-${renk} fs-6">${devamsizlikDurumEtiketi(durum)}</span>`;
 
     const tbody = document.getElementById("dev-tablo");
-    tbody.innerHTML = kayitlar.length === 0
+    const satirlar = kayitlar.flatMap(devamsizlikKaydiniGunlereAyir);
+    tbody.innerHTML = satirlar.length === 0
       ? `<tr><td colspan="5" class="text-center text-muted py-3">Devamsızlık kaydı yok.</td></tr>`
-      : kayitlar.map(k => `<tr>
-          <td data-label="Tarih">${escapeHtml(devamsizlikTarihEtiketi(k) || "—")}</td>
+      : satirlar.map(k => `<tr>
+          <td data-label="Tarih">${escapeHtml(k.gorunenTarih || "—")}</td>
           <td data-label="Tür"><span class="badge ${k.tur === "Özürsüz" ? "bg-danger" : "bg-warning text-dark"}">${escapeHtml(k.tur)}</span></td>
-          <td data-label="Miktar">${escapeHtml(devamsizlikMiktarEtiketi(k) || "—")}</td>
+          <td data-label="Miktar">${escapeHtml(k.gorunenMiktar || "—")}</td>
           <td data-label="Açıklama">${escapeHtml(k.aciklama || "—")}</td>
           <td data-label="İşlem" class="no-print">
             <button class="btn btn-xs btn-outline-danger" data-admin-only onclick="silDevamsizlik('${escapeAttr(k.id)}')">
@@ -444,6 +446,37 @@
           </td>
         </tr>`).join("");
     applyAdminVisibility(tbody);
+  }
+
+  function devamsizlikKaydiniGunlereAyir(kayit) {
+    const dagilim = devamsizlikGunDagilimi(kayit);
+    const tarihler = devamsizlikKapsananTarihler(kayit);
+    if (tarihler.length > 1) {
+      return tarihler.map((tarih, index) => ({
+        ...kayit,
+        gorunenTarih: tarih,
+        gorunenMiktar: sayiEtiketiTR(dagilim[index]?.gun || 1)
+      }));
+    }
+    if (!dagilim.length) {
+      return [{
+        ...kayit,
+        gorunenTarih: devamsizlikTarihEtiketi(kayit),
+        gorunenMiktar: devamsizlikMiktarEtiketi(kayit)
+      }];
+    }
+    return dagilim.map(parca => ({
+      ...kayit,
+      gorunenTarih: parca.tarih,
+      gorunenMiktar: sayiEtiketiTR(parca.gun)
+    }));
+  }
+
+  function devamsizlikDurumEtiketi(durum) {
+    if (durum === "kaldi") return "Kaldı";
+    if (durum === "kritik") return "Kritik";
+    if (durum === "uyari") return "Uyarı";
+    return "Normal";
   }
 
   async function yukleDavranis() {

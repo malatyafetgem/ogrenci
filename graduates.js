@@ -1,11 +1,11 @@
 ﻿/**
  * graduates.js — Mezun Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260527-10";
+import { db } from "./firebase-config.js?v=20260527-18";
 import {
   collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { bugun } from "./utils.js?v=20260527-10";
+import { bugun } from "./utils.js?v=20260527-18";
 
 const KOLEKSIYON = "graduates";
 

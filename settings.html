@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-10"></script>
-  <title>Ayarlar — Öğrenci Bilgileri</title>
+  <script src="file-redirect.js?v=20260527-18"></script>
+  <title>Ayarlar</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-10">
+  <link rel="stylesheet" href="app.css?v=20260527-18">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -124,7 +124,7 @@
         <div class="mb-3">
           <label class="form-label">Oturum şifresi</label>
           <input type="password" class="form-control" id="guvenlik-sifre" autocomplete="current-password">
-          <div class="form-text">Şifre sadece Firebase yeniden doğrulaması için kullanılır, dosyaya kaydedilmez.</div>
+          <div class="form-text">�?ifre sadece Firebase yeniden doğrulaması için kullanılır, dosyaya kaydedilmez.</div>
         </div>
         <div class="mb-3">
           <label class="form-label">Onay metni</label>
@@ -147,17 +147,17 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260527-10";
-  import { layoutYukle } from "./layout.js?v=20260527-10";
-  import { db } from "./firebase-config.js?v=20260527-10";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260527-18";
+  import { layoutYukle } from "./layout.js?v=20260527-18";
+  import { db } from "./firebase-config.js?v=20260527-18";
   import {
     EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     collection, collectionGroup, doc, getDocs, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, bugun } from "./utils.js?v=20260527-10";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260527-10";
+  import { toast, bugun } from "./utils.js?v=20260527-18";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260527-18";
 
   const ALT_KOLEKSIYONLAR = ["veliler", "devamsizliklar", "davranislar", "veligorusmeleri"];
   const ALT_ETIKETLER = {
@@ -166,6 +166,8 @@
     davranislar: "Davranış",
     veligorusmeleri: "Görüşme"
   };
+  const ISTEMCI_CACHE_PREFIX = "obs-data-cache-v1:";
+  const ISTEMCI_EKRAN_CACHELERI = ["obs-dashboard-cache-v3"];
   const SILME_ISLEMLERI = {
     students: {
       baslik: "Öğrenci Toplu Sil",
@@ -239,7 +241,7 @@
     hataEl.classList.add("d-none");
 
     if (!sifre || onay !== beklenen) {
-      hataEl.textContent = `Şifreyi girip onay alanına ${bekleyenIslem.onayMetni} yazın.`;
+      hataEl.textContent = `�?ifreyi girip onay alanına ${bekleyenIslem.onayMetni} yazın.`;
       hataEl.classList.remove("d-none");
       return;
     }
@@ -264,7 +266,7 @@
 
   async function yenidenDogrula(sifre) {
     const user = getCurrentUser();
-    if (!user?.email) throw new Error("Şifre doğrulaması için e-posta oturumu bulunamadı.");
+    if (!user?.email) throw new Error("�?ifre doğrulaması için e-posta oturumu bulunamadı.");
     const credential = EmailAuthProvider.credential(user.email, sifre);
     await reauthenticateWithCredential(user, credential);
   }
@@ -310,6 +312,7 @@
       await manager.ekle(batch => batch.delete(belge.ref));
     }
     const toplam = await manager.bitir();
+    istemciCacheTemizle();
     durumYaz(`${toplam} kayıt silindi.`, "success");
   }
 
@@ -330,6 +333,7 @@
       await manager.ekle(batch => batch.delete(ogrDoc.ref));
     }
     const toplam = await manager.bitir();
+    istemciCacheTemizle();
     durumYaz(`${toplam} öğrenci ve bağlı kayıt silindi.`, "success");
   }
 
@@ -347,6 +351,7 @@
     await silTumOgrenciler();
     const mezun = await silKoleksiyon("graduates");
     const autocomplete = await silKoleksiyon("_autocomplete");
+    istemciCacheTemizle();
     durumYaz(`Tüm sistem silindi. Mezun: ${mezun}, otomatik tamamlama: ${autocomplete}.`, "success");
   }
 
@@ -400,10 +405,16 @@
     const liste = snap.docs.map(ogr => ({ id: ogr.id, data: ogr.data() }));
     const ogrMap = new Map(liste.map(ogr => [ogr.id, ogr]));
 
-    for (const alt of ALT_KOLEKSIYONLAR) {
-      durumYaz(`${ALT_ETIKETLER[alt]} kayıtları okunuyor...`);
-      const altKayitlar = await altKoleksiyonlariYedekle(alt, snap.docs);
+    ALT_KOLEKSIYONLAR.forEach(alt => {
       for (const ogr of liste) ogr[alt] = [];
+    });
+
+    const altSonuclar = await Promise.all(ALT_KOLEKSIYONLAR.map(async alt => {
+      durumYaz(`${ALT_ETIKETLER[alt]} kayıtları okunuyor...`);
+      return { alt, altKayitlar: await altKoleksiyonlariYedekle(alt, snap.docs) };
+    }));
+
+    for (const { alt, altKayitlar } of altSonuclar) {
       for (const kayit of altKayitlar) {
         if (!ogrMap.has(kayit.ogrenciId)) continue;
         ogrMap.get(kayit.ogrenciId)[alt].push({ id: kayit.id, data: kayit.data });
@@ -421,12 +432,11 @@
         data: d.data()
       }));
     } catch (_) {
-      const liste = [];
-      for (const ogr of ogrDocs) {
+      const listeler = await Promise.all(ogrDocs.map(async ogr => {
         const snap = await getDocs(collection(db, "students", ogr.id, alt));
-        snap.docs.forEach(d => liste.push({ ogrenciId: ogr.id, id: d.id, data: d.data() }));
-      }
-      return liste;
+        return snap.docs.map(d => ({ ogrenciId: ogr.id, id: d.id, data: d.data() }));
+      }));
+      return listeler.flat();
     }
   }
 
@@ -436,12 +446,11 @@
       return snap.docs;
     } catch (_) {
       const ogrSnap = await getDocs(collection(db, "students"));
-      const belgeler = [];
-      for (const ogrDoc of ogrSnap.docs) {
+      const listeler = await Promise.all(ogrSnap.docs.map(async ogrDoc => {
         const snap = await getDocs(collection(db, "students", ogrDoc.id, altKoleksiyon));
-        belgeler.push(...snap.docs);
-      }
-      return belgeler;
+        return snap.docs;
+      }));
+      return listeler.flat();
     }
   }
 
@@ -494,7 +503,17 @@
       await manager.ekle(batch => batch.set(doc(db, "_autocomplete", String(ac.id)), kayitVerisi(ac)));
     }
     const toplam = await manager.bitir();
+    istemciCacheTemizle();
     durumYaz(`${toplam} kayıt içe aktarıldı.`, "success");
+  }
+
+  function istemciCacheTemizle() {
+    try {
+      Object.keys(localStorage)
+        .filter(key => key.startsWith(ISTEMCI_CACHE_PREFIX))
+        .forEach(key => localStorage.removeItem(key));
+      ISTEMCI_EKRAN_CACHELERI.forEach(key => localStorage.removeItem(key));
+    } catch {}
   }
 
   function kayitVerisi(kayit) {

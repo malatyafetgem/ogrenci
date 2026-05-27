@@ -1,7 +1,7 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260527-10";
+import { db } from "./firebase-config.js?v=20260527-18";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, collectionGroup
@@ -9,25 +9,107 @@ import {
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260527-10";
+} from "./utils.js?v=20260527-18";
 
 const KOLEKSIYON = "students";
+const VERI_CACHE_PREFIX = "obs-data-cache-v1:";
+const OGRENCI_CACHE_TTL = 3 * 60 * 1000;
+const ALT_CACHE_TTL = 2 * 60 * 1000;
+const TEMIZLENECEK_EKRAN_CACHELERI = ["obs-dashboard-cache-v3"];
 let ogrenciCachePromise = null;
+const altCachePromises = new Map();
+const arkaPlanYenilemeleri = new Map();
 
 function ogrenciCacheTemizle() {
   ogrenciCachePromise = null;
 }
 
+function cacheKey(key) {
+  return `${VERI_CACHE_PREFIX}${key}`;
+}
+
+function yerelCacheOku(key, ttl) {
+  try {
+    const raw = localStorage.getItem(cacheKey(key));
+    if (!raw) return null;
+    const cache = JSON.parse(raw);
+    if (!cache?.zaman || Date.now() - cache.zaman > ttl) return null;
+    return Array.isArray(cache.veri) ? cache.veri : null;
+  } catch {
+    return null;
+  }
+}
+
+function yerelCacheYaz(key, veri) {
+  try {
+    localStorage.setItem(cacheKey(key), JSON.stringify({ zaman: Date.now(), veri }));
+  } catch {
+    // Depolama doluysa Firestore cache'iyle devam edilir.
+  }
+}
+
+function yerelCacheSil(key) {
+  try {
+    localStorage.removeItem(cacheKey(key));
+  } catch {}
+}
+
+function tumYerelCacheleriTemizle() {
+  try {
+    Object.keys(localStorage)
+      .filter(key => key.startsWith(VERI_CACHE_PREFIX))
+      .forEach(key => localStorage.removeItem(key));
+    TEMIZLENECEK_EKRAN_CACHELERI.forEach(key => localStorage.removeItem(key));
+  } catch {}
+}
+
+function tumCacheleriTemizle() {
+  ogrenciCacheTemizle();
+  altCachePromises.clear();
+  arkaPlanYenilemeleri.clear();
+  tumYerelCacheleriTemizle();
+}
+
+function altCacheTemizle(altKoleksiyon) {
+  altCachePromises.delete(altKoleksiyon);
+  yerelCacheSil(`alt:${altKoleksiyon}`);
+  try {
+    TEMIZLENECEK_EKRAN_CACHELERI.forEach(key => localStorage.removeItem(key));
+  } catch {}
+}
+
+function arkaPlandaYenile(key, loader) {
+  if (arkaPlanYenilemeleri.has(key)) return;
+  const is = loader()
+    .then(veri => yerelCacheYaz(key, veri))
+    .catch(() => {})
+    .finally(() => arkaPlanYenilemeleri.delete(key));
+  arkaPlanYenilemeleri.set(key, is);
+}
+
 async function tumOgrenciBelgeleriGetir() {
   if (!ogrenciCachePromise) {
-    ogrenciCachePromise = getDocs(collection(db, KOLEKSIYON))
-      .then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() })))
+    const cached = yerelCacheOku("students", OGRENCI_CACHE_TTL);
+    if (cached) {
+      arkaPlandaYenile("students", ogrenciBelgeleriniFirestoredanGetir);
+      return cached;
+    }
+    ogrenciCachePromise = ogrenciBelgeleriniFirestoredanGetir()
+      .then(veri => {
+        yerelCacheYaz("students", veri);
+        return veri;
+      })
       .catch(err => {
         ogrenciCacheTemizle();
         throw err;
       });
   }
   return ogrenciCachePromise;
+}
+
+function ogrenciBelgeleriniFirestoredanGetir() {
+  return getDocs(collection(db, KOLEKSIYON))
+      .then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() })))
 }
 
 function altKayit(d) {
@@ -39,6 +121,27 @@ function altKayit(d) {
 }
 
 async function tumAltKayitlariGetir(altKoleksiyon) {
+  if (altCachePromises.has(altKoleksiyon)) return altCachePromises.get(altKoleksiyon);
+  const key = `alt:${altKoleksiyon}`;
+  const cached = yerelCacheOku(key, ALT_CACHE_TTL);
+  if (cached) {
+    arkaPlandaYenile(key, () => tumAltKayitlariFirestoredanGetir(altKoleksiyon));
+    return cached;
+  }
+  const promise = tumAltKayitlariFirestoredanGetir(altKoleksiyon)
+    .then(veri => {
+      yerelCacheYaz(key, veri);
+      return veri;
+    })
+    .catch(err => {
+      altCachePromises.delete(altKoleksiyon);
+      throw err;
+    });
+  altCachePromises.set(altKoleksiyon, promise);
+  return promise;
+}
+
+async function tumAltKayitlariFirestoredanGetir(altKoleksiyon) {
   try {
     const snap = await getDocs(collectionGroup(db, altKoleksiyon));
     return snap.docs.map(altKayit);
@@ -96,7 +199,7 @@ export async function ogrenciEkle(ogrenciNo, veri) {
     durum: "Aktif",
     olusturma_tarihi: bugun()
   });
-  ogrenciCacheTemizle();
+  tumCacheleriTemizle();
 }
 
 /** Öğrenci güncelle */
@@ -105,7 +208,7 @@ export async function ogrenciGuncelle(ogrenciNo, veri) {
     ...veri,
     guncelleme_tarihi: bugun()
   });
-  ogrenciCacheTemizle();
+  tumCacheleriTemizle();
 }
 
 /** Öğrenci sil (tüm alt koleksiyonlarla — güvenli silme) */
@@ -117,7 +220,7 @@ export async function ogrenciSil(ogrenciNo) {
     for (const d of snap.docs) await deleteDoc(d.ref);
   }
   await deleteDoc(doc(db, KOLEKSIYON, id));
-  ogrenciCacheTemizle();
+  tumCacheleriTemizle();
 }
 
 /** Öğrencinin mezun olmasını işle */
@@ -130,7 +233,7 @@ export async function ogrenciMezunEt(ogrenciNo, mezunVerisi) {
   });
   // students'ta durumu güncelle
   await updateDoc(doc(db, KOLEKSIYON, id), { durum: "Mezun" });
-  ogrenciCacheTemizle();
+  tumCacheleriTemizle();
 }
 
 // ── Alt koleksiyon: Veliler ──────────────────────────────────────────────────
@@ -150,6 +253,7 @@ export async function veliEkleGuncelle(ogrenciNo, veliId, veri) {
   } else {
     await addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "veliler"), veri);
   }
+  altCacheTemizle("veliler");
 }
 
 // ── Alt koleksiyon: Devamsızlıklar ──────────────────────────────────────────
@@ -162,11 +266,14 @@ export async function devamsizliklarGetir(ogrenciNo) {
 }
 
 export async function devamsizlikEkle(ogrenciNo, veri) {
-  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar"), tarihliVeri(veri));
+  const ref = await addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar"), tarihliVeri(veri));
+  altCacheTemizle("devamsizliklar");
+  return ref;
 }
 
 export async function devamsizlikSil(ogrenciNo, kayitId) {
   await deleteDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar", kayitId));
+  altCacheTemizle("devamsizliklar");
 }
 
 /** Özürlü ve özürsüz toplamları hesapla */
@@ -195,15 +302,19 @@ export async function davranislarGetir(ogrenciNo) {
 }
 
 export async function davranisEkle(ogrenciNo, veri) {
-  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "davranislar"), tarihliVeri(veri));
+  const ref = await addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "davranislar"), tarihliVeri(veri));
+  altCacheTemizle("davranislar");
+  return ref;
 }
 
 export async function davranisGuncelle(ogrenciNo, kayitId, veri) {
   await updateDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "davranislar", kayitId), veri);
+  altCacheTemizle("davranislar");
 }
 
 export async function davranisSil(ogrenciNo, kayitId) {
   await deleteDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "davranislar", kayitId));
+  altCacheTemizle("davranislar");
 }
 
 export async function tumDavranislariGetir() {
@@ -221,11 +332,14 @@ export async function gorusmeleriGetir(ogrenciNo) {
 }
 
 export async function gorusmeEkle(ogrenciNo, veri) {
-  return addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri"), tarihliVeri(veri));
+  const ref = await addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri"), tarihliVeri(veri));
+  altCacheTemizle("veligorusmeleri");
+  return ref;
 }
 
 export async function gorusmeSil(ogrenciNo, kayitId) {
   await deleteDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri", kayitId));
+  altCacheTemizle("veligorusmeleri");
 }
 
 export async function tumGorusmeleriGetir() {
