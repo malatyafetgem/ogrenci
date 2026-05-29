@@ -1,5 +1,6 @@
-import { auth } from "./firebase-config.js?v=20260529-24";
+import { auth } from "./firebase-config.js?v=20260529-26";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { toast } from "./utils.js?v=20260529-26";
 
 // Sistemde yalnızca bu Firebase UID Admin kabul edilir.
 const ADMIN_UIDS = ["zpaTsm2L7FSCqLA8BDkxI7bX9vM2"];
@@ -50,7 +51,7 @@ export function applyAdminVisibility(root = document) {
 
 export function adminActionAllowed() {
   if (isAdminUser()) return true;
-  alert("Bu işlem sadece Admin yetkisiyle yapılabilir.");
+  toast("Bu işlem sadece Admin yetkisiyle yapılabilir.", "warning");
   return false;
 }
 

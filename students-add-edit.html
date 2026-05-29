@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260529-24"></script>
+  <script src="file-redirect.js?v=20260529-26"></script>
   <title>Öğrenci Ekle / Düzenle</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260529-24">
+  <link rel="stylesheet" href="app.css?v=20260529-26">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -205,18 +205,18 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260529-24";
-  import { layoutYukle } from "./layout.js?v=20260529-24";
+  import { requireAdmin } from "./auth.js?v=20260529-26";
+  import { layoutYukle } from "./layout.js?v=20260529-26";
   import {
     ogrenciGetir, ogrenciEkle, ogrenciGuncelle,
     velileriGetir, veliEkleGuncelle, veliSil, siniflarGetir, noMevcutMu
-  } from "./students.js?v=20260529-24";
+  } from "./students.js?v=20260529-26";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
-    gecerliOgrenciNo, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260529-24";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260529-24";
-  import { avatarSrc } from "./avatar.js?v=20260529-24";
+    gecerliOgrenciNo, onayIste, escapeHtml, escapeAttr
+  } from "./utils.js?v=20260529-26";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260529-26";
+  import { avatarSrc } from "./avatar.js?v=20260529-26";
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");
@@ -260,10 +260,9 @@
   }
 
   async function yukleAutocomplete() {
-    const [iller, meslekler, eskiAlanlar, meslekGruplari, gorevler, kurumlar, dogumYerleri] = await Promise.all([
+    const [iller, meslekler, meslekGruplari, gorevler, kurumlar, dogumYerleri] = await Promise.all([
       autocompleteYukle("iller"),
       autocompleteYukle("meslekler"),
-      autocompleteYukle("alanlar"),
       autocompleteYukle("meslek_gruplari"),
       autocompleteYukle("gorevler"),
       autocompleteYukle("kurumlar"),
@@ -271,7 +270,7 @@
     ]);
     datalistDoldur("il-list", iller);
     datalistDoldur("meslek-list", meslekler);
-    datalistDoldur("meslek-grubu-list", [...MESLEK_GRUPLARI, ...meslekGruplari, ...eskiAlanlar]);
+    datalistDoldur("meslek-grubu-list", [...MESLEK_GRUPLARI, ...meslekGruplari]);
     datalistDoldur("gorev-list", gorevler);
     datalistDoldur("kurum-list", kurumlar);
     datalistDoldur("dogum-yeri-list", dogumYerleri);
@@ -303,7 +302,7 @@
     g("f-hastalik").value = ogr.hastalik || "";
     g("f-engel").value = ogr.engel || "";
     g("f-ilac").value = ogr.ilac || "";
-    g("f-aile-durum").value = aileDurumuNormalize(ogr.aile_durumu || ogr.ebeveyn_durumu, ogr.birliktelik);
+    g("f-aile-durum").value = ogr.aile_durumu || "";
 
     avatarGuncelle();
 
@@ -311,15 +310,6 @@
       ogr.yetenekler.forEach(y => yetenekEkle(y.tur, y.aciklama));
     }
     veliler.forEach(v => veliKartEkle(v));
-  }
-
-  function aileDurumuNormalize(value, birliktelik = "") {
-    const durum = value || "";
-    if (durum === "İkisi de Hayatta") return birliktelik === "Ayrı" ? "Anne-baba ayrı" : "Anne-baba birlikte";
-    if (durum === "Anne Vefat") return "Anne vefat";
-    if (durum === "Baba Vefat") return "Baba vefat";
-    if (durum === "İkisi de Vefat") return "Anne ve baba vefat";
-    return durum;
   }
 
   function baglaSabitFormatlar() {
@@ -481,7 +471,7 @@
   function veliNormalize(v) {
     return {
       id: v.id || "",
-      yakinlik: v.yakinlik || v.tur || "",
+      yakinlik: v.yakinlik || "",
       durum: v.durum || "Aktif",
       ad: v.ad || "",
       soyad: v.soyad || "",
@@ -489,15 +479,15 @@
       acil_kisi: !!v.acil_kisi,
       iletisim_sirasi: v.iletisim_sirasi || "",
       telefon: v.telefon || "",
-      e_posta: v.e_posta || v.eposta || "",
-      il: v.il || v.sehir || "",
+      e_posta: v.e_posta || "",
+      il: v.il || "",
       ilce: v.ilce || "",
-      adres: v.adres || v.ev_adresi || "",
+      adres: v.adres || "",
       calisma_durumu: v.calisma_durumu || "",
-      meslek_grubu: v.meslek_grubu || v.alan || "",
+      meslek_grubu: v.meslek_grubu || "",
       meslek: v.meslek || "",
-      gorev_unvan: v.gorev_unvan || v.gorev || "",
-      kurum: v.kurum || v.is_yeri || "",
+      gorev_unvan: v.gorev_unvan || "",
+      kurum: v.kurum || "",
       notlar: v.notlar || ""
     };
   }
@@ -538,7 +528,7 @@
     });
   }
 
-  function veliKartTiklama(e) {
+  async function veliKartTiklama(e) {
     const card = e.target.closest("[data-veli-card]");
     if (!card) return;
     if (e.target.closest("[data-veli-pasif]")) {
@@ -547,7 +537,14 @@
       veliBaslikGuncelle(card);
     }
     if (e.target.closest("[data-veli-sil]")) {
-      if (!confirm("Bu veli kaydı silinecek. Emin misiniz?")) return;
+      const onay = await onayIste({
+        baslik: "Veli kaydını sil",
+        mesaj: "Bu veli kaydı kalıcı olarak silinecek.",
+        detay: "Silmek yerine pasifleştirmek istiyorsanız önce Pasifleştir düğmesini kullanın.",
+        onayButonu: "Sil",
+        tip: "danger"
+      });
+      if (!onay) return;
       if (card.dataset.veliId) {
         card.dataset.silinecek = "1";
         card.classList.add("d-none");
@@ -665,9 +662,6 @@
         ilac: formatMetin(g("f-ilac")),
         yetenekler: yetenekleriTopla(),
         aile_durumu: aileDurumu,
-        ebeveyn_durumu: aileDurumu,
-        birliktelik: aileDurumu === "Anne-baba birlikte" ? "Birlikte" : aileDurumu === "Anne-baba ayrı" ? "Ayrı" : "",
-        beraberlik: "",
       };
 
       if (duzenlemeId) {
@@ -690,7 +684,6 @@
       setTimeout(() => { location.href = `students-detail.html?id=${verilecekId}`; }, 800);
 
     } catch (err) {
-      console.error(err);
       hataEl.textContent = "Kayıt sırasında hata oluştu: " + err.message;
       hataEl.classList.remove("d-none");
     } finally {
@@ -709,7 +702,6 @@
         ["iller", v.il],
         ["meslekler", v.meslek],
         ["meslek_gruplari", v.meslek_grubu],
-        ["alanlar", v.meslek_grubu],
         ["gorevler", v.gorev_unvan],
         ["kurumlar", v.kurum]
       );

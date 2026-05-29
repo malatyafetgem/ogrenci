@@ -1,9 +1,9 @@
-/**
+﻿/**
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260529-24";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260529-24";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260529-26";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260529-26";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -16,7 +16,8 @@ const MENU_GRUPLARI = [
     ogeler: [
       { href: "dashboard.html#ogrenci-ara", ikon: "bi-search", etiket: "Öğrenci Ara" },
       { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
-      { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true }
+      { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true },
+      { href: "class-promotion.html", ikon: "bi-arrow-up-circle", etiket: "Sınıf Atlatma", adminOnly: true }
     ]
   },
   {
@@ -45,13 +46,6 @@ const MENU_GRUPLARI = [
     ogeler: [
       { href: "meetings-entry.html", ikon: "bi-chat-dots", etiket: "Görüşme Gir", adminOnly: true },
       { href: "meetings-list.html", ikon: "bi-chat-square-text", etiket: "Görüşme Listesi" }
-    ]
-  },
-  {
-    baslik: "Mezunlar",
-    ogeler: [
-      { href: "graduates-list.html", ikon: "bi-mortarboard", etiket: "Mezun Listesi" },
-      { href: "graduates-promotion.html", ikon: "bi-arrow-up-circle", etiket: "Yıl Sonu Aktarımı", adminOnly: true }
     ]
   },
   {
@@ -507,7 +501,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260529-24");
+    const { logout } = await import("./auth.js?v=20260529-26");
     logout();
   });
 }

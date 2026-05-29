@@ -28,7 +28,7 @@ export function formatAd(str) {
  */
 export function formatSoyad(str) {
   if (!str) return "";
-  return turkceByuk(str.trim());
+  return turkceBuyuk(str.trim());
 }
 
 /**
@@ -59,7 +59,7 @@ export function formatTamAd(ad, soyad) {
 /**
  * Türkçe karakterleri destekleyen büyük harf dönüşümü.
  */
-export function turkceByuk(str) {
+export function turkceBuyuk(str) {
   return str
     .replace(/i/g, "İ")
     .replace(/ı/g, "I")
@@ -92,7 +92,7 @@ export function turkcekucuk(str) {
 function kelimeBuyukBasla(kelime) {
   if (!kelime) return "";
   const kucuk = turkcekucuk(kelime);
-  const ilkHarf = turkceByuk(kucuk[0]);
+  const ilkHarf = turkceBuyuk(kucuk[0]);
   return ilkHarf + kucuk.slice(1);
 }
 
@@ -423,4 +423,82 @@ export function toast(mesaj, tip = "success") {
   }
   kap.appendChild(el);
   setTimeout(() => el.remove(), 3500);
+}
+
+export function onayIste({
+  baslik = "İşlemi onayla",
+  mesaj = "",
+  detay = "",
+  onayButonu = "Onayla",
+  iptalButonu = "Vazgeç",
+  tip = "danger",
+  onayMetni = ""
+} = {}) {
+  return new Promise(resolve => {
+    document.querySelectorAll(".obs-confirm-backdrop").forEach(el => el.remove());
+
+    const renk = {
+      danger: "btn-danger",
+      warning: "btn-warning",
+      primary: "btn-primary",
+      success: "btn-success"
+    }[tip] || "btn-primary";
+    const ikon = {
+      danger: "bi-exclamation-triangle",
+      warning: "bi-exclamation-circle",
+      primary: "bi-question-circle",
+      success: "bi-check-circle"
+    }[tip] || "bi-question-circle";
+
+    const backdrop = document.createElement("div");
+    backdrop.className = "obs-confirm-backdrop";
+    backdrop.innerHTML = `
+      <div class="obs-confirm" role="dialog" aria-modal="true" aria-labelledby="obs-confirm-title">
+        <div class="obs-confirm-head">
+          <span class="obs-confirm-icon text-${tip === "danger" ? "danger" : tip}">
+            <i class="bi ${ikon}"></i>
+          </span>
+          <div>
+            <h5 id="obs-confirm-title" class="mb-1">${escapeHtml(baslik)}</h5>
+            ${mesaj ? `<div class="text-muted">${escapeHtml(mesaj)}</div>` : ""}
+          </div>
+        </div>
+        ${detay ? `<div class="obs-confirm-detail">${escapeHtml(detay)}</div>` : ""}
+        ${onayMetni ? `
+          <label class="form-label small text-muted mt-3 mb-1">Onay için <strong>${escapeHtml(onayMetni)}</strong> yazın</label>
+          <input type="text" class="form-control" data-confirm-input autocomplete="off">
+        ` : ""}
+        <div class="obs-confirm-actions">
+          <button type="button" class="btn btn-outline-secondary" data-confirm-cancel>${escapeHtml(iptalButonu)}</button>
+          <button type="button" class="btn ${renk}" data-confirm-ok ${onayMetni ? "disabled" : ""}>${escapeHtml(onayButonu)}</button>
+        </div>
+      </div>`;
+
+    const kapat = sonuc => {
+      backdrop.remove();
+      document.removeEventListener("keydown", escDinle);
+      resolve(sonuc);
+    };
+    const escDinle = e => {
+      if (e.key === "Escape") kapat(false);
+    };
+
+    document.body.appendChild(backdrop);
+    document.addEventListener("keydown", escDinle);
+    const input = backdrop.querySelector("[data-confirm-input]");
+    const okBtn = backdrop.querySelector("[data-confirm-ok]");
+    backdrop.querySelector("[data-confirm-cancel]").addEventListener("click", () => kapat(false));
+    okBtn.addEventListener("click", () => kapat(true));
+    backdrop.addEventListener("click", e => {
+      if (e.target === backdrop) kapat(false);
+    });
+    if (input) {
+      input.addEventListener("input", () => {
+        okBtn.disabled = input.value.trim().toLocaleUpperCase("tr-TR") !== onayMetni.toLocaleUpperCase("tr-TR");
+      });
+      setTimeout(() => input.focus(), 50);
+    } else {
+      setTimeout(() => okBtn.focus(), 50);
+    }
+  });
 }

@@ -164,6 +164,61 @@
   background: #eef5ff;
 }
 
+.obs-confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, .42);
+  backdrop-filter: blur(4px);
+}
+
+.obs-confirm {
+  width: min(100%, 460px);
+  border: 1px solid var(--obs-border);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .22);
+  padding: 1rem;
+}
+
+.obs-confirm-head {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+}
+
+.obs-confirm-icon {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 2.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e5edf5;
+  font-size: 1.2rem;
+}
+
+.obs-confirm-detail {
+  margin-top: .9rem;
+  padding: .75rem;
+  border-radius: 8px;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+}
+
+.obs-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  margin-top: 1rem;
+}
+
 .app-footer {
   margin-left: 0;
 }
@@ -1071,14 +1126,6 @@ body.sidebar-collapsed .app-footer {
   #gorusme-tablo th:nth-child(5), #gorusme-tablo td:nth-child(5) { width: 17%; }
   #gorusme-tablo th:nth-child(6), #gorusme-tablo td:nth-child(6) { width: 18%; }
   #gorusme-tablo th:nth-child(7), #gorusme-tablo td:nth-child(7) { width: 24%; }
-
-  #mezun-tablo th:nth-child(1), #mezun-tablo td:nth-child(1) { width: 7%; }
-  #mezun-tablo th:nth-child(2), #mezun-tablo td:nth-child(2) { width: 24%; }
-  #mezun-tablo th:nth-child(3), #mezun-tablo td:nth-child(3) { width: 7%; text-align: center !important; }
-  #mezun-tablo th:nth-child(4), #mezun-tablo td:nth-child(4) { width: 24%; }
-  #mezun-tablo th:nth-child(5), #mezun-tablo td:nth-child(5) { width: 18%; }
-  #mezun-tablo th:nth-child(6), #mezun-tablo td:nth-child(6) { width: 10%; }
-  #mezun-tablo th:nth-child(7), #mezun-tablo td:nth-child(7) { width: 10%; }
 
   body.obs-list-print-pages .app-content .card:not(.obs-print-original-list-card),
   body.obs-list-print-pages .obs-print-original-list-card {
