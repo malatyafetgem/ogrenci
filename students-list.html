@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260529-26"></script>
+  <script src="file-redirect.js?v=20260529-28"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260529-26">
+  <link rel="stylesheet" href="app.css?v=20260529-28">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -133,7 +133,7 @@
                 <div id="import-adim-1">
                   <p class="text-muted small mb-3">
                     Excel dosyanızı seçin, sonra sistem alanlarını Excel sütunlarıyla eşleştirin.
-                    Öğrenci No her aktarımda eşleştirilmelidir. Öğrenci, anne ve baba adları
+                    Öğrenci No her aktarımda eşleştirilmelidir. Öğrenci ve veli adları
                     ister tek parça "Adı Soyadı", ister ayrı "Ad" ve "Soyad" alanlarıyla aktarılabilir.
                   </p>
                   <div class="mb-3">
@@ -197,86 +197,69 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260529-26";
-  import { layoutYukle } from "./layout.js?v=20260529-26";
+  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260529-28";
+  import { layoutYukle } from "./layout.js?v=20260529-28";
   import {
     ogrenciEkle, ogrenciGuncelle, noMevcutMu,
     velileriGetir, veliEkleGuncelle, siniflarGetir, tumOgrencileriGetir,
     tumDevamsizliklariGetir, devamsizlikHesapla
-  } from "./students.js?v=20260529-26";
+  } from "./students.js?v=20260529-28";
   import {
     devamsizlikDurum, devamsizlikRenk,
     formatAd, formatSoyad, formatMetin, formatTelefon, toast,
     compareOgrenci, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
-  } from "./utils.js?v=20260529-26";
+  } from "./utils.js?v=20260529-28";
   let tumOgrenciler = [];
   let devamsizlikOzetleri = new Map();
   let dt = null;
 
   const IMPORT_ALANLARI = [
-    { key: "numara", label: "Öğrenci No", required: true, aliases: ["no", "numara", "öğrenci no", "ogrenci no", "öğrenci numarası"] },
-    { key: "ad_soyad", label: "Öğrenci Adı Soyadı", aliases: ["ad soyad", "adı soyadı", "adi soyadi", "öğrenci adı soyadı", "ogrenci adi soyadi", "öğrenci ad soyad", "ogrenci ad soyad"] },
-    { key: "ad", label: "Ad", requiredForNew: true, aliases: ["ad", "adı", "adi", "öğrenci adı", "ogrenci adi"] },
-    { key: "soyad", label: "Soyad", requiredForNew: true, aliases: ["soyad", "soyadı", "soyadi"] },
-    { key: "sinif", label: "Sınıf", requiredForNew: true, aliases: ["sınıf", "sinif", "sınıfı", "sinifi"] },
-    { key: "telefon", label: "Öğrenci Telefonu", aliases: ["öğrenci telefonu", "ogrenci telefonu", "öğrenci tel", "ogrenci tel", "cep telefonu", "cep tel", "telefon öğrenci", "telefon ogrenci"] },
-    { key: "cinsiyet", label: "Cinsiyet", aliases: ["cinsiyet", "cinsiyeti"] },
-    { key: "yatililik", label: "Yatılılık", aliases: ["yatılılık", "yatililik"] },
-    { key: "maddi_durum", label: "Maddi Durum", aliases: ["maddi durum", "maddi_durum"] },
-    { key: "geldigi_okul", label: "Geldiği Okulun Adı", aliases: ["geldiği okulun adı", "geldigi okulun adi", "geldiği okul", "geldigi okul", "geldiği okul adı", "geldigi okul adi", "okul adı", "okul adi"] },
-    { key: "tc_kimlik", label: "TC Kimlik", aliases: ["tc", "tc kimlik", "t.c. kimlik no", "t c kimlik no"] },
-    { key: "dogum_tarihi", label: "Doğum Tarihi", aliases: ["doğum tarihi", "dogum tarihi"] },
-    { key: "dogum_yeri", label: "Doğum Yeri", aliases: ["doğum yeri", "dogum yeri"] },
-    { key: "hastalik", label: "Hastalık", aliases: ["hastalık", "hastalik"] },
-    { key: "engel", label: "Engel", aliases: ["engel"] },
-    { key: "ilac", label: "İlaç", aliases: ["ilaç", "ilac"] },
-    { key: "aile_durumu", label: "Aile Durumu", aliases: ["aile durumu", "yaşam", "yasam", "ebeveyn durumu"] },
-    { key: "baba_ad_soyad", label: "Baba Adı Soyadı", aliases: ["baba ad soyad", "baba adı soyadı", "baba adi soyadi", "baba adı ve soyadı", "baba adi ve soyadi"] },
-    { key: "baba_ad", label: "Baba Ad", aliases: ["adı.1", "adi.1", "baba adı", "baba adi"] },
-    { key: "baba_soyad", label: "Baba Soyad", aliases: ["soyadı.1", "soyadi.1", "baba soyadı", "baba soyadi"] },
-    { key: "baba_meslek", label: "Baba Meslek", aliases: ["mesleği", "meslegi", "baba mesleği"] },
-    { key: "baba_meslek_grubu", label: "Baba Meslek Grubu", aliases: ["alanı", "alani", "baba alan", "baba meslek grubu"] },
-    { key: "baba_gorev_unvan", label: "Baba Görev / Unvan", aliases: ["görevi", "gorevi", "baba görev", "baba unvan"] },
-    { key: "baba_telefon", label: "Baba Telefon", aliases: ["telefon", "baba telefon", "baba tel"] },
-    { key: "baba_e_posta", label: "Baba E-Posta", aliases: ["e-posta", "eposta", "baba e-posta"] },
-    { key: "baba_adres", label: "Baba Adres", aliases: ["ev adresi", "baba ev adresi", "baba adres"] },
-    { key: "baba_kurum", label: "Baba Kurum / İş Yeri", aliases: ["iş adresi", "is adresi", "baba iş adresi", "baba kurum", "baba iş yeri"] },
-    { key: "baba_il", label: "Baba İl", aliases: ["şehir", "sehir", "baba şehir", "baba il"] },
-    { key: "baba_ilce", label: "Baba İlçe", aliases: ["ilçe", "ilce", "baba ilçe"] },
-    { key: "anne_ad_soyad", label: "Anne Adı Soyadı", aliases: ["anne ad soyad", "anne adı soyadı", "anne adi soyadi", "anne adı ve soyadı", "anne adi ve soyadi"] },
-    { key: "anne_ad", label: "Anne Ad", aliases: ["adı.2", "adi.2", "anne adı", "anne adi"] },
-    { key: "anne_soyad", label: "Anne Soyad", aliases: ["soyadı.2", "soyadi.2", "anne soyadı", "anne soyadi"] },
-    { key: "anne_meslek", label: "Anne Meslek", aliases: ["mesleği.1", "meslegi.1", "anne mesleği"] },
-    { key: "anne_meslek_grubu", label: "Anne Meslek Grubu", aliases: ["alanı.1", "alani.1", "anne alan", "anne meslek grubu"] },
-    { key: "anne_gorev_unvan", label: "Anne Görev / Unvan", aliases: ["görevi.1", "gorevi.1", "anne görev", "anne unvan"] },
-    { key: "anne_telefon", label: "Anne Telefon", aliases: ["telefon.1", "anne telefon", "anne tel"] },
-    { key: "anne_e_posta", label: "Anne E-Posta", aliases: ["e-posta.1", "eposta.1", "anne e-posta"] },
-    { key: "anne_adres", label: "Anne Adres", aliases: ["ev adresi.1", "anne ev adresi", "anne adres"] },
-    { key: "anne_kurum", label: "Anne Kurum / İş Yeri", aliases: ["iş adresi.1", "is adresi.1", "anne iş adresi", "anne kurum", "anne iş yeri"] },
-    { key: "anne_il", label: "Anne İl", aliases: ["şehir.1", "sehir.1", "anne şehir", "anne il"] },
-    { key: "anne_ilce", label: "Anne İlçe", aliases: ["ilçe.1", "ilce.1", "anne ilçe"] }
+    { key: "numara",         label: "Öğrenci No",          required: true,     aliases: ["no", "numara", "öğrenci no", "ogrenci no", "öğrenci numarası"] },
+    { key: "ad_soyad",       label: "Öğrenci Adı Soyadı",                      aliases: ["ad soyad", "adı soyadı", "adi soyadi", "öğrenci adı soyadı", "ogrenci adi soyadi", "öğrenci ad soyad", "ogrenci ad soyad"] },
+    { key: "ad",             label: "Ad",                  requiredForNew: true, aliases: ["ad", "adı", "adi", "öğrenci adı", "ogrenci adi"] },
+    { key: "soyad",          label: "Soyad",               requiredForNew: true, aliases: ["soyad", "soyadı", "soyadi"] },
+    { key: "sinif",          label: "Sınıf",               requiredForNew: true, aliases: ["sınıf", "sinif", "sınıfı", "sinifi"] },
+    { key: "tc_kimlik",      label: "TC Kimlik",                                aliases: ["tc", "tc kimlik", "t.c. kimlik no", "t c kimlik no"] },
+    { key: "dogum_tarihi",   label: "Doğum Tarihi",                             aliases: ["doğum tarihi", "dogum tarihi"] },
+    { key: "dogum_yeri",     label: "Doğum Yeri",                               aliases: ["doğum yeri", "dogum yeri"] },
+    { key: "cinsiyet",       label: "Cinsiyet",                                 aliases: ["cinsiyet", "cinsiyeti"] },
+    { key: "telefon",        label: "Öğrenci Telefonu",                         aliases: ["öğrenci telefonu", "ogrenci telefonu", "öğrenci tel", "ogrenci tel", "cep telefonu", "cep tel", "telefon öğrenci", "telefon ogrenci"] },
+    { key: "yatililik",      label: "Yatılılık",                                aliases: ["yatılılık", "yatililik"] },
+    { key: "geldigi_okul",   label: "Geldiği Okulun Adı",                       aliases: ["geldiği okulun adı", "geldigi okulun adi", "geldiği okul", "geldigi okul", "geldiği okul adı", "geldigi okul adi", "okul adı", "okul adi"] },
+    { key: "hastalik",       label: "Hastalık",                                 aliases: ["hastalık", "hastalik"] },
+    { key: "engel",          label: "Engel",                                    aliases: ["engel"] },
+    { key: "ilac",           label: "İlaç",                                     aliases: ["ilaç", "ilac"] },
+    { key: "maddi_durum",    label: "Maddi Durum",                              aliases: ["maddi durum", "maddi_durum"] },
+    { key: "aile_durumu",    label: "Aile Durumu",                              aliases: ["aile durumu", "yaşam", "yasam", "ebeveyn durumu"] },
+    { key: "yetenek_1_tur",       label: "Yetenek 1 Türü",      aliases: ["yetenek 1 türü", "yetenek 1 turu", "yetenek1 tür", "yetenek1 tur"] },
+    { key: "yetenek_1_aciklama",  label: "Yetenek 1 Açıklama",  aliases: ["yetenek 1 açıklama", "yetenek 1 aciklama", "yetenek1 açıklama"] },
+    { key: "yetenek_2_tur",       label: "Yetenek 2 Türü",      aliases: ["yetenek 2 türü", "yetenek 2 turu", "yetenek2 tür", "yetenek2 tur"] },
+    { key: "yetenek_2_aciklama",  label: "Yetenek 2 Açıklama",  aliases: ["yetenek 2 açıklama", "yetenek 2 aciklama", "yetenek2 açıklama"] },
+    { key: "yetenek_3_tur",       label: "Yetenek 3 Türü",      aliases: ["yetenek 3 türü", "yetenek 3 turu", "yetenek3 tür", "yetenek3 tur"] },
+    { key: "yetenek_3_aciklama",  label: "Yetenek 3 Açıklama",  aliases: ["yetenek 3 açıklama", "yetenek 3 aciklama", "yetenek3 açıklama"] },
   ];
 
   [1, 2, 3].forEach(no => {
     IMPORT_ALANLARI.push(
-      { key: `veli_${no}_yakinlik`, label: `Veli ${no} Yakınlık`, aliases: [`veli ${no} yakınlık`, `veli ${no} yakinlik`, `veli${no} yakınlık`, `veli${no} yakinlik`] },
-      { key: `veli_${no}_ad_soyad`, label: `Veli ${no} Ad Soyad`, aliases: [`veli ${no} ad soyad`, `veli ${no} adı soyadı`, `veli ${no} adi soyadi`] },
-      { key: `veli_${no}_ad`, label: `Veli ${no} Ad`, aliases: [`veli ${no} ad`, `veli ${no} adı`, `veli ${no} adi`] },
-      { key: `veli_${no}_soyad`, label: `Veli ${no} Soyad`, aliases: [`veli ${no} soyad`, `veli ${no} soyadı`, `veli ${no} soyadi`] },
-      { key: `veli_${no}_telefon`, label: `Veli ${no} Telefon`, aliases: [`veli ${no} telefon`, `veli ${no} tel`] },
-      { key: `veli_${no}_durum`, label: `Veli ${no} Durum`, aliases: [`veli ${no} durum`] },
-      { key: `veli_${no}_meslek`, label: `Veli ${no} Meslek`, aliases: [`veli ${no} meslek`, `veli ${no} mesleği`, `veli ${no} meslegi`] },
-      { key: `veli_${no}_meslek_grubu`, label: `Veli ${no} Meslek Grubu`, aliases: [`veli ${no} meslek grubu`, `veli ${no} sektör`, `veli ${no} sektor`, `veli ${no} alan`] },
-      { key: `veli_${no}_gorev_unvan`, label: `Veli ${no} Görev / Unvan`, aliases: [`veli ${no} görev`, `veli ${no} gorev`, `veli ${no} unvan`] },
-      { key: `veli_${no}_kurum`, label: `Veli ${no} Kurum / İş Yeri`, aliases: [`veli ${no} kurum`, `veli ${no} iş yeri`, `veli ${no} is yeri`] },
-      { key: `veli_${no}_birincil`, label: `Veli ${no} Birincil`, aliases: [`veli ${no} birincil`, `veli ${no} birincil veli`] },
-      { key: `veli_${no}_acil_kisi`, label: `Veli ${no} Acil Durum`, aliases: [`veli ${no} acil`, `veli ${no} acil durum`, `veli ${no} acil kişi`, `veli ${no} acil kisi`] },
+      { key: `veli_${no}_yakinlik`,        label: `Veli ${no} Yakınlık`,        aliases: [`veli ${no} yakınlık`, `veli ${no} yakinlik`, `veli${no} yakınlık`, `veli${no} yakinlik`] },
+      { key: `veli_${no}_durum`,           label: `Veli ${no} Durum`,           aliases: [`veli ${no} durum`] },
+      { key: `veli_${no}_ad_soyad`,        label: `Veli ${no} Ad Soyad`,        aliases: [`veli ${no} ad soyad`, `veli ${no} adı soyadı`, `veli ${no} adi soyadi`] },
+      { key: `veli_${no}_ad`,              label: `Veli ${no} Ad`,              aliases: [`veli ${no} ad`, `veli ${no} adı`, `veli ${no} adi`] },
+      { key: `veli_${no}_soyad`,           label: `Veli ${no} Soyad`,           aliases: [`veli ${no} soyad`, `veli ${no} soyadı`, `veli ${no} soyadi`] },
+      { key: `veli_${no}_telefon`,         label: `Veli ${no} Telefon`,         aliases: [`veli ${no} telefon`, `veli ${no} tel`] },
+      { key: `veli_${no}_e_posta`,         label: `Veli ${no} E-Posta`,         aliases: [`veli ${no} e-posta`, `veli ${no} eposta`] },
+      { key: `veli_${no}_il`,              label: `Veli ${no} İl`,              aliases: [`veli ${no} il`, `veli ${no} şehir`, `veli ${no} sehir`] },
+      { key: `veli_${no}_ilce`,            label: `Veli ${no} İlçe`,            aliases: [`veli ${no} ilçe`, `veli ${no} ilce`] },
+      { key: `veli_${no}_adres`,           label: `Veli ${no} Adres`,           aliases: [`veli ${no} adres`, `veli ${no} ev adresi`] },
+      { key: `veli_${no}_calisma_durumu`,  label: `Veli ${no} Çalışma Durumu`,  aliases: [`veli ${no} çalışma durumu`, `veli ${no} calisma durumu`] },
+      { key: `veli_${no}_meslek`,          label: `Veli ${no} Meslek`,          aliases: [`veli ${no} meslek`, `veli ${no} mesleği`, `veli ${no} meslegi`] },
+      { key: `veli_${no}_meslek_grubu`,    label: `Veli ${no} Meslek Grubu`,    aliases: [`veli ${no} meslek grubu`, `veli ${no} sektör`, `veli ${no} sektor`, `veli ${no} alan`] },
+      { key: `veli_${no}_gorev_unvan`,     label: `Veli ${no} Görev / Unvan`,   aliases: [`veli ${no} görev`, `veli ${no} gorev`, `veli ${no} unvan`] },
+      { key: `veli_${no}_kurum`,           label: `Veli ${no} Kurum / İş Yeri`, aliases: [`veli ${no} kurum`, `veli ${no} iş yeri`, `veli ${no} is yeri`] },
+      { key: `veli_${no}_birincil`,        label: `Veli ${no} Birincil`,        aliases: [`veli ${no} birincil`, `veli ${no} birincil veli`] },
+      { key: `veli_${no}_acil_kisi`,       label: `Veli ${no} Acil Durum`,      aliases: [`veli ${no} acil`, `veli ${no} acil durum`, `veli ${no} acil kişi`, `veli ${no} acil kisi`] },
       { key: `veli_${no}_iletisim_sirasi`, label: `Veli ${no} İletişim Sırası`, aliases: [`veli ${no} iletişim sırası`, `veli ${no} iletisim sirasi`] },
-      { key: `veli_${no}_e_posta`, label: `Veli ${no} E-Posta`, aliases: [`veli ${no} e-posta`, `veli ${no} eposta`] },
-      { key: `veli_${no}_il`, label: `Veli ${no} İl`, aliases: [`veli ${no} il`, `veli ${no} şehir`, `veli ${no} sehir`] },
-      { key: `veli_${no}_ilce`, label: `Veli ${no} İlçe`, aliases: [`veli ${no} ilçe`, `veli ${no} ilce`] },
-      { key: `veli_${no}_adres`, label: `Veli ${no} Adres`, aliases: [`veli ${no} adres`, `veli ${no} ev adresi`] },
-      { key: `veli_${no}_notlar`, label: `Veli ${no} Notlar`, aliases: [`veli ${no} not`, `veli ${no} notlar`] }
+      { key: `veli_${no}_notlar`,          label: `Veli ${no} Notlar`,          aliases: [`veli ${no} not`, `veli ${no} notlar`] }
     );
   });
 
@@ -617,8 +600,7 @@
   }
 
   function veliOzetEtiketi(coz) {
-    const veliler = [coz.babaVeri, coz.anneVeri, ...coz.cokluVeliler].filter(veliDoluMu);
-    return veliler.map(v => v.yakinlik || "Veli").join(", ");
+    return coz.cokluVeliler.filter(veliDoluMu).map(v => v.yakinlik || "Veli").join(", ");
   }
 
   async function importBaslat() {
@@ -680,8 +662,6 @@
           eklendi++;
         }
 
-        await veliAktar(coz.numara, "Baba", coz.babaVeri, true);
-        await veliAktar(coz.numara, "Anne", coz.anneVeri, true);
         for (const veli of coz.cokluVeliler) {
           await veliAktar(coz.numara, veli.yakinlik || "Veli", veli);
         }
@@ -734,37 +714,29 @@
     const aileDurumu = aileDurumuNormalize(raw.aile_durumu);
     alanEkle(ogrVeri, "aile_durumu", aileDurumu);
 
+    // Yetenekler
+    const yetenekler = [];
+    [1, 2, 3].forEach(no => {
+      const turKey  = `yetenek_${no}_tur`;
+      const aclKey  = `yetenek_${no}_aciklama`;
+      const turVal  = importEslesme[turKey]  ? temiz(raw[turKey])  : "";
+      const aclVal  = importEslesme[aclKey]  ? temiz(raw[aclKey])  : "";
+      if (turVal || aclVal) {
+        yetenekler.push({ tur: turVal, aciklama: aclVal });
+      }
+    });
+    if (yetenekler.length) ogrVeri.yetenekler = yetenekler;
+
     const yeniKayitEksikleri = [];
     if (!ogrVeri.ad) yeniKayitEksikleri.push("Ad");
     if (!ogrVeri.soyad) yeniKayitEksikleri.push("Soyad");
     if (!ogrVeri.sinif) yeniKayitEksikleri.push("Sınıf");
 
-    const babaVeri = veliVerisi("Baba", raw, "baba");
-    const anneVeri = veliVerisi("Anne", raw, "anne");
     const cokluVeliler = [1, 2, 3]
       .map(no => veliBlokVerisi(no, raw))
       .filter(veliDoluMu);
 
-    return { raw, numara, ogrVeri, babaVeri, anneVeri, cokluVeliler, hatalar, yeniKayitEksikleri };
-  }
-
-  function veliVerisi(yakinlik, raw, prefix) {
-    const veri = { yakinlik };
-    const parca = adSoyadAyir(raw[`${prefix}_ad_soyad`]);
-    alanEkle(veri, `${prefix}_ad_soyad`, parca.ad, "ad");
-    alanEkle(veri, `${prefix}_ad_soyad`, parca.soyad, "soyad");
-    alanEkle(veri, `${prefix}_ad`, formatAd(raw[`${prefix}_ad`]), "ad");
-    alanEkle(veri, `${prefix}_soyad`, formatSoyad(raw[`${prefix}_soyad`]), "soyad");
-    alanEkle(veri, `${prefix}_meslek`, formatMetin(raw[`${prefix}_meslek`]), "meslek");
-    alanEkle(veri, `${prefix}_meslek_grubu`, formatMetin(raw[`${prefix}_meslek_grubu`]), "meslek_grubu");
-    alanEkle(veri, `${prefix}_gorev_unvan`, formatMetin(raw[`${prefix}_gorev_unvan`]), "gorev_unvan");
-    alanEkle(veri, `${prefix}_telefon`, formatTelefon(raw[`${prefix}_telefon`]), "telefon");
-    alanEkle(veri, `${prefix}_e_posta`, temiz(raw[`${prefix}_e_posta`]), "e_posta");
-    alanEkle(veri, `${prefix}_adres`, formatMetin(raw[`${prefix}_adres`]), "adres");
-    alanEkle(veri, `${prefix}_kurum`, formatMetin(raw[`${prefix}_kurum`]), "kurum");
-    alanEkle(veri, `${prefix}_il`, formatMetin(raw[`${prefix}_il`]), "il");
-    alanEkle(veri, `${prefix}_ilce`, formatMetin(raw[`${prefix}_ilce`]), "ilce");
-    return veri;
+    return { raw, numara, ogrVeri, cokluVeliler, hatalar, yeniKayitEksikleri };
   }
 
   function veliBlokVerisi(no, raw) {
@@ -779,6 +751,7 @@
     alanEkle(veri, `${prefix}_soyad`, formatSoyad(raw[`${prefix}_soyad`]), "soyad");
     alanEkle(veri, `${prefix}_telefon`, formatTelefon(raw[`${prefix}_telefon`]), "telefon");
     alanEkle(veri, `${prefix}_durum`, formatMetin(raw[`${prefix}_durum`]), "durum");
+    alanEkle(veri, `${prefix}_calisma_durumu`, formatMetin(raw[`${prefix}_calisma_durumu`]), "calisma_durumu");
     alanEkle(veri, `${prefix}_meslek`, formatMetin(raw[`${prefix}_meslek`]), "meslek");
     alanEkle(veri, `${prefix}_meslek_grubu`, formatMetin(raw[`${prefix}_meslek_grubu`]), "meslek_grubu");
     alanEkle(veri, `${prefix}_gorev_unvan`, formatMetin(raw[`${prefix}_gorev_unvan`]), "gorev_unvan");
@@ -887,24 +860,52 @@
   }
 
   function veliDoluMu(veri) {
-    const metaAlanlar = new Set(["yakinlik", "durum", "birincil", "acil_kisi", "iletisim_sirasi"]);
-    return Object.entries(veri).some(([key, value]) => !metaAlanlar.has(key) && temiz(value));
+    const temelVar = ["ad", "soyad", "telefon"].some(key => temiz(veri[key]));
+    const yakinlik = temiz(veri.yakinlik);
+    const yakinlikVar = !!yakinlik && yakinlik !== "Diğer";
+    return temelVar || yakinlikVar;
   }
 
-  async function veliAktar(ogrenciNo, varsayilanYakinlik, veri, yakinlikTekil = false) {
+  // Tekil sayılabilecek yakınlıklar: bu türde aynı öğrenciye ait en fazla 1 kişi olması beklenir.
+  const TEKIL_YAKINLIKLAR = new Set(["Anne", "Baba", "Vasi", "Üvey Anne", "Üvey Baba"]);
+
+  async function veliAktar(ogrenciNo, varsayilanYakinlik, veri) {
     if (!veliDoluMu(veri)) return;
-    const yakinlik = veri.yakinlik || varsayilanYakinlik;
+    const yakinlik = temiz(veri.yakinlik) || varsayilanYakinlik;
     const mevcutVeliler = await velileriGetir(ogrenciNo);
-    const hedefAd = adSoyadAnahtari(veri);
-    const mevcut = yakinlikTekil
-      ? mevcutVeliler.find(v => v.yakinlik === yakinlik)
-      : mevcutVeliler.find(v => v.yakinlik === yakinlik && adSoyadAnahtari(v) === hedefAd);
+
+    let mevcut = null;
+
+    // A) Yakınlık + Ad + Soyad
+    const adTmz  = temiz(veri.ad).toLocaleLowerCase("tr-TR");
+    const soyadTmz = temiz(veri.soyad).toLocaleLowerCase("tr-TR");
+    if (adTmz && soyadTmz) {
+      mevcut = mevcutVeliler.find(v =>
+        v.yakinlik === yakinlik &&
+        temiz(v.ad).toLocaleLowerCase("tr-TR")    === adTmz &&
+        temiz(v.soyad).toLocaleLowerCase("tr-TR") === soyadTmz
+      ) || null;
+    }
+
+    // B) Yakınlık + Telefon
+    if (!mevcut) {
+      const telTmz = temiz(veri.telefon);
+      if (telTmz) {
+        mevcut = mevcutVeliler.find(v =>
+          v.yakinlik === yakinlik && temiz(v.telefon) === telTmz
+        ) || null;
+      }
+    }
+
+    // C) Tekil yakınlıklarda: aynı yakınlıktan tek kayıt varsa onu güncelle
+    if (!mevcut && TEKIL_YAKINLIKLAR.has(yakinlik)) {
+      const ayni = mevcutVeliler.filter(v => v.yakinlik === yakinlik);
+      if (ayni.length === 1) mevcut = ayni[0];
+    }
+
+    // D) Hiçbir eşleşme yoksa yeni veli oluştur
     const mevcutId = mevcut?.id || null;
     await veliEkleGuncelle(ogrenciNo, mevcutId, { ...veri, yakinlik });
-  }
-
-  function adSoyadAnahtari(veri) {
-    return `${veri.ad || ""} ${veri.soyad || ""} ${veri.telefon || ""}`.trim().toLocaleLowerCase("tr-TR");
   }
 
   function importSifirla() {
