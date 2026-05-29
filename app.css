@@ -267,7 +267,7 @@ body.sidebar-collapsed .app-footer {
   color: #475569;
   font-size: .78rem;
   font-weight: 700;
-  letter-spacing: .03em;
+  letter-spacing: 0;
   margin: 0 0 .5rem;
   text-transform: uppercase;
 }
@@ -344,7 +344,7 @@ body.sidebar-collapsed .app-footer {
 
 [data-obs-print-title-row],
 [data-obs-print-class-row],
-[data-obs-print-student-pages] {
+[data-obs-print-list-pages] {
   display: none;
 }
 
@@ -430,7 +430,7 @@ body.sidebar-collapsed .app-footer {
   font-size: 0.85rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .05em;
+  letter-spacing: 0;
   color: #6c757d;
   border-bottom: 1px solid #dee2e6;
   padding-bottom: 0.4rem;
@@ -444,6 +444,32 @@ body.sidebar-collapsed .app-footer {
   gap: 8px;
   align-items: center;
   margin-bottom: 8px;
+}
+
+.veli-form-card {
+  border: 1px solid #d9e2ef;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+}
+
+.veli-form-card .card-header {
+  background: #f8fafc;
+  border-bottom-color: #e2e8f0;
+}
+
+.veli-form-card .form-label {
+  color: #475569;
+  font-size: .82rem;
+  font-weight: 600;
+  margin-bottom: .25rem;
+}
+
+.veli-form-card .form-control,
+.veli-form-card .form-select {
+  min-height: 38px;
+}
+
+.veli-kart-baslik {
+  color: #1f2937;
 }
 
 /* Autocomplete dropdown */
@@ -1054,11 +1080,12 @@ body.sidebar-collapsed .app-footer {
   #mezun-tablo th:nth-child(6), #mezun-tablo td:nth-child(6) { width: 10%; }
   #mezun-tablo th:nth-child(7), #mezun-tablo td:nth-child(7) { width: 10%; }
 
-  body.obs-student-print-pages .obs-print-original-student-table {
+  body.obs-list-print-pages .app-content .card:not(.obs-print-original-list-card),
+  body.obs-list-print-pages .obs-print-original-list-card {
     display: none !important;
   }
 
-  body.obs-student-print-pages [data-obs-print-student-pages] {
+  body.obs-list-print-pages [data-obs-print-list-pages] {
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -1066,7 +1093,7 @@ body.sidebar-collapsed .app-footer {
     padding: 0 !important;
   }
 
-  body.obs-student-print-pages .obs-print-student-page {
+  body.obs-list-print-pages .obs-print-list-page {
     width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -1074,13 +1101,13 @@ body.sidebar-collapsed .app-footer {
     page-break-before: always;
   }
 
-  body.obs-student-print-pages .obs-print-student-page:first-child,
-  body.obs-student-print-pages .obs-print-first-student-page {
+  body.obs-list-print-pages .obs-print-list-page:first-child,
+  body.obs-list-print-pages .obs-print-first-list-page {
     break-before: auto;
     page-break-before: auto;
   }
 
-  body.obs-student-print-pages .print-student-page-table {
+  body.obs-list-print-pages .print-list-page-table {
     width: 100% !important;
     max-width: 100% !important;
     table-layout: fixed !important;
@@ -1090,8 +1117,8 @@ body.sidebar-collapsed .app-footer {
     margin: 0 auto !important;
   }
 
-  body.obs-student-print-pages .print-student-page-table th,
-  body.obs-student-print-pages .print-student-page-table td {
+  body.obs-list-print-pages .print-list-page-table th,
+  body.obs-list-print-pages .print-list-page-table td {
     border: 1px solid #d9dee6 !important;
     padding: 1.15mm 1.25mm !important;
     line-height: 1.12 !important;
@@ -1100,7 +1127,7 @@ body.sidebar-collapsed .app-footer {
     white-space: nowrap !important;
   }
 
-  body.obs-student-print-pages .print-student-page-table tr[data-obs-print-title-row] th {
+  body.obs-list-print-pages .print-list-page-table tr[data-obs-print-title-row] th {
     background: #fff !important;
     border: 0 !important;
     color: #111827 !important;
@@ -1110,31 +1137,18 @@ body.sidebar-collapsed .app-footer {
     text-align: left !important;
   }
 
-  body.obs-student-print-pages .print-student-page-table tr[data-obs-print-title-row] + tr th {
+  body.obs-list-print-pages .print-list-page-table tr[data-obs-print-title-row] + tr th {
     border-top: 1px solid #cbd5e1 !important;
   }
 
-  body.obs-student-print-pages .print-student-page-table .obs-student-print-column-row th {
+  body.obs-list-print-pages .print-list-page-table .obs-list-print-column-row th {
     background: #f3f6fa !important;
     color: #111827 !important;
     font-weight: 800 !important;
   }
 
-  body.obs-student-print-pages .print-student-page-table th:nth-child(1),
-  body.obs-student-print-pages .print-student-page-table td:nth-child(1) { width: 7%; }
-  body.obs-student-print-pages .print-student-page-table th:nth-child(2),
-  body.obs-student-print-pages .print-student-page-table td:nth-child(2) { width: 27%; }
-  body.obs-student-print-pages .print-student-page-table th:nth-child(3),
-  body.obs-student-print-pages .print-student-page-table td:nth-child(3) { width: 6%; }
-  body.obs-student-print-pages .print-student-page-table th:nth-child(4),
-  body.obs-student-print-pages .print-student-page-table td:nth-child(4) { width: 16%; }
-  body.obs-student-print-pages .print-student-page-table th:nth-child(5),
-  body.obs-student-print-pages .print-student-page-table td:nth-child(5) { width: 7%; }
-  body.obs-student-print-pages .print-student-page-table th:nth-child(6),
-  body.obs-student-print-pages .print-student-page-table td:nth-child(6) { width: 18%; }
-  body.obs-student-print-pages .print-student-page-table th:nth-child(7),
-  body.obs-student-print-pages .print-student-page-table td:nth-child(7) {
-    width: 19%;
-    text-align: center !important;
+  body.obs-list-print-pages .print-list-page-table .print-wrap {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
   }
 }

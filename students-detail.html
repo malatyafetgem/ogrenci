@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-18"></script>
+  <script src="file-redirect.js?v=20260529-24"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-18">
+  <link rel="stylesheet" href="app.css?v=20260529-24">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -92,7 +92,7 @@
 
           <div class="tab-content">
 
-            <!-- Kİ�?İSEL BİLGİLER -->
+        <!-- KİŞİSEL BİLGİLER -->
             <div class="tab-pane fade show active" id="sekme-kisisel">
               <div class="row g-3">
                 <div class="col-md-6">
@@ -188,7 +188,7 @@
               </div>
             </div>
 
-            <!-- DAVRANI�? -->
+              <!-- DAVRANIŞ -->
             <div class="tab-pane fade" id="sekme-davranis">
               <div class="card">
                 <div class="card-header d-flex gap-2 align-items-center no-print">
@@ -219,7 +219,7 @@
               </div>
             </div>
 
-            <!-- VELİ GÖRÜ�?MELERİ -->
+              <!-- VELİ GÖRÜŞMELERİ -->
             <div class="tab-pane fade" id="sekme-gorusme">
               <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -260,20 +260,20 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260527-18";
-  import { layoutYukle } from "./layout.js?v=20260527-18";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260529-24";
+  import { layoutYukle } from "./layout.js?v=20260529-24";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil,
     davranislarGetir, davranisSil,
     gorusmeleriGetir, gorusmeSil
-  } from "./students.js?v=20260527-18";
+  } from "./students.js?v=20260529-24";
   import {
     devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260527-18";
-  import { avatarSrc } from "./avatar.js?v=20260527-18";
+  } from "./utils.js?v=20260529-24";
+  import { avatarSrc } from "./avatar.js?v=20260529-24";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -328,7 +328,7 @@
       ]);
 
       blokDoldur("blok-aile", [
-        ["Ebeveyn Durumu", ebeveynDurumuNormalize(o.ebeveyn_durumu)],
+        ["Aile Durumu", ebeveynDurumuNormalize(o.aile_durumu || o.ebeveyn_durumu)],
         ["Birliktelik", o.birliktelik],
         ["Kiminle Yaşıyor", o.beraberlik],
         ["Maddi Durum", o.maddi_durum],
@@ -381,26 +381,52 @@
       return;
     }
     kap.innerHTML = veliler.map(v => {
-      const turRenk = v.tur === "Baba" ? "primary" : v.tur === "Anne" ? "danger" : "secondary";
+      const yakinlik = v.yakinlik || v.tur || "Veli";
+      const durum = v.durum || "Aktif";
+      const turRenk = yakinlik === "Baba" ? "primary" : yakinlik === "Anne" ? "danger" : "secondary";
+      const durumRenk = veliDurumRenk(durum);
+      const meslek = [v.calisma_durumu, v.meslek_grubu || v.alan, v.meslek, v.gorev_unvan || v.gorev, v.kurum]
+        .filter(Boolean).join(" / ");
+      const adres = [v.il || v.sehir, v.ilce].filter(Boolean).join(" / ");
+      const iletisim = formatTelefon(v.telefon || "");
       return `<div class="col-md-6">
         <div class="card h-100">
           <div class="card-header">
-            <h6 class="mb-0">
-              <span class="badge bg-${turRenk} me-1">${escapeHtml(v.tur)}</span>
-              ${escapeHtml(`${v.ad || ""} ${v.soyad || ""}`.trim())}
-            </h6>
+            <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
+              <h6 class="mb-0">
+                <span class="badge bg-${turRenk} me-1">${escapeHtml(yakinlik)}</span>
+                ${escapeHtml(`${v.ad || ""} ${v.soyad || ""}`.trim() || "Ad soyad yok")}
+              </h6>
+              <span class="badge bg-${durumRenk}">${escapeHtml(durum)}</span>
+            </div>
           </div>
           <div class="card-body">
-            ${veliSatir("Meslek", [v.meslek, v.alan, v.gorev].filter(Boolean).join(" / "))}
-            ${veliSatir("Telefon", formatTelefon(v.telefon || ""))}
+            <div class="d-flex gap-2 flex-wrap mb-2">
+              ${v.birincil ? '<span class="badge text-bg-success">Birincil</span>' : ""}
+              ${v.acil_kisi ? '<span class="badge text-bg-info">Acil</span>' : ""}
+              ${v.iletisim_sirasi ? `<span class="badge text-bg-light">Sıra ${escapeHtml(String(v.iletisim_sirasi))}</span>` : ""}
+            </div>
+            ${veliSatir("Meslek", meslek)}
+            ${veliSatir("Telefon", iletisim)}
             ${veliSatir("E-Posta", v.e_posta)}
-            ${veliSatir("Ev Adresi", v.ev_adresi)}
-            ${veliSatir("İş Adresi", v.is_adresi)}
-            ${veliSatir("�?ehir / İlçe", [v.sehir, v.ilce].filter(Boolean).join(" / "))}
+            ${veliSatir("Adres", v.adres || v.ev_adresi)}
+            ${veliSatir("Şehir / İlçe", adres)}
+            ${veliSatir("Notlar", v.notlar)}
           </div>
         </div>
       </div>`;
     }).join("");
+  }
+
+  function veliDurumRenk(durum) {
+    return {
+      "Aktif": "success",
+      "Vefat": "dark",
+      "Ulaşılamıyor": "warning text-dark",
+      "Velayeti Yok": "warning text-dark",
+      "Aranmasın": "danger",
+      "Pasif": "secondary"
+    }[durum] || "secondary";
   }
 
   function veliSatir(et, dg) {
@@ -516,9 +542,11 @@
     const tbody = document.getElementById("gorusme-tablo");
     tbody.innerHTML = gorusmeler.length === 0
       ? `<tr><td colspan="5" class="text-center text-muted py-3">Görüşme kaydı yok.</td></tr>`
-      : gorusmeler.map(g => `<tr>
+      : gorusmeler.map(g => {
+        const veliEtiketi = [g.veli_tur, g.veli_adi].filter(Boolean).join(" - ") || "—";
+        return `<tr>
           <td data-label="Tarih">${escapeHtml(g.tarih || "—")}</td>
-          <td data-label="Veli">${escapeHtml(g.veli_tur || "—")}</td>
+          <td data-label="Veli">${escapeHtml(veliEtiketi)}</td>
           <td data-label="Konu">${escapeHtml(g.konu || "—")}</td>
           <td data-label="Açıklama">${escapeHtml(g.aciklama || "—")}</td>
           <td data-label="İşlem" class="no-print">
@@ -526,7 +554,8 @@
               <i class="bi bi-trash"></i>
             </button>
           </td>
-        </tr>`).join("");
+        </tr>`;
+      }).join("");
     applyAdminVisibility(tbody);
   }
 

@@ -1,4 +1,4 @@
-import { auth } from "./firebase-config.js?v=20260527-18";
+import { auth } from "./firebase-config.js?v=20260529-24";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 // Sistemde yalnızca bu Firebase UID Admin kabul edilir.

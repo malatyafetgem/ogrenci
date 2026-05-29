@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-18"></script>
+  <script src="file-redirect.js?v=20260529-24"></script>
   <title>Veli Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-18">
+  <link rel="stylesheet" href="app.css?v=20260529-24">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -43,11 +43,19 @@
                 </select>
               </div>
               <div class="col-6 col-md-3">
-                <label class="form-label small mb-1">Veli Türü</label>
+                <label class="form-label small mb-1">Yakınlık</label>
                 <select id="filtre-tur" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
-                  <option>Baba</option>
                   <option>Anne</option>
+                  <option>Baba</option>
+                  <option>Vasi</option>
+                  <option>Üvey Anne</option>
+                  <option>Üvey Baba</option>
+                  <option>Dede</option>
+                  <option>Nine</option>
+                  <option>Abi</option>
+                  <option>Abla</option>
+                  <option>Koruyucu Aile</option>
                   <option>Diğer</option>
                 </select>
               </div>
@@ -87,16 +95,17 @@
                 <thead class="table-light">
                   <tr>
                     <th>Veli</th>
-                    <th>Tür</th>
+                    <th>Yakınlık</th>
+                    <th>Durum</th>
                     <th>Öğrenci</th>
                     <th>Sınıf</th>
                     <th>Telefon</th>
-                    <th>E-Posta</th>
-                    <th>�?ehir</th>
+                    <th>Öncelik</th>
+                    <th>Şehir</th>
                   </tr>
                 </thead>
                 <tbody id="veli-tbody">
-                  <tr><td colspan="7" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
+                  <tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -118,15 +127,15 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260527-18";
-  import { layoutYukle } from "./layout.js?v=20260527-18";
-  import { siniflarGetir, tumOgrencileriGetir, tumVelileriGetir } from "./students.js?v=20260527-18";
+  import { requireAuth } from "./auth.js?v=20260529-24";
+  import { layoutYukle } from "./layout.js?v=20260529-24";
+  import { siniflarGetir, tumOgrencileriGetir, tumVelileriGetir } from "./students.js?v=20260529-24";
   import {
     formatTelefon, toast,
     compareOgrenci, compareSinif, compareOgrenciNo,
     sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari,
     escapeHtml, escapeAttr
-  } from "./utils.js?v=20260527-18";
+  } from "./utils.js?v=20260529-24";
 
   let tumVeliler = [];
   let dt = null;
@@ -148,7 +157,7 @@
     tumVeliler = [];
     document.getElementById("kayit-sayisi").textContent = "0";
     document.getElementById("veli-tbody").innerHTML =
-      `<tr><td colspan="7" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>`;
+      `<tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>`;
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
   }
@@ -163,34 +172,20 @@
         tumOgrencileriGetir(),
         tumVelileriGetir()
       ]);
-      const velilerByOgrenci = new Map();
-      veliler.forEach(v => {
-        if (!velilerByOgrenci.has(v.ogrenciId)) velilerByOgrenci.set(v.ogrenciId, []);
-        velilerByOgrenci.get(v.ogrenciId).push(v);
-      });
-      const veriListesi = [];
-
-      for (const ogr of ogrenciler.sort(compareOgrenci)) {
-        if (sinifFiltre && ogr.sinif !== sinifFiltre) continue;
-
-        for (const v of velilerByOgrenci.get(ogr.id) || []) {
-          if (turFiltre && v.tur !== turFiltre) continue;
-          veriListesi.push({
-            veliAd: `${v.ad || ""} ${v.soyad || ""}`.trim(),
-            tur: v.tur || "—",
-            ogrAd: `${ogr.ad || ""} ${ogr.soyad || ""}`.trim(),
-            no: ogr.numara || ogr.id,
-            ogrId: ogr.id,
-            sinif: ogr.sinif || "—",
-            telefon: formatTelefon(v.telefon || ""),
-            eposta: v.e_posta || "—",
-            sehir: v.sehir || "—"
-          });
-        }
-      }
+      const ogrMap = new Map(ogrenciler.map(o => [String(o.id), o]));
+      const veriListesi = veliler
+        .map(v => veliSatiriOlustur(v, ogrMap.get(String(v.ogrenciId))))
+        .filter(Boolean)
+        .filter(v => !sinifFiltre || v.sinif === sinifFiltre)
+        .filter(v => !turFiltre || v.yakinlik === turFiltre);
 
       tumVeliler = veriListesi.sort((a, b) =>
-        compareSinif(a.sinif, b.sinif) || compareOgrenciNo(a.no, b.no) || veliTurSirasi(a.tur) - veliTurSirasi(b.tur)
+        compareSinif(a.sinif, b.sinif)
+        || compareOgrenciNo(a.no, b.no)
+        || Number(!!b.birincil) - Number(!!a.birincil)
+        || (a.iletisim_sirasi || 999) - (b.iletisim_sirasi || 999)
+        || yakinlikSirasi(a.yakinlik) - yakinlikSirasi(b.yakinlik)
+        || a.veliAd.localeCompare(b.veliAd, "tr")
       );
       tabloGoster(tumVeliler);
     } catch (err) {
@@ -200,21 +195,45 @@
     }
   }
 
+  function veliSatiriOlustur(v, ogr) {
+    if (!ogr) return null;
+    const veliAd = `${v.ad || ""} ${v.soyad || ""}`.trim();
+    const ogrAd = `${ogr.ad || ""} ${ogr.soyad || ""}`.trim();
+    return {
+      veliAd,
+      yakinlik: v.yakinlik || v.tur || "—",
+      durum: v.durum || "Aktif",
+      birincil: !!v.birincil,
+      acil_kisi: !!v.acil_kisi,
+      iletisim_sirasi: Number(v.iletisim_sirasi) || 0,
+      ogrAd,
+      no: ogr.numara || ogr.id,
+      ogrId: ogr.id,
+      sinif: ogr.sinif || "—",
+      telefon: formatTelefon(v.telefon || ""),
+      eposta: v.e_posta || "—",
+      sehir: v.il || v.sehir || "—",
+      meslek: [v.calisma_durumu, v.meslek_grubu || v.alan, v.meslek, v.gorev_unvan || v.gorev, v.kurum]
+        .filter(Boolean).join(" / ")
+    };
+  }
+
   function tabloGoster(veri) {
     document.getElementById("kayit-sayisi").textContent = veri.length;
     const tbody = document.getElementById("veli-tbody");
     tbody.innerHTML = veri.length === 0
-      ? `<tr><td colspan="7" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
+      ? `<tr><td colspan="8" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
       : veri.map(v => {
-          const turRenk = v.tur === "Baba" ? "primary" : v.tur === "Anne" ? "danger" : "secondary";
+          const turRenk = v.yakinlik === "Baba" ? "primary" : v.yakinlik === "Anne" ? "danger" : "secondary";
           return `<tr>
             <td class="fw-semibold">${escapeHtml(v.veliAd || "—")}</td>
-            <td><span class="badge bg-${turRenk}">${escapeHtml(v.tur)}</span></td>
+            <td><span class="badge bg-${turRenk}">${escapeHtml(v.yakinlik)}</span></td>
+            <td>${durumRozeti(v.durum)}</td>
             <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(v.no))}"><a href="students-detail.html?id=${escapeAttr(v.ogrId)}"
                    class="text-decoration-none">${escapeHtml(v.ogrAd)}</a></td>
             <td data-order="${escapeAttr(sinifSiralamaAnahtari(v.sinif))}">${escapeHtml(v.sinif)}</td>
             <td>${escapeHtml(v.telefon || "—")}</td>
-            <td>${escapeHtml(v.eposta)}</td>
+            <td>${oncelikEtiketi(v)}</td>
             <td>${escapeHtml(v.sehir)}</td>
           </tr>`;
         }).join("");
@@ -232,7 +251,7 @@
           paginate: { next: "İleri", previous: "Geri" }
         },
         pageLength: 25,
-        order: [[3, "asc"], [2, "asc"]]
+        order: [[4, "asc"], [3, "asc"]]
       });
     }
   }
@@ -255,12 +274,16 @@
   function excelExport() {
     const satirlar = tumVeliler.map(v => ({
       "Veli Ad Soyad": v.veliAd,
-      "Tür": v.tur,
+      "Yakınlık": v.yakinlik,
+      "Durum": v.durum,
       "Öğrenci": v.ogrAd,
+      "Öğrenci No": v.no,
       "Sınıf": v.sinif,
       "Telefon": v.telefon,
       "E-Posta": v.eposta,
-      "�?ehir": v.sehir
+      "Öncelik": oncelikMetni(v),
+      "Şehir": v.sehir,
+      "Meslek": v.meslek
     }));
     const ws = XLSX.utils.json_to_sheet(satirlar);
     const wb = XLSX.utils.book_new();
@@ -268,14 +291,50 @@
     XLSX.writeFile(wb, `veliler_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  function veliTurSirasi(tur) {
-    return { Baba: 1, Anne: 2, Diğer: 3 }[tur] || 9;
+  function durumRozeti(durum) {
+    const renk = {
+      "Aktif": "success",
+      "Vefat": "dark",
+      "Ulaşılamıyor": "warning text-dark",
+      "Velayeti Yok": "warning text-dark",
+      "Aranmasın": "danger",
+      "Pasif": "secondary"
+    }[durum] || "secondary";
+    return `<span class="badge bg-${renk}">${escapeHtml(durum)}</span>`;
+  }
+
+  function oncelikEtiketi(v) {
+    const etiketler = [];
+    if (v.birincil) etiketler.push('<span class="badge text-bg-success">Birincil</span>');
+    if (v.acil_kisi) etiketler.push('<span class="badge text-bg-info">Acil</span>');
+    if (v.iletisim_sirasi) etiketler.push(`<span class="badge text-bg-light">Sıra ${escapeHtml(String(v.iletisim_sirasi))}</span>`);
+    return etiketler.join(" ") || "—";
+  }
+
+  function oncelikMetni(v) {
+    return [
+      v.birincil ? "Birincil" : "",
+      v.acil_kisi ? "Acil" : "",
+      v.iletisim_sirasi ? `Sıra ${v.iletisim_sirasi}` : ""
+    ].filter(Boolean).join(" / ");
+  }
+
+  function yakinlikSirasi(tur) {
+    return {
+      Anne: 1,
+      Baba: 2,
+      Vasi: 3,
+      "Üvey Anne": 4,
+      "Üvey Baba": 5,
+      Dede: 6,
+      Nine: 7,
+      Abi: 8,
+      Abla: 9,
+      "Koruyucu Aile": 10,
+      Diğer: 99
+    }[tur] || 99;
   }
 
 </script>
 </body>
 </html>
-
-
-
-

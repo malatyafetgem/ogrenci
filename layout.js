@@ -1,8 +1,9 @@
-﻿/**
+/**
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260527-18";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260529-24";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260529-24";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -76,6 +77,7 @@ export function layoutYukle() {
   yukleSidebar();
   yukleBottomNav();
   yukleFooter();
+  okulDonemiYukle();
   baglaYazdirmaYardimcilari();
 }
 
@@ -84,9 +86,24 @@ function yukleFooter() {
   if (!kap) return;
   kap.outerHTML = `
     <footer class="app-footer">
-      <div class="float-end d-none d-sm-inline">v${APP_VERSION} · ${APP_UPDATED_AT}</div>
+      <div class="float-end d-none d-sm-inline">
+        <span id="footer-okul-donem">2025-2026 · 2. Dönem</span>
+        <span class="mx-2">·</span>
+        <span>v${APP_VERSION} · ${APP_UPDATED_AT}</span>
+      </div>
       <strong>© 2026 AYUSTASI</strong>
     </footer>`;
+}
+
+async function okulDonemiYukle() {
+  const el = document.getElementById("footer-okul-donem");
+  if (!el) return;
+  try {
+    const ayarlar = await okulAyarlariGetir();
+    el.textContent = okulDonemiEtiketi(ayarlar);
+  } catch {
+    el.textContent = "2025-2026 · 2. Dönem";
+  }
 }
 
 function baglaYazdirmaYardimcilari() {
@@ -124,13 +141,13 @@ function yazdirmayaHazirla() {
   if (yazdirmaDtDurumlari.length === 0) dataTableTumSatirlariGoster();
   yazdirmaSayfaSinifiGuncelle();
   yazdirmaTabloBasliklariEkle();
-  ogrenciListesiYazdirmaTablolariEkle();
+  listeYazdirmaTablolariEkle();
   yazdirmaHazir = true;
 }
 
 function yazdirmaHazirliginiTemizle() {
   yazdirmaGeciciSatirlariTemizle();
-  ogrenciListesiYazdirmaTablolariTemizle();
+  listeYazdirmaTablolariTemizle();
   dataTableSayfalamayiGeriAl();
   yazdirmaTabloBasliklariTemizle();
   document.body.classList.remove("obs-print-landscape");
@@ -160,8 +177,8 @@ function yazdirmaTabloBasliklariEkle() {
   const sayfaBaslik = document.body.dataset.printTitle || document.title || "Öğrenci Bilgileri";
   document.querySelectorAll("table").forEach(table => {
     if (table.closest(".no-print") || !table.tHead) return;
-    if (table.closest("[data-obs-print-student-pages]")) return;
-    if (document.body.classList.contains("obs-student-print-pages") && table.id === "ogrenci-tablo") return;
+    if (table.closest("[data-obs-print-list-pages]")) return;
+    if (document.body.classList.contains("obs-list-print-pages") && table.classList.contains("print-landscape")) return;
     const ilkBaslikSatiri = Array.from(table.tHead.rows).find(row => row.cells.length);
     if (!ilkBaslikSatiri) return;
     const kolonSayisi = Math.max(1, Array.from(ilkBaslikSatiri.cells).filter(cell => !cell.classList.contains("no-print")).length);
@@ -186,84 +203,84 @@ function yazdirmaGeciciSatirlariTemizle() {
   document.querySelectorAll("[data-obs-print-class-row]").forEach(row => row.remove());
 }
 
-function ogrenciListesiYazdirmaTablolariTemizle() {
-  document.querySelectorAll("[data-obs-print-student-pages]").forEach(el => el.remove());
-  document.querySelectorAll(".obs-print-original-student-table").forEach(el => el.classList.remove("obs-print-original-student-table"));
-  document.body.classList.remove("obs-student-print-pages");
+function listeYazdirmaTablolariTemizle() {
+  document.querySelectorAll("[data-obs-print-list-pages]").forEach(el => el.remove());
+  document.querySelectorAll(".obs-print-original-list-card").forEach(el => el.classList.remove("obs-print-original-list-card"));
+  document.body.classList.remove("obs-list-print-pages");
 }
 
-function ogrenciListesiYazdirmaTablolariEkle() {
-  ogrenciListesiYazdirmaTablolariTemizle();
-  const table = document.getElementById("ogrenci-tablo");
-  if (!table?.tHead || !table?.tBodies?.[0]) return;
+function listeYazdirmaTablolariEkle() {
+  listeYazdirmaTablolariTemizle();
+  const tablolar = Array.from(document.querySelectorAll("table.print-landscape"))
+    .filter(table => !table.closest(".no-print") && table.tHead && table.tBodies?.[0]);
+  if (!tablolar.length) return;
 
-  const rows = Array.from(table.tBodies[0].rows)
-    .filter(row => row.cells.length >= 7 && !row.querySelector("td[colspan]"));
-  if (!rows.length) return;
+  let sayfaIndex = 0;
+  for (const table of tablolar) {
+    const basliklar = listeYazdirmaBasliklari(table);
+    const satirlar = listeYazdirmaSatirlari(table);
+    if (!basliklar.length || !satirlar.length) continue;
 
-  const basliklar = ogrenciListesiYazdirmaBasliklari(table);
-  if (!basliklar.length) return;
+    const kapsayici = document.createElement("div");
+    kapsayici.setAttribute("data-obs-print-list-pages", "true");
 
-  const sinifIndex = basliklar.findIndex(baslik => baslik.toLocaleLowerCase("tr-TR") === "sınıf");
-  const devamsizlikIndex = basliklar.findIndex(baslik => baslik.toLocaleLowerCase("tr-TR").includes("devamsızlık"));
-  const gruplar = new Map();
-  for (const row of rows) {
-    const hucreler = Array.from(row.cells).filter(cell => !cell.classList.contains("no-print"));
-    const sinif = (hucreler[sinifIndex]?.textContent || document.getElementById("filtre-sinif")?.value || "").trim() || "Sınıf";
-    if (!gruplar.has(sinif)) gruplar.set(sinif, []);
-    gruplar.get(sinif).push(hucreler);
+    const sayfaBaslik = document.body.dataset.printTitle || document.title || "Liste";
+    const sinifIndex = basliklar.findIndex(baslik => normalizeYazdirmaBaslik(baslik) === "sinif");
+    const gruplar = listeYazdirmaGruplari(satirlar, sinifIndex);
+    const genislikler = listeYazdirmaKolonGenislikleri(basliklar);
+
+    Array.from(gruplar.entries()).forEach(([sinif, hucreGruplari]) => {
+      const bolum = document.createElement("section");
+      bolum.className = "obs-print-list-page";
+      if (sayfaIndex === 0) bolum.classList.add("obs-print-first-list-page");
+
+      const printTable = document.createElement("table");
+      printTable.className = "table table-sm mb-0 align-middle print-list-page-table";
+      printTable.dataset.sourceTable = table.id || "";
+      printTable.appendChild(listeYazdirmaColgroup(genislikler));
+
+      const thead = printTable.createTHead();
+      const titleRow = thead.insertRow();
+      titleRow.setAttribute("data-obs-print-title-row", "true");
+      titleRow.className = "obs-list-print-title-row";
+      const titleCell = document.createElement("th");
+      titleCell.colSpan = basliklar.length;
+      titleCell.textContent = sinif ? `${sinif} ${sayfaBaslik}` : sayfaBaslik;
+      titleRow.appendChild(titleCell);
+
+      const headerRow = thead.insertRow();
+      headerRow.className = "obs-list-print-column-row";
+      basliklar.forEach(baslik => {
+        const th = document.createElement("th");
+        th.textContent = baslik;
+        if (listeYazdirmaSarilabilirMi(baslik)) th.classList.add("print-wrap");
+        headerRow.appendChild(th);
+      });
+
+      const tbody = printTable.createTBody();
+      hucreGruplari.forEach(hucreler => {
+        const tr = tbody.insertRow();
+        hucreler.forEach((cell, cellIndex) => {
+          const td = tr.insertCell();
+          td.textContent = listeYazdirmaHucreMetni(table, basliklar[cellIndex], cell);
+          if (listeYazdirmaSarilabilirMi(basliklar[cellIndex])) td.classList.add("print-wrap");
+        });
+      });
+
+      bolum.appendChild(printTable);
+      kapsayici.appendChild(bolum);
+      sayfaIndex++;
+    });
+
+    const kart = table.closest(".card") || table.closest(".table-responsive") || table.parentElement;
+    kart?.classList.add("obs-print-original-list-card");
+    (kart || table).after(kapsayici);
   }
 
-  const kapsayici = document.createElement("div");
-  kapsayici.setAttribute("data-obs-print-student-pages", "true");
-
-  Array.from(gruplar.entries()).forEach(([sinif, hucreGruplari], index) => {
-    const bolum = document.createElement("section");
-    bolum.className = "obs-print-student-page";
-    if (index === 0) bolum.classList.add("obs-print-first-student-page");
-
-    const printTable = document.createElement("table");
-    printTable.className = "table table-sm mb-0 align-middle print-student-page-table";
-
-    const thead = printTable.createTHead();
-    const titleRow = thead.insertRow();
-    titleRow.setAttribute("data-obs-print-title-row", "true");
-    titleRow.className = "obs-student-print-title-row";
-    const titleCell = document.createElement("th");
-    titleCell.colSpan = basliklar.length;
-    titleCell.textContent = `${sinif} Öğrenci Listesi`;
-    titleRow.appendChild(titleCell);
-
-    const headerRow = thead.insertRow();
-    headerRow.className = "obs-student-print-column-row";
-    basliklar.forEach(baslik => {
-      const th = document.createElement("th");
-      th.textContent = baslik;
-      headerRow.appendChild(th);
-    });
-
-    const tbody = printTable.createTBody();
-    hucreGruplari.forEach(hucreler => {
-      const tr = tbody.insertRow();
-      hucreler.forEach((cell, cellIndex) => {
-        const td = tr.insertCell();
-        td.textContent = cellIndex === devamsizlikIndex
-          ? ogrenciListesiYazdirmaDevamsizlikMetni(cell.textContent)
-          : ogrenciListesiYazdirmaHucreMetni(cell);
-      });
-    });
-
-    bolum.appendChild(printTable);
-    kapsayici.appendChild(bolum);
-  });
-
-  const tabloKapsayici = table.closest(".table-responsive") || table.parentElement;
-  tabloKapsayici?.classList.add("obs-print-original-student-table");
-  (tabloKapsayici || table).after(kapsayici);
-  document.body.classList.add("obs-student-print-pages");
+  if (sayfaIndex > 0) document.body.classList.add("obs-list-print-pages");
 }
 
-function ogrenciListesiYazdirmaBasliklari(table) {
+function listeYazdirmaBasliklari(table) {
   const headerRows = Array.from(table.tHead?.rows || []);
   const headerRow = headerRows.reverse().find(row => row.cells.length);
   if (!headerRow) return [];
@@ -277,11 +294,83 @@ function ogrenciListesiYazdirmaBasliklari(table) {
     .filter(Boolean);
 }
 
-function ogrenciListesiYazdirmaHucreMetni(cell) {
-  return (cell?.textContent || "").replace(/\s+/g, " ").trim() || "—";
+function listeYazdirmaSatirlari(table) {
+  return Array.from(table.tBodies?.[0]?.rows || [])
+    .filter(row => !row.hasAttribute("data-obs-print-class-row"))
+    .filter(row => !row.querySelector("td[colspan]"))
+    .map(row => Array.from(row.cells).filter(cell => !cell.classList.contains("no-print")))
+    .filter(hucreler => hucreler.length > 0);
 }
 
-function ogrenciListesiYazdirmaDevamsizlikMetni(value) {
+function listeYazdirmaGruplari(satirlar, sinifIndex) {
+  const gruplar = new Map();
+  if (sinifIndex < 0) {
+    gruplar.set("", satirlar);
+    return gruplar;
+  }
+
+  satirlar.forEach(hucreler => {
+    const sinif = (hucreler[sinifIndex]?.textContent || "").replace(/\s+/g, " ").trim() || "Sınıf";
+    if (!gruplar.has(sinif)) gruplar.set(sinif, []);
+    gruplar.get(sinif).push(hucreler);
+  });
+  return new Map(Array.from(gruplar.entries()).sort(([a], [b]) => compareYazdirmaSinif(a, b)));
+}
+
+function listeYazdirmaColgroup(genislikler) {
+  const colgroup = document.createElement("colgroup");
+  genislikler.forEach(genislik => {
+    const col = document.createElement("col");
+    col.style.width = `${genislik.toFixed(2)}%`;
+    colgroup.appendChild(col);
+  });
+  return colgroup;
+}
+
+function listeYazdirmaKolonGenislikleri(basliklar) {
+  const agirliklar = basliklar.map(listeYazdirmaKolonAgirligi);
+  const toplam = agirliklar.reduce((sum, deger) => sum + deger, 0) || 1;
+  return agirliklar.map(deger => (deger / toplam) * 100);
+}
+
+function listeYazdirmaKolonAgirligi(baslik) {
+  const temiz = normalizeYazdirmaBaslik(baslik);
+  if (temiz === "no" || temiz.endsWith(" no")) return 6;
+  if (temiz === "sinif") return 6;
+  if (temiz.includes("tarih")) return 9;
+  if (temiz.includes("telefon") || temiz.includes(" tel")) return 13;
+  if (temiz.includes("e posta") || temiz.includes("eposta")) return 16;
+  if (temiz.includes("ad soyad")) return 24;
+  if (temiz === "ogrenci" || temiz === "veli") return 20;
+  if (temiz.includes("ogrenci")) return 20;
+  if (temiz.includes("veli adi") || temiz.includes("baba adi") || temiz.includes("anne adi")) return 17;
+  if (temiz.includes("aciklama")) return 30;
+  if (temiz.includes("konu")) return 20;
+  if (temiz.includes("universite") || temiz.includes("bolum")) return 20;
+  if (temiz.includes("yatili")) return 14;
+  if (temiz.includes("cinsiyet")) return 7;
+  if (temiz.includes("devamsizlik")) return 18;
+  if (temiz.includes("ozur") || temiz.includes("toplam")) return 10;
+  if (temiz.includes("durum")) return 12;
+  if (temiz === "tur") return 8;
+  if (temiz.includes("kategori")) return 12;
+  return 12;
+}
+
+function listeYazdirmaSarilabilirMi(baslik) {
+  const temiz = normalizeYazdirmaBaslik(baslik);
+  return temiz.includes("aciklama");
+}
+
+function listeYazdirmaHucreMetni(table, baslik, cell) {
+  const metin = (cell?.textContent || "").replace(/\s+/g, " ").trim() || "—";
+  if (table.id === "ogrenci-tablo" && normalizeYazdirmaBaslik(baslik).includes("devamsizlik")) {
+    return listeYazdirmaDevamsizlikMetni(metin);
+  }
+  return metin;
+}
+
+function listeYazdirmaDevamsizlikMetni(value) {
   const temiz = (value || "").replace(/\s+/g, " ").trim();
   if (!temiz || temiz === "—" || temiz === "-") return "—";
   const eslesme = temiz.replace(/\s+/g, "").match(/^(\d+(?:[.,]\d+)?)\/(\d+(?:[.,]\d+)?)$/);
@@ -289,6 +378,29 @@ function ogrenciListesiYazdirmaDevamsizlikMetni(value) {
   const ozursuz = eslesme[1].replace(".", ",");
   const ozurlu = eslesme[2].replace(".", ",");
   return `${ozursuz} Ö.süz / ${ozurlu} Ö.lü`;
+}
+
+function normalizeYazdirmaBaslik(value) {
+  return String(value || "")
+    .trim()
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function compareYazdirmaSinif(a, b) {
+  const pa = yazdirmaSinifParcala(a);
+  const pb = yazdirmaSinifParcala(b);
+  return pa.seviye - pb.seviye || pa.sube.localeCompare(pb.sube, "tr") || String(a).localeCompare(String(b), "tr");
+}
+
+function yazdirmaSinifParcala(value) {
+  const match = String(value || "").trim().match(/^(\d+)\s*([A-Za-zÇĞİÖŞÜçğıöşü]*)/);
+  if (!match) return { seviye: 999, sube: String(value || "") };
+  return { seviye: Number(match[1]), sube: match[2] || "" };
 }
 
 function tabloBasligiBul(table) {
@@ -395,7 +507,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260527-18");
+    const { logout } = await import("./auth.js?v=20260529-24");
     logout();
   });
 }

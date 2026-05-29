@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-18"></script>
+  <script src="file-redirect.js?v=20260529-24"></script>
   <title>Ayarlar</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-18">
+  <link rel="stylesheet" href="app.css?v=20260529-24">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -43,7 +43,34 @@
 
         <div class="row g-3">
           <div class="col-lg-5">
-            <div class="card h-100">
+            <div class="card mb-3">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-calendar2-week me-1"></i>Okul Yılı ve Dönem</h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label small mb-1">Eğitim-Öğretim Yılı</label>
+                    <input type="text" class="form-control" id="okul-yili" placeholder="2025-2026">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small mb-1">Dönem</label>
+                    <select class="form-select" id="okul-donem">
+                      <option>1. Dönem</option>
+                      <option>2. Dönem</option>
+                    </select>
+                  </div>
+                  <div class="col-12 d-flex align-items-center gap-2 mt-3">
+                    <button type="button" class="btn btn-primary" id="okul-ayar-kaydet-btn">
+                      <i class="bi bi-save me-1"></i>Kaydet
+                    </button>
+                    <span class="small text-muted" id="okul-ayar-durum"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
               <div class="card-header">
                 <h6 class="mb-0"><i class="bi bi-database-down me-1"></i>Verileri İçe / Dışa Aktar</h6>
               </div>
@@ -78,6 +105,11 @@
                     </button>
                   </div>
                   <div class="col-md-6">
+                    <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="veliler">
+                      <i class="bi bi-person-lines-fill me-2"></i>Veli Toplu Sil
+                    </button>
+                  </div>
+                  <div class="col-md-6">
                     <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="devamsizliklar">
                       <i class="bi bi-calendar-x me-2"></i>Devamsızlık Toplu Sil
                     </button>
@@ -99,7 +131,7 @@
                   </div>
                 </div>
                 <p class="text-muted small mt-3 mb-0">
-                  Öğrenci toplu silme, öğrencilere bağlı veli, devamsızlık, davranış ve görüşme kayıtlarını da siler.
+                  Öğrenci toplu silme, merkezi veli kayıtlarını ve öğrencilere bağlı devamsızlık, davranış, görüşme kayıtlarını da siler.
                 </p>
               </div>
             </div>
@@ -124,7 +156,7 @@
         <div class="mb-3">
           <label class="form-label">Oturum şifresi</label>
           <input type="password" class="form-control" id="guvenlik-sifre" autocomplete="current-password">
-          <div class="form-text">�?ifre sadece Firebase yeniden doğrulaması için kullanılır, dosyaya kaydedilmez.</div>
+          <div class="form-text">Şifre sadece Firebase yeniden doğrulaması için kullanılır, dosyaya kaydedilmez.</div>
         </div>
         <div class="mb-3">
           <label class="form-label">Onay metni</label>
@@ -147,19 +179,26 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260527-18";
-  import { layoutYukle } from "./layout.js?v=20260527-18";
-  import { db } from "./firebase-config.js?v=20260527-18";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260529-24";
+  import { layoutYukle } from "./layout.js?v=20260529-24";
+  import { db } from "./firebase-config.js?v=20260529-24";
   import {
     EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     collection, collectionGroup, doc, getDocs, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, bugun } from "./utils.js?v=20260527-18";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260527-18";
+  import { toast, bugun } from "./utils.js?v=20260529-24";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260529-24";
+  import {
+    okulAyarlariGetir,
+    okulAyarlariKaydet as okulAyarlariKaydetDb,
+    okulDonemiEtiketi
+  } from "./school-settings.js?v=20260529-24";
 
-  const ALT_KOLEKSIYONLAR = ["veliler", "devamsizliklar", "davranislar", "veligorusmeleri"];
+  const ALT_KOLEKSIYONLAR = ["devamsizliklar", "davranislar", "veligorusmeleri"];
+  const ESKI_ALT_KOLEKSIYONLAR = ["veliler", ...ALT_KOLEKSIYONLAR];
+  const GLOBAL_KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const ALT_ETIKETLER = {
     veliler: "Veli",
     devamsizliklar: "Devamsızlık",
@@ -171,8 +210,13 @@
   const SILME_ISLEMLERI = {
     students: {
       baslik: "Öğrenci Toplu Sil",
-      aciklama: "Tüm öğrenciler ve öğrencilere bağlı veli, devamsızlık, davranış, görüşme kayıtları silinecek.",
+      aciklama: "Tüm öğrenciler, merkezi veli kayıtları ve öğrencilere bağlı devamsızlık, davranış, görüşme kayıtları silinecek.",
       calistir: silTumOgrenciler
+    },
+    veliler: {
+      baslik: "Veli Toplu Sil",
+      aciklama: "Merkezi veli kayıtlarının tamamı silinecek. Öğrenci kayıtları etkilenmez.",
+      calistir: () => silTumAnaKoleksiyon("veliler", "Veli")
     },
     devamsizliklar: {
       baslik: "Devamsızlık Toplu Sil",
@@ -191,7 +235,7 @@
     },
     "tum-sistem": {
       baslik: "Tüm Sistemi Sil",
-      aciklama: "Öğrenciler, bağlı kayıtlar, mezunlar ve otomatik tamamlama listeleri silinecek.",
+      aciklama: "Öğrenciler, merkezi veliler, bağlı kayıtlar, mezunlar ve otomatik tamamlama listeleri silinecek.",
       calistir: silTumSistem
     }
   };
@@ -203,6 +247,8 @@
     layoutYukle();
     guvenlikModal = new bootstrap.Modal(document.getElementById("guvenlik-modal"));
     document.getElementById("surum-bilgi").textContent = `Sürüm v${APP_VERSION} · ${APP_UPDATED_AT}`;
+    await okulAyarlariYukle();
+    document.getElementById("okul-ayar-kaydet-btn").addEventListener("click", okulAyarlariKaydet);
     document.querySelectorAll(".toplu-sil-btn").forEach(btn => {
       btn.addEventListener("click", () => silmeOnayiIste(btn.dataset.silTur));
     });
@@ -211,6 +257,33 @@
     document.getElementById("yedek-dosya").addEventListener("change", yedekDosyaSecildi);
     document.getElementById("guvenlik-onayla-btn").addEventListener("click", guvenlikOnayla);
   });
+
+  async function okulAyarlariYukle() {
+    const ayarlar = await okulAyarlariGetir(true);
+    document.getElementById("okul-yili").value = ayarlar.egitim_ogretim_yili || "2025-2026";
+    document.getElementById("okul-donem").value = ayarlar.donem || "2. Dönem";
+    document.getElementById("okul-ayar-durum").textContent = okulDonemiEtiketi(ayarlar);
+  }
+
+  async function okulAyarlariKaydet() {
+    const btn = document.getElementById("okul-ayar-kaydet-btn");
+    const durum = document.getElementById("okul-ayar-durum");
+    btn.disabled = true;
+    durum.textContent = "Kaydediliyor...";
+    try {
+      const ayarlar = await okulAyarlariKaydetDb({
+        egitim_ogretim_yili: document.getElementById("okul-yili").value,
+        donem: document.getElementById("okul-donem").value
+      });
+      durum.textContent = okulDonemiEtiketi(ayarlar);
+      toast("Okul yılı ve dönem kaydedildi.", "success");
+    } catch (err) {
+      durum.textContent = "Kaydedilemedi.";
+      toast("Okul ayarları kaydedilemedi: " + err.message, "danger");
+    } finally {
+      btn.disabled = false;
+    }
+  }
 
   function silmeOnayiIste(tur) {
     const islem = SILME_ISLEMLERI[tur];
@@ -241,7 +314,7 @@
     hataEl.classList.add("d-none");
 
     if (!sifre || onay !== beklenen) {
-      hataEl.textContent = `�?ifreyi girip onay alanına ${bekleyenIslem.onayMetni} yazın.`;
+      hataEl.textContent = `Şifreyi girip onay alanına ${bekleyenIslem.onayMetni} yazın.`;
       hataEl.classList.remove("d-none");
       return;
     }
@@ -266,7 +339,7 @@
 
   async function yenidenDogrula(sifre) {
     const user = getCurrentUser();
-    if (!user?.email) throw new Error("�?ifre doğrulaması için e-posta oturumu bulunamadı.");
+    if (!user?.email) throw new Error("Şifre doğrulaması için e-posta oturumu bulunamadı.");
     const credential = EmailAuthProvider.credential(user.email, sifre);
     await reauthenticateWithCredential(user, credential);
   }
@@ -319,7 +392,13 @@
   async function silTumOgrenciler() {
     durumYaz("Öğrenciler ve bağlı kayıtlar siliniyor...");
     const manager = batchYonetici();
-    for (const alt of ALT_KOLEKSIYONLAR) {
+    const veliSnap = await getDocs(collection(db, "veliler"));
+    durumYaz(`Merkezi veli kayıtları siliniyor... (${veliSnap.size})`);
+    for (const belge of veliSnap.docs) {
+      await manager.ekle(batch => batch.delete(belge.ref));
+    }
+
+    for (const alt of ESKI_ALT_KOLEKSIYONLAR) {
       const belgeler = await altKoleksiyonBelgeleriGetir(alt);
       durumYaz(`${ALT_ETIKETLER[alt]} kayıtları siliniyor... (${belgeler.length})`);
       for (const belge of belgeler) {
@@ -346,13 +425,21 @@
     return manager.bitir();
   }
 
+  async function silTumAnaKoleksiyon(koleksiyon, etiket) {
+    durumYaz(`${etiket} kayıtları siliniyor...`);
+    const toplam = await silKoleksiyon(koleksiyon);
+    istemciCacheTemizle();
+    durumYaz(`${toplam} ${etiket.toLocaleLowerCase("tr-TR")} kaydı silindi.`, "success");
+  }
+
   async function silTumSistem() {
     durumYaz("Tüm sistem siliniyor...");
     await silTumOgrenciler();
     const mezun = await silKoleksiyon("graduates");
     const autocomplete = await silKoleksiyon("_autocomplete");
+    const settings = await silKoleksiyon("_settings");
     istemciCacheTemizle();
-    durumYaz(`Tüm sistem silindi. Mezun: ${mezun}, otomatik tamamlama: ${autocomplete}.`, "success");
+    durumYaz(`Tüm sistem silindi. Mezun: ${mezun}, otomatik tamamlama: ${autocomplete}, ayar: ${settings}.`, "success");
   }
 
   async function yedekDisariAktar() {
@@ -362,10 +449,15 @@
     btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Hazırlanıyor...`;
     durumYaz("Yedek hazırlanıyor...");
     try {
-      const [students, graduates, autocomplete] = await Promise.all([
+      const [students, graduates, autocomplete, veliler, settings, devamsizliklar, davranislar, veligorusmeleri] = await Promise.all([
         ogrencileriYedekle(),
         koleksiyonuYedekle("graduates", "Mezunlar okunuyor..."),
-        koleksiyonuYedekle("_autocomplete", "Otomatik tamamlama listeleri okunuyor...")
+        koleksiyonuYedekle("_autocomplete", "Otomatik tamamlama listeleri okunuyor..."),
+        koleksiyonuYedekle("veliler", "Veliler okunuyor..."),
+        koleksiyonuYedekle("_settings", "Sistem ayarları okunuyor..."),
+        koleksiyonuYedekle("devamsizliklar", "Devamsızlıklar okunuyor..."),
+        koleksiyonuYedekle("davranislar", "Davranışlar okunuyor..."),
+        koleksiyonuYedekle("veligorusmeleri", "Görüşmeler okunuyor...")
       ]);
       const veri = {
         tur: "ogrenci-bilgileri-yedek",
@@ -373,7 +465,12 @@
         tarih: bugun(),
         students,
         graduates,
-        autocomplete
+        autocomplete,
+        veliler,
+        settings,
+        devamsizliklar,
+        davranislar,
+        veligorusmeleri
       };
       const blob = new Blob([JSON.stringify(veri, null, 2)], { type: "application/json;charset=utf-8" });
       const url = URL.createObjectURL(blob);
@@ -384,7 +481,7 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      durumYaz(`Yedek dosyası indirildi. Öğrenci: ${students.length}, mezun: ${graduates.length}.`, "success");
+      durumYaz(`Yedek dosyası indirildi. Öğrenci: ${students.length}, veli: ${veliler.length}, mezun: ${graduates.length}.`, "success");
     } catch (err) {
       durumYaz("Yedek alınamadı: " + err.message, "danger");
     } finally {
@@ -441,17 +538,30 @@
   }
 
   async function altKoleksiyonBelgeleriGetir(altKoleksiyon) {
+    const belgeler = [];
+    if (GLOBAL_KAYIT_KOLEKSIYONLARI.includes(altKoleksiyon)) {
+      const topSnap = await getDocs(collection(db, altKoleksiyon));
+      belgeler.push(...topSnap.docs);
+    }
     try {
       const snap = await getDocs(collectionGroup(db, altKoleksiyon));
-      return snap.docs;
+      belgeler.push(...snap.docs);
+      return benzersizBelgeler(belgeler);
     } catch (_) {
       const ogrSnap = await getDocs(collection(db, "students"));
       const listeler = await Promise.all(ogrSnap.docs.map(async ogrDoc => {
         const snap = await getDocs(collection(db, "students", ogrDoc.id, altKoleksiyon));
         return snap.docs;
       }));
-      return listeler.flat();
+      belgeler.push(...listeler.flat());
+      return benzersizBelgeler(belgeler);
     }
+  }
+
+  function benzersizBelgeler(belgeler) {
+    const map = new Map();
+    belgeler.forEach(belge => map.set(belge.ref.path, belge));
+    return [...map.values()];
   }
 
   function yedekDosyaSecildi(e) {
@@ -498,9 +608,23 @@
       if (!mezun.id) continue;
       await manager.ekle(batch => batch.set(doc(db, "graduates", String(mezun.id)), kayitVerisi(mezun)));
     }
+    for (const veli of veri.veliler || []) {
+      if (!veli.id) continue;
+      await manager.ekle(batch => batch.set(doc(db, "veliler", String(veli.id)), kayitVerisi(veli)));
+    }
+    for (const koleksiyon of GLOBAL_KAYIT_KOLEKSIYONLARI) {
+      for (const kayit of veri[koleksiyon] || []) {
+        if (!kayit.id) continue;
+        await manager.ekle(batch => batch.set(doc(db, koleksiyon, String(kayit.id)), kayitVerisi(kayit)));
+      }
+    }
     for (const ac of veri.autocomplete || []) {
       if (!ac.id) continue;
       await manager.ekle(batch => batch.set(doc(db, "_autocomplete", String(ac.id)), kayitVerisi(ac)));
+    }
+    for (const ayar of veri.settings || []) {
+      if (!ayar.id) continue;
+      await manager.ekle(batch => batch.set(doc(db, "_settings", String(ayar.id)), kayitVerisi(ayar)));
     }
     const toplam = await manager.bitir();
     istemciCacheTemizle();

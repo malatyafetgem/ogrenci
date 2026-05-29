@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-18"></script>
+  <script src="file-redirect.js?v=20260529-24"></script>
   <title>Veli Görüşmesi Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-18">
+  <link rel="stylesheet" href="app.css?v=20260529-24">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -58,14 +58,11 @@
                 <input type="text" class="form-control" id="g-tarih" placeholder="GG.AA.YYYY">
               </div>
 
-              <!-- Veli türü -->
+              <!-- Veli -->
               <div class="col-md-4">
                 <label class="form-label">Veli <span class="text-danger">*</span></label>
                 <select class="form-select" id="g-veli-tur">
                   <option value="">Seçin</option>
-                  <option>Anne</option>
-                  <option>Baba</option>
-                  <option>Diğer</option>
                 </select>
               </div>
 
@@ -116,11 +113,11 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260527-18";
-  import { layoutYukle } from "./layout.js?v=20260527-18";
-  import { tumOgrencileriGetir, velileriGetir, gorusmeEkle } from "./students.js?v=20260527-18";
-  import { formatMetin, formatAd, escapeHtml, escapeAttr } from "./utils.js?v=20260527-18";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260527-18";
+  import { requireAdmin } from "./auth.js?v=20260529-24";
+  import { layoutYukle } from "./layout.js?v=20260529-24";
+  import { tumOgrencileriGetir, velileriGetir, gorusmeEkle } from "./students.js?v=20260529-24";
+  import { formatMetin, formatAd, escapeHtml, escapeAttr } from "./utils.js?v=20260529-24";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260529-24";
 
   let tumOgrenciler = [];
   let seciliOgrVeliler = [];
@@ -152,7 +149,31 @@
     document.getElementById("secili-ogr-ad").textContent = `${ogr.ad} ${ogr.soyad} · ${ogr.sinif}`;
     document.getElementById("secili-ogr-bilgi").classList.remove("d-none");
     document.getElementById("ara-sonuclar").classList.add("d-none");
-    seciliOgrVeliler = await velileriGetir(ogr.id);
+    seciliOgrVeliler = (await velileriGetir(ogr.id)).filter(aktifVeliMi);
+    veliSecenekleriniDoldur();
+  }
+
+  function aktifVeliMi(v) {
+    const durum = v.durum || "Aktif";
+    return durum === "Aktif";
+  }
+
+  function veliSecenekleriniDoldur() {
+    const select = document.getElementById("g-veli-tur");
+    select.innerHTML = `<option value="">Seçin</option>`;
+    if (seciliOgrVeliler.length) {
+      select.innerHTML += seciliOgrVeliler.map(v => {
+        const yakinlik = v.yakinlik || v.tur || "Veli";
+        const ad = `${v.ad || ""} ${v.soyad || ""}`.trim();
+        const ek = [v.birincil ? "Birincil" : "", v.acil_kisi ? "Acil" : ""].filter(Boolean).join(" / ");
+        const metin = [yakinlik, ad, ek].filter(Boolean).join(" - ");
+        return `<option value="${escapeAttr(v.id)}">${escapeHtml(metin)}</option>`;
+      }).join("");
+    } else {
+      select.innerHTML += ["Anne", "Baba", "Vasi", "Diğer"]
+        .map(tur => `<option value="tur:${escapeAttr(tur)}">${escapeHtml(tur)}</option>`)
+        .join("");
+    }
   }
 
   function baglayici() {
@@ -180,14 +201,12 @@
     });
     document.addEventListener("click", e => { if (!araEl.contains(e.target)) sonucEl.classList.add("d-none"); });
 
-    // Veli türü seçilince adını otomatik doldur
     document.getElementById("g-veli-tur").addEventListener("change", () => {
-      const tur = document.getElementById("g-veli-tur").value;
-      const veli = seciliOgrVeliler.find(v => v.tur === tur);
-      if (veli) {
-        document.getElementById("g-veli-adi").value =
-          `${veli.ad || ""} ${veli.soyad || ""}`.trim();
-      }
+      const secim = document.getElementById("g-veli-tur").value;
+      const veli = seciliOgrVeliler.find(v => v.id === secim);
+      document.getElementById("g-veli-adi").value = veli
+        ? `${veli.ad || ""} ${veli.soyad || ""}`.trim()
+        : "";
     });
 
     document.getElementById("kaydet-btn").addEventListener("click", kaydet);
@@ -196,7 +215,9 @@
   async function kaydet() {
     const ogrId   = document.getElementById("secili-ogr-id").value;
     const tarih   = document.getElementById("g-tarih").value.trim();
-    const veliTur = document.getElementById("g-veli-tur").value;
+    const veliSecim = document.getElementById("g-veli-tur").value;
+    const seciliVeli = seciliOgrVeliler.find(v => v.id === veliSecim);
+    const veliTur = seciliVeli ? (seciliVeli.yakinlik || seciliVeli.tur || "Veli") : veliSecim.replace(/^tur:/, "");
     const veliAdi = document.getElementById("g-veli-adi").value.trim();
     const konu    = document.getElementById("g-konu").value.trim();
     const aciklama= document.getElementById("g-aciklama").value.trim();
@@ -207,7 +228,7 @@
     basariEl.classList.add("d-none");
 
     if (!ogrId || !tarih || !veliTur || !konu) {
-      hataEl.textContent = "Öğrenci, tarih, veli türü ve konu zorunludur.";
+      hataEl.textContent = "Öğrenci, tarih, veli ve konu zorunludur.";
       hataEl.classList.remove("d-none");
       return;
     }
@@ -219,8 +240,9 @@
     try {
       await gorusmeEkle(ogrId, {
         tarih,
+        veli_id: seciliVeli?.id || "",
         veli_tur: veliTur,
-        veli_adi: formatAd(veliAdi),
+        veli_adi: formatAd(veliAdi || `${seciliVeli?.ad || ""} ${seciliVeli?.soyad || ""}`.trim()),
         konu: formatMetin(konu),
         aciklama
       });

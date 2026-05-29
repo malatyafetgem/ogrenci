@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-18"></script>
+  <script src="file-redirect.js?v=20260529-24"></script>
   <title>Yıl Sonu Sınıf Aktarımı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-18">
+  <link rel="stylesheet" href="app.css?v=20260529-24">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -94,13 +94,13 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260527-18";
-  import { layoutYukle } from "./layout.js?v=20260527-18";
-  import { db } from "./firebase-config.js?v=20260527-18";
+  import { requireAdmin } from "./auth.js?v=20260529-24";
+  import { layoutYukle } from "./layout.js?v=20260529-24";
+  import { db } from "./firebase-config.js?v=20260529-24";
   import {
-    collection, getDocs, doc, writeBatch
+    collection, getDoc, getDocs, doc, writeBatch, query, where
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, compareOgrenci, sinifParcala, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260527-18";
+  import { toast, compareOgrenci, sinifParcala, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260529-24";
 
   let ogrenciler = [];
   // Map: ogrenciId → seçilen işlem
@@ -155,11 +155,11 @@
           <select class="form-select form-select-sm" style="max-width:180px"
                   onchange="islemSec('${o.id}', this.value)">
             ${is12
-              ? `<option value="mezun" ${mevcut === "mezun" ? "selected" : ""}>g�?� Mezun</option>
-                 <option value="kalir" ${mevcut === "kalir" ? "selected" : ""}>g��� Sınıfta Kal</option>`
-              : `<option value="gecis" ${mevcut === "gecis" ? "selected" : ""}>⬆️ Bir Üst Sınıfa Geç</option>
-                 <option value="kalir" ${mevcut === "kalir" ? "selected" : ""}>g��� Sınıfta Kal</option>`}
-            <option value="sil" ${mevcut === "sil" ? "selected" : ""}>g���️ Sil (Nakil/Ayrıldı)</option>
+              ? `<option value="mezun" ${mevcut === "mezun" ? "selected" : ""}>Mezun</option>
+                 <option value="kalir" ${mevcut === "kalir" ? "selected" : ""}>Sınıfta Kal</option>`
+              : `<option value="gecis" ${mevcut === "gecis" ? "selected" : ""}>Bir Üst Sınıfa Geç</option>
+                 <option value="kalir" ${mevcut === "kalir" ? "selected" : ""}>Sınıfta Kal</option>`}
+            <option value="sil" ${mevcut === "sil" ? "selected" : ""}>Sil (Nakil/Ayrıldı)</option>
           </select>
         </td>
       </tr>`;
@@ -214,17 +214,38 @@
             basarili++;
           } else if (islem === "mezun") {
             // graduates koleksiyonuna kopyala
-            const velilerSnap = await getDocs(collection(db, "students", o.id, "veliler"));
-            const veliler = velilerSnap.docs.map(d => d.data());
-            const ilkVeli = veliler[0] || {};
-            await yaz(b => b.set(doc(db, "graduates", o.id), {
-              ad: o.ad, soyad: o.soyad, tc_kimlik: o.tc_kimlik, cinsiyet: o.cinsiyet || "",
-              mezuniyet_yili: buYil, fotograf_url: "",
-              universite: "", bolum: "", meslek: "", notlar: "",
-              telefon: o.telefon || "", e_posta: "",
-              veli_telefon: ilkVeli.telefon || "",
-              olusturma_tarihi: bugun()
-            }));
+            const velilerSnap = await getDocs(query(collection(db, "veliler"), where("ogrenciId", "==", o.id)));
+            const veliler = velilerSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const ilkVeli = veliler.find(v => (v.durum || "Aktif") === "Aktif" && v.birincil)
+              || veliler.find(v => (v.durum || "Aktif") === "Aktif")
+              || veliler[0]
+              || {};
+            const mezunRef = doc(db, "graduates", o.id);
+            const mevcutMezun = await getDoc(mezunRef);
+            const mezunVerisi = {
+              ad: o.ad || "",
+              soyad: o.soyad || "",
+              tc_kimlik: o.tc_kimlik || "",
+              cinsiyet: o.cinsiyet || "",
+              mezuniyet_yili: buYil,
+              guncelleme_tarihi: bugun()
+            };
+            if (o.telefon) mezunVerisi.telefon = o.telefon;
+            if (ilkVeli.telefon) mezunVerisi.veli_telefon = ilkVeli.telefon;
+            if (!mevcutMezun.exists()) {
+              Object.assign(mezunVerisi, {
+                fotograf_url: "",
+                universite: "",
+                bolum: "",
+                meslek: "",
+                notlar: "",
+                telefon: o.telefon || "",
+                e_posta: "",
+                veli_telefon: ilkVeli.telefon || "",
+                olusturma_tarihi: bugun()
+              });
+            }
+            await yaz(b => b.set(mezunRef, mezunVerisi, { merge: true }));
             await yaz(b => b.update(doc(db, "students", o.id), { durum: "Mezun" }));
             mezun++;
           } else if (islem === "kalir") {
@@ -232,6 +253,17 @@
             kalir++;
           } else if (islem === "sil") {
             // Öğrenciyi sil — önce alt koleksiyonlar
+            const veliSnap = await getDocs(query(collection(db, "veliler"), where("ogrenciId", "==", o.id)));
+            for (const d of veliSnap.docs) {
+              await yaz(b => b.delete(d.ref));
+            }
+            const globalKollar = ["devamsizliklar", "davranislar", "veligorusmeleri"];
+            for (const koleksiyon of globalKollar) {
+              const sn = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", o.id)));
+              for (const d of sn.docs) {
+                await yaz(b => b.delete(d.ref));
+              }
+            }
             const altKollar = ["veliler", "devamsizliklar", "davranislar", "veligorusmeleri"];
             for (const alt of altKollar) {
               const sn = await getDocs(collection(db, "students", o.id, alt));

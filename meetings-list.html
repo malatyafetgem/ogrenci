@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-18"></script>
+  <script src="file-redirect.js?v=20260529-24"></script>
   <title>Görüşme Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260527-18">
+  <link rel="stylesheet" href="app.css?v=20260529-24">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -44,10 +44,13 @@
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Veli Türü</label>
+                <label class="form-label small mb-1">Yakınlık</label>
                 <select id="filtre-veli" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
-                  <option>Anne</option><option>Baba</option><option>Diğer</option>
+                  <option>Anne</option><option>Baba</option><option>Vasi</option>
+                  <option>Üvey Anne</option><option>Üvey Baba</option>
+                  <option>Dede</option><option>Nine</option><option>Abi</option><option>Abla</option>
+                  <option>Koruyucu Aile</option><option>Diğer</option>
                 </select>
               </div>
               <div class="col-6 col-md-2">
@@ -125,11 +128,11 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260527-18";
-  import { layoutYukle } from "./layout.js?v=20260527-18";
-  import { tumOgrencileriGetir, siniflarGetir, tumGorusmeleriGetir } from "./students.js?v=20260527-18";
-  import { autocompleteYukle } from "./autocomplete.js?v=20260527-18";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260527-18";
+  import { requireAuth } from "./auth.js?v=20260529-24";
+  import { layoutYukle } from "./layout.js?v=20260529-24";
+  import { tumOgrencileriGetir, siniflarGetir, tumGorusmeleriGetir } from "./students.js?v=20260529-24";
+  import { autocompleteYukle } from "./autocomplete.js?v=20260529-24";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260529-24";
 
   let raporVerisi = [];
   let dt = null;
@@ -231,7 +234,7 @@
   function excelExport() {
     const satirlar = raporVerisi.map(g => ({
       "Tarih": g.tarih, "Ad": g.ogr.ad, "Soyad": g.ogr.soyad, "Sınıf": g.ogr.sinif,
-      "Veli Türü": g.veli_tur, "Veli Adı": g.veli_adi,
+      "Yakınlık": g.veli_tur, "Veli Adı": g.veli_adi,
       "Konu": g.konu, "Açıklama": g.aciklama
     }));
     const ws = XLSX.utils.json_to_sheet(satirlar);

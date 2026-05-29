@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260527-18"></script>
+  <script src="file-redirect.js?v=20260529-24"></script>
   <title>Giriş</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -77,28 +77,11 @@
   </div>
 </div>
 
-<!-- Firebase SDK -->
+<!-- Giriş akışı -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { login, redirectIfLoggedIn } from "./auth.js?v=20260529-24";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCy1ny9QfkRnV3KcMRwBubPCOQyScLylQU",
-    authDomain: "ogrenci-226bd.firebaseapp.com",
-    projectId: "ogrenci-226bd",
-    storageBucket: "ogrenci-226bd.firebasestorage.app",
-    messagingSenderId: "377067365807",
-    appId: "1:377067365807:web:f2835b593edd3850743b5a"
-  };
-
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  // Zaten giriş yapılmışsa direkt dashboard'a
-  onAuthStateChanged(auth, user => {
-    if (user) window.location.href = "dashboard.html";
-  });
+  redirectIfLoggedIn();
 
   const emailEl   = document.getElementById("email");
   const sifreEl   = document.getElementById("sifre");
@@ -136,7 +119,7 @@
     girisBtn.disabled = true;
 
     try {
-      await signInWithEmailAndPassword(auth, email, sifre);
+      await login(email, sifre);
     } catch (err) {
       let mesaj = "Giriş başarısız. Bilgileri kontrol edin.";
       if (["auth/invalid-credential","auth/wrong-password","auth/user-not-found"].includes(err.code)) {

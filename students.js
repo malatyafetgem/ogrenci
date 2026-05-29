@@ -1,27 +1,38 @@
-﻿/**
+/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260527-18";
+import { db } from "./firebase-config.js?v=20260529-24";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
-  updateDoc, deleteDoc, collectionGroup
+  updateDoc, deleteDoc, collectionGroup, query, where
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260527-18";
+} from "./utils.js?v=20260529-24";
 
 const KOLEKSIYON = "students";
+const VELI_KOLEKSIYON = "veliler";
+const GLOBAL_KAYIT_KOLEKSIYONLARI = new Set(["devamsizliklar", "davranislar", "veligorusmeleri"]);
 const VERI_CACHE_PREFIX = "obs-data-cache-v1:";
 const OGRENCI_CACHE_TTL = 3 * 60 * 1000;
 const ALT_CACHE_TTL = 2 * 60 * 1000;
 const TEMIZLENECEK_EKRAN_CACHELERI = ["obs-dashboard-cache-v3"];
 let ogrenciCachePromise = null;
+let veliCachePromise = null;
 const altCachePromises = new Map();
 const arkaPlanYenilemeleri = new Map();
 
 function ogrenciCacheTemizle() {
   ogrenciCachePromise = null;
+}
+
+function veliCacheTemizle() {
+  veliCachePromise = null;
+  yerelCacheSil(VELI_KOLEKSIYON);
+  try {
+    TEMIZLENECEK_EKRAN_CACHELERI.forEach(key => localStorage.removeItem(key));
+  } catch {}
 }
 
 function cacheKey(key) {
@@ -65,6 +76,7 @@ function tumYerelCacheleriTemizle() {
 
 function tumCacheleriTemizle() {
   ogrenciCacheTemizle();
+  veliCacheTemizle();
   altCachePromises.clear();
   arkaPlanYenilemeleri.clear();
   tumYerelCacheleriTemizle();
@@ -116,8 +128,24 @@ function altKayit(d) {
   return {
     id: d.id,
     ogrenciId: d.ref.parent.parent?.id || "",
+    __refPath: d.ref.path,
+    __kaynak: "legacy",
     ...d.data()
   };
+}
+
+function globalKayit(d) {
+  return {
+    id: d.id,
+    ogrenciId: d.data().ogrenciId || "",
+    __refPath: d.ref.path,
+    __kaynak: "global",
+    ...d.data()
+  };
+}
+
+function altKayitAnahtari(kayit, altKoleksiyon) {
+  return `${kayit.ogrenciId || ""}/${altKoleksiyon}/${kayit.id || kayit.__refPath || ""}`;
 }
 
 async function tumAltKayitlariGetir(altKoleksiyon) {
@@ -142,9 +170,22 @@ async function tumAltKayitlariGetir(altKoleksiyon) {
 }
 
 async function tumAltKayitlariFirestoredanGetir(altKoleksiyon) {
+  const kayitlar = new Map();
+  async function globalKayitlariEkle() {
+    if (!GLOBAL_KAYIT_KOLEKSIYONLARI.has(altKoleksiyon)) return;
+    const snap = await getDocs(collection(db, altKoleksiyon));
+    snap.docs.map(globalKayit)
+      .filter(kayit => kayit.ogrenciId)
+      .forEach(kayit => kayitlar.set(altKayitAnahtari(kayit, altKoleksiyon), kayit));
+  }
+
   try {
     const snap = await getDocs(collectionGroup(db, altKoleksiyon));
-    return snap.docs.map(altKayit);
+    snap.docs.map(altKayit)
+      .filter(kayit => kayit.ogrenciId)
+      .forEach(kayit => kayitlar.set(altKayitAnahtari(kayit, altKoleksiyon), kayit));
+    await globalKayitlariEkle();
+    return [...kayitlar.values()];
   } catch (_) {
     const ogrSnap = await getDocs(collection(db, KOLEKSIYON));
     const listeler = await Promise.all(
@@ -157,8 +198,118 @@ async function tumAltKayitlariFirestoredanGetir(altKoleksiyon) {
         }
       })
     );
-    return listeler.flat();
+    listeler.flat().forEach(kayit => kayitlar.set(altKayitAnahtari(kayit, altKoleksiyon), kayit));
+    await globalKayitlariEkle();
+    return [...kayitlar.values()];
   }
+}
+
+async function kaydiIkiYerdeGuncelle(globalRef, legacyRef, veri) {
+  let guncellendi = false;
+  try {
+    await updateDoc(globalRef, veri);
+    guncellendi = true;
+  } catch (_) {}
+  try {
+    await updateDoc(legacyRef, veri);
+    guncellendi = true;
+  } catch (err) {
+    if (!guncellendi) throw err;
+  }
+}
+
+async function ogrenciGlobalKayitlariniSil(ogrenciNo) {
+  const id = String(ogrenciNo);
+  for (const koleksiyon of GLOBAL_KAYIT_KOLEKSIYONLARI) {
+    const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", id)));
+    for (const d of snap.docs) await deleteDoc(d.ref);
+  }
+}
+
+function boolDeger(value) {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value > 0;
+  const text = String(value || "").trim().toLocaleLowerCase("tr-TR");
+  return ["1", "evet", "e", "true", "var", "x", "birincil"].includes(text);
+}
+
+function sayiDeger(value, fallback = 0) {
+  const n = Number(String(value ?? "").replace(",", "."));
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function ilkDolu(...degerler) {
+  return degerler.find(v => v !== undefined && v !== null && String(v).trim() !== "") || "";
+}
+
+const YAKINLIK_SIRASI = {
+  "Anne": 1,
+  "Baba": 2,
+  "Vasi": 3,
+  "Üvey Anne": 4,
+  "Üvey Baba": 5,
+  "Dede": 6,
+  "Nine": 7,
+  "Abi": 8,
+  "Abla": 9,
+  "Koruyucu Aile": 10,
+  "Diğer": 99
+};
+
+function veliKaydiniNormalizeEt(ogrenciNo, veri = {}, eski = {}) {
+  const yakinlik = ilkDolu(veri.yakinlik, veri.tur, eski.yakinlik, eski.tur, "Diğer");
+  const meslekGrubu = ilkDolu(veri.meslek_grubu, veri.alan, eski.meslek_grubu, eski.alan);
+  const gorevUnvan = ilkDolu(veri.gorev_unvan, veri.gorev, eski.gorev_unvan, eski.gorev);
+  const il = ilkDolu(veri.il, veri.sehir, eski.il, eski.sehir);
+  const adres = ilkDolu(veri.adres, veri.ev_adresi, eski.adres, eski.ev_adresi);
+  const olusturmaTarihi = ilkDolu(veri.olusturma_tarihi, eski.olusturma_tarihi, bugun());
+  const guncellemeTarihi = ilkDolu(veri.guncelleme_tarihi, eski.guncelleme_tarihi, bugun());
+  const birincilKaynak = veri.birincil ?? eski.birincil ?? false;
+  const acilKaynak = veri.acil_kisi ?? eski.acil_kisi ?? false;
+
+  return {
+    ...(veri.id || eski.id ? { id: veri.id || eski.id } : {}),
+    ogrenciId: String(ilkDolu(veri.ogrenciId, eski.ogrenciId, ogrenciNo)),
+    yakinlik,
+    tur: yakinlik,
+    ad: ilkDolu(veri.ad, eski.ad),
+    soyad: ilkDolu(veri.soyad, eski.soyad),
+    durum: ilkDolu(veri.durum, eski.durum, "Aktif"),
+    birincil: boolDeger(birincilKaynak),
+    acil_kisi: boolDeger(acilKaynak),
+    iletisim_sirasi: sayiDeger(ilkDolu(veri.iletisim_sirasi, eski.iletisim_sirasi), 0),
+    telefon: ilkDolu(veri.telefon, eski.telefon),
+    e_posta: ilkDolu(veri.e_posta, veri.eposta, eski.e_posta, eski.eposta),
+    il,
+    ilce: ilkDolu(veri.ilce, eski.ilce),
+    adres,
+    calisma_durumu: ilkDolu(veri.calisma_durumu, eski.calisma_durumu),
+    meslek_grubu: meslekGrubu,
+    meslek: ilkDolu(veri.meslek, eski.meslek),
+    gorev_unvan: gorevUnvan,
+    kurum: ilkDolu(veri.kurum, veri.is_yeri, eski.kurum, eski.is_yeri),
+    notlar: ilkDolu(veri.notlar, eski.notlar),
+    olusturma_tarihi: olusturmaTarihi,
+    guncelleme_tarihi: guncellemeTarihi,
+    alan: meslekGrubu,
+    gorev: gorevUnvan,
+    sehir: il,
+    ev_adresi: adres
+  };
+}
+
+function veliSiralama(a, b) {
+  return Number(!!b.birincil) - Number(!!a.birincil)
+    || sayiDeger(a.iletisim_sirasi, 999) - sayiDeger(b.iletisim_sirasi, 999)
+    || (YAKINLIK_SIRASI[a.yakinlik] || 99) - (YAKINLIK_SIRASI[b.yakinlik] || 99)
+    || `${a.ad || ""} ${a.soyad || ""}`.localeCompare(`${b.ad || ""} ${b.soyad || ""}`, "tr");
+}
+
+async function tumVelileriFirestoredanGetir() {
+  const snap = await getDocs(collection(db, VELI_KOLEKSIYON));
+  return snap.docs
+    .map(d => veliKaydiniNormalizeEt("", { id: d.id, ...d.data() }))
+    .sort(veliSiralama);
 }
 
 function tarihliVeri(veri) {
@@ -215,6 +366,8 @@ export async function ogrenciGuncelle(ogrenciNo, veri) {
 export async function ogrenciSil(ogrenciNo) {
   const id = String(ogrenciNo);
   const altKoleksiyonlar = ["veliler", "devamsizliklar", "davranislar", "veligorusmeleri"];
+  await ogrenciVelileriniSil(id);
+  await ogrenciGlobalKayitlariniSil(id);
   for (const alt of altKoleksiyonlar) {
     const snap = await getDocs(collection(db, KOLEKSIYON, id, alt));
     for (const d of snap.docs) await deleteDoc(d.ref);
@@ -226,52 +379,99 @@ export async function ogrenciSil(ogrenciNo) {
 /** Öğrencinin mezun olmasını işle */
 export async function ogrenciMezunEt(ogrenciNo, mezunVerisi) {
   const id = String(ogrenciNo);
-  // graduates koleksiyonuna kopyala
-  await setDoc(doc(db, "graduates", id), {
+  const mezunRef = doc(db, "graduates", id);
+  const mevcutMezun = await getDoc(mezunRef);
+  const kayit = {
     ...mezunVerisi,
+    guncelleme_tarihi: bugun(),
     mezuniyet_tarihi: bugun()
-  });
+  };
+  if (!mevcutMezun.exists()) kayit.olusturma_tarihi = bugun();
+  await setDoc(mezunRef, kayit, { merge: true });
   // students'ta durumu güncelle
   await updateDoc(doc(db, KOLEKSIYON, id), { durum: "Mezun" });
   tumCacheleriTemizle();
 }
 
-// ── Alt koleksiyon: Veliler ──────────────────────────────────────────────────
+// ── Merkezi koleksiyon: Veliler ─────────────────────────────────────────────
 
 export async function velileriGetir(ogrenciNo) {
-  const snap = await getDocs(collection(db, KOLEKSIYON, String(ogrenciNo), "veliler"));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const id = String(ogrenciNo);
+  const veliler = await tumVelileriGetir();
+  return veliler.filter(v => String(v.ogrenciId) === id).sort(veliSiralama);
 }
 
 export async function tumVelileriGetir() {
-  return tumAltKayitlariGetir("veliler");
+  if (!veliCachePromise) {
+    const cached = yerelCacheOku(VELI_KOLEKSIYON, ALT_CACHE_TTL);
+    if (cached) {
+      arkaPlandaYenile(VELI_KOLEKSIYON, tumVelileriFirestoredanGetir);
+      return cached;
+    }
+    veliCachePromise = tumVelileriFirestoredanGetir()
+      .then(veri => {
+        yerelCacheYaz(VELI_KOLEKSIYON, veri);
+        return veri;
+      })
+      .catch(err => {
+        veliCacheTemizle();
+        throw err;
+      });
+  }
+  return veliCachePromise;
 }
 
 export async function veliEkleGuncelle(ogrenciNo, veliId, veri) {
+  let eski = {};
   if (veliId) {
-    await setDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "veliler", veliId), veri, { merge: true });
-  } else {
-    await addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "veliler"), veri);
+    const eskiSnap = await getDoc(doc(db, VELI_KOLEKSIYON, String(veliId)));
+    eski = eskiSnap.exists() ? eskiSnap.data() : {};
   }
-  altCacheTemizle("veliler");
+  const { id: _id, ...kayit } = veliKaydiniNormalizeEt(ogrenciNo, veri, eski);
+  kayit.guncelleme_tarihi = bugun();
+  if (!veliId) kayit.olusturma_tarihi = bugun();
+  if (veliId) {
+    await setDoc(doc(db, VELI_KOLEKSIYON, String(veliId)), kayit, { merge: true });
+  } else {
+    await addDoc(collection(db, VELI_KOLEKSIYON), kayit);
+  }
+  veliCacheTemizle();
+}
+
+export async function veliSil(_ogrenciNo, veliId) {
+  if (!veliId) return;
+  await deleteDoc(doc(db, VELI_KOLEKSIYON, String(veliId)));
+  veliCacheTemizle();
+}
+
+export async function ogrenciVelileriniSil(ogrenciNo) {
+  const id = String(ogrenciNo);
+  const snap = await getDocs(query(collection(db, VELI_KOLEKSIYON), where("ogrenciId", "==", id)));
+  for (const d of snap.docs) await deleteDoc(d.ref);
+  veliCacheTemizle();
 }
 
 // ── Alt koleksiyon: Devamsızlıklar ──────────────────────────────────────────
 
 export async function devamsizliklarGetir(ogrenciNo) {
-  const snap = await getDocs(collection(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar"));
-  return snap.docs
-    .map(d => ({ id: d.id, ...d.data() }))
+  const id = String(ogrenciNo);
+  const kayitlar = await tumDevamsizliklariGetir();
+  return kayitlar
+    .filter(k => String(k.ogrenciId) === id)
     .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
 export async function devamsizlikEkle(ogrenciNo, veri) {
-  const ref = await addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar"), tarihliVeri(veri));
+  const ref = await addDoc(collection(db, "devamsizliklar"), {
+    ogrenciId: String(ogrenciNo),
+    ...tarihliVeri(veri)
+  });
   altCacheTemizle("devamsizliklar");
   return ref;
 }
 
 export async function devamsizlikSil(ogrenciNo, kayitId) {
+  await deleteDoc(doc(db, "devamsizliklar", String(kayitId)));
   await deleteDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "devamsizliklar", kayitId));
   altCacheTemizle("devamsizliklar");
 }
@@ -295,24 +495,33 @@ export async function tumDevamsizliklariGetir() {
 // ── Alt koleksiyon: Davranışlar ─────────────────────────────────────────────
 
 export async function davranislarGetir(ogrenciNo) {
-  const snap = await getDocs(collection(db, KOLEKSIYON, String(ogrenciNo), "davranislar"));
-  return snap.docs
-    .map(d => ({ id: d.id, ...d.data() }))
+  const id = String(ogrenciNo);
+  const kayitlar = await tumDavranislariGetir();
+  return kayitlar
+    .filter(k => String(k.ogrenciId) === id)
     .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
 export async function davranisEkle(ogrenciNo, veri) {
-  const ref = await addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "davranislar"), tarihliVeri(veri));
+  const ref = await addDoc(collection(db, "davranislar"), {
+    ogrenciId: String(ogrenciNo),
+    ...tarihliVeri(veri)
+  });
   altCacheTemizle("davranislar");
   return ref;
 }
 
 export async function davranisGuncelle(ogrenciNo, kayitId, veri) {
-  await updateDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "davranislar", kayitId), veri);
+  await kaydiIkiYerdeGuncelle(
+    doc(db, "davranislar", String(kayitId)),
+    doc(db, KOLEKSIYON, String(ogrenciNo), "davranislar", kayitId),
+    veri
+  );
   altCacheTemizle("davranislar");
 }
 
 export async function davranisSil(ogrenciNo, kayitId) {
+  await deleteDoc(doc(db, "davranislar", String(kayitId)));
   await deleteDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "davranislar", kayitId));
   altCacheTemizle("davranislar");
 }
@@ -325,19 +534,24 @@ export async function tumDavranislariGetir() {
 // ── Alt koleksiyon: Veli Görüşmeleri ────────────────────────────────────────
 
 export async function gorusmeleriGetir(ogrenciNo) {
-  const snap = await getDocs(collection(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri"));
-  return snap.docs
-    .map(d => ({ id: d.id, ...d.data() }))
+  const id = String(ogrenciNo);
+  const kayitlar = await tumGorusmeleriGetir();
+  return kayitlar
+    .filter(k => String(k.ogrenciId) === id)
     .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
 export async function gorusmeEkle(ogrenciNo, veri) {
-  const ref = await addDoc(collection(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri"), tarihliVeri(veri));
+  const ref = await addDoc(collection(db, "veligorusmeleri"), {
+    ogrenciId: String(ogrenciNo),
+    ...tarihliVeri(veri)
+  });
   altCacheTemizle("veligorusmeleri");
   return ref;
 }
 
 export async function gorusmeSil(ogrenciNo, kayitId) {
+  await deleteDoc(doc(db, "veligorusmeleri", String(kayitId)));
   await deleteDoc(doc(db, KOLEKSIYON, String(ogrenciNo), "veligorusmeleri", kayitId));
   altCacheTemizle("veligorusmeleri");
 }
