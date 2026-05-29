@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260529-28"></script>
+  <script src="file-redirect.js?v=20260529-29"></script>
   <title>Devamsızlık Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260529-28">
+  <link rel="stylesheet" href="app.css?v=20260529-29">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -149,8 +149,8 @@
           <p class="text-muted small mb-3">
             Beklenen dosyada <strong>Öğr. No</strong>, <strong>Tarihi</strong>, <strong>Miktarı</strong> ve
             <strong>Nedeni</strong> sütunları bulunur. Sütun adları farklı gelirse aşağıdaki eşleştirmeden düzeltebilirsiniz.
-            <strong>Nedeni</strong> sütunu isteğe bağlıdır; kısaltma varsa sistemdeki türü belirler.
-            Geçerli kodlar: ÖY, SY, D, Y, İ, C, S, SH, SV. Nedeni boş gelen satırlar aktarılır;
+            <strong>Nedeni</strong> sütunu isteğe bağlıdır; kısaltma varsa devamsızlık türü ve açıklaması otomatik belirlenir.
+            Geçerli kodlar: <strong>ÖY, SY, D, Y, V, GÖ, İ, C, S, SH, SV, TU</strong>. Nedeni boş gelen satırlar aktarılır;
             bu listenin dışındaki kodlar aktarılmaz. Miktar bilgisi Excel'deki <strong>Miktar</strong>
             sütunundan alınır; 0,5 ve 1 seçili tarih, 2 ve üzeri seçili tarihten başlayan gün aralığıdır.
           </p>
@@ -206,17 +206,17 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260529-28";
-  import { layoutYukle } from "./layout.js?v=20260529-28";
+  import { requireAdmin } from "./auth.js?v=20260529-29";
+  import { layoutYukle } from "./layout.js?v=20260529-29";
   import {
     tumOgrencileriGetir, devamsizlikEkle,
     devamsizliklarGetir, devamsizlikHesapla
-  } from "./students.js?v=20260529-28";
+  } from "./students.js?v=20260529-29";
   import {
     devamsizlikDurum, devamsizlikKapsananTarihler, devamsizlikMiktarEtiketi,
     devamsizlikMiktarSayisi, devamsizlikTarihEtiketi, sayiEtiketiTR,
     toast, formatTarih, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260529-28";
+  } from "./utils.js?v=20260529-29";
 
   let tumOgrenciler = [];
   let excelSatirlar = [];
@@ -234,15 +234,18 @@
   ];
 
   const NEDEN_TANIMLARI = {
-    "ÖY": { tur: "Özürsüz" },
-    "SY": { tur: "Özürsüz" },
-    "D":  { tur: "Özürsüz" },
-    "Y":  { tur: "Özürsüz" },
-    "İ":  { tur: "Özürlü" },
-    "C":  { tur: "Özürlü" },
-    "S":  { tur: "Özürlü" },
-    "SH": { tur: "Özürlü" },
-    "SV": { tur: "Özürlü" }
+    "ÖY": { tur: "Özürsüz", aciklama: "Öğleden Sonra Yarım Gün" },
+    "SY": { tur: "Özürsüz", aciklama: "Sabahtan Yarım Gün" },
+    "D":  { tur: "Özürsüz", aciklama: "Tam Gün" },
+    "Y":  { tur: "Özürsüz", aciklama: "Yarım Gün" },
+    "V":  { tur: "Özürlü",  aciklama: "Birinci Derece Yakını Vefat" },
+    "GÖ": { tur: "Özürlü",  aciklama: "Göz Altına Alınma" },
+    "İ":  { tur: "Özürlü",  aciklama: "İzinli" },
+    "C":  { tur: "Özürlü",  aciklama: "Okuldan Uzaklaştırma" },
+    "S":  { tur: "Özürlü",  aciklama: "Raporlu" },
+    "SH": { tur: "Özürlü",  aciklama: "Sağlık Kurulu" },
+    "SV": { tur: "Özürlü",  aciklama: "Sevkli" },
+    "TU": { tur: "Özürlü",  aciklama: "Tutuklanma" }
   };
 
   requireAdmin(async () => {
@@ -591,12 +594,12 @@
     const neden = nedenKoduNormalize(hucre(satir, excelEslesme.neden));
     const miktarHucre = hucre(satir, excelEslesme.miktar);
     const ogr = ogrenciBul(no);
-    const tanim = neden ? NEDEN_TANIMLARI[neden] || null : { tur: "Özürsüz" };
+    const tanim = neden ? NEDEN_TANIMLARI[neden] || null : { tur: "Özürsüz", aciklama: "" };
     const veri = tanim && tarih ? devamsizlikVerisiOlustur(
       tarih,
       tanim.tur,
       miktarHucre,
-      neden ? `Neden: ${neden}` : ""
+      tanim.aciklama || ""
     ) : null;
     const temel = {
       index,

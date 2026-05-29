@@ -1,6 +1,6 @@
-import { auth } from "./firebase-config.js?v=20260529-28";
+import { auth } from "./firebase-config.js?v=20260529-29";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { toast } from "./utils.js?v=20260529-28";
+import { toast } from "./utils.js?v=20260529-29";
 
 // Sistemde yalnızca bu Firebase UID Admin kabul edilir.
 const ADMIN_UIDS = ["zpaTsm2L7FSCqLA8BDkxI7bX9vM2"];

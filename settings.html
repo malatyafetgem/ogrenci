@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260529-28"></script>
+  <script src="file-redirect.js?v=20260529-29"></script>
   <title>Ayarlar</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260529-28">
+  <link rel="stylesheet" href="app.css?v=20260529-29">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -179,22 +179,22 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260529-28";
-  import { layoutYukle } from "./layout.js?v=20260529-28";
-  import { db } from "./firebase-config.js?v=20260529-28";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260529-29";
+  import { layoutYukle } from "./layout.js?v=20260529-29";
+  import { db } from "./firebase-config.js?v=20260529-29";
   import {
     EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     collection, doc, getDocs, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, bugun } from "./utils.js?v=20260529-28";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260529-28";
+  import { toast, bugun } from "./utils.js?v=20260529-29";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260529-29";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260529-28";
+  } from "./school-settings.js?v=20260529-29";
 
   const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {

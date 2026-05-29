@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260529-28"></script>
+  <script src="file-redirect.js?v=20260529-29"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260529-28">
+  <link rel="stylesheet" href="app.css?v=20260529-29">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -260,20 +260,20 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260529-28";
-  import { layoutYukle } from "./layout.js?v=20260529-28";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260529-29";
+  import { layoutYukle } from "./layout.js?v=20260529-29";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil,
     davranislarGetir, davranisSil,
     gorusmeleriGetir, gorusmeSil
-  } from "./students.js?v=20260529-28";
+  } from "./students.js?v=20260529-29";
   import {
     devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260529-28";
-  import { avatarSrc } from "./avatar.js?v=20260529-28";
+  } from "./utils.js?v=20260529-29";
+  import { avatarSrc } from "./avatar.js?v=20260529-29";
 
   let ogrenciId = null;
   let tumDavranislar = [];
