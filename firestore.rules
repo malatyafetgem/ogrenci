@@ -1,0 +1,243 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.uid == "zpaTsm2L7FSCqLA8BDkxI7bX9vM2";
+    }
+
+    function optionalString(field) {
+      return !(field in request.resource.data) || request.resource.data[field] is string;
+    }
+
+    function optionalNumber(field) {
+      return !(field in request.resource.data) || request.resource.data[field] is number;
+    }
+
+    function optionalBool(field) {
+      return !(field in request.resource.data) || request.resource.data[field] is bool;
+    }
+
+    function optionalList(field) {
+      return !(field in request.resource.data) || request.resource.data[field] is list;
+    }
+
+    function requiredString(field) {
+      return request.resource.data[field] is string
+        && request.resource.data[field].size() > 0;
+    }
+
+    function optionalEnum(field, values) {
+      return !(field in request.resource.data)
+        || request.resource.data[field] == ""
+        || request.resource.data[field] in values;
+    }
+
+    function validStudent(ogrenciNo) {
+      return request.resource.data.keys().hasOnly([
+          "numara", "ad", "soyad", "telefon", "sinif", "cinsiyet",
+          "yatililik", "maddi_durum", "geldigi_okul", "fotograf_url",
+          "tc_kimlik", "dogum_tarihi", "dogum_yeri", "hastalik",
+          "engel", "ilac", "yetenekler", "aile_durumu", "durum",
+          "olusturma_tarihi", "guncelleme_tarihi"
+        ])
+        && request.resource.data.keys().hasAll(["numara", "ad", "soyad", "sinif"])
+        && requiredString("numara")
+        && requiredString("ad")
+        && requiredString("soyad")
+        && requiredString("sinif")
+        && request.resource.data.numara == ogrenciNo
+        && optionalString("telefon")
+        && optionalString("cinsiyet")
+        && optionalString("yatililik")
+        && optionalString("durum")
+        && optionalString("maddi_durum")
+        && optionalString("geldigi_okul")
+        && optionalString("fotograf_url")
+        && optionalString("tc_kimlik")
+        && optionalString("dogum_tarihi")
+        && optionalString("dogum_yeri")
+        && optionalString("hastalik")
+        && optionalString("engel")
+        && optionalString("ilac")
+        && optionalString("olusturma_tarihi")
+        && optionalString("guncelleme_tarihi")
+        && optionalString("aile_durumu")
+        && optionalList("yetenekler")
+        && optionalEnum("cinsiyet", ["Erkek", "Kız"])
+        && optionalEnum("yatililik", ["Gündüzlü", "Paralı Yatılı", "Parasız Yatılı"])
+        && optionalEnum("maddi_durum", ["Düşük", "Orta", "İyi", "Çok İyi"])
+        && optionalEnum("durum", ["Aktif", "Pasif"])
+        && optionalEnum("aile_durumu", [
+          "Anne-baba birlikte", "Anne-baba ayrı", "Anne vefat", "Baba vefat",
+          "Anne ve baba vefat", "Vasi yanında", "Koruyucu aile yanında", "Diğer"
+        ]);
+    }
+
+    function validVeli() {
+      return request.resource.data.keys().hasOnly([
+          "ogrenciId", "yakinlik", "ad", "soyad", "durum", "birincil",
+          "acil_kisi", "iletisim_sirasi", "telefon", "e_posta", "il",
+          "ilce", "adres", "calisma_durumu", "meslek_grubu", "meslek",
+          "gorev_unvan", "kurum", "notlar", "olusturma_tarihi",
+          "guncelleme_tarihi"
+        ])
+        && request.resource.data.keys().hasAll(["ogrenciId"])
+        && request.resource.data.ogrenciId is string
+        && request.resource.data.ogrenciId.size() > 0
+        && optionalString("yakinlik")
+        && optionalString("ad")
+        && optionalString("soyad")
+        && optionalString("durum")
+        && optionalString("telefon")
+        && optionalString("e_posta")
+        && optionalString("il")
+        && optionalString("ilce")
+        && optionalString("adres")
+        && optionalString("calisma_durumu")
+        && optionalString("meslek_grubu")
+        && optionalString("meslek")
+        && optionalString("gorev_unvan")
+        && optionalString("kurum")
+        && optionalString("notlar")
+        && optionalString("olusturma_tarihi")
+        && optionalString("guncelleme_tarihi")
+        && optionalBool("birincil")
+        && optionalBool("acil_kisi")
+        && optionalNumber("iletisim_sirasi")
+        && optionalEnum("yakinlik", [
+          "Anne", "Baba", "Vasi", "Üvey Anne", "Üvey Baba", "Dede",
+          "Nine", "Abi", "Abla", "Koruyucu Aile", "Diğer"
+        ])
+        && optionalEnum("durum", ["Aktif", "Vefat", "Ulaşılamıyor", "Velayeti Yok", "Aranmasın", "Pasif"]);
+    }
+
+    function validAttendance() {
+      return request.resource.data.keys().hasOnly([
+          "ogrenciId", "tarih", "tarih_sira", "tarih_bitis", "tur",
+          "miktar", "gun_degeri", "kapsanan_tarihler", "aciklama",
+          "olusturma_tarihi", "guncelleme_tarihi"
+        ])
+        && request.resource.data.keys().hasAll(["ogrenciId", "tarih", "tur", "gun_degeri"])
+        && request.resource.data.ogrenciId is string
+        && request.resource.data.ogrenciId.size() > 0
+        && requiredString("tarih")
+        && requiredString("tur")
+        && optionalString("tarih_sira")
+        && optionalString("tarih_bitis")
+        && optionalString("miktar")
+        && optionalString("aciklama")
+        && optionalString("olusturma_tarihi")
+        && optionalString("guncelleme_tarihi")
+        && optionalList("kapsanan_tarihler")
+        && optionalNumber("gun_degeri")
+        && request.resource.data.tur in ["Özürlü", "Özürsüz"]
+        && request.resource.data.gun_degeri is number
+        && request.resource.data.gun_degeri > 0;
+    }
+
+    function validBehavior() {
+      return request.resource.data.keys().hasOnly([
+          "ogrenciId", "tarih", "tarih_sira", "tur", "kategori",
+          "aciklama", "veli_gorusmesi", "olusturma_tarihi",
+          "guncelleme_tarihi"
+        ])
+        && request.resource.data.keys().hasAll(["ogrenciId", "tarih", "tur", "kategori"])
+        && request.resource.data.ogrenciId is string
+        && request.resource.data.ogrenciId.size() > 0
+        && requiredString("tarih")
+        && requiredString("tur")
+        && requiredString("kategori")
+        && optionalString("tarih_sira")
+        && optionalString("aciklama")
+        && optionalString("olusturma_tarihi")
+        && optionalString("guncelleme_tarihi")
+        && request.resource.data.tur in ["Olumlu", "Olumsuz"]
+        && optionalBool("veli_gorusmesi");
+    }
+
+    function validMeeting() {
+      return request.resource.data.keys().hasOnly([
+          "ogrenciId", "tarih", "tarih_sira", "veli_id", "veli_yakinlik",
+          "veli_adi", "konu", "aciklama", "olusturma_tarihi",
+          "guncelleme_tarihi"
+        ])
+        && request.resource.data.keys().hasAll(["ogrenciId", "tarih", "veli_yakinlik", "konu"])
+        && request.resource.data.ogrenciId is string
+        && request.resource.data.ogrenciId.size() > 0
+        && requiredString("tarih")
+        && requiredString("veli_yakinlik")
+        && requiredString("konu")
+        && optionalString("tarih_sira")
+        && optionalString("veli_id")
+        && optionalString("veli_adi")
+        && optionalString("aciklama")
+        && optionalString("olusturma_tarihi")
+        && optionalString("guncelleme_tarihi");
+    }
+
+    function validSettings() {
+      return request.resource.data.keys().hasOnly(["egitim_ogretim_yili", "donem", "guncelleme_tarihi"])
+        && optionalString("egitim_ogretim_yili")
+        && optionalString("donem")
+        && optionalString("guncelleme_tarihi")
+        && (!("donem" in request.resource.data) || request.resource.data.donem in ["1. Dönem", "2. Dönem"]);
+    }
+
+    function validAutocomplete() {
+      return request.resource.data.keys().hasOnly(["degerler"])
+        && optionalList("degerler");
+    }
+
+    match /students/{ogrenciNo} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() && validStudent(ogrenciNo);
+      allow delete: if isAdmin();
+    }
+
+    match /veliler/{veliId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() && validVeli();
+      allow delete: if isAdmin();
+    }
+
+    match /devamsizliklar/{kayitId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() && validAttendance();
+      allow delete: if isAdmin();
+    }
+
+    match /davranislar/{kayitId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() && validBehavior();
+      allow delete: if isAdmin();
+    }
+
+    match /veligorusmeleri/{kayitId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() && validMeeting();
+      allow delete: if isAdmin();
+    }
+
+    match /_autocomplete/{listeId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() && validAutocomplete();
+      allow delete: if isAdmin();
+    }
+
+    match /_settings/{ayarId} {
+      allow read: if signedIn();
+      allow create, update: if isAdmin() && validSettings();
+      allow delete: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read: if false;
+      allow write: if false;
+    }
+  }
+}
