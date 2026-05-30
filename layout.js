@@ -2,8 +2,8 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260530-30";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260530-30";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260530-32";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260530-32";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -501,7 +501,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260530-30");
+    const { logout } = await import("./auth.js?v=20260530-32");
     logout();
   });
 }

@@ -1,7 +1,7 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260530-30";
+import { db } from "./firebase-config.js?v=20260530-32";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, query, where, writeBatch
@@ -9,7 +9,7 @@ import {
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260530-30";
+} from "./utils.js?v=20260530-32";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";
@@ -434,7 +434,7 @@ export async function davranisEkle(ogrenciNo, veri) {
 }
 
 export async function davranisGuncelle(_ogrenciNo, kayitId, veri) {
-  await updateDoc(doc(db, "davranislar", String(kayitId)), veri);
+  await updateDoc(doc(db, "davranislar", String(kayitId)), tarihliVeri(veri));
   kayitCacheTemizle("davranislar");
 }
 

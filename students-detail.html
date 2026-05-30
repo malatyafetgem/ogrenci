@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260530-30"></script>
+  <script src="file-redirect.js?v=20260530-32"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260530-30">
+  <link rel="stylesheet" href="app.css?v=20260530-32">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -399,24 +399,25 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260530-30";
-  import { layoutYukle } from "./layout.js?v=20260530-30";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260530-32";
+  import { layoutYukle } from "./layout.js?v=20260530-32";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
     davranislarGetir, davranisSil, davranisGuncelle,
     gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
-  } from "./students.js?v=20260530-30";
+  } from "./students.js?v=20260530-32";
   import {
     devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260530-30";
-  import { avatarSrc } from "./avatar.js?v=20260530-30";
+  } from "./utils.js?v=20260530-32";
+  import { avatarSrc } from "./avatar.js?v=20260530-32";
 
   let ogrenciId = null;
   let tumDavranislar = [];
   let tumDevamsizlikKayitlar = [];
+  let tumGorusmeler = [];
 
   requireAuth(async () => {
     layoutYukle();
@@ -684,6 +685,7 @@
 
   async function yukleGorusmeler() {
     const gorusmeler = await gorusmeleriGetir(ogrenciId);
+    tumGorusmeler = gorusmeler;
     const tbody = document.getElementById("gorusme-tablo");
     tbody.innerHTML = gorusmeler.length === 0
       ? `<tr><td colspan="5" class="text-center text-muted py-3">Görüşme kaydı yok.</td></tr>`
@@ -848,21 +850,23 @@
     }
   });
 
-  window.duzenleGorusme = (kayitId) => {
+  window.duzenleGorusme = async (kayitId) => {
     if (!adminActionAllowed()) return;
-    // Görüşme nesnesini bekleyen callback ile yüklüyoruz
-    gorusmeleriGetir(ogrenciId).then(gorusmeler => {
-      const kayit = gorusmeler.find(g => g.id === kayitId);
-      if (!kayit) return;
-      document.getElementById("gorusme-duzenle-id").value = kayitId;
-      document.getElementById("gorusme-duzenle-tarih").value = kayit.tarih || "";
-      document.getElementById("gorusme-duzenle-veli-yakinlik").value = kayit.veli_yakinlik || "";
-      document.getElementById("gorusme-duzenle-veli-adi").value = kayit.veli_adi || "";
-      document.getElementById("gorusme-duzenle-konu").value = kayit.konu || "";
-      document.getElementById("gorusme-duzenle-aciklama").value = kayit.aciklama || "";
-      document.getElementById("gorusme-duzenle-hata").classList.add("d-none");
-      gorDuzenleModal.show();
-    });
+    // tumGorusmeler genellikle dolu olur; boşsa yeniden yükle
+    let liste = tumGorusmeler;
+    if (!liste.length) {
+      try { liste = await gorusmeleriGetir(ogrenciId); } catch { return; }
+    }
+    const kayit = liste.find(g => g.id === kayitId);
+    if (!kayit) return;
+    document.getElementById("gorusme-duzenle-id").value = kayitId;
+    document.getElementById("gorusme-duzenle-tarih").value = kayit.tarih || "";
+    document.getElementById("gorusme-duzenle-veli-yakinlik").value = kayit.veli_yakinlik || "";
+    document.getElementById("gorusme-duzenle-veli-adi").value = kayit.veli_adi || "";
+    document.getElementById("gorusme-duzenle-konu").value = kayit.konu || "";
+    document.getElementById("gorusme-duzenle-aciklama").value = kayit.aciklama || "";
+    document.getElementById("gorusme-duzenle-hata").classList.add("d-none");
+    gorDuzenleModal.show();
   };
 
   document.getElementById("gorusme-duzenle-kaydet-btn").addEventListener("click", async () => {
@@ -882,7 +886,7 @@
       await gorusmeGuncelle(ogrenciId, kayitId, { tarih, veli_yakinlik: veliYakinlik, veli_adi: veliAdi, konu, aciklama });
       toast("Görüşme kaydı güncellendi.", "success");
       gorDuzenleModal.hide();
-      await yukleGorusmeler();
+      await yukleGorusmeler(); // tumGorusmeler da burada güncellenir
     } catch (err) {
       hataEl.textContent = "Hata: " + err.message;
       hataEl.classList.remove("d-none");

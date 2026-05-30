@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260530-30"></script>
+  <script src="file-redirect.js?v=20260530-32"></script>
   <title>Öğrenci Ekle / Düzenle</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260530-30">
+  <link rel="stylesheet" href="app.css?v=20260530-32">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -206,18 +206,18 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260530-30";
-  import { layoutYukle } from "./layout.js?v=20260530-30";
+  import { requireAdmin } from "./auth.js?v=20260530-32";
+  import { layoutYukle } from "./layout.js?v=20260530-32";
   import {
     ogrenciGetir, ogrenciEkle, ogrenciGuncelle,
     velileriGetir, veliEkleGuncelle, veliSil, siniflarGetir, noMevcutMu
-  } from "./students.js?v=20260530-30";
+  } from "./students.js?v=20260530-32";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
     gecerliOgrenciNo, gecerliTc, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260530-30";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260530-30";
-  import { avatarSrc } from "./avatar.js?v=20260530-30";
+  } from "./utils.js?v=20260530-32";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260530-32";
+  import { avatarSrc } from "./avatar.js?v=20260530-32";
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");
@@ -622,6 +622,14 @@
   async function kaydet() {
     const g = id => document.getElementById(id).value.trim();
     const hataEl = document.getElementById("hata-mesaji");
+
+    function gosterHata(mesaj, odakId = null) {
+      hataEl.textContent = mesaj;
+      hataEl.classList.remove("d-none");
+      hataEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (odakId) document.getElementById(odakId).focus();
+    }
+
     hataEl.classList.add("d-none");
 
     const ad = formatAd(g("f-ad"));
@@ -630,21 +638,17 @@
     const sinif = g("f-sinif");
 
     if (!ad || !soyad || !numara || !sinif) {
-      hataEl.textContent = "Ad, soyad, öğrenci numarası ve sınıf zorunludur.";
-      hataEl.classList.remove("d-none");
+      gosterHata("Ad, soyad, öğrenci numarası ve sınıf zorunludur.");
       return;
     }
     if (!gecerliOgrenciNo(numara)) {
-      hataEl.textContent = "Öğrenci numarası sadece rakamlardan oluşmalıdır.";
-      hataEl.classList.remove("d-none");
+      gosterHata("Öğrenci numarası sadece rakamlardan oluşmalıdır.", "f-numara");
       return;
     }
 
     const tcKimlik = g("f-tc");
     if (!gecerliTc(tcKimlik)) {
-      hataEl.textContent = "Geçersiz TC Kimlik No. Lütfen 11 haneli geçerli bir TC girin veya boş bırakın.";
-      hataEl.classList.remove("d-none");
-      document.getElementById("f-tc").focus();
+      gosterHata("Geçersiz TC Kimlik No. Lütfen 11 haneli geçerli bir TC girin veya boş bırakın.", "f-tc");
       return;
     }
 

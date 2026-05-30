@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="file-redirect.js?v=20260530-32"></script>
+  <title>Excel Aktarım</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="app.css?v=20260530-32">
+  <style>
+    .sutun-kart {
+      background:#fff; border:1px solid #dee2e6; border-radius:8px;
+      padding:10px 12px; display:flex; align-items:center; gap:8px; min-width:0;
+    }
+    .sutun-kart .sira-badge {
+      background:#0d6efd; color:#fff; border-radius:50%;
+      width:24px; height:24px; display:flex; align-items:center;
+      justify-content:center; font-size:.75rem; font-weight:600; flex-shrink:0;
+    }
+    .sutun-kart.sira-sutun { background:#f0f4ff; border-color:#c0cfff; }
+    .sutun-kart.sira-sutun .sira-badge { background:#6c757d; }
+    .sutun-kart select {
+      border:none; outline:none; flex:1; min-width:0;
+      font-size:.875rem; background:transparent; cursor:pointer;
+    }
+    .sutun-kart select:focus { outline:2px solid #0d6efd; border-radius:4px; }
+    .sutun-kart .sil-btn {
+      border:none; background:none; color:#dc3545; cursor:pointer;
+      padding:2px 4px; border-radius:4px; flex-shrink:0; opacity:.6; transition:opacity .15s;
+    }
+    .sutun-kart .sil-btn:hover { opacity:1; }
+    #sutunlar-kap {
+      display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;
+    }
+    .filtre-grup { margin-bottom:12px; }
+    .filtre-grup-baslik {
+      font-size:.75rem; font-weight:700; color:#6c757d;
+      text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;
+    }
+    .filtre-chipler { display:flex; flex-wrap:wrap; gap:6px; }
+    .filtre-chip {
+      display:inline-flex; align-items:center; gap:5px;
+      padding:4px 10px; border-radius:20px; font-size:.8rem; cursor:pointer;
+      border:1.5px solid #dee2e6; background:#fff; color:#495057;
+      transition:all .15s; user-select:none;
+    }
+    .filtre-chip:hover { border-color:#0d6efd; color:#0d6efd; }
+    .filtre-chip.secili { background:#0d6efd; border-color:#0d6efd; color:#fff; }
+    .filtre-chip.secili:hover { background:#0b5ed7; border-color:#0b5ed7; }
+    .filtre-chip .chip-icon { font-size:.7rem; }
+    .filtre-temizle { font-size:.78rem; color:#6c757d; cursor:pointer; text-decoration:underline; }
+    .filtre-temizle:hover { color:#dc3545; }
+    #filtre-ozet {
+      display:inline-flex; align-items:center; gap:6px;
+      background:#fff3cd; border:1px solid #ffc107; border-radius:6px;
+      padding:4px 10px; font-size:.8rem; color:#856404;
+    }
+    #filtre-bos-mesaj { font-size:.85rem; color:#6c757d; font-style:italic; }
+    .onizleme-tablo-kap { overflow-x:auto; border-radius:8px; border:1px solid #dee2e6; }
+    .onizleme-tablo-kap table { margin-bottom:0; font-size:.8rem; }
+    .onizleme-tablo-kap th { background:#f8f9fa; white-space:nowrap; font-weight:600; }
+    .onizleme-tablo-kap td { white-space:nowrap; max-width:200px; overflow:hidden; text-overflow:ellipsis; }
+    #yukleniyor-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.35); z-index:9999;
+      justify-content:center; align-items:center;
+    }
+    #yukleniyor-overlay.aktif { display:flex; }
+    .yukleniyor-kutu {
+      background:#fff; border-radius:12px; padding:32px 40px;
+      text-align:center; box-shadow:0 8px 32px rgba(0,0,0,.18);
+    }
+  </style>
+</head>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+  <div id="topbar-kap"></div>
+  <div id="sidebar-kap"></div>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row align-items-center">
+          <div class="col-sm-6">
+            <h3 class="mb-0"><i class="bi bi-file-earmark-excel me-2 text-success"></i>Excel Aktarım</h3>
+          </div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="settings.html">Ayarlar</a></li>
+              <li class="breadcrumb-item active">Excel Aktarım</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <div class="alert alert-warning d-flex align-items-start gap-2 mb-3">
+          <i class="bi bi-shield-lock fs-4 flex-shrink-0 mt-1"></i>
+          <div><strong>Bu sayfa yalnızca Admin içindir.</strong>
+            Sütunları ve filtreleri ayarlayın, önizleyin, ardından Excel'e aktarın.</div>
+        </div>
+
+        <!-- SÜTUN YAPILANDIRMASI -->
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="mb-0"><i class="bi bi-layout-three-columns me-1"></i>Sütun Yapılandırması</h6>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <button class="btn btn-sm btn-outline-secondary" id="varsayilana-don-btn">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Sıfırla
+              </button>
+              <button class="btn btn-sm btn-outline-success" id="onizle-btn">
+                <i class="bi bi-eye me-1"></i>Önizle
+              </button>
+              <button class="btn btn-sm btn-success" id="excel-aktar-btn">
+                <i class="bi bi-file-earmark-excel me-1"></i>Excel'e Aktar
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="sutunlar-kap" class="mb-3"></div>
+            <div class="d-flex align-items-center gap-2 flex-wrap border-top pt-3">
+              <label class="form-label mb-0 text-muted small fw-semibold">Sütun Ekle:</label>
+              <label class="form-label mb-0 small">Adet:</label>
+              <input type="number" class="form-control form-control-sm" id="ekle-adet"
+                     value="1" min="1" max="20" style="width:70px">
+              <button class="btn btn-sm btn-outline-primary" id="sutun-ekle-btn">
+                <i class="bi bi-plus-lg me-1"></i>Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXCEL SEÇENEKLERI -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-gear me-1"></i>Excel Seçenekleri</h6>
+          </div>
+          <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="opt-sinif-sekme">
+              <label class="form-check-label" for="opt-sinif-sekme">
+                <i class="bi bi-journal-text me-1 text-primary"></i>
+                Her sınıf ayrı sekme (sheet)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- FİLTRELER -->
+        <div class="card mb-3">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="mb-0"><i class="bi bi-funnel me-1"></i>Kayıt Filtresi
+              <span class="ms-2 d-none" id="filtre-ozet">
+                <i class="bi bi-filter-circle-fill"></i>
+                <span id="filtre-ozet-metin"></span>
+              </span>
+            </h6>
+            <span class="filtre-temizle d-none" id="filtreleri-temizle-btn">
+              <i class="bi bi-x-circle me-1"></i>Tüm filtreleri temizle
+            </span>
+          </div>
+          <div class="card-body" id="filtre-govde">
+            <div class="text-muted small fst-italic" id="filtre-yukl-mesaj">
+              <span class="spinner-border spinner-border-sm me-1"></span>Veriler yüklendikten sonra filtreler görünecek…
+            </div>
+          </div>
+        </div>
+
+        <!-- ÖNİZLEME -->
+        <div class="card d-none" id="onizleme-kart">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">
+              <i class="bi bi-table me-1"></i>Önizleme
+              <span class="badge bg-secondary ms-1" id="onizleme-adet"></span>
+            </h6>
+            <span class="small text-muted">İlk 20 kayıt gösteriliyor</span>
+          </div>
+          <div class="card-body p-0">
+            <div class="onizleme-tablo-kap">
+              <table class="table table-sm table-hover table-bordered" id="onizleme-tablo">
+                <thead></thead><tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+<div id="footer-kap"></div>
+<div id="bottom-nav-kap"></div>
+
+<div id="yukleniyor-overlay">
+  <div class="yukleniyor-kutu">
+    <div class="spinner-border text-success mb-3" style="width:3rem;height:3rem;"></div>
+    <div class="fw-semibold" id="yukleniyor-mesaj">Veriler yükleniyor…</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script type="module">
+  import { requireAdmin } from "./auth.js?v=20260530-32";
+  import { layoutYukle } from "./layout.js?v=20260530-32";
+  import { db } from "./firebase-config.js?v=20260530-32";
+  import { collection, getDocs }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // ═══════════════════════════════════════════════════════════════
+  // ALAN TANIMI
+  // Her alanda isteğe bağlı "filtre" tanımı:
+  //   filtre: {
+  //     baslik: string,            → filtre grubu başlığı
+  //     dinamik: true              → Firestore'daki değerlerden otomatik doldur
+  //     VEYA
+  //     secenekler: string[]       → sabit seçenekler
+  //     kaynak: "ogrenci"|"veli"   → değer hangi objeden alınır (varsayılan: ogrenci)
+  //     alan: string               → Firestore field adı (key'den çıkarılır, override için)
+  //   }
+  // ═══════════════════════════════════════════════════════════════
+  const TUM_ALANLAR = [
+    // ── Öğrenci - Temel ─────────────────────────────────────────
+    { grup:"Öğrenci - Temel", label:"Öğrenci No",   key:"s.numara" },
+    { grup:"Öğrenci - Temel", label:"Ad",            key:"s.ad" },
+    { grup:"Öğrenci - Temel", label:"Soyad",         key:"s.soyad" },
+    { grup:"Öğrenci - Temel", label:"Ad Soyad",      key:"s.ad_soyad" },
+    { grup:"Öğrenci - Temel", label:"Sınıf",         key:"s.sinif",
+      filtre:{ baslik:"Sınıf", dinamik:true, kaynak:"ogrenci" } },
+    { grup:"Öğrenci - Temel", label:"Cinsiyet",      key:"s.cinsiyet",
+      filtre:{ baslik:"Cinsiyet", secenekler:["Erkek","Kız"], kaynak:"ogrenci" } },
+    { grup:"Öğrenci - Temel", label:"Telefon",       key:"s.telefon" },
+    { grup:"Öğrenci - Temel", label:"Yatılılık",     key:"s.yatililik",
+      filtre:{ baslik:"Yatılılık", secenekler:["Gündüzlü","Paralı Yatılı","Parasız Yatılı"], kaynak:"ogrenci" } },
+    { grup:"Öğrenci - Temel", label:"Maddi Durum",   key:"s.maddi_durum",
+      filtre:{ baslik:"Maddi Durum", secenekler:["Düşük","Orta","İyi","Çok İyi"], kaynak:"ogrenci" } },
+    { grup:"Öğrenci - Temel", label:"Geldiği Okul",  key:"s.geldigi_okul",
+      filtre:{ baslik:"Geldiği Okul", dinamik:true, kaynak:"ogrenci" } },
+    { grup:"Öğrenci - Temel", label:"Durum",         key:"s.durum" },
+    // ── Öğrenci - Kimlik ────────────────────────────────────────
+    { grup:"Öğrenci - Kimlik", label:"TC Kimlik No", key:"s.tc_kimlik" },
+    { grup:"Öğrenci - Kimlik", label:"Doğum Tarihi", key:"s.dogum_tarihi" },
+    { grup:"Öğrenci - Kimlik", label:"Doğum Yeri",   key:"s.dogum_yeri",
+      filtre:{ baslik:"Doğum Yeri", dinamik:true, kaynak:"ogrenci" } },
+    // ── Öğrenci - Sağlık ────────────────────────────────────────
+    { grup:"Öğrenci - Sağlık", label:"Hastalık",     key:"s.hastalik",
+      filtre:{ baslik:"Hastalık", dinamik:true, kaynak:"ogrenci" } },
+    { grup:"Öğrenci - Sağlık", label:"Engel",        key:"s.engel",
+      filtre:{ baslik:"Engel", dinamik:true, kaynak:"ogrenci" } },
+    { grup:"Öğrenci - Sağlık", label:"İlaç",         key:"s.ilac",
+      filtre:{ baslik:"İlaç Kullanımı", secenekler:["Evet","Hayır"], kaynak:"ogrenci" } },
+    // ── Öğrenci - Aile ──────────────────────────────────────────
+    { grup:"Öğrenci - Aile", label:"Aile Durumu",    key:"s.aile_durumu",
+      filtre:{ baslik:"Aile Durumu", secenekler:[
+        "Anne-baba birlikte","Anne-baba ayrı","Anne vefat",
+        "Baba vefat","Anne ve baba vefat","Vasi yanında",
+        "Koruyucu aile yanında","Diğer"
+      ], kaynak:"ogrenci" } },
+    // ── Veli - Birincil ─────────────────────────────────────────
+    { grup:"Veli - Birincil", label:"Birincil Veli Adı",      key:"v1.ad" },
+    { grup:"Veli - Birincil", label:"Birincil Veli Soyadı",   key:"v1.soyad" },
+    { grup:"Veli - Birincil", label:"Birincil Veli Ad Soyad", key:"v1.ad_soyad" },
+    { grup:"Veli - Birincil", label:"Birincil Veli Yakınlık", key:"v1.yakinlik",
+      filtre:{ baslik:"Birincil Veli Yakınlık", secenekler:["Anne","Baba","Dede","Nine","Dayı","Amca","Hala","Teyze","Abi","Abla","Vasi","Diğer"], kaynak:"veli", vNo:0 } },
+    { grup:"Veli - Birincil", label:"Birincil Veli Telefon",  key:"v1.telefon" },
+    { grup:"Veli - Birincil", label:"Birincil Veli E-Posta",  key:"v1.e_posta" },
+    { grup:"Veli - Birincil", label:"Birincil Veli Meslek",   key:"v1.meslek",
+      filtre:{ baslik:"Birincil Veli Meslek", dinamik:true, kaynak:"veli", vNo:0 } },
+    { grup:"Veli - Birincil", label:"Birincil Veli Meslek Gr.", key:"v1.meslek_grubu",
+      filtre:{ baslik:"Birincil Veli Meslek Grubu", dinamik:true, kaynak:"veli", vNo:0 } },
+    { grup:"Veli - Birincil", label:"Birincil Veli Görev",    key:"v1.gorev_unvan" },
+    { grup:"Veli - Birincil", label:"Birincil Veli Kurum",    key:"v1.kurum",
+      filtre:{ baslik:"Birincil Veli Kurum", dinamik:true, kaynak:"veli", vNo:0 } },
+    { grup:"Veli - Birincil", label:"Birincil Veli Çalışma",  key:"v1.calisma_durumu",
+      filtre:{ baslik:"Birincil Veli Çalışma", secenekler:["Çalışıyor","Çalışmıyor","Emekli","Vefat"], kaynak:"veli", vNo:0 } },
+    { grup:"Veli - Birincil", label:"Birincil Veli İl",       key:"v1.il",
+      filtre:{ baslik:"Birincil Veli İl", dinamik:true, kaynak:"veli", vNo:0 } },
+    { grup:"Veli - Birincil", label:"Birincil Veli İlçe",     key:"v1.ilce",
+      filtre:{ baslik:"Birincil Veli İlçe", dinamik:true, kaynak:"veli", vNo:0 } },
+    { grup:"Veli - Birincil", label:"Birincil Veli Adres",    key:"v1.adres" },
+    { grup:"Veli - Birincil", label:"Birincil Veli Notlar",   key:"v1.notlar" },
+    // ── Veli - 2. Veli ──────────────────────────────────────────
+    { grup:"Veli - 2. Veli", label:"2. Veli Adı",       key:"v2.ad" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Soyadı",    key:"v2.soyad" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Ad Soyad",  key:"v2.ad_soyad" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Yakınlık",  key:"v2.yakinlik",
+      filtre:{ baslik:"2. Veli Yakınlık", secenekler:["Anne","Baba","Dede","Nine","Dayı","Amca","Hala","Teyze","Abi","Abla","Vasi","Diğer"], kaynak:"veli", vNo:1 } },
+    { grup:"Veli - 2. Veli", label:"2. Veli Telefon",   key:"v2.telefon" },
+    { grup:"Veli - 2. Veli", label:"2. Veli E-Posta",   key:"v2.e_posta" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Meslek",    key:"v2.meslek",
+      filtre:{ baslik:"2. Veli Meslek", dinamik:true, kaynak:"veli", vNo:1 } },
+    { grup:"Veli - 2. Veli", label:"2. Veli Meslek Gr.", key:"v2.meslek_grubu" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Görev",     key:"v2.gorev_unvan" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Kurum",     key:"v2.kurum" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Çalışma",   key:"v2.calisma_durumu" },
+    { grup:"Veli - 2. Veli", label:"2. Veli İl",        key:"v2.il",
+      filtre:{ baslik:"2. Veli İl", dinamik:true, kaynak:"veli", vNo:1 } },
+    { grup:"Veli - 2. Veli", label:"2. Veli İlçe",      key:"v2.ilce" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Adres",     key:"v2.adres" },
+    { grup:"Veli - 2. Veli", label:"2. Veli Notlar",    key:"v2.notlar" },
+    // ── Veli - 3. Veli ──────────────────────────────────────────
+    { grup:"Veli - 3. Veli", label:"3. Veli Adı",       key:"v3.ad" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Soyadı",    key:"v3.soyad" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Ad Soyad",  key:"v3.ad_soyad" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Yakınlık",  key:"v3.yakinlik",
+      filtre:{ baslik:"3. Veli Yakınlık", secenekler:["Anne","Baba","Dede","Nine","Dayı","Amca","Hala","Teyze","Abi","Abla","Vasi","Diğer"], kaynak:"veli", vNo:2 } },
+    { grup:"Veli - 3. Veli", label:"3. Veli Telefon",   key:"v3.telefon" },
+    { grup:"Veli - 3. Veli", label:"3. Veli E-Posta",   key:"v3.e_posta" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Meslek",    key:"v3.meslek" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Meslek Gr.", key:"v3.meslek_grubu" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Görev",     key:"v3.gorev_unvan" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Kurum",     key:"v3.kurum" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Çalışma",   key:"v3.calisma_durumu" },
+    { grup:"Veli - 3. Veli", label:"3. Veli İl",        key:"v3.il" },
+    { grup:"Veli - 3. Veli", label:"3. Veli İlçe",      key:"v3.ilce" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Adres",     key:"v3.adres" },
+    { grup:"Veli - 3. Veli", label:"3. Veli Notlar",    key:"v3.notlar" },
+  ];
+
+  const VARSAYILAN_SUTUNLAR = [
+    { key:"__sira__" },
+    { key:"s.numara" },
+    { key:"s.ad_soyad" },
+    { key:"s.sinif" },
+    { key:"s.telefon" },
+  ];
+
+  let sutunlar = [];
+  try {
+    const k = localStorage.getItem("excel-export-sutunlar");
+    sutunlar = k ? JSON.parse(k) : VARSAYILAN_SUTUNLAR.map(s=>({...s}));
+  } catch { sutunlar = VARSAYILAN_SUTUNLAR.map(s=>({...s})); }
+
+  // filtreler: Map<key, Set<seçili değer>>
+  // key = TUM_ALANLAR'daki key ile eşleşir (örn. "s.sinif")
+  const filtreler = new Map();
+
+  let tumOgrenciler = [];
+  let velilerMap    = {};
+  let veriYuklendi  = false;
+
+  // ═══════════════════════════════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════════════════════════════
+  requireAdmin(async () => {
+    layoutYukle();
+    sutunlariRender();   // filtre paneli de burada tetiklenir (veri yokken bos mesaj gösterir)
+    document.getElementById("sutun-ekle-btn")        .addEventListener("click", sutunEkle);
+    document.getElementById("varsayilana-don-btn")   .addEventListener("click", varsayilanadon);
+    document.getElementById("onizle-btn")            .addEventListener("click", onizle);
+    document.getElementById("excel-aktar-btn")       .addEventListener("click", excelAktar);
+    document.getElementById("filtreleri-temizle-btn").addEventListener("click", tumFiltreleriTemizle);
+    veriYukle();
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // SÜTUN UI — değiştiğinde filtreyi de günceller
+  // ═══════════════════════════════════════════════════════════════
+  function sutunlariRender() {
+    const kap = document.getElementById("sutunlar-kap");
+    kap.innerHTML = "";
+    sutunlar.forEach((s, i) => {
+      const div = document.createElement("div");
+      div.className = "sutun-kart" + (s.key === "__sira__" ? " sira-sutun" : "");
+      const badge = document.createElement("span");
+      badge.className = "sira-badge";
+      badge.textContent = i + 1;
+      if (s.key === "__sira__") {
+        const lbl = document.createElement("span");
+        lbl.className = "small text-muted flex-grow-1";
+        lbl.innerHTML = '<i class="bi bi-sort-numeric-down me-1"></i>Sıra (otomatik)';
+        div.appendChild(badge);
+        div.appendChild(lbl);
+      } else {
+        const select = document.createElement("select");
+        select.title = "Alan seçin";
+        buildOptions(select, s.key);
+        select.addEventListener("change", () => {
+          sutunlar[i].key = select.value;
+          sutunKaydet();
+          filtreUIYenile();  // ← sütun değişti, filtreyi güncelle
+        });
+        const silBtn = document.createElement("button");
+        silBtn.className = "sil-btn";
+        silBtn.title = "Sütunu kaldır";
+        silBtn.innerHTML = '<i class="bi bi-x-lg"></i>';
+        silBtn.addEventListener("click", () => {
+          sutunlar.splice(i, 1);
+          sutunKaydet();
+          sutunlariRender();  // filtreUIYenile içinde çağrılır
+        });
+        div.appendChild(badge);
+        div.appendChild(select);
+        div.appendChild(silBtn);
+      }
+      kap.appendChild(div);
+    });
+    filtreUIYenile();  // ← her render'da filtreyi senkronize et
+  }
+
+  function buildOptions(select, seciliKey) {
+    const bos = document.createElement("option");
+    bos.value = ""; bos.textContent = "— Alan seçin —";
+    select.appendChild(bos);
+    const gruplar = {};
+    TUM_ALANLAR.forEach(a => {
+      if (!gruplar[a.grup]) gruplar[a.grup] = [];
+      gruplar[a.grup].push(a);
+    });
+    Object.entries(gruplar).forEach(([grup, alanlar]) => {
+      const og = document.createElement("optgroup");
+      og.label = grup;
+      alanlar.forEach(a => {
+        const opt = document.createElement("option");
+        opt.value = a.key; opt.textContent = a.label;
+        if (a.key === seciliKey) opt.selected = true;
+        og.appendChild(opt);
+      });
+      select.appendChild(og);
+    });
+    if (!seciliKey) select.value = "";
+  }
+
+  function sutunEkle() {
+    const adet = Math.max(1, Math.min(20, parseInt(document.getElementById("ekle-adet").value)||1));
+    for (let i = 0; i < adet; i++) sutunlar.push({ key:"" });
+    sutunKaydet(); sutunlariRender();
+  }
+
+  function varsayilanadon() {
+    if (!confirm("Sütunlar varsayılana dönecek. Devam edilsin mi?")) return;
+    sutunlar = VARSAYILAN_SUTUNLAR.map(s=>({...s}));
+    sutunKaydet(); sutunlariRender();
+    document.getElementById("onizleme-kart").classList.add("d-none");
+  }
+
+  function sutunKaydet() {
+    try { localStorage.setItem("excel-export-sutunlar", JSON.stringify(sutunlar)); } catch {}
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // VERİ YÜKLEME
+  // ═══════════════════════════════════════════════════════════════
+  async function veriYukle() {
+    if (veriYuklendi) return;
+    try {
+      const [ogrSnap, veliSnap] = await Promise.all([
+        getDocs(collection(db, "students")),
+        getDocs(collection(db, "veliler"))
+      ]);
+      const tumVeliler = veliSnap.docs.map(d => ({ id:d.id, ...d.data() }));
+      velilerMap = {};
+      tumVeliler.forEach(v => {
+        const oid = String(v.ogrenciId || "");
+        if (!velilerMap[oid]) velilerMap[oid] = [];
+        velilerMap[oid].push(v);
+      });
+      Object.keys(velilerMap).forEach(oid => {
+        velilerMap[oid].sort((a,b) => {
+          if (!!b.birincil !== !!a.birincil) return b.birincil ? 1 : -1;
+          return (Number(a.iletisim_sirasi)||0) - (Number(b.iletisim_sirasi)||0);
+        });
+      });
+      tumOgrenciler = ogrSnap.docs
+        .map(d => ({ id:d.id, ...d.data() }))
+        .filter(o => (o.durum||"Aktif") === "Aktif")
+        .sort((a,b) => {
+          const sc = (a.sinif||"").localeCompare(b.sinif||"","tr");
+          return sc !== 0 ? sc : (a.ad||"").localeCompare(b.ad||"","tr");
+        });
+      veriYuklendi = true;
+      // Yükleme mesajını kaldır, filtreyi güncelle
+      const yukl = document.getElementById("filtre-yukl-mesaj");
+      if (yukl) yukl.remove();
+      filtreUIYenile();
+    } catch(err) {
+      const el = document.getElementById("filtre-yukl-mesaj");
+      if (el) el.textContent = "Veriler yüklenemedi: " + err.message;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // FİLTRE — sütunlara göre dinamik
+  // ═══════════════════════════════════════════════════════════════
+
+  // Şu an seçili sütunlarda filtre tanımı olan alanları döndür (tekrar yok, sıralı)
+  function aktifFiltreTanimlari() {
+    const goruldu = new Set();
+    const sonuc = [];
+    sutunlar.forEach(s => {
+      if (!s.key || s.key === "__sira__") return;
+      const alan = TUM_ALANLAR.find(a => a.key === s.key);
+      if (!alan || !alan.filtre) return;
+      if (goruldu.has(s.key)) return;
+      goruldu.add(s.key);
+      sonuc.push({ key: s.key, ...alan.filtre });
+    });
+    return sonuc;
+  }
+
+  // Filtre panelini sıfırdan çizer; mevcut seçimler korunur
+  function filtreUIYenile() {
+    const govde = document.getElementById("filtre-govde");
+
+    // Yükleme mesajı hâlâ görünüyorsa dokunma
+    if (document.getElementById("filtre-yukl-mesaj")) return;
+
+    govde.innerHTML = "";
+
+    const tanimlar = aktifFiltreTanimlari();
+
+    if (!tanimlar.length) {
+      govde.innerHTML = '<p id="filtre-bos-mesaj" class="mb-0">Filtrelenebilir bir sütun seçilmedi.</p>';
+      filtreOzetGuncelle(tanimlar);
+      return;
+    }
+
+    tanimlar.forEach(tanim => {
+      // Seçenekleri belirle
+      let secenekler = tanim.secenekler || [];
+      if (tanim.dinamik) {
+        const set = new Set();
+        if (tanim.kaynak === "veli") {
+          // İlgili veli sırasından (vNo) değerleri topla
+          Object.values(velilerMap).forEach(vArr => {
+            const v = vArr[tanim.vNo];
+            if (v) {
+              const field = tanim.key.slice(3); // "v1.meslek" → "meslek"
+              const val = v[field];
+              if (val) set.add(String(val));
+            }
+          });
+        } else {
+          const field = tanim.key.slice(2); // "s.sinif" → "sinif"
+          tumOgrenciler.forEach(o => { if (o[field]) set.add(String(o[field])); });
+        }
+        secenekler = [...set].sort((a,b) => a.localeCompare(b,"tr"));
+      }
+      if (!secenekler.length) return;
+
+      // Mevcut seçili değerleri koru
+      if (!filtreler.has(tanim.key)) filtreler.set(tanim.key, new Set());
+      const mevcutSecim = filtreler.get(tanim.key);
+
+      const grpDiv = document.createElement("div");
+      grpDiv.className = "filtre-grup";
+      const baslikEl = document.createElement("div");
+      baslikEl.className = "filtre-grup-baslik";
+      baslikEl.textContent = tanim.baslik;
+      grpDiv.appendChild(baslikEl);
+
+      const chipler = document.createElement("div");
+      chipler.className = "filtre-chipler";
+      secenekler.forEach(secenek => {
+        const chip = document.createElement("span");
+        chip.className = "filtre-chip" + (mevcutSecim.has(secenek) ? " secili" : "");
+        chip.dataset.deger = secenek;
+        const ikonGizli = mevcutSecim.has(secenek) ? "" : " d-none";
+        chip.innerHTML = `<i class="bi bi-check2 chip-icon${ikonGizli}"></i>${secenek}`;
+        chip.addEventListener("click", () => chipToggle(chip, tanim.key, secenek, tanimlar));
+        chipler.appendChild(chip);
+      });
+      grpDiv.appendChild(chipler);
+      govde.appendChild(grpDiv);
+    });
+
+    // Artık sütunda olmayan filtrelerin seçimlerini temizle
+    const aktifKeyler = new Set(tanimlar.map(t => t.key));
+    filtreler.forEach((_, k) => { if (!aktifKeyler.has(k)) filtreler.delete(k); });
+
+    filtreOzetGuncelle(tanimlar);
+  }
+
+  function chipToggle(chip, key, deger, tanimlar) {
+    const set = filtreler.get(key) || new Set();
+    if (set.has(deger)) {
+      set.delete(deger);
+      chip.classList.remove("secili");
+      chip.querySelector(".chip-icon").classList.add("d-none");
+    } else {
+      set.add(deger);
+      chip.classList.add("secili");
+      chip.querySelector(".chip-icon").classList.remove("d-none");
+    }
+    filtreler.set(key, set);
+    filtreOzetGuncelle(tanimlar);
+  }
+
+  function tumFiltreleriTemizle() {
+    filtreler.forEach(set => set.clear());
+    document.querySelectorAll(".filtre-chip.secili").forEach(chip => {
+      chip.classList.remove("secili");
+      chip.querySelector(".chip-icon").classList.add("d-none");
+    });
+    filtreOzetGuncelle(aktifFiltreTanimlari());
+  }
+
+  function filtreOzetGuncelle(tanimlar) {
+    tanimlar = tanimlar || aktifFiltreTanimlari();
+    const toplamSecili = tanimlar.reduce((t, fd) => t + (filtreler.get(fd.key)?.size || 0), 0);
+    const ozetEl  = document.getElementById("filtre-ozet");
+    const temizEl = document.getElementById("filtreleri-temizle-btn");
+    const metin   = document.getElementById("filtre-ozet-metin");
+    if (toplamSecili > 0) {
+      metin.textContent = toplamSecili + " filtre aktif";
+      ozetEl.classList.remove("d-none");
+      temizEl.classList.remove("d-none");
+    } else {
+      ozetEl.classList.add("d-none");
+      temizEl.classList.add("d-none");
+    }
+  }
+
+  // Filtrelenmiş öğrenci listesi
+  function filtreliOgrenciler() {
+    const tanimlar = aktifFiltreTanimlari();
+    return tumOgrenciler.filter(o => {
+      const ogrId  = String(o.id || "");
+      const veliler = velilerMap[ogrId] || [];
+      return tanimlar.every(tanim => {
+        const set = filtreler.get(tanim.key);
+        if (!set || !set.size) return true;
+        let deger;
+        if (tanim.kaynak === "veli") {
+          const v = veliler[tanim.vNo] || {};
+          const field = tanim.key.slice(3);
+          deger = String(v[field] || "");
+        } else {
+          const field = tanim.key.slice(2);
+          deger = String(o[field] || "");
+        }
+        return set.has(deger);
+      });
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // DEĞER ÇÖZÜMLEME
+  // ═══════════════════════════════════════════════════════════════
+  function alanDegeriAl(ogrenci, key, siraNo) {
+    if (key === "__sira__") return siraNo;
+    if (!key) return "";
+    const ogrId   = String(ogrenci.id || ogrenci.numara || "");
+    const veliler = velilerMap[ogrId] || [];
+    const v1 = veliler[0] || {};
+    const v2 = veliler[1] || {};
+    const v3 = veliler[2] || {};
+    const adSoyad = v => [v.ad||"", v.soyad||""].filter(Boolean).join(" ");
+
+    if (key === "s.ad_soyad") return adSoyad(ogrenci);
+    if (key.startsWith("s."))  return String(ogrenci[key.slice(2)] ?? "");
+    if (key.startsWith("v1.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v1):String(v1[f]??""); }
+    if (key.startsWith("v2.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v2):String(v2[f]??""); }
+    if (key.startsWith("v3.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v3):String(v3[f]??""); }
+    return "";
+  }
+
+  function sutunBasligi(s, idx) {
+    if (s.key === "__sira__") return "Sıra";
+    if (!s.key) return "Sütun " + (idx+1);
+    const a = TUM_ALANLAR.find(a => a.key === s.key);
+    return a ? a.label : s.key;
+  }
+
+  function satirOlustur(ogrenci, siraNo) {
+    return sutunlar.map(s => {
+      const v = alanDegeriAl(ogrenci, s.key, siraNo);
+      return (v === null || v === undefined) ? "" : String(v);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // EXCEL YARDIMCILARI
+  // ═══════════════════════════════════════════════════════════════
+  function baslikStilUygula(ws, sutunSayisi) {
+    ws["!freeze"] = { xSplit:0, ySplit:1, topLeftCell:"A2", activePane:"bottomLeft" };
+    for (let c = 0; c < sutunSayisi; c++) {
+      const ref = XLSX.utils.encode_cell({ r:0, c });
+      if (!ws[ref]) continue;
+      ws[ref].s = {
+        font:      { bold:true, color:{ rgb:"FFFFFF" } },
+        fill:      { patternType:"solid", fgColor:{ rgb:"217346" } },
+        alignment: { horizontal:"center", vertical:"center", wrapText:false },
+        border:    { bottom:{ style:"thin", color:{ rgb:"155724" } } }
+      };
+    }
+  }
+
+  function sutunGenislikleri(wsData) {
+    return wsData[0].map((_, ci) => ({
+      wch: Math.min(50, Math.max(10,
+        wsData.reduce((mx, row) => Math.max(mx, String(row[ci]||"").length), 0) + 2
+      ))
+    }));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // ÖNİZLE
+  // ═══════════════════════════════════════════════════════════════
+  async function onizle() {
+    if (!veriYuklendi) { yukleniyorGoster("Veriler yükleniyor…"); await veriYukle(); yukleniyorGizle(); }
+    if (!sutunlar.some(s => s.key)) { alert("Lütfen en az bir sütun seçin."); return; }
+    const liste = filtreliOgrenciler();
+    const thead = document.querySelector("#onizleme-tablo thead");
+    const tbody = document.querySelector("#onizleme-tablo tbody");
+    thead.innerHTML = "<tr>" + sutunlar.map((s,i) => `<th>${sutunBasligi(s,i)}</th>`).join("") + "</tr>";
+    tbody.innerHTML = liste.slice(0,20).map((o,i) => {
+      const cells = satirOlustur(o, i+1).map(v =>
+        `<td title="${v.replace(/"/g,"&quot;")}">${v || '<span class="text-muted">—</span>'}</td>`
+      ).join("");
+      return `<tr>${cells}</tr>`;
+    }).join("");
+    document.getElementById("onizleme-adet").textContent =
+      liste.length + " / " + tumOgrenciler.length + " öğrenci";
+    const kart = document.getElementById("onizleme-kart");
+    kart.classList.remove("d-none");
+    kart.scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // EXCEL AKTAR
+  // ═══════════════════════════════════════════════════════════════
+  async function excelAktar() {
+    if (!veriYuklendi) { yukleniyorGoster("Veriler yükleniyor…"); await veriYukle(); yukleniyorGizle(); }
+    if (!sutunlar.some(s => s.key)) { alert("Lütfen en az bir sütun seçin."); return; }
+    yukleniyorGoster("Excel dosyası hazırlanıyor…");
+    try {
+      const liste      = filtreliOgrenciler();
+      const basliklar  = sutunlar.map((s,i) => sutunBasligi(s,i));
+      const sinifSekme = document.getElementById("opt-sinif-sekme").checked;
+      const writeOpts  = { bookType:"xlsx", type:"binary", cellStyles:true };
+      const wb         = XLSX.utils.book_new();
+
+      if (sinifSekme) {
+        const siniflar = [...new Set(liste.map(o => o.sinif || "Sınıfsız"))]
+          .sort((a,b) => a.localeCompare(b,"tr"));
+        siniflar.forEach(sinif => {
+          const grup   = liste.filter(o => (o.sinif||"Sınıfsız") === sinif);
+          const wsData = [basliklar, ...grup.map((o,i) => satirOlustur(o, i+1))];
+          const ws     = XLSX.utils.aoa_to_sheet(wsData);
+          ws["!cols"]  = sutunGenislikleri(wsData);
+          baslikStilUygula(ws, basliklar.length);
+          XLSX.utils.book_append_sheet(wb, ws, sinif.slice(0,31).replace(/[\\\/\?\*\[\]:]/g,""));
+        });
+        const tumData = [basliklar, ...liste.map((o,i) => satirOlustur(o, i+1))];
+        const wsTum   = XLSX.utils.aoa_to_sheet(tumData);
+        wsTum["!cols"] = sutunGenislikleri(tumData);
+        baslikStilUygula(wsTum, basliklar.length);
+        XLSX.utils.book_append_sheet(wb, wsTum, "Tüm Öğrenciler");
+      } else {
+        const wsData = [basliklar, ...liste.map((o,i) => satirOlustur(o, i+1))];
+        const ws     = XLSX.utils.aoa_to_sheet(wsData);
+        ws["!cols"]  = sutunGenislikleri(wsData);
+        baslikStilUygula(ws, basliklar.length);
+        XLSX.utils.book_append_sheet(wb, ws, "Öğrenciler");
+      }
+      XLSX.writeFile(wb, "ogrenci_listesi_" + new Date().toISOString().slice(0,10) + ".xlsx", writeOpts);
+    } finally {
+      yukleniyorGizle();
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // YARDIMCILAR
+  // ═══════════════════════════════════════════════════════════════
+  function yukleniyorGoster(msg) {
+    document.getElementById("yukleniyor-mesaj").textContent = msg || "Yükleniyor…";
+    document.getElementById("yukleniyor-overlay").classList.add("aktif");
+  }
+  function yukleniyorGizle() {
+    document.getElementById("yukleniyor-overlay").classList.remove("aktif");
+  }
+</script>
+</body>
+</html>
