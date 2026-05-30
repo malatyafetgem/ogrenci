@@ -1,6 +1,6 @@
-import { auth } from "./firebase-config.js?v=20260529-29";
+import { auth } from "./firebase-config.js?v=20260530-30";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { toast } from "./utils.js?v=20260529-29";
+import { toast } from "./utils.js?v=20260530-30";
 
 // Sistemde yalnızca bu Firebase UID Admin kabul edilir.
 const ADMIN_UIDS = ["zpaTsm2L7FSCqLA8BDkxI7bX9vM2"];
@@ -15,7 +15,6 @@ export function requireAuth(callback) {
       window.location.href = "index.html";
     } else {
       document.body.classList.toggle("admin-user", isAdminUser(user));
-      applyAdminVisibility(document);
       if (callback) callback(user);
       applyAdminVisibility(document);
     }

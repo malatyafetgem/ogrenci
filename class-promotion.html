@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260529-29"></script>
+  <script src="file-redirect.js?v=20260530-30"></script>
   <title>Sınıf Atlatma</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260529-29">
+  <link rel="stylesheet" href="app.css?v=20260530-30">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -91,14 +91,14 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260529-29";
-  import { layoutYukle } from "./layout.js?v=20260529-29";
-  import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260529-29";
-  import { db } from "./firebase-config.js?v=20260529-29";
+  import { requireAdmin } from "./auth.js?v=20260530-30";
+  import { layoutYukle } from "./layout.js?v=20260530-30";
+  import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260530-30";
+  import { db } from "./firebase-config.js?v=20260530-30";
   import {
     collection, getDocs, doc, writeBatch, query, where
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, onayIste, sinifParcala, escapeHtml, escapeAttr } from "./utils.js?v=20260529-29";
+  import { toast, onayIste, sinifParcala, escapeHtml, escapeAttr } from "./utils.js?v=20260530-30";
 
   let ogrenciler = [];
   const islemler = {};
@@ -111,10 +111,19 @@
   });
 
   async function yukle() {
-    ogrenciler = await tumOgrencileriGetir();
-    tabloGoster();
-    document.getElementById("yukleniyor").classList.add("d-none");
-    document.getElementById("icerik").classList.remove("d-none");
+    try {
+      ogrenciler = await tumOgrencileriGetir();
+      tabloGoster();
+      document.getElementById("yukleniyor").classList.add("d-none");
+      document.getElementById("icerik").classList.remove("d-none");
+    } catch (err) {
+      document.getElementById("yukleniyor").innerHTML =
+        `<div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Veriler yüklenemedi. Bağlantınızı kontrol edip sayfayı yenileyin.
+          <div class="small text-muted mt-1">${escapeHtml(err.message)}</div>
+        </div>`;
+    }
   }
 
   function sinifHesapla(sinif) {
@@ -175,12 +184,75 @@
     });
 
     document.getElementById("onayla-btn").addEventListener("click", async () => {
+      const onaylaBtn = document.getElementById("onayla-btn");
+      const onaylaBtnOrijinal = onaylaBtn.innerHTML;
+
+      // Silinecek öğrencileri belirle
+      const silinecekler = ogrenciler.filter(o => {
+        const islem = islemler[o.id] || (sinifHesapla(o.sinif) === "SISTEMDEN_CIKAR" ? "cikar" : "gecis");
+        return islem === "cikar" || islem === "sil";
+      });
+
+      let ozet = "";
+      let onayMetni = "AKTAR";
+      let onayButonu = "Aktarımı Uygula";
+
+      if (silinecekler.length > 0) {
+        // Sayım sırasında butonu kilitle
+        onaylaBtn.disabled = true;
+        onaylaBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Kayıtlar hesaplanıyor...`;
+
+        try {
+          // Bağlı kayıt sayılarını hesapla
+          let toplamVeli = 0, toplamDevamsizlik = 0, toplamDavranis = 0, toplamGorusme = 0;
+          const ogrenciOzetleri = [];
+          for (const o of silinecekler) {
+            for (const kol of BAGLI_KOLEKSIYONLAR) {
+              const snap = await getDocs(query(collection(db, kol), where("ogrenciId", "==", o.id)));
+              if (kol === "veliler")           toplamVeli += snap.size;
+              else if (kol === "devamsizliklar") toplamDevamsizlik += snap.size;
+              else if (kol === "davranislar")   toplamDavranis += snap.size;
+              else if (kol === "veligorusmeleri") toplamGorusme += snap.size;
+            }
+            ogrenciOzetleri.push(`• ${o.ad} ${o.soyad} (${o.sinif})`);
+          }
+
+          ozet = `⚠️ BU İŞLEM GERİ ALINAMAZ. Devam etmeden önce yedek almanız önerilir.\n\n` +
+                 `Kalıcı olarak silinecekler:\n` +
+                 `• ${silinecekler.length} öğrenci\n` +
+                 `• ${toplamVeli} veli kaydı\n` +
+                 `• ${toplamDevamsizlik} devamsızlık kaydı\n` +
+                 `• ${toplamDavranis} davranış kaydı\n` +
+                 `• ${toplamGorusme} veli görüşmesi\n\n` +
+                 (ogrenciOzetleri.length <= 10
+                   ? ogrenciOzetleri.join("\n")
+                   : ogrenciOzetleri.slice(0, 10).join("\n") + `\n... ve ${ogrenciOzetleri.length - 10} öğrenci daha`);
+
+          onayMetni = "SINIF ATLAT VE SİL";
+          onayButonu = "Uygula (Geri Alınamaz)";
+        } catch (err) {
+          toast("Kayıt sayısı hesaplanamadı: " + err.message, "danger");
+          onaylaBtn.disabled = false;
+          onaylaBtn.innerHTML = onaylaBtnOrijinal;
+          return;
+        } finally {
+          onaylaBtn.disabled = false;
+          onaylaBtn.innerHTML = onaylaBtnOrijinal;
+        }
+      } else {
+        ozet = "Silinecek öğrenci yok. Sınıf geçişleri ve aynı sınıfta kalanlar işlenecek.";
+        onayMetni = "AKTAR";
+        onayButonu = "Aktarımı Uygula";
+      }
+
       const onay = await onayIste({
         baslik: "Sınıf atlatmayı uygula",
-        mesaj: "Seçili işlemler tüm aktif öğrencilere uygulanacak.",
-        detay: "12. sınıflarda Sistemden Çıkar seçiliyse öğrenci ve bağlı kayıtları silinir. Bu işlem geri alınamaz.",
-        onayMetni: "AKTAR",
-        onayButonu: "Aktarımı Uygula",
+        mesaj: silinecekler.length > 0
+          ? `${silinecekler.length} öğrenci ve tüm bağlı kayıtları kalıcı olarak silinecek.`
+          : "Seçili işlemler tüm aktif öğrencilere uygulanacak.",
+        detay: ozet,
+        onayMetni,
+        onayButonu,
         tip: "danger"
       });
       if (!onay) return;

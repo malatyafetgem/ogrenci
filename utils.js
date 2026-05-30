@@ -349,10 +349,22 @@ export function gecerliOgrenciNo(no) {
 }
 
 /**
- * TC Kimlik No doğrula: 11 hane, sadece rakam.
+ * TC Kimlik No doğrula.
+ * Boş değer kabul edilir (boş bırakılabilir).
+ * Girilmişse: 11 hane, ilk hane ≠ 0, resmi algoritma kontrolü.
  */
 export function gecerliTc(tc) {
-  return /^\d{11}$/.test(String(tc).trim());
+  const raw = String(tc ?? "").trim();
+  if (raw === "") return true; // Boş bırakılabilir
+  if (!/^\d{11}$/.test(raw)) return false;
+  if (raw[0] === "0") return false;
+  const d = raw.split("").map(Number);
+  // 10. hane: (7*(d0+d2+d4+d6+d8) - (d1+d3+d5+d7)) mod 10
+  const d10 = ((7 * (d[0] + d[2] + d[4] + d[6] + d[8]) - (d[1] + d[3] + d[5] + d[7])) % 10 + 10) % 10;
+  if (d[9] !== d10) return false;
+  // 11. hane: (d0+...+d9) mod 10
+  const d11 = (d[0] + d[1] + d[2] + d[3] + d[4] + d[5] + d[6] + d[7] + d[8] + d[9]) % 10;
+  return d[10] === d11;
 }
 
 /**

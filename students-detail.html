@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260529-29"></script>
+  <script src="file-redirect.js?v=20260530-30"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260529-29">
+  <link rel="stylesheet" href="app.css?v=20260530-30">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -178,7 +178,7 @@
                           <th>Tür</th>
                           <th>Miktar</th>
                           <th>Açıklama</th>
-                          <th class="no-print">Sil</th>
+                          <th class="no-print">İşlem</th>
                         </tr>
                       </thead>
                       <tbody id="dev-tablo"></tbody>
@@ -209,7 +209,7 @@
                           <th>Kategori</th>
                           <th>Açıklama</th>
                           <th>Veli Görüşmesi</th>
-                          <th class="no-print">Sil</th>
+                          <th class="no-print">İşlem</th>
                         </tr>
                       </thead>
                       <tbody id="davranis-tablo"></tbody>
@@ -237,7 +237,7 @@
                           <th>Veli</th>
                           <th>Konu</th>
                           <th>Açıklama</th>
-                          <th class="no-print">Sil</th>
+                          <th class="no-print">İşlem</th>
                         </tr>
                       </thead>
                       <tbody id="gorusme-tablo"></tbody>
@@ -253,6 +253,145 @@
     </div>
   </main>
 </div>
+<!-- Devamsızlık Düzenleme Modali -->
+<div class="modal fade" id="dev-duzenle-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Devamsızlık Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="dev-duzenle-id">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Tarih <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="dev-duzenle-tarih" placeholder="GG.AA.YYYY">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Tür <span class="text-danger">*</span></label>
+            <select class="form-select" id="dev-duzenle-tur">
+              <option value="Özürsüz">Özürsüz</option>
+              <option value="Özürlü">Özürlü</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Miktar (gün)</label>
+            <input type="number" class="form-control" id="dev-duzenle-miktar" min="0.5" step="0.5" value="1">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Açıklama</label>
+            <input type="text" class="form-control" id="dev-duzenle-aciklama">
+          </div>
+        </div>
+        <div class="alert alert-danger d-none mt-3" id="dev-duzenle-hata"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn btn-primary" id="dev-duzenle-kaydet-btn">
+          <span id="dev-duzenle-kaydet-metin"><i class="bi bi-check-circle me-1"></i>Kaydet</span>
+          <span id="dev-duzenle-kaydet-yuklen" class="d-none"><span class="spinner-border spinner-border-sm me-1"></span>Kaydediliyor...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Davranış Düzenleme Modali -->
+<div class="modal fade" id="davranis-duzenle-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Davranış Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="davranis-duzenle-id">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Tarih <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="davranis-duzenle-tarih" placeholder="GG.AA.YYYY">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Tür <span class="text-danger">*</span></label>
+            <select class="form-select" id="davranis-duzenle-tur">
+              <option value="Olumlu">Olumlu</option>
+              <option value="Olumsuz">Olumsuz</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Kategori</label>
+            <input type="text" class="form-control" id="davranis-duzenle-kategori">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Açıklama</label>
+            <input type="text" class="form-control" id="davranis-duzenle-aciklama">
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="davranis-duzenle-veli-gorusmesi">
+              <label class="form-check-label">Veli Görüşmesi Yapıldı</label>
+            </div>
+          </div>
+        </div>
+        <div class="alert alert-danger d-none mt-3" id="davranis-duzenle-hata"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn btn-primary" id="davranis-duzenle-kaydet-btn">
+          <span id="davranis-duzenle-kaydet-metin"><i class="bi bi-check-circle me-1"></i>Kaydet</span>
+          <span id="davranis-duzenle-kaydet-yuklen" class="d-none"><span class="spinner-border spinner-border-sm me-1"></span>Kaydediliyor...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Görüşme Düzenleme Modali -->
+<div class="modal fade" id="gorusme-duzenle-modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Görüşme Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="gorusme-duzenle-id">
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Tarih <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="gorusme-duzenle-tarih" placeholder="GG.AA.YYYY">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Veli Yakınlığı</label>
+            <input type="text" class="form-control" id="gorusme-duzenle-veli-yakinlik">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Veli Adı</label>
+            <input type="text" class="form-control" id="gorusme-duzenle-veli-adi">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Konu</label>
+            <input type="text" class="form-control" id="gorusme-duzenle-konu">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Açıklama</label>
+            <textarea class="form-control" id="gorusme-duzenle-aciklama" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="alert alert-danger d-none mt-3" id="gorusme-duzenle-hata"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
+        <button type="button" class="btn btn-primary" id="gorusme-duzenle-kaydet-btn">
+          <span id="gorusme-duzenle-kaydet-metin"><i class="bi bi-check-circle me-1"></i>Kaydet</span>
+          <span id="gorusme-duzenle-kaydet-yuklen" class="d-none"><span class="spinner-border spinner-border-sm me-1"></span>Kaydediliyor...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="footer-kap"></div>
 <div id="bottom-nav-kap"></div>
 
@@ -260,23 +399,24 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260529-29";
-  import { layoutYukle } from "./layout.js?v=20260529-29";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260530-30";
+  import { layoutYukle } from "./layout.js?v=20260530-30";
   import {
     ogrenciGetir, velileriGetir,
-    devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil,
-    davranislarGetir, davranisSil,
-    gorusmeleriGetir, gorusmeSil
-  } from "./students.js?v=20260529-29";
+    devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
+    davranislarGetir, davranisSil, davranisGuncelle,
+    gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
+  } from "./students.js?v=20260530-30";
   import {
     devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260529-29";
-  import { avatarSrc } from "./avatar.js?v=20260529-29";
+  } from "./utils.js?v=20260530-30";
+  import { avatarSrc } from "./avatar.js?v=20260530-30";
 
   let ogrenciId = null;
   let tumDavranislar = [];
+  let tumDevamsizlikKayitlar = [];
 
   requireAuth(async () => {
     layoutYukle();
@@ -434,6 +574,7 @@
 
   async function yukleDevamsizlik() {
     const kayitlar = await devamsizliklarGetir(ogrenciId);
+    tumDevamsizlikKayitlar = kayitlar;
     const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
     const toplam = ozurlu + ozursuz;
     const durum = devamsizlikDurum(ozurlu, ozursuz);
@@ -456,9 +597,16 @@
           <td data-label="Miktar">${escapeHtml(k.gorunenMiktar || "—")}</td>
           <td data-label="Açıklama">${escapeHtml(k.aciklama || "—")}</td>
           <td data-label="İşlem" class="no-print">
-            <button class="btn btn-xs btn-outline-danger" data-admin-only onclick="silDevamsizlik('${escapeAttr(k.id)}')">
-              <i class="bi bi-trash"></i>
-            </button>
+            <div class="d-flex gap-1">
+              <button class="btn btn-xs btn-outline-primary" data-admin-only
+                      onclick="duzenleDevamsizlik('${escapeAttr(k.id)}')">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-xs btn-outline-danger" data-admin-only
+                      onclick="silDevamsizlik('${escapeAttr(k.id)}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
           </td>
         </tr>`).join("");
     applyAdminVisibility(tbody);
@@ -518,9 +666,16 @@
             <td data-label="Açıklama">${escapeHtml(d.aciklama || "—")}</td>
             <td data-label="Veli Görüşmesi">${d.veli_gorusmesi ? '<i class="bi bi-check-circle text-success"></i>' : "—"}</td>
             <td data-label="İşlem" class="no-print">
-              <button class="btn btn-xs btn-outline-danger" data-admin-only onclick="silDavranis('${escapeAttr(d.id)}')">
-                <i class="bi bi-trash"></i>
-              </button>
+              <div class="d-flex gap-1">
+                <button class="btn btn-xs btn-outline-primary" data-admin-only
+                        onclick="duzenleDavranis('${escapeAttr(d.id)}')">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-xs btn-outline-danger" data-admin-only
+                        onclick="silDavranis('${escapeAttr(d.id)}')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             </td>
           </tr>`;
         }).join("");
@@ -540,9 +695,16 @@
           <td data-label="Konu">${escapeHtml(g.konu || "—")}</td>
           <td data-label="Açıklama">${escapeHtml(g.aciklama || "—")}</td>
           <td data-label="İşlem" class="no-print">
-            <button class="btn btn-xs btn-outline-danger" data-admin-only onclick="silGorusme('${escapeAttr(g.id)}')">
-              <i class="bi bi-trash"></i>
-            </button>
+            <div class="d-flex gap-1">
+              <button class="btn btn-xs btn-outline-primary" data-admin-only
+                      onclick="duzenleGorusme('${escapeAttr(g.id)}')">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-xs btn-outline-danger" data-admin-only
+                      onclick="silGorusme('${escapeAttr(g.id)}')">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
           </td>
         </tr>`;
       }).join("");
@@ -598,6 +760,137 @@
       await yukleGorusmeler();
     } catch (err) { toast("Hata: " + err.message, "danger"); }
   };
+
+  // ── Düzenleme modal fonksiyonları ─────────────────────────────────────────
+
+  const devDuzenleModal = new bootstrap.Modal(document.getElementById("dev-duzenle-modal"));
+  const davDuzenleModal = new bootstrap.Modal(document.getElementById("davranis-duzenle-modal"));
+  const gorDuzenleModal = new bootstrap.Modal(document.getElementById("gorusme-duzenle-modal"));
+
+  window.duzenleDevamsizlik = (kayitId) => {
+    if (!adminActionAllowed()) return;
+    const kayit = tumDevamsizlikKayitlar.find(k => k.id === kayitId);
+    if (!kayit) return;
+    document.getElementById("dev-duzenle-id").value = kayitId;
+    document.getElementById("dev-duzenle-tarih").value = kayit.tarih || "";
+    document.getElementById("dev-duzenle-tur").value = kayit.tur || "Özürsüz";
+    document.getElementById("dev-duzenle-miktar").value = kayit.gun_degeri ?? kayit.miktar ?? 1;
+    document.getElementById("dev-duzenle-aciklama").value = kayit.aciklama || "";
+    document.getElementById("dev-duzenle-hata").classList.add("d-none");
+    devDuzenleModal.show();
+  };
+
+  document.getElementById("dev-duzenle-kaydet-btn").addEventListener("click", async () => {
+    const kayitId = document.getElementById("dev-duzenle-id").value;
+    const tarih = document.getElementById("dev-duzenle-tarih").value.trim();
+    const tur   = document.getElementById("dev-duzenle-tur").value;
+    const miktar = parseFloat(document.getElementById("dev-duzenle-miktar").value) || 1;
+    const aciklama = document.getElementById("dev-duzenle-aciklama").value.trim();
+    const hataEl = document.getElementById("dev-duzenle-hata");
+    if (!tarih) { hataEl.textContent = "Tarih zorunludur."; hataEl.classList.remove("d-none"); return; }
+    const metin  = document.getElementById("dev-duzenle-kaydet-metin");
+    const yuklen = document.getElementById("dev-duzenle-kaydet-yuklen");
+    metin.classList.add("d-none"); yuklen.classList.remove("d-none");
+    document.getElementById("dev-duzenle-kaydet-btn").disabled = true;
+    try {
+      await devamsizlikGuncelle(ogrenciId, kayitId, { tarih, tur, gun_degeri: miktar, aciklama });
+      toast("Devamsızlık kaydı güncellendi.", "success");
+      devDuzenleModal.hide();
+      await yukleDevamsizlik();
+    } catch (err) {
+      hataEl.textContent = "Hata: " + err.message;
+      hataEl.classList.remove("d-none");
+    } finally {
+      metin.classList.remove("d-none"); yuklen.classList.add("d-none");
+      document.getElementById("dev-duzenle-kaydet-btn").disabled = false;
+    }
+  });
+
+  window.duzenleDavranis = (kayitId) => {
+    if (!adminActionAllowed()) return;
+    const kayit = tumDavranislar.find(d => d.id === kayitId);
+    if (!kayit) return;
+    document.getElementById("davranis-duzenle-id").value = kayitId;
+    document.getElementById("davranis-duzenle-tarih").value = kayit.tarih || "";
+    document.getElementById("davranis-duzenle-tur").value = kayit.tur || "Olumlu";
+    document.getElementById("davranis-duzenle-kategori").value = kayit.kategori || "";
+    document.getElementById("davranis-duzenle-aciklama").value = kayit.aciklama || "";
+    document.getElementById("davranis-duzenle-veli-gorusmesi").checked = !!kayit.veli_gorusmesi;
+    document.getElementById("davranis-duzenle-hata").classList.add("d-none");
+    davDuzenleModal.show();
+  };
+
+  document.getElementById("davranis-duzenle-kaydet-btn").addEventListener("click", async () => {
+    const kayitId  = document.getElementById("davranis-duzenle-id").value;
+    const tarih    = document.getElementById("davranis-duzenle-tarih").value.trim();
+    const tur      = document.getElementById("davranis-duzenle-tur").value;
+    const kategori = document.getElementById("davranis-duzenle-kategori").value.trim();
+    const aciklama = document.getElementById("davranis-duzenle-aciklama").value.trim();
+    const veliGor  = document.getElementById("davranis-duzenle-veli-gorusmesi").checked;
+    const hataEl   = document.getElementById("davranis-duzenle-hata");
+    if (!tarih) { hataEl.textContent = "Tarih zorunludur."; hataEl.classList.remove("d-none"); return; }
+    const metin  = document.getElementById("davranis-duzenle-kaydet-metin");
+    const yuklen = document.getElementById("davranis-duzenle-kaydet-yuklen");
+    metin.classList.add("d-none"); yuklen.classList.remove("d-none");
+    document.getElementById("davranis-duzenle-kaydet-btn").disabled = true;
+    try {
+      await davranisGuncelle(ogrenciId, kayitId, { tarih, tur, kategori, aciklama, veli_gorusmesi: veliGor });
+      toast("Davranış kaydı güncellendi.", "success");
+      davDuzenleModal.hide();
+      tumDavranislar = await davranislarGetir(ogrenciId);
+      davranisTabloGoster(tumDavranislar);
+    } catch (err) {
+      hataEl.textContent = "Hata: " + err.message;
+      hataEl.classList.remove("d-none");
+    } finally {
+      metin.classList.remove("d-none"); yuklen.classList.add("d-none");
+      document.getElementById("davranis-duzenle-kaydet-btn").disabled = false;
+    }
+  });
+
+  window.duzenleGorusme = (kayitId) => {
+    if (!adminActionAllowed()) return;
+    // Görüşme nesnesini bekleyen callback ile yüklüyoruz
+    gorusmeleriGetir(ogrenciId).then(gorusmeler => {
+      const kayit = gorusmeler.find(g => g.id === kayitId);
+      if (!kayit) return;
+      document.getElementById("gorusme-duzenle-id").value = kayitId;
+      document.getElementById("gorusme-duzenle-tarih").value = kayit.tarih || "";
+      document.getElementById("gorusme-duzenle-veli-yakinlik").value = kayit.veli_yakinlik || "";
+      document.getElementById("gorusme-duzenle-veli-adi").value = kayit.veli_adi || "";
+      document.getElementById("gorusme-duzenle-konu").value = kayit.konu || "";
+      document.getElementById("gorusme-duzenle-aciklama").value = kayit.aciklama || "";
+      document.getElementById("gorusme-duzenle-hata").classList.add("d-none");
+      gorDuzenleModal.show();
+    });
+  };
+
+  document.getElementById("gorusme-duzenle-kaydet-btn").addEventListener("click", async () => {
+    const kayitId      = document.getElementById("gorusme-duzenle-id").value;
+    const tarih        = document.getElementById("gorusme-duzenle-tarih").value.trim();
+    const veliYakinlik = document.getElementById("gorusme-duzenle-veli-yakinlik").value.trim();
+    const veliAdi      = document.getElementById("gorusme-duzenle-veli-adi").value.trim();
+    const konu         = document.getElementById("gorusme-duzenle-konu").value.trim();
+    const aciklama     = document.getElementById("gorusme-duzenle-aciklama").value.trim();
+    const hataEl       = document.getElementById("gorusme-duzenle-hata");
+    if (!tarih) { hataEl.textContent = "Tarih zorunludur."; hataEl.classList.remove("d-none"); return; }
+    const metin  = document.getElementById("gorusme-duzenle-kaydet-metin");
+    const yuklen = document.getElementById("gorusme-duzenle-kaydet-yuklen");
+    metin.classList.add("d-none"); yuklen.classList.remove("d-none");
+    document.getElementById("gorusme-duzenle-kaydet-btn").disabled = true;
+    try {
+      await gorusmeGuncelle(ogrenciId, kayitId, { tarih, veli_yakinlik: veliYakinlik, veli_adi: veliAdi, konu, aciklama });
+      toast("Görüşme kaydı güncellendi.", "success");
+      gorDuzenleModal.hide();
+      await yukleGorusmeler();
+    } catch (err) {
+      hataEl.textContent = "Hata: " + err.message;
+      hataEl.classList.remove("d-none");
+    } finally {
+      metin.classList.remove("d-none"); yuklen.classList.add("d-none");
+      document.getElementById("gorusme-duzenle-kaydet-btn").disabled = false;
+    }
+  });
 </script>
 </body>
 </html>

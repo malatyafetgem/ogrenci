@@ -1,15 +1,15 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260529-29";
+import { db } from "./firebase-config.js?v=20260530-30";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
-  updateDoc, deleteDoc, query, where
+  updateDoc, deleteDoc, query, where, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260529-29";
+} from "./utils.js?v=20260530-30";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";
@@ -156,12 +156,25 @@ async function tumKayitlariFirestoredanGetir(koleksiyon) {
     .filter(kayit => kayit.ogrenciId);
 }
 
+/**
+ * Verilen ref listesini writeBatch ile siler (max 450/batch).
+ */
+async function refleriBatchSil(refler) {
+  for (let i = 0; i < refler.length; i += 450) {
+    const batch = writeBatch(db);
+    refler.slice(i, i + 450).forEach(ref => batch.delete(ref));
+    await batch.commit();
+  }
+}
+
 async function ogrenciGlobalKayitlariniSil(ogrenciNo) {
   const id = String(ogrenciNo);
+  const refler = [];
   for (const koleksiyon of KAYIT_KOLEKSIYONLARI) {
     const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", id)));
-    for (const d of snap.docs) await deleteDoc(d.ref);
+    snap.docs.forEach(d => refler.push(d.ref));
   }
+  await refleriBatchSil(refler);
 }
 
 function boolDeger(value) {
@@ -352,7 +365,7 @@ export async function veliSil(_ogrenciNo, veliId) {
 export async function ogrenciVelileriniSil(ogrenciNo) {
   const id = String(ogrenciNo);
   const snap = await getDocs(query(collection(db, VELI_KOLEKSIYON), where("ogrenciId", "==", id)));
-  for (const d of snap.docs) await deleteDoc(d.ref);
+  await refleriBatchSil(snap.docs.map(d => d.ref));
   veliCacheTemizle();
 }
 
@@ -377,6 +390,11 @@ export async function devamsizlikEkle(ogrenciNo, veri) {
 
 export async function devamsizlikSil(_ogrenciNo, kayitId) {
   await deleteDoc(doc(db, "devamsizliklar", String(kayitId)));
+  kayitCacheTemizle("devamsizliklar");
+}
+
+export async function devamsizlikGuncelle(_ogrenciNo, kayitId, veri) {
+  await updateDoc(doc(db, "devamsizliklar", String(kayitId)), tarihliVeri(veri));
   kayitCacheTemizle("devamsizliklar");
 }
 
@@ -451,6 +469,11 @@ export async function gorusmeEkle(ogrenciNo, veri) {
 
 export async function gorusmeSil(_ogrenciNo, kayitId) {
   await deleteDoc(doc(db, "veligorusmeleri", String(kayitId)));
+  kayitCacheTemizle("veligorusmeleri");
+}
+
+export async function gorusmeGuncelle(_ogrenciNo, kayitId, veri) {
+  await updateDoc(doc(db, "veligorusmeleri", String(kayitId)), tarihliVeri(veri));
   kayitCacheTemizle("veligorusmeleri");
 }
 

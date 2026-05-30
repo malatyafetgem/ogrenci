@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="file-redirect.js?v=20260529-29"></script>
+  <script src="file-redirect.js?v=20260530-30"></script>
   <title>Gösterge Paneli</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260529-29">
+  <link rel="stylesheet" href="app.css?v=20260530-30">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -170,23 +170,24 @@
 </div>
 
 <!-- Bottom Nav (Telefon) -->
+<div id="footer-kap"></div>
 <div id="bottom-nav-kap"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260529-29";
-  import { layoutYukle } from "./layout.js?v=20260529-29";
+  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260530-30";
+  import { layoutYukle } from "./layout.js?v=20260530-30";
   import {
     tumOgrencileriGetir,
     tumDevamsizliklariGetir, tumDavranislariGetir, ogrenciSil
-  } from "./students.js?v=20260529-29";
+  } from "./students.js?v=20260530-30";
   import {
     devamsizlikDurum, devamsizlikGunDegeri,
     compareSinif, compareOgrenciNo, compareTarihDesc,
     sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260529-29";
+  } from "./utils.js?v=20260530-30";
 
   let tumOgrenciler = [];
   let seciliOgrenci = null;
