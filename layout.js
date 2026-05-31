@@ -2,8 +2,8 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260531-33";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260531-33";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260531-34";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260531-34";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -499,7 +499,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand d-flex align-items-center gap-2">
-          <span class="brand-logo-mark"><i class="bi bi-journal-bookmark-fill"></i></span>
+          <span class="brand-logo-mark"><img src="icon-brand-192.png?v=20260531-34" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text fw-semibold">Öğrenci Bilgileri</span>
         </a>
         <ul class="navbar-nav d-none d-md-flex ms-3 top-menu">
@@ -517,7 +517,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260531-33");
+    const { logout } = await import("./auth.js?v=20260531-34");
     logout();
   });
 }
