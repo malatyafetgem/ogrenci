@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260531-34">
+  <link rel="manifest" href="manifest.webmanifest?v=20260531-35">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260531-34">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260531-34">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260531-34">
-  <link rel="shortcut icon" href="favicon.ico?v=20260531-34">
-  <script src="file-redirect.js?v=20260531-34"></script>
-  <script src="pwa.js?v=20260531-34"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260531-35">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260531-35">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260531-35">
+  <link rel="shortcut icon" href="favicon.ico?v=20260531-35">
+  <script src="file-redirect.js?v=20260531-35"></script>
+  <script src="pwa.js?v=20260531-35"></script>
   <title>Gösterge Paneli</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260531-34">
+  <link rel="stylesheet" href="app.css?v=20260531-35">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -132,6 +132,70 @@
           </div>
         </div>
 
+        <!-- Genel Dağılım -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-pie-chart me-1"></i> Genel Dağılım</h6>
+          </div>
+          <div class="card-body">
+            <div class="row g-4 align-items-center">
+              <div class="col-12 col-md-4">
+                <div class="grafik-donut-wrap">
+                  <div class="grafik-donut" id="cinsiyet-donut" style="background:conic-gradient(var(--obs-border) 0 100%)">
+                    <div class="grafik-donut-merkez">
+                      <div class="sayi" id="donut-toplam">—</div>
+                      <div class="etiket">Öğrenci</div>
+                    </div>
+                  </div>
+                  <div class="grafik-legend">
+                    <span><i class="grafik-nokta" style="background:var(--obs-primary)"></i> Erkek <strong id="lg-erkek" class="ms-1">0</strong></span>
+                    <span><i class="grafik-nokta" style="background:var(--obs-secondary)"></i> Kız <strong id="lg-kiz" class="ms-1">0</strong></span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing:.05em">Yatılılık</div>
+                <div class="grafik-segment mb-3" id="yatililik-segment"></div>
+                <div class="d-flex flex-column gap-1" id="yatililik-legend"></div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing:.05em">Sınıf Dağılımı</div>
+                <div id="sinif-barlar" style="max-height:230px;overflow-y:auto">
+                  <div class="text-muted small">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Devamsızlık Durumu + Doğum Günleri -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-lg-6">
+            <div class="card h-100">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-clipboard2-pulse me-1"></i> Devamsızlık Durumu</h6>
+              </div>
+              <div class="card-body">
+                <div class="row g-2" id="devamsizlik-durum-ozet">
+                  <div class="col-12 text-muted small">Hazırlanıyor...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-6">
+            <div class="card h-100">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-cake2 me-1"></i> Doğum Günleri (Bu Hafta)</h6>
+              </div>
+              <div class="card-body p-0">
+                <ul class="list-group list-group-flush" id="dogumgunu-liste">
+                  <li class="list-group-item text-muted text-center py-3">Hazırlanıyor...</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="row g-3">
 
           <!-- Devamsızlık Uyarı Listesi -->
@@ -189,17 +253,17 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260531-34";
-  import { layoutYukle } from "./layout.js?v=20260531-34";
+  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260531-35";
+  import { layoutYukle } from "./layout.js?v=20260531-35";
   import {
     tumOgrencileriGetir,
     tumDevamsizliklariGetir, tumDavranislariGetir, ogrenciSil
-  } from "./students.js?v=20260531-34";
+  } from "./students.js?v=20260531-35";
   import {
     devamsizlikDurum, devamsizlikGunDegeri,
     compareSinif, compareOgrenciNo, compareTarihDesc,
     sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260531-34";
+  } from "./utils.js?v=20260531-35";
 
   let tumOgrenciler = [];
   let seciliOgrenci = null;
@@ -220,6 +284,8 @@
       const ozet = ogrenciOzetHazirla(ogrenciler);
       tumOgrencileriAyarla(ozet.ogrenciler);
       dashboardOzetGoster(ozet);
+      dagilimGoster(ozet, ozet.ogrenciler);
+      dogumGunleriGoster(ozet.ogrenciler);
       if (!cacheUygulandi) kayitPanelleriniHazirla();
 
       const [devamsizliklar, davranislar] = await Promise.all([
@@ -268,6 +334,122 @@
     document.getElementById("kart-yatili-detay").textContent = `(${parali} Paralı / ${parasiz} Parasız Yatılı)`;
   }
 
+  function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+  function dagilimGoster(sayilar, ogrenciler) {
+    const { toplam = 0, kiz = 0, erkek = 0, gunduzlu = 0, parali = 0, parasiz = 0 } = sayilar || {};
+    // Cinsiyet halkası
+    const toplamCinsiyet = (kiz + erkek) || 1;
+    const erkekYuzde = Math.round((erkek / toplamCinsiyet) * 100);
+    const donut = document.getElementById("cinsiyet-donut");
+    if (donut) donut.style.background =
+      `conic-gradient(var(--obs-primary) 0 ${erkekYuzde}%, var(--obs-secondary) ${erkekYuzde}% 100%)`;
+    setText("donut-toplam", toplam);
+    setText("lg-erkek", erkek);
+    setText("lg-kiz", kiz);
+
+    // Yatılılık segmenti
+    const yatToplam = (gunduzlu + parali + parasiz) || 1;
+    const segEl = document.getElementById("yatililik-segment");
+    const legEl = document.getElementById("yatililik-legend");
+    const segmentler = [
+      { ad: "Gündüzlü", deger: gunduzlu, renk: "var(--obs-primary)" },
+      { ad: "Paralı Yatılı", deger: parali, renk: "var(--obs-secondary)" },
+      { ad: "Parasız Yatılı", deger: parasiz, renk: "var(--obs-success)" }
+    ];
+    if (segEl) segEl.innerHTML = segmentler
+      .map(s => `<span style="width:${(s.deger / yatToplam) * 100}%;background:${s.renk}"></span>`).join("");
+    if (legEl) legEl.innerHTML = segmentler.map(s => `
+      <div class="d-flex align-items-center justify-content-between small">
+        <span class="d-inline-flex align-items-center gap-2"><i class="grafik-nokta" style="background:${s.renk}"></i>${s.ad}</span>
+        <strong>${s.deger}</strong>
+      </div>`).join("");
+
+    // Sınıf barları
+    const barEl = document.getElementById("sinif-barlar");
+    if (barEl) {
+      const sayim = new Map();
+      (ogrenciler || []).forEach(o => {
+        const s = o.sinif || "—";
+        sayim.set(s, (sayim.get(s) || 0) + 1);
+      });
+      const girisler = [...sayim.entries()].sort((a, b) => compareSinif(a[0], b[0]));
+      const enYuksek = Math.max(1, ...girisler.map(([, n]) => n));
+      barEl.innerHTML = girisler.length
+        ? girisler.map(([sinif, n]) => `
+          <div class="grafik-bar-satir">
+            <span class="ad">${escapeHtml(sinif)}</span>
+            <div class="grafik-bar-iz"><div class="grafik-bar-dolu" style="width:${(n / enYuksek) * 100}%"></div></div>
+            <span class="deg">${n}</span>
+          </div>`).join("")
+        : `<div class="text-muted small">Kayıt yok</div>`;
+    }
+  }
+
+  function devamsizlikDurumOzetiGoster(ogrenciler, toplamlar) {
+    const sayac = { normal: 0, uyari: 0, kritik: 0, kaldi: 0 };
+    ogrenciler.forEach(o => {
+      const t = toplamlar.get(o.id);
+      const durum = t ? devamsizlikDurum(t.ozurlu, t.ozursuz) : "normal";
+      sayac[durum] = (sayac[durum] || 0) + 1;
+    });
+    const kartlar = [
+      { ad: "Normal", sayi: sayac.normal, renk: "success", ikon: "bi-check-circle" },
+      { ad: "Uyarı", sayi: sayac.uyari, renk: "warning", ikon: "bi-exclamation-circle" },
+      { ad: "Kritik", sayi: sayac.kritik, renk: "danger", ikon: "bi-exclamation-triangle" },
+      { ad: "Kaldı", sayi: sayac.kaldi, renk: "dark", ikon: "bi-x-octagon" }
+    ];
+    const el = document.getElementById("devamsizlik-durum-ozet");
+    if (el) el.innerHTML = kartlar.map(k => `
+      <div class="col-6 col-xl-3">
+        <div class="border rounded-3 p-2 text-center h-100">
+          <i class="bi ${k.ikon} text-${k.renk} fs-5"></i>
+          <div class="fs-4 fw-bold lh-1 mt-1">${k.sayi}</div>
+          <div class="small text-muted">${k.ad}</div>
+        </div>
+      </div>`).join("");
+  }
+
+  function dogumGunleriGoster(ogrenciler) {
+    const liste = document.getElementById("dogumgunu-liste");
+    if (!liste) return;
+    const bugunD = new Date(); bugunD.setHours(0, 0, 0, 0);
+    const gunAdlari = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+    const hedefler = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(bugunD); d.setDate(d.getDate() + i);
+      hedefler.push({ gun: d.getDate(), ay: d.getMonth() + 1, ofset: i, gunAdi: gunAdlari[d.getDay()] });
+    }
+    const sonuc = [];
+    (ogrenciler || []).forEach(o => {
+      const m = String(o.dogum_tarihi || "").trim().match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
+      if (!m) return;
+      const g = Number(m[1]), a = Number(m[2]), y = Number(m[3]);
+      const h = hedefler.find(x => x.gun === g && x.ay === a);
+      if (!h) return;
+      const yas = bugunD.getFullYear() - y;
+      sonuc.push({
+        o, ofset: h.ofset,
+        gunAdi: h.ofset === 0 ? "Bugün" : (h.ofset === 1 ? "Yarın" : h.gunAdi),
+        tarih: `${String(g).padStart(2, "0")}.${String(a).padStart(2, "0")}`, yas
+      });
+    });
+    sonuc.sort((a, b) => a.ofset - b.ofset);
+    liste.innerHTML = sonuc.length
+      ? sonuc.map(s => `
+        <li class="list-group-item d-flex align-items-center justify-content-between">
+          <a href="students-detail.html?id=${escapeAttr(s.o.id)}" class="text-decoration-none">
+            <span class="fw-semibold">${escapeHtml(`${s.o.ad || ""} ${s.o.soyad || ""}`.trim())}</span>
+            <span class="text-muted small ms-1">${escapeHtml(s.o.sinif || "")}</span>
+          </a>
+          <span class="text-end">
+            <span class="badge bg-secondary">${s.gunAdi}</span>
+            <div class="small text-muted">${s.tarih}${s.yas > 0 ? ` · ${s.yas} yaş` : ""}</div>
+          </span>
+        </li>`).join("")
+      : `<li class="list-group-item text-muted text-center py-4"><i class="bi bi-cake2 d-block fs-3 mb-2" style="color:var(--obs-secondary)"></i>Bu hafta doğum günü yok</li>`;
+  }
+
   function kayitPanelleriniHazirla() {
     document.getElementById("devamsizlik-tablo").innerHTML =
       `<tr><td colspan="5" class="text-center text-muted py-3">Veriler hazırlanıyor...</td></tr>`;
@@ -291,6 +473,8 @@
     if (!cache) return false;
     if (Array.isArray(cache.ogrenciler)) tumOgrencileriAyarla(cache.ogrenciler);
     if (cache.ozet) dashboardOzetGoster(cache.ozet);
+    if (cache.ozet) dagilimGoster(cache.ozet, tumOgrenciler);
+    dogumGunleriGoster(tumOgrenciler);
     if (cache.kartUyari !== undefined) document.getElementById("kart-uyari").textContent = cache.kartUyari;
     if (cache.devamsizlikHtml) document.getElementById("devamsizlik-tablo").innerHTML = cache.devamsizlikHtml;
     if (cache.davranisHtml) document.getElementById("davranis-liste").innerHTML = cache.davranisHtml;
@@ -319,7 +503,10 @@
       ad: o.ad || "",
       soyad: o.soyad || "",
       sinif: o.sinif || "",
-      numara: o.numara || o.id || ""
+      numara: o.numara || o.id || "",
+      cinsiyet: o.cinsiyet || "",
+      yatililik: o.yatililik || "",
+      dogum_tarihi: o.dogum_tarihi || ""
     };
   }
 
@@ -350,6 +537,8 @@
       else mevcut.ozursuz += gun;
       toplamlar.set(k.ogrenciId, mevcut);
     });
+
+    devamsizlikDurumOzetiGoster(ogrenciler, toplamlar);
 
     const uyarilar = [];
 

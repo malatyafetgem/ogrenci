@@ -1644,6 +1644,125 @@ div.dt-container .dt-input {
 :focus-visible { outline: 2px solid var(--obs-primary); outline-offset: 2px; }
 
 
+/* =====================================================================
+   EK BİLEŞENLER · Grafikler, boş durum, skeleton, navbar ikonları,
+   global arama, özet çipleri, hızlı aksiyon menüsü
+   ===================================================================== */
+
+/* --- Navbar: bağlantı durumu & PWA yükle ikonları --- */
+.nav-ikon-btn {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--obs-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--obs-muted);
+  font-size: 1.05rem;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.nav-ikon-btn:hover { background: var(--obs-surface-alt); color: var(--obs-primary-dark); border-color: var(--obs-primary); }
+#baglanti-durum.cevrimici { color: var(--obs-success); border-color: #BfE6CF; background: #EAF7F0; }
+#baglanti-durum.cevrimdisi { color: var(--obs-danger); border-color: #F2C7BD; background: #FCEEEB; }
+#baglanti-durum .bi { line-height: 1; }
+#pwa-yukle-btn { color: var(--obs-primary-dark); border-color: var(--obs-primary); background: var(--obs-surface-alt); }
+#pwa-yukle-btn:hover { background: var(--obs-primary); color: #fff; }
+
+/* --- Global arama (üst bar) --- */
+.global-arama-kutu { position: relative; }
+.global-arama-kutu .form-control {
+  padding-left: 2.1rem; height: 40px; min-width: 230px;
+  border-radius: 10px;
+}
+.global-arama-kutu .arama-ikon {
+  position: absolute; left: .7rem; top: 50%; transform: translateY(-50%);
+  color: var(--obs-muted); pointer-events: none;
+}
+.global-arama-sonuc {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+  background: #fff; border: 1px solid var(--obs-border); border-radius: var(--obs-radius-sm);
+  box-shadow: var(--obs-shadow-lg); max-height: 360px; overflow-y: auto; z-index: 1080;
+  padding: .3rem;
+}
+.global-arama-sonuc .ga-item {
+  display: flex; align-items: center; gap: .6rem; padding: .5rem .6rem;
+  border-radius: 8px; cursor: pointer; color: var(--obs-ink);
+}
+.global-arama-sonuc .ga-item:hover, .global-arama-sonuc .ga-item.aktif { background: var(--obs-surface-alt); }
+.global-arama-sonuc .ga-ad { font-weight: 600; font-family: var(--obs-font-head); }
+.global-arama-sonuc .ga-meta { font-size: .78rem; color: var(--obs-muted); }
+.global-arama-sonuc .ga-bos { padding: .8rem; color: var(--obs-muted); text-align: center; font-size: .85rem; }
+
+/* --- Özet sayaç çipleri --- */
+.ozet-cip-grup { display: flex; flex-wrap: wrap; gap: .5rem; }
+.ozet-cip {
+  display: inline-flex; align-items: center; gap: .4rem;
+  background: #fff; border: 1px solid var(--obs-border); border-radius: 999px;
+  padding: .35rem .8rem; font-size: .82rem; font-weight: 600; color: var(--obs-ink);
+  font-family: var(--obs-font-head);
+}
+.ozet-cip .sayi { color: var(--obs-primary-dark); font-weight: 800; }
+.ozet-cip .bi { color: var(--obs-primary); }
+
+/* --- Hızlı aksiyon menüsü (tablo satırı) --- */
+.hizli-menu .dropdown-toggle::after { display: none; }
+.hizli-menu .dropdown-toggle {
+  width: 32px; height: 32px; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* --- Grafikler: halka (donut) --- */
+.grafik-donut-wrap { display: flex; flex-direction: column; align-items: center; gap: .85rem; }
+.grafik-donut {
+  width: 150px; height: 150px; border-radius: 50%;
+  display: grid; place-items: center; position: relative;
+}
+.grafik-donut.kucuk { width: 116px; height: 116px; }
+.grafik-donut::after {
+  content: ""; position: absolute; inset: 20px; background: #fff; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px var(--obs-border);
+}
+.grafik-donut.kucuk::after { inset: 16px; }
+.grafik-donut-merkez { position: relative; z-index: 1; text-align: center; line-height: 1.05; }
+.grafik-donut-merkez .sayi { font-family: var(--obs-font-head); font-weight: 800; font-size: 1.5rem; color: var(--obs-ink); }
+.grafik-donut-merkez .etiket { font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--obs-muted); }
+.grafik-legend { display: flex; flex-wrap: wrap; gap: .4rem .9rem; justify-content: center; }
+.grafik-legend span { display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; font-size: .82rem; color: var(--obs-ink); }
+.grafik-nokta { width: 11px; height: 11px; border-radius: 4px; flex: none; }
+
+/* --- Grafikler: yatay barlar --- */
+.grafik-bar-satir { display: grid; grid-template-columns: 64px 1fr 40px; align-items: center; gap: .6rem; margin-bottom: .55rem; }
+.grafik-bar-satir .ad { font-family: var(--obs-font-head); font-weight: 700; font-size: .8rem; color: var(--obs-ink); }
+.grafik-bar-iz { height: 13px; background: var(--obs-surface-alt); border-radius: 999px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--obs-border); }
+.grafik-bar-dolu { height: 100%; border-radius: 999px; background: var(--obs-primary); transition: width .5s ease; }
+.grafik-bar-satir .deg { font-weight: 700; font-size: .8rem; color: var(--obs-muted); text-align: right; }
+
+/* --- Grafikler: segment çubuk (yatılılık vb.) --- */
+.grafik-segment { display: flex; height: 16px; border-radius: 999px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--obs-border); }
+.grafik-segment > span { height: 100%; transition: width .5s ease; }
+
+/* --- Boş durum (empty state) --- */
+.bos-durum { text-align: center; padding: 2.5rem 1rem; color: var(--obs-muted); }
+.bos-durum .bi { font-size: 2.6rem; color: var(--obs-secondary); display: block; margin-bottom: .6rem; opacity: .8; }
+.bos-durum .baslik { font-family: var(--obs-font-head); font-weight: 700; color: var(--obs-ink); margin-bottom: .25rem; }
+.bos-durum .aciklama { font-size: .88rem; }
+
+/* --- Skeleton (iskelet) yükleme --- */
+.skeleton { position: relative; overflow: hidden; background: #EDE6DA; border-radius: 8px; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  transform: translateX(-100%); animation: skeleton-kay 1.3s infinite;
+}
+@keyframes skeleton-kay { 100% { transform: translateX(100%); } }
+.skeleton-satir { height: 14px; margin: .5rem 0; }
+.skeleton-tablo td { padding: .6rem .85rem; }
+
+/* --- PWA güncelle / yükle bildirim butonu --- */
+#pwa-guncelle-bildirimi {
+  font-family: var(--obs-font-head);
+}
+
+
 @page {
   margin: 10mm 8mm 11mm;
 }

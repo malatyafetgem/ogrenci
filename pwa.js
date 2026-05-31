@@ -36,10 +36,10 @@
         "border:0",
         "border-radius:12px",
         "padding:.85rem 1rem",
-        "background:#0d6efd",
+        "background:#D9542B",
         "color:#fff",
         "font-weight:700",
-        "box-shadow:0 8px 28px rgba(15,23,42,.22)"
+        "box-shadow:0 10px 28px rgba(38,32,25,.22)"
       ].join(";");
 
       btn.addEventListener("click", function () {

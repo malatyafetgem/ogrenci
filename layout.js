@@ -2,8 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260531-34";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260531-34";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260531-35";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260531-35";
+import { escapeHtml } from "./utils.js?v=20260531-35";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -499,27 +500,143 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand d-flex align-items-center gap-2">
-          <span class="brand-logo-mark"><img src="icon-brand-192.png?v=20260531-34" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260531-35" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text fw-semibold">Öğrenci Bilgileri</span>
         </a>
         <ul class="navbar-nav d-none d-md-flex ms-3 top-menu">
           ${MENU_GRUPLARI.map(topMenuDropdown).join("")}
         </ul>
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="#" id="cikis-btn" title="Çıkış Yap">
-              <i class="bi bi-box-arrow-right"></i>
-            </a>
-          </li>
-        </ul>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          <div class="global-arama-kutu d-none d-md-block" id="global-arama-kap">
+            <i class="bi bi-search arama-ikon"></i>
+            <input type="search" class="form-control form-control-sm" id="global-arama" placeholder="Öğrenci ara..." autocomplete="off" data-testid="global-search-input">
+            <div class="global-arama-sonuc d-none" id="global-arama-sonuc"></div>
+          </div>
+          <span class="nav-ikon-btn cevrimici" id="baglanti-durum" title="Bağlantı durumu kontrol ediliyor..." data-testid="connection-status">
+            <i class="bi bi-wifi"></i>
+          </span>
+          <a class="nav-ikon-btn d-none" href="#" id="pwa-yukle-btn" title="Uygulamayı cihaza yükle" data-testid="pwa-install-btn">
+            <i class="bi bi-download"></i>
+          </a>
+          <a class="nav-ikon-btn" href="#" id="cikis-btn" title="Çıkış Yap" data-testid="logout-btn">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
+        </div>
       </div>
     </nav>`;
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260531-34");
+    const { logout } = await import("./auth.js?v=20260531-35");
     logout();
   });
+
+  topbarAraclariBagla();
+  baglantiDurumuBaslat();
+}
+
+// ── Üst bar araçları: PWA yükle + global arama ──────────────────────────────
+let _gaOgrenciler = null;
+
+function topbarAraclariBagla() {
+  const pwaBtn = document.getElementById("pwa-yukle-btn");
+  if (window._pwaInstallPrompt && pwaBtn) pwaBtn.classList.remove("d-none");
+  pwaBtn?.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const istem = window._pwaInstallPrompt;
+    if (!istem) return;
+    istem.prompt();
+    try { await istem.userChoice; } catch {}
+    window._pwaInstallPrompt = null;
+    pwaBtn.classList.add("d-none");
+  });
+  window.addEventListener("appinstalled", () => pwaBtn?.classList.add("d-none"));
+  globalAramaBagla();
+}
+
+async function globalAramaYukle() {
+  if (_gaOgrenciler) return _gaOgrenciler;
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260531-35");
+  _gaOgrenciler = await tumOgrencileriGetir();
+  return _gaOgrenciler;
+}
+
+function globalAramaBagla() {
+  const input = document.getElementById("global-arama");
+  const kutu = document.getElementById("global-arama-kap");
+  const sonucEl = document.getElementById("global-arama-sonuc");
+  if (!input || !sonucEl || !kutu) return;
+
+  let aktifIndex = -1;
+  const norm = s => String(s || "").toLocaleLowerCase("tr-TR");
+  const kapat = () => { sonucEl.classList.add("d-none"); aktifIndex = -1; };
+
+  input.addEventListener("focus", () => { globalAramaYukle().catch(() => {}); });
+
+  input.addEventListener("input", async () => {
+    const q = norm(input.value.trim());
+    if (q.length < 2) { kapat(); return; }
+    let liste;
+    try { liste = await globalAramaYukle(); } catch { return; }
+    const sonuclar = liste.filter(o =>
+      norm(`${o.ad || ""} ${o.soyad || ""}`).includes(q) ||
+      norm(o.id).includes(q) ||
+      norm(o.sinif).includes(q)
+    ).slice(0, 12);
+
+    sonucEl.innerHTML = sonuclar.length
+      ? sonuclar.map((o, i) => `
+        <a class="ga-item" href="students-detail.html?id=${encodeURIComponent(o.id)}" data-i="${i}">
+          <i class="bi bi-person-circle text-muted"></i>
+          <span class="flex-grow-1">
+            <span class="ga-ad">${escapeHtml(`${o.ad || ""} ${o.soyad || ""}`.trim() || "—")}</span>
+            <span class="ga-meta d-block">No: ${escapeHtml(o.id)} · ${escapeHtml(o.sinif || "—")} · ${escapeHtml(o.cinsiyet || "")}</span>
+          </span>
+        </a>`).join("")
+      : `<div class="ga-bos">Sonuç bulunamadı</div>`;
+    sonucEl.classList.remove("d-none");
+    aktifIndex = -1;
+  });
+
+  input.addEventListener("keydown", (e) => {
+    const items = [...sonucEl.querySelectorAll(".ga-item")];
+    if (e.key === "ArrowDown") { e.preventDefault(); aktifIndex = Math.min(aktifIndex + 1, items.length - 1); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); aktifIndex = Math.max(aktifIndex - 1, 0); }
+    else if (e.key === "Enter") { if (items[aktifIndex]) { e.preventDefault(); location.href = items[aktifIndex].href; } return; }
+    else if (e.key === "Escape") { kapat(); return; }
+    else return;
+    items.forEach((it, i) => it.classList.toggle("aktif", i === aktifIndex));
+    items[aktifIndex]?.scrollIntoView({ block: "nearest" });
+  });
+
+  document.addEventListener("click", (e) => { if (!kutu.contains(e.target)) kapat(); });
+}
+
+// ── Firestore bağlantı durumu göstergesi ────────────────────────────────────
+async function baglantiDurumuBaslat() {
+  const el = document.getElementById("baglanti-durum");
+  if (!el) return;
+  const ikon = el.querySelector("i");
+  const guncelle = (cevrimici) => {
+    el.classList.toggle("cevrimici", cevrimici);
+    el.classList.toggle("cevrimdisi", !cevrimici);
+    if (ikon) ikon.className = cevrimici ? "bi bi-wifi" : "bi bi-wifi-off";
+    el.title = cevrimici ? "Çevrimiçi — Firestore bağlı" : "Çevrimdışı — önbellekten çalışıyor";
+  };
+  guncelle(navigator.onLine);
+  window.addEventListener("online", () => guncelle(true));
+  window.addEventListener("offline", () => guncelle(false));
+
+  try {
+    const { db } = await import("./firebase-config.js?v=20260531-35");
+    const { collection, query, limit, onSnapshot } =
+      await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+    const q = query(collection(db, "_settings"), limit(1));
+    onSnapshot(q, { includeMetadataChanges: true },
+      (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),
+      () => {}
+    );
+  } catch {}
 }
 
 function yukleSidebar() {

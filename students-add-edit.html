@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260531-34">
+  <link rel="manifest" href="manifest.webmanifest?v=20260531-35">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260531-34">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260531-34">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260531-34">
-  <link rel="shortcut icon" href="favicon.ico?v=20260531-34">
-  <script src="file-redirect.js?v=20260531-34"></script>
-  <script src="pwa.js?v=20260531-34"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260531-35">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260531-35">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260531-35">
+  <link rel="shortcut icon" href="favicon.ico?v=20260531-35">
+  <script src="file-redirect.js?v=20260531-35"></script>
+  <script src="pwa.js?v=20260531-35"></script>
   <title>Öğrenci Ekle / Düzenle</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260531-34">
+  <link rel="stylesheet" href="app.css?v=20260531-35">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -217,18 +217,18 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260531-34";
-  import { layoutYukle } from "./layout.js?v=20260531-34";
+  import { requireAdmin } from "./auth.js?v=20260531-35";
+  import { layoutYukle } from "./layout.js?v=20260531-35";
   import {
     ogrenciGetir, ogrenciEkle, ogrenciGuncelle,
     velileriGetir, veliEkleGuncelle, veliSil, siniflarGetir, noMevcutMu
-  } from "./students.js?v=20260531-34";
+  } from "./students.js?v=20260531-35";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
     gecerliOgrenciNo, gecerliTc, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260531-34";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260531-34";
-  import { avatarSrc } from "./avatar.js?v=20260531-34";
+  } from "./utils.js?v=20260531-35";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260531-35";
+  import { avatarSrc } from "./avatar.js?v=20260531-35";
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");
