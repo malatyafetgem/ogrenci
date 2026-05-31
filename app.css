@@ -1762,6 +1762,40 @@ div.dt-container .dt-input {
   font-family: var(--obs-font-head);
 }
 
+/* --- Telefon hücresi: ara / whatsapp ikonları --- */
+.tel-hucre { display: inline-flex; align-items: center; gap: .4rem; white-space: nowrap; }
+.tel-hucre .tel-no { font-variant-numeric: tabular-nums; }
+.tel-ikon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 7px;
+  border: 1px solid var(--obs-border); color: var(--obs-primary-dark);
+  background: #fff; font-size: .82rem; flex: none;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.tel-ikon:hover { background: var(--obs-primary); color: #fff; border-color: var(--obs-primary); }
+.tel-ikon.wa { color: #1FA855; }
+.tel-ikon.wa:hover { background: #25D366; color: #fff; border-color: #1FA855; }
+
+/* --- Yazdırılabilir Öğrenci Kartı --- */
+#ogrenci-kart { display: none; }
+.ogrkart { font-family: var(--obs-font-body); color: #1a1a1a; padding: 14mm; max-width: 210mm; }
+.ogrkart-baslik { display: flex; align-items: center; gap: 14px; border-bottom: 3px solid var(--obs-primary); padding-bottom: 10px; margin-bottom: 14px; }
+.ogrkart-logo { width: 54px; height: 54px; border-radius: 10px; }
+.ogrkart h1 { font-family: var(--obs-font-head); font-size: 20px; margin: 0; }
+.ogrkart .alt { color: #666; font-size: 12px; }
+.ogrkart-bolum-baslik { font-family: var(--obs-font-head); font-weight: 700; margin: 16px 0 6px; color: var(--obs-primary-dark); font-size: 14px; text-transform: uppercase; letter-spacing: .03em; }
+.ogrkart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 28px; font-size: 13px; }
+.ogrkart-grid .satir { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #eee; padding: 5px 0; }
+.ogrkart-grid .et { color: #777; }
+@media print {
+  body.kart-print > .app-wrapper,
+  body.kart-print > #footer-kap,
+  body.kart-print > #bottom-nav-kap,
+  body.kart-print > .modal,
+  body.kart-print > .offcanvas { display: none !important; }
+  body.kart-print #ogrenci-kart { display: block !important; }
+}
+
 
 @page {
   margin: 10mm 8mm 11mm;

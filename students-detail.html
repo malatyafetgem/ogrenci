@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260531-36">
+  <link rel="manifest" href="manifest.webmanifest?v=20260601-37">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260531-36">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260531-36">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260531-36">
-  <link rel="shortcut icon" href="favicon.ico?v=20260531-36">
-  <script src="file-redirect.js?v=20260531-36"></script>
-  <script src="pwa.js?v=20260531-36"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-37">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-37">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-37">
+  <link rel="shortcut icon" href="favicon.ico?v=20260601-37">
+  <script src="file-redirect.js?v=20260601-37"></script>
+  <script src="pwa.js?v=20260601-37"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260531-36">
+  <link rel="stylesheet" href="app.css?v=20260601-37">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -63,6 +63,9 @@
                   <a href="#" id="duzenle-btn" class="btn btn-primary btn-sm" data-admin-only>
                     <i class="bi bi-pencil me-1"></i>Düzenle
                   </a>
+                  <button class="btn btn-outline-primary btn-sm" id="kart-yazdir-btn">
+                    <i class="bi bi-card-heading me-1"></i>Kart Yazdır
+                  </button>
                   <button class="btn btn-outline-secondary btn-sm" data-obs-print>
                     <i class="bi bi-printer me-1"></i>Yazdır
                   </button>
@@ -176,6 +179,18 @@
                   </div>
                 </div>
               </div>
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h6 class="mb-0"><i class="bi bi-bar-chart-line me-1"></i>Aylık Devamsızlık Trendi</h6>
+                </div>
+                <div class="card-body">
+                  <div id="dev-trend"><div class="text-muted small">—</div></div>
+                  <div class="grafik-legend mt-2 justify-content-start">
+                    <span><i class="grafik-nokta" style="background:var(--obs-danger)"></i> Özürsüz</span>
+                    <span><i class="grafik-nokta" style="background:var(--obs-warning)"></i> Özürlü</span>
+                  </div>
+                </div>
+              </div>
               <div class="card">
                 <div class="card-header">
                   <h6 class="mb-0"><i class="bi bi-list-ul me-1"></i>Kayıtlar</h6>
@@ -201,6 +216,29 @@
 
               <!-- DAVRANIŞ -->
             <div class="tab-pane fade" id="sekme-davranis">
+              <div class="card mb-3">
+                <div class="card-header">
+                  <h6 class="mb-0"><i class="bi bi-pie-chart me-1"></i>Davranış Dağılımı</h6>
+                </div>
+                <div class="card-body">
+                  <div class="row align-items-center g-3">
+                    <div class="col-auto">
+                      <div class="grafik-donut kucuk" id="davranis-donut" style="background:conic-gradient(var(--obs-border) 0 100%)">
+                        <div class="grafik-donut-merkez">
+                          <div class="sayi" id="davranis-toplam">0</div>
+                          <div class="etiket">Kayıt</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="grafik-legend justify-content-start">
+                        <span><i class="grafik-nokta" style="background:var(--obs-success)"></i> Olumlu <strong id="davranis-olumlu" class="ms-1">0</strong></span>
+                        <span><i class="grafik-nokta" style="background:var(--obs-danger)"></i> Olumsuz <strong id="davranis-olumsuz" class="ms-1">0</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="card">
                 <div class="card-header d-flex gap-2 align-items-center no-print">
                   <select id="davranis-filtre" class="form-select form-select-sm" style="max-width:150px">
@@ -405,30 +443,34 @@
 
 <div id="footer-kap"></div>
 <div id="bottom-nav-kap"></div>
+<div id="ogrenci-kart" aria-hidden="true"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260531-36";
-  import { layoutYukle } from "./layout.js?v=20260531-36";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260601-37";
+  import { layoutYukle } from "./layout.js?v=20260601-37";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
     davranislarGetir, davranisSil, davranisGuncelle,
     gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
-  } from "./students.js?v=20260531-36";
+  } from "./students.js?v=20260601-37";
   import {
     devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260531-36";
-  import { avatarSrc } from "./avatar.js?v=20260531-36";
+  } from "./utils.js?v=20260601-37";
+  import { avatarSrc } from "./avatar.js?v=20260601-37";
 
   let ogrenciId = null;
   let tumDavranislar = [];
   let tumDevamsizlikKayitlar = [];
   let tumGorusmeler = [];
+  let sonVeliler = [];
+  let sonDevOzet = null;
+  let sonDavOzet = null;
 
   requireAuth(async () => {
     layoutYukle();
@@ -436,6 +478,11 @@
     ogrenciId = params.get("id");
     if (!ogrenciId) { location.href = "students-list.html"; return; }
     await yukle();
+    document.getElementById("kart-yazdir-btn")?.addEventListener("click", () => {
+      document.body.classList.add("kart-print");
+      window.print();
+    });
+    window.addEventListener("afterprint", () => document.body.classList.remove("kart-print"));
   });
 
   async function yukle() {
@@ -505,10 +552,50 @@
 
       document.getElementById("yukleniyor").classList.add("d-none");
       document.getElementById("icerik").classList.remove("d-none");
+      ogrenciKartiDoldur(o);
 
     } catch (err) {
       toast("Veriler yüklenemedi: " + err.message, "danger");
     }
+  }
+
+  function ogrenciKartiDoldur(o) {
+    const el = document.getElementById("ogrenci-kart");
+    if (!el) return;
+    const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
+    const satir = (et, dg) => `<div class="satir"><span class="et">${escapeHtml(et)}</span><span>${dg ? escapeHtml(dg) : "—"}</span></div>`;
+    const dev = sonDevOzet || { ozurlu: 0, ozursuz: 0, toplam: 0 };
+    const dav = sonDavOzet || { olumlu: 0, olumsuz: 0 };
+    const veliSat = (sonVeliler || []).slice(0, 3).map(v =>
+      satir(`${v.yakinlik || "Veli"} · ${formatTelefon(v.telefon || "") || "—"}`, `${v.ad || ""} ${v.soyad || ""}`.trim())
+    ).join("") || satir("Veli", "—");
+    el.innerHTML = `<div class="ogrkart">
+      <div class="ogrkart-baslik">
+        <img class="ogrkart-logo" src="icon-192.png?v=20260601-37" alt="">
+        <div><h1>${escapeHtml(tamAd)}</h1><div class="alt">Öğrenci Kartı · No: ${escapeHtml(o.id)} · ${escapeHtml(o.sinif || "—")}</div></div>
+      </div>
+      <div class="ogrkart-bolum-baslik">Kimlik Bilgileri</div>
+      <div class="ogrkart-grid">
+        ${satir("Öğrenci No", o.id)}
+        ${satir("Sınıf", o.sinif)}
+        ${satir("Cinsiyet", o.cinsiyet)}
+        ${satir("Yatılılık", o.yatililik)}
+        ${satir("Telefon", formatTelefon(o.telefon || ""))}
+        ${satir("TC Kimlik", o.tc_kimlik)}
+        ${satir("Doğum Tarihi", o.dogum_tarihi)}
+        ${satir("Doğum Yeri", o.dogum_yeri)}
+      </div>
+      <div class="ogrkart-bolum-baslik">Veliler</div>
+      <div class="ogrkart-grid">${veliSat}</div>
+      <div class="ogrkart-bolum-baslik">Özet</div>
+      <div class="ogrkart-grid">
+        ${satir("Devamsızlık (Özürsüz / Özürlü)", `${dev.ozursuz} / ${dev.ozurlu}`)}
+        ${satir("Toplam Devamsızlık", String(dev.toplam))}
+        ${satir("Olumlu Davranış", String(dav.olumlu))}
+        ${satir("Olumsuz Davranış", String(dav.olumsuz))}
+      </div>
+      <div class="alt" style="margin-top:18px">Malatya FETGEM · Yazdırma tarihi: ${new Date().toLocaleDateString("tr-TR")}</div>
+    </div>`;
   }
 
   function blokDoldur(elId, alanlar) {
@@ -522,6 +609,7 @@
 
   async function yukleVeliler() {
     const veliler = await velileriGetir(ogrenciId);
+    sonVeliler = veliler;
     const kap = document.getElementById("veli-kartlar");
     if (!veliler.length) {
       kap.innerHTML = `<div class="col-12 text-muted text-center py-3">Veli kaydı yok.</div>`;
@@ -591,6 +679,7 @@
     const toplam = ozurlu + ozursuz;
     const durum = devamsizlikDurum(ozurlu, ozursuz);
     const renk = devamsizlikRenk(durum);
+    sonDevOzet = { ozurlu, ozursuz, toplam };
 
     document.getElementById("dev-ozursuz").textContent = sayiEtiketiTR(ozursuz);
     document.getElementById("dev-ozurlu").textContent = sayiEtiketiTR(ozurlu);
@@ -601,6 +690,7 @@
 
     const tbody = document.getElementById("dev-tablo");
     const satirlar = kayitlar.flatMap(devamsizlikKaydiniGunlereAyir);
+    devamsizlikTrendGoster(satirlar);
     tbody.innerHTML = satirlar.length === 0
       ? `<tr><td colspan="5" class="text-center text-muted py-3">Devamsızlık kaydı yok.</td></tr>`
       : satirlar.map(k => `<tr>
@@ -655,8 +745,54 @@
     return "Normal";
   }
 
+  function devamsizlikTrendGoster(satirlar) {
+    const el = document.getElementById("dev-trend");
+    if (!el) return;
+    const ayAd = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+    const aylar = new Map();
+    (satirlar || []).forEach(s => {
+      const m = String(s.gorunenTarih || "").match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+      if (!m) return;
+      const ay = Number(m[2]), yil = Number(m[3]);
+      const key = `${yil}-${String(ay).padStart(2, "0")}`;
+      if (!aylar.has(key)) aylar.set(key, { ozurlu: 0, ozursuz: 0, etiket: `${ayAd[ay - 1]} ${String(yil).slice(2)}` });
+      const o = aylar.get(key);
+      if (s.tur === "Özürsüz") o.ozursuz++; else o.ozurlu++;
+    });
+    const sirali = [...aylar.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-8);
+    const enYuksek = Math.max(1, ...sirali.map(([, v]) => v.ozurlu + v.ozursuz));
+    el.innerHTML = sirali.length
+      ? sirali.map(([, v]) => `
+        <div class="grafik-bar-satir">
+          <span class="ad">${v.etiket}</span>
+          <div class="grafik-bar-iz" style="display:flex">
+            <div style="width:${(v.ozursuz / enYuksek) * 100}%;background:var(--obs-danger)"></div>
+            <div style="width:${(v.ozurlu / enYuksek) * 100}%;background:var(--obs-warning)"></div>
+          </div>
+          <span class="deg">${v.ozurlu + v.ozursuz}</span>
+        </div>`).join("")
+      : `<div class="text-muted small">Trend için yeterli veri yok.</div>`;
+  }
+
+  function davranisDonutGoster() {
+    const olumlu = tumDavranislar.filter(d => d.tur === "Olumlu").length;
+    const olumsuz = tumDavranislar.filter(d => d.tur === "Olumsuz").length;
+    sonDavOzet = { olumlu, olumsuz };
+    const toplam = olumlu + olumsuz;
+    const yuzde = toplam ? Math.round((olumlu / toplam) * 100) : 0;
+    const donut = document.getElementById("davranis-donut");
+    if (donut) donut.style.background = toplam
+      ? `conic-gradient(var(--obs-success) 0 ${yuzde}%, var(--obs-danger) ${yuzde}% 100%)`
+      : `conic-gradient(var(--obs-border) 0 100%)`;
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    set("davranis-toplam", toplam);
+    set("davranis-olumlu", olumlu);
+    set("davranis-olumsuz", olumsuz);
+  }
+
   async function yukleDavranis() {
     tumDavranislar = await davranislarGetir(ogrenciId);
+    davranisDonutGoster();
     davranisTabloGoster(tumDavranislar);
 
     document.getElementById("davranis-filtre").addEventListener("change", (e) => {

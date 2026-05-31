@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260531-36">
+  <link rel="manifest" href="manifest.webmanifest?v=20260601-37">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260531-36">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260531-36">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260531-36">
-  <link rel="shortcut icon" href="favicon.ico?v=20260531-36">
-  <script src="file-redirect.js?v=20260531-36"></script>
-  <script src="pwa.js?v=20260531-36"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-37">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-37">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-37">
+  <link rel="shortcut icon" href="favicon.ico?v=20260601-37">
+  <script src="file-redirect.js?v=20260601-37"></script>
+  <script src="pwa.js?v=20260601-37"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260531-36">
+  <link rel="stylesheet" href="app.css?v=20260601-37">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -72,6 +72,15 @@
                   <option>Parasız Yatılı</option>
                 </select>
               </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label small mb-1">Durum</label>
+                <select id="filtre-durum" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option value="Aktif">Aktif</option>
+                  <option value="Pasif">Pasif</option>
+                  <option value="Mezun">Mezun</option>
+                </select>
+              </div>
               <div class="col-12 col-md-3 d-flex gap-2">
                 <button id="filtre-uygula" class="btn btn-sm btn-primary">
                   <i class="bi bi-search me-1"></i>Filtrele
@@ -107,6 +116,7 @@
             </div>
           </div>
           <div class="card-body p-0">
+            <div class="px-3 pt-3 no-print"><div class="ozet-cip-grup" id="ozet-cipler"></div></div>
             <div id="yukleniyor" class="text-center py-4 text-muted d-none">
               <div class="spinner-border text-primary mb-2"></div><div>Hazırlanıyor...</div>
             </div>
@@ -208,18 +218,18 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260531-36";
-  import { layoutYukle } from "./layout.js?v=20260531-36";
+  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260601-37";
+  import { layoutYukle } from "./layout.js?v=20260601-37";
   import {
     ogrenciEkle, ogrenciGuncelle, noMevcutMu,
     velileriGetir, veliEkleGuncelle, siniflarGetir, tumOgrencileriGetir,
     tumDevamsizliklariGetir, devamsizlikHesapla
-  } from "./students.js?v=20260531-36";
+  } from "./students.js?v=20260601-37";
   import {
     devamsizlikDurum, devamsizlikRenk,
     formatAd, formatSoyad, formatMetin, formatTelefon, toast, bugun,
     compareOgrenci, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
-  } from "./utils.js?v=20260531-36";
+  } from "./utils.js?v=20260601-37";
   let tumOgrenciler = [];
   let devamsizlikOzetleri = new Map();
   let dt = null;
@@ -296,14 +306,13 @@
   }
 
   async function yukleOgrenciler(filtreler = {}) {
-    document.getElementById("yukleniyor").classList.remove("d-none");
-    document.getElementById("tablo-kap").classList.add("d-none");
-    if (dt) { dt.destroy(); dt = null; }
+    iskeletGoster();
 
     try {
       let ogrenciler = await tumOgrencileriGetir();
       if (filtreler.sinif)     ogrenciler = ogrenciler.filter(o => o.sinif === filtreler.sinif);
       if (filtreler.cinsiyet)  ogrenciler = ogrenciler.filter(o => o.cinsiyet === filtreler.cinsiyet);
+      if (filtreler.durum)     ogrenciler = ogrenciler.filter(o => (o.durum || "Aktif") === filtreler.durum);
       if (filtreler.yatililik === "Yatılı") {
         ogrenciler = ogrenciler.filter(o => o.yatililik === "Paralı Yatılı" || o.yatililik === "Parasız Yatılı");
       } else if (filtreler.yatililik) {
@@ -320,13 +329,43 @@
     }
   }
 
+  function iskeletGoster() {
+    if (dt) { dt.destroy(); dt = null; }
+    document.getElementById("yukleniyor").classList.add("d-none");
+    document.getElementById("tablo-kap").classList.remove("d-none");
+    const tbody = document.getElementById("ogrenci-tbody");
+    const satir = `<tr>${Array.from({ length: 8 }).map(() => `<td><div class="skeleton skeleton-satir"></div></td>`).join("")}</tr>`;
+    tbody.innerHTML = satir.repeat(8);
+  }
+
+  function ozetCiplerGuncelle(veri) {
+    const el = document.getElementById("ozet-cipler");
+    if (!el) return;
+    if (!veri.length) { el.innerHTML = ""; return; }
+    const kiz = veri.filter(o => o.cinsiyet === "Kız").length;
+    const erkek = veri.filter(o => o.cinsiyet === "Erkek").length;
+    const yatili = veri.filter(o => o.yatililik === "Paralı Yatılı" || o.yatililik === "Parasız Yatılı").length;
+    el.innerHTML = `
+      <span class="ozet-cip"><i class="bi bi-people"></i> Toplam <span class="sayi">${veri.length}</span></span>
+      <span class="ozet-cip"><i class="bi bi-gender-male"></i> Erkek <span class="sayi">${erkek}</span></span>
+      <span class="ozet-cip"><i class="bi bi-gender-female"></i> Kız <span class="sayi">${kiz}</span></span>
+      <span class="ozet-cip"><i class="bi bi-house"></i> Yatılı <span class="sayi">${yatili}</span></span>`;
+  }
+
   function tabloYukle(veri, bosMesaj = "Kayıt bulunamadı.") {
     document.getElementById("kayit-sayisi").textContent = veri.length;
+    ozetCiplerGuncelle(veri);
     const tbody = document.getElementById("ogrenci-tbody");
     devamsizlikOzetleri = new Map();
 
     tbody.innerHTML = veri.length === 0
-      ? `<tr><td colspan="8" class="text-center text-muted py-3">${escapeHtml(bosMesaj)}</td></tr>`
+      ? `<tr><td colspan="8">
+           <div class="bos-durum">
+             <i class="bi bi-inbox"></i>
+             <div class="baslik">${escapeHtml(bosMesaj)}</div>
+             <div class="aciklama">Filtreleri değiştirip tekrar deneyebilir veya yeni öğrenci ekleyebilirsiniz.</div>
+           </div>
+         </td></tr>`
       : veri.map(o => {
           const ad = o.ad || ""; const soyad = o.soyad || "";
           const tamAd = `${ad} ${soyad}`.trim();
@@ -342,12 +381,20 @@
             <td><span class="badge bg-light text-dark border">${escapeHtml(o.yatililik || "—")}</span></td>
             <td class="text-center" id="dev-${o.id}" data-devamsizlik-id="${escapeAttr(o.id)}"><span class="text-muted">—</span></td>
             <td class="no-print">
-              <a href="students-detail.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-info me-1" title="Detay">
-                <i class="bi bi-eye"></i>
-              </a>
-              <a href="students-add-edit.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-primary me-1" title="Düzenle" data-admin-only>
-                <i class="bi bi-pencil"></i>
-              </a>
+              <div class="d-inline-flex gap-1">
+                <a href="students-detail.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-info" title="Detay">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="students-add-edit.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-primary" title="Düzenle" data-admin-only>
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a href="attendance-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-warning" title="Devamsızlık Gir" data-admin-only>
+                  <i class="bi bi-calendar-check"></i>
+                </a>
+                <a href="behavior-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-success" title="Davranış Gir" data-admin-only>
+                  <i class="bi bi-star"></i>
+                </a>
+              </div>
             </td>
           </tr>`;
         }).join("");
@@ -421,7 +468,8 @@
       yukleOgrenciler({
         sinif: document.getElementById("filtre-sinif").value,
         cinsiyet: document.getElementById("filtre-cinsiyet").value,
-        yatililik: document.getElementById("filtre-yatililik").value
+        yatililik: document.getElementById("filtre-yatililik").value,
+        durum: document.getElementById("filtre-durum").value
       });
     });
 
@@ -429,6 +477,7 @@
       document.getElementById("filtre-sinif").value = "";
       document.getElementById("filtre-cinsiyet").value = "";
       document.getElementById("filtre-yatililik").value = "";
+      document.getElementById("filtre-durum").value = "";
       tabloBekle("Filtreleri seçip Filtrele'ye basın.");
     });
 
