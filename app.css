@@ -17,6 +17,14 @@
   --obs-surface: #ffffff;
   --obs-border: #d9e1ea;
   --obs-soft-shadow: 0 2px 10px rgba(15, 23, 42, .07);
+
+  --obs-bottom-nav-height: 64px;
+  --obs-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --obs-tap: 44px;
+  --obs-radius: 12px;
+  --obs-radius-sm: 8px;
+  --obs-text: #1f2937;
+  --obs-muted: #64748b;
 }
 
 .app-wrapper {
@@ -239,14 +247,13 @@ body.sidebar-collapsed .app-footer {
 @media (max-width: 767.98px) {
   .app-header > .container-fluid {
     max-width: none;
+    padding-left: .6rem;
+    padding-right: .6rem;
+    gap: .5rem;
   }
 
   .app-header {
     left: 0;
-  }
-
-  .app-sidebar {
-    display: none !important;
   }
 
   body.sidebar-mobile-open .app-sidebar {
@@ -256,6 +263,36 @@ body.sidebar-collapsed .app-footer {
   .app-main,
   .app-footer {
     margin-left: 0;
+  }
+
+  .app-content-header {
+    padding-top: .65rem !important;
+    padding-bottom: .5rem !important;
+    background: #ffffff;
+    border-bottom: 1px solid var(--obs-border);
+  }
+
+  .app-content-header h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 0;
+  }
+
+  .app-content-header .breadcrumb {
+    display: none !important;
+  }
+
+  .app-content-header .col-sm-6 {
+    width: 100%;
+  }
+
+  .app-content {
+    padding: .75rem 0 !important;
+  }
+
+  .app-content > .container-fluid {
+    padding-left: .75rem;
+    padding-right: .75rem;
   }
 }
 
@@ -269,6 +306,17 @@ body.sidebar-collapsed .app-footer {
   .brand-text {
     font-size: 1rem;
   }
+
+  .navbar-brand {
+    padding: .2rem .4rem;
+  }
+
+  .app-header .nav-link {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: .5rem .75rem;
+  }
 }
 
 /* --- Bottom Navbar (Telefon) --- */
@@ -277,10 +325,11 @@ body.sidebar-collapsed .app-footer {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
-  background: #fff;
-  border-top: 1px solid #dee2e6;
-  box-shadow: 0 -2px 8px rgba(0,0,0,.08);
+  height: calc(var(--obs-bottom-nav-height) + var(--obs-safe-bottom));
+  padding-bottom: var(--obs-safe-bottom);
+  background: rgba(255, 255, 255, .97);
+  border-top: 1px solid #e2eaf3;
+  box-shadow: 0 -4px 20px rgba(15, 23, 42, .09);
   z-index: 1030;
   justify-content: space-around;
   align-items: center;
@@ -293,25 +342,63 @@ body.sidebar-collapsed .app-footer {
   justify-content: center;
   flex: 1;
   height: 100%;
-  color: #6c757d;
+  color: #64748b;
   text-decoration: none;
-  font-size: 0.68rem;
-  gap: 2px;
-  transition: color .2s;
+  font-size: .67rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+  gap: 3px;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  position: relative;
+  transition: color .15s ease;
 }
 
 .bottom-nav-item i {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  transition: transform .15s ease;
 }
 
-.bottom-nav-item.aktif,
-.bottom-nav-item:hover {
+.bottom-nav-item span {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.bottom-nav-item.aktif i {
+  background: rgba(13, 110, 253, .10);
+  color: #0d6efd;
+  border-radius: 10px;
+  padding: 3px 14px;
+  margin-bottom: -3px;
+}
+
+.bottom-nav-item.aktif {
+  color: #0d6efd;
+  font-weight: 700;
+}
+
+.bottom-nav-item:active i {
+  transform: scale(.88);
+}
+
+.bottom-nav-item:not(.aktif):hover {
   color: #0d6efd;
 }
 
 .mobile-more-menu {
   display: grid;
   gap: 1rem;
+}
+
+.offcanvas-header {
+  border-bottom: 1px solid var(--obs-border);
+  background: rgba(255, 255, 255, .97);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .mobile-more-group {
@@ -334,7 +421,7 @@ body.sidebar-collapsed .app-footer {
 }
 
 .mobile-more-item {
-  min-height: 58px;
+  min-height: 62px;
   display: flex;
   align-items: center;
   gap: .65rem;
@@ -342,23 +429,33 @@ body.sidebar-collapsed .app-footer {
   text-decoration: none;
   background: #fff;
   border: 1px solid var(--obs-border);
-  border-radius: 8px;
-  padding: .7rem .75rem;
-  box-shadow: 0 1px 5px rgba(15, 23, 42, .06);
+  border-radius: 10px;
+  padding: .75rem .85rem;
+  box-shadow: 0 1px 6px rgba(15, 23, 42, .06);
+  transition: background .15s, border-color .15s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .mobile-more-item i {
   color: #0d6efd;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
+  flex-shrink: 0;
 }
 
 .mobile-more-item span {
   min-width: 0;
   font-weight: 600;
-  line-height: 1.15;
+  font-size: .88rem;
+  line-height: 1.2;
 }
 
-.mobile-more-item:active,
+.mobile-more-item:active {
+  transform: scale(.97);
+  background: #f0f6ff;
+  border-color: #bcd6fd;
+}
+
 .mobile-more-item:hover {
   color: #0b5ed7;
   border-color: #9ec5fe;
@@ -369,7 +466,7 @@ body.sidebar-collapsed .app-footer {
 @media (max-width: 767.98px) {
   .app-wrapper,
   .content-wrapper {
-    padding-bottom: 68px !important;
+    padding-bottom: calc(var(--obs-bottom-nav-height) + var(--obs-safe-bottom) + 8px) !important;
   }
 }
 
@@ -381,7 +478,7 @@ body.sidebar-collapsed .app-footer {
 /* Kart gölgesi */
 .card {
   border-color: var(--obs-border);
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: var(--obs-soft-shadow);
 }
 
@@ -389,8 +486,21 @@ body.sidebar-collapsed .app-footer {
   border-radius: 6px;
 }
 
+/* Bootstrap 5'te yoktur; sistemde kullanılıyor */
+.btn-xs {
+  padding: .2rem .4rem;
+  font-size: .75rem;
+  line-height: 1.4;
+  border-radius: 4px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--obs-primary);
+  outline-offset: 2px;
+}
+
 .table-hover tbody tr:hover {
-  --bs-table-bg-state: #f6f9fc;
+  --bs-table-bg-state: #eef5ff;
 }
 
 .table-responsive > .table {
@@ -532,28 +642,34 @@ body.sidebar-collapsed .app-footer {
   position: absolute;
   z-index: 999;
   background: #fff;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  max-height: 200px;
+  border: 1px solid #d1dce8;
+  border-radius: 10px;
+  max-height: 220px;
   overflow-y: auto;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  box-shadow: 0 8px 28px rgba(15, 23, 42, .13);
+  margin-top: 3px;
 }
 
 .ac-dropdown .ac-item {
-  padding: 8px 12px;
+  padding: .6rem .85rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: .88rem;
+  border-radius: 6px;
+  margin: 2px 4px;
+  transition: background .12s;
 }
 
-.ac-dropdown .ac-item:hover {
-  background: #f0f4ff;
+.ac-dropdown .ac-item:hover,
+.ac-dropdown .ac-item:focus {
+  background: #eef4ff;
+  color: #0b5ed7;
 }
 
 /* Öğrenci detay mobil görünümü */
 @media (max-width: 767.98px) {
   .student-detail-page .app-content-header {
-    padding-bottom: .25rem;
+    padding-bottom: .25rem !important;
   }
 
   .student-detail-page .breadcrumb {
@@ -651,7 +767,7 @@ body.sidebar-collapsed .app-footer {
   }
 
   .student-detail-page .tab-pane .card {
-    border-radius: 8px;
+    border-radius: 10px;
   }
 
   .student-detail-page .tab-pane .card-header {
@@ -723,6 +839,342 @@ body.sidebar-collapsed .app-footer {
   }
 }
 
+/* --- Toast konumu --- */
+.obs-toast-kap {
+  bottom: 1rem;
+  top: auto;
+}
+
+@media (max-width: 767.98px) {
+  .obs-toast-kap {
+    bottom: calc(var(--obs-bottom-nav-height) + var(--obs-safe-bottom) + .75rem);
+    right: .75rem !important;
+    left: .75rem;
+    max-width: calc(100vw - 1.5rem);
+  }
+
+  .obs-toast-kap .toast {
+    max-width: 100%;
+  }
+}
+
+/* --- Mobil butonlar --- */
+@media (max-width: 767.98px) {
+  .app-content .btn-sm:not(.dt-button),
+  .card-header .btn-sm:not(.dt-button),
+  .obs-confirm .btn-sm {
+    min-height: 40px;
+    padding-top: .45rem;
+    padding-bottom: .45rem;
+    font-size: .875rem;
+  }
+
+  .card-header {
+    flex-wrap: wrap;
+    row-gap: .35rem;
+  }
+
+  .card-header .d-flex.gap-2.no-print {
+    gap: .3rem !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .card-header .d-flex.gap-2.flex-wrap .btn-sm {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .obs-confirm-actions {
+    flex-direction: column-reverse;
+  }
+
+  .obs-confirm-actions .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+/* --- Filtreler --- */
+@media (max-width: 767.98px) {
+  .card .row.g-2 .form-select-sm,
+  .card .row.g-2 .form-control-sm {
+    min-height: 40px;
+    font-size: .9rem;
+    padding: .375rem .75rem;
+    padding-right: 2rem;
+  }
+
+  .card .row.g-2 .form-label.small {
+    font-size: .78rem;
+    font-weight: 600;
+    margin-bottom: .2rem;
+  }
+
+  .no-print .card-body.py-2 {
+    padding-top: .75rem !important;
+    padding-bottom: .75rem !important;
+  }
+
+  #filtre-uygula {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .filtre-buton-grubu {
+    flex-direction: column;
+  }
+
+  .filtre-buton-grubu .btn-sm {
+    width: 100%;
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .card .row.g-2 .d-flex.gap-2:has(#filtre-uygula) {
+    flex-direction: column;
+  }
+
+  .card .row.g-2 .d-flex.gap-2:has(#filtre-uygula) .btn-sm {
+    width: 100%;
+    min-height: 40px;
+  }
+}
+
+/* --- iOS form zoom önleme --- */
+@media (max-width: 767.98px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  input[type="search"],
+  input[type="tel"],
+  select,
+  textarea,
+  .form-control,
+  .form-select,
+  .form-control-sm,
+  .form-select-sm {
+    font-size: 16px !important;
+  }
+}
+
+/* --- Tablolar ve DataTables mobil --- */
+@media (max-width: 767.98px) {
+  .table-responsive {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+  }
+
+  .table-responsive::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .table-responsive::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .table-responsive::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 2px;
+  }
+
+  .table-sm th,
+  .table-sm td {
+    padding: .35rem .45rem;
+    font-size: .82rem;
+    vertical-align: middle;
+  }
+
+  .dt-layout-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    align-items: center;
+    margin-bottom: .5rem !important;
+  }
+
+  .dt-search {
+    flex: 1 1 auto;
+  }
+
+  .dt-search input {
+    width: 100% !important;
+    min-width: 0;
+  }
+
+  .dt-length {
+    flex: 0 0 auto;
+  }
+
+  .dt-info {
+    font-size: .78rem;
+  }
+
+  .dt-paging .pagination .page-link {
+    padding: .3rem .6rem;
+    font-size: .8rem;
+    min-width: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dt-container {
+    overflow-x: auto;
+  }
+}
+
+/* --- Autocomplete mobil --- */
+@media (max-width: 767.98px) {
+  .ac-dropdown .ac-item {
+    padding: 12px 14px;
+    font-size: .95rem;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f0f4f8;
+  }
+
+  .ac-dropdown .ac-item:last-child {
+    border-bottom: none;
+  }
+
+  .ac-dropdown {
+    max-height: 50vh;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* --- Modaller --- */
+@media (max-width: 767.98px) {
+  .modal-dialog {
+    margin: .5rem;
+    max-width: calc(100% - 1rem);
+  }
+
+  .modal-body {
+    max-height: 65vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: .4rem;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+}
+
+/* --- Sayfa özel form ayarları --- */
+@media (max-width: 767.98px) {
+  .tur-buton {
+    flex: 1 !important;
+    padding: .85rem 1rem !important;
+    font-size: 1rem !important;
+  }
+
+  #kart-manuel .card-body,
+  #kart-excel .card-body {
+    padding: 1.25rem 1rem;
+  }
+
+  #kart-manuel .bi.fs-1,
+  #kart-excel .bi.fs-1 {
+    font-size: 2rem !important;
+    margin-bottom: .25rem !important;
+  }
+
+  #kart-manuel h5,
+  #kart-excel h5 {
+    font-size: 1rem;
+    margin-bottom: .25rem;
+  }
+
+  #form-kart > .card-body > .d-flex.gap-2.justify-content-end.mt-4 {
+    position: sticky;
+    bottom: calc(var(--obs-bottom-nav-height) + var(--obs-safe-bottom) + .5rem);
+    background: rgba(255, 255, 255, .97);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: .75rem 1rem .5rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-top: 1px solid var(--obs-border);
+    z-index: 10;
+  }
+
+  #form-kart > .card-body > .d-flex.gap-2.justify-content-end.mt-4 .btn {
+    flex: 1;
+    min-height: 42px;
+  }
+
+  .yetenek-satir {
+    flex-wrap: wrap;
+  }
+
+  .yetenek-satir select,
+  .yetenek-satir input {
+    flex: 1 1 120px;
+    min-width: 0;
+  }
+
+  .veli-form-card .card-header {
+    padding: .65rem .85rem;
+  }
+
+  .veli-form-card .card-body {
+    padding: .85rem;
+  }
+
+  .veli-form-card .row > [class*="col-md-"] {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* --- Dashboard ve genel kartlar --- */
+@media (max-width: 767.98px) {
+  .dashboard-summary-card .card-body {
+    padding: .85rem 1rem;
+  }
+
+  .card.mb-3 {
+    margin-bottom: .75rem !important;
+  }
+
+  .card.mb-4 {
+    margin-bottom: 1rem !important;
+  }
+
+  .row.g-3 {
+    --bs-gutter-y: .75rem;
+  }
+
+  .hizli-islem-butonlar {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .4rem !important;
+  }
+
+  .hizli-islem-btn {
+    font-size: .8rem !important;
+    padding: .45rem .6rem !important;
+    text-align: left;
+    display: flex !important;
+    align-items: center;
+  }
+}
+
 @page {
   margin: 10mm 8mm 11mm;
 }
@@ -752,6 +1204,9 @@ body.sidebar-collapsed .app-footer {
   body {
     width: 100% !important;
     min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
     color: #111827 !important;
     background: #fff !important;
     font-size: 10.5pt;
@@ -773,7 +1228,7 @@ body.sidebar-collapsed .app-footer {
     margin-left: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
-    min-height: auto !important;
+    min-height: 0 !important;
   }
 
   .app-content,
@@ -1197,5 +1652,48 @@ body.sidebar-collapsed .app-footer {
   body.obs-list-print-pages .print-list-page-table .print-wrap {
     white-space: normal !important;
     overflow-wrap: anywhere !important;
+  }
+
+  html::after,
+  body::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  html body,
+  html body.layout-fixed {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  #bottom-nav-kap,
+  #bottom-nav-kap * {
+    display: none !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .main-footer {
+    display: none !important;
+  }
+
+  tr[data-obs-print-class-row]:last-of-type {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  body.obs-list-print-pages .obs-print-list-page:last-child {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .card:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .tab-content > .tab-pane:last-child {
+    break-after: avoid;
+    page-break-after: avoid;
   }
 }

@@ -429,7 +429,7 @@ export function toast(mesaj, tip = "success") {
   if (!kap) {
     kap = document.createElement("div");
     kap.id = "toast-kap";
-    kap.className = "toast-container position-fixed bottom-0 end-0 p-3";
+    kap.className = "toast-container position-fixed end-0 p-3 obs-toast-kap";
     kap.style.zIndex = "1100";
     document.body.appendChild(kap);
   }

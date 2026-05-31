@@ -19,10 +19,10 @@ if errorlevel 1 (
   exit /b 1
 )
 
-:: bump-version.js'in bu dizinde olup olmadığını kontrol et
-if not exist "%~dp0bump-version.js" (
-  echo  [HATA] bump-version.js bulunamadi.
-  echo  Bu dosyanin bump-version.js ile ayni klasorde olmasi gerekiyor.
+:: bump-version.mjs'in bu dizinde olup olmadığını kontrol et
+if not exist "%~dp0bump-version.mjs" (
+  echo  [HATA] bump-version.mjs bulunamadi.
+  echo  Bu dosyanin bump-version.mjs ile ayni klasorde olmasi gerekiyor.
   echo.
   pause
   exit /b 1
@@ -32,7 +32,7 @@ if not exist "%~dp0bump-version.js" (
 cd /d "%~dp0"
 
 :: Scripti çalıştır
-node bump-version.js
+node bump-version.mjs
 
 if errorlevel 1 (
   echo.

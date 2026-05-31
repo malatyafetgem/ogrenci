@@ -2,8 +2,8 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260530-32";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260530-32";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260531-33";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260531-33";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -108,8 +108,24 @@ function baglaYazdirmaYardimcilari() {
   document.addEventListener("click", yazdirmaTiklamaDinle);
   window.addEventListener("beforeprint", () => {
     if (!yazdirmaHazir) yazdirmayaHazirla();
+
+    if (window.innerWidth < 768) {
+      const meta = document.querySelector("meta[name='viewport']");
+      if (meta) {
+        meta._eskiIcerik = meta.content;
+        meta.content = "width=1024";
+      }
+    }
   });
-  window.addEventListener("afterprint", yazdirmaHazirliginiTemizle);
+  window.addEventListener("afterprint", () => {
+    yazdirmaHazirliginiTemizle();
+
+    const meta = document.querySelector("meta[name='viewport']");
+    if (meta && meta._eskiIcerik) {
+      meta.content = meta._eskiIcerik;
+      delete meta._eskiIcerik;
+    }
+  });
 }
 
 function yazdirmaTiklamaDinle(e) {
@@ -501,7 +517,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260530-32");
+    const { logout } = await import("./auth.js?v=20260531-33");
     logout();
   });
 }
@@ -571,7 +587,7 @@ function yukleBottomNav() {
     </nav>
 
     <!-- Offcanvas: Daha Fazlası -->
-    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="daha-fazla-menu" style="height:auto;max-height:82vh;overflow-y:auto">
+    <div class="offcanvas offcanvas-bottom rounded-top-4" tabindex="-1" id="daha-fazla-menu" style="height:auto;max-height:88vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0px)">
       <div class="offcanvas-header">
         <h5 class="offcanvas-title">Menü</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
@@ -584,6 +600,24 @@ function yukleBottomNav() {
     </div>`;
 
   kap.innerHTML = html;
+
+  // Klavye açıkken bottom navbar'ı gizle
+  (function klavyeGizlemeBaslat() {
+    if (!window.visualViewport) return;
+    const navbar = document.querySelector(".bottom-navbar");
+    if (!navbar) return;
+
+    let onceki = visualViewport.height;
+
+    visualViewport.addEventListener("resize", () => {
+      const fark = onceki - visualViewport.height;
+      navbar.style.transform = fark > 120
+        ? "translateY(calc(100% + env(safe-area-inset-bottom, 0px)))"
+        : "";
+      navbar.style.transition = "transform .2s ease";
+      onceki = visualViewport.height;
+    });
+  })();
 }
 
 function offcanvasGrup(grup) {
