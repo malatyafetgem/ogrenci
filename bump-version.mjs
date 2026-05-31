@@ -1,150 +1,212 @@
 /**
  * bump-version.mjs
- * Patch sürümünü artırır, APP_UPDATED_AT'i günceller,
- * sw.js CACHE_VERSION'u günceller ve
- * proje dosyalarındaki ?v= cache etiketlerini yeni etiketle değiştirir.
+ * Projedeki en buyuk surum/cache degerini bulur,
+ * tum dosyalari bir sonraki surume tasir.
  *
- * Kullanım: node bump-version.mjs
+ * Kullanim:
+ * node bump-version.mjs
  */
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from "fs";
 import { join, extname, basename } from "path";
 
-// ─── Ayarlar ────────────────────────────────────────────────────────────────
-
 const VERSION_DOSYASI = "./version.js";
 const SW_DOSYASI = "./sw.js";
-const HEDEF_UZANTILAR = new Set([".html", ".js", ".mjs"]);
-const ATLANACAK_DOSYALAR = new Set(["bump-version.js", "bump-version.mjs", "sw.js"]);
-const ETIKET_DESENI = /\?v=(\d{8}-\d+)/g;
 
-// ─── version.js oku ─────────────────────────────────────────────────────────
+const HEDEF_UZANTILAR = new Set([
+  ".html",
+  ".js",
+  ".mjs",
+  ".css",
+  ".webmanifest"
+]);
 
-const versionIcerik = readFileSync(VERSION_DOSYASI, "utf8");
+const ATLANACAK_DOSYALAR = new Set([
+  "bump-version.js",
+  "bump-version.mjs"
+]);
 
-const suruEslesmesi = versionIcerik.match(/APP_VERSION\s*=\s*"([\d.]+)"/);
-if (!suruEslesmesi) {
-  console.error("HATA: version.js içinde APP_VERSION bulunamadı.");
-  process.exit(1);
+const CACHE_ETIKET_DESENI = /\?v=(\d{8})-(\d+)/g;
+const APP_VERSION_DESENI = /APP_VERSION\s*=\s*"(\d+)\.(\d+)\.(\d+)"/;
+const APP_UPDATED_AT_DESENI = /APP_UPDATED_AT\s*=\s*"[^"]*"/;
+const SW_CACHE_VERSION_DESENI = /const CACHE_VERSION\s*=\s*"obs-cache-v(\d+)\.(\d+)\.(\d+)"/;
+
+function bugunYYYYMMDD() {
+  const bugun = new Date();
+  const yy = bugun.getFullYear();
+  const aa = String(bugun.getMonth() + 1).padStart(2, "0");
+  const gg = String(bugun.getDate()).padStart(2, "0");
+  return `${yy}${aa}${gg}`;
 }
 
-const eskiSurum = suruEslesmesi[1];
-const [major, minor, patch] = eskiSurum.split(".").map(Number);
-const yeniPatch = patch + 1;
-const yeniSurum = `${major}.${minor}.${yeniPatch}`;
-
-// ─── Dosyaları tara ─────────────────────────────────────────────────────────
+function bugunGosterim() {
+  const bugun = new Date();
+  const yy = bugun.getFullYear();
+  const aa = String(bugun.getMonth() + 1).padStart(2, "0");
+  const gg = String(bugun.getDate()).padStart(2, "0");
+  return `${gg}.${aa}.${yy}`;
+}
 
 function dosyalariTara(dizin) {
   const sonuclar = [];
+
   for (const giris of readdirSync(dizin)) {
     const tam = join(dizin, giris);
+
     if (statSync(tam).isDirectory()) {
-      if (giris === "node_modules" || giris.startsWith(".")) continue;
+      if (
+        giris === "node_modules" ||
+        giris === ".git" ||
+        giris.startsWith(".")
+      ) {
+        continue;
+      }
+
       sonuclar.push(...dosyalariTara(tam));
-    } else if (HEDEF_UZANTILAR.has(extname(giris)) && !ATLANACAK_DOSYALAR.has(basename(giris))) {
+      continue;
+    }
+
+    if (
+      HEDEF_UZANTILAR.has(extname(giris)) &&
+      !ATLANACAK_DOSYALAR.has(basename(giris))
+    ) {
       sonuclar.push(tam);
     }
   }
+
   return sonuclar;
+}
+
+function okuVarsa(dosya) {
+  try {
+    return readFileSync(dosya, "utf8");
+  } catch {
+    return "";
+  }
 }
 
 const dosyalar = dosyalariTara(".");
 
-// ─── Mevcut cache etiketlerini topla ────────────────────────────────────────
+const versionIcerik = okuVarsa(VERSION_DOSYASI);
+const swIcerik = okuVarsa(SW_DOSYASI);
 
-const bulunanEtiketler = new Set();
+let major = 1;
+let minor = 0;
+let enBuyukPatch = 0;
+
+const versionEslesmesi = versionIcerik.match(APP_VERSION_DESENI);
+
+if (versionEslesmesi) {
+  major = Number(versionEslesmesi[1]);
+  minor = Number(versionEslesmesi[2]);
+  enBuyukPatch = Math.max(enBuyukPatch, Number(versionEslesmesi[3]));
+}
+
+const swEslesmesi = swIcerik.match(SW_CACHE_VERSION_DESENI);
+
+if (swEslesmesi) {
+  major = Math.max(major, Number(swEslesmesi[1]));
+  minor = Math.max(minor, Number(swEslesmesi[2]));
+  enBuyukPatch = Math.max(enBuyukPatch, Number(swEslesmesi[3]));
+}
+
+let enBuyukTarih = "00000000";
+let enBuyukCacheNo = 0;
+let bulunanCacheEtiketiSayisi = 0;
 
 for (const dosya of dosyalar) {
-  const icerik = readFileSync(dosya, "utf8");
-  for (const eslesen of icerik.matchAll(ETIKET_DESENI)) {
-    bulunanEtiketler.add(eslesen[0]); // örn. "?v=20260529-29"
+  const icerik = okuVarsa(dosya);
+
+  for (const eslesen of icerik.matchAll(CACHE_ETIKET_DESENI)) {
+    const tarih = eslesen[1];
+    const no = Number(eslesen[2]);
+
+    bulunanCacheEtiketiSayisi++;
+
+    if (tarih > enBuyukTarih) {
+      enBuyukTarih = tarih;
+    }
+
+    if (no > enBuyukCacheNo) {
+      enBuyukCacheNo = no;
+    }
+
+    if (no > enBuyukPatch) {
+      enBuyukPatch = no;
+    }
   }
 }
 
-if (bulunanEtiketler.size === 0) {
-  console.error("HATA: Hiçbir dosyada ?v=YYYYMMDD-NN formatında cache etiketi bulunamadı.");
+if (!versionEslesmesi) {
+  console.error("[HATA] version.js icinde APP_VERSION bulunamadi.");
   process.exit(1);
 }
 
-if (bulunanEtiketler.size > 1) {
-  console.error("HATA: Projede birden fazla farklı cache etiketi var. Önce bunları elle eşitleyin:");
-  for (const etiket of bulunanEtiketler) {
-    console.error(`  ${etiket}`);
+if (bulunanCacheEtiketiSayisi === 0) {
+  console.error("[HATA] Projede ?v=YYYYMMDD-N formatinda cache etiketi bulunamadi.");
+  process.exit(1);
+}
+
+const bugunEtiketi = bugunYYYYMMDD();
+const yeniTarih = bugunEtiketi > enBuyukTarih ? bugunEtiketi : enBuyukTarih;
+const yeniPatch = enBuyukPatch + 1;
+const yeniCacheNo = Math.max(enBuyukCacheNo, enBuyukPatch) + 1;
+
+const eskiSurum = `${versionEslesmesi[1]}.${versionEslesmesi[2]}.${versionEslesmesi[3]}`;
+const yeniSurum = `${major}.${minor}.${yeniPatch}`;
+const yeniEtiket = `?v=${yeniTarih}-${yeniCacheNo}`;
+const yeniGosterimTarihi = bugunGosterim();
+
+let degisenDosyaSayisi = 0;
+let degisenToplamSayisi = 0;
+
+for (const dosya of dosyalar) {
+  const icerik = okuVarsa(dosya);
+
+  const eslesmeler = [...icerik.matchAll(CACHE_ETIKET_DESENI)];
+
+  if (eslesmeler.length === 0) {
+    continue;
   }
-  process.exit(1);
+
+  const yeniIcerik = icerik.replace(CACHE_ETIKET_DESENI, yeniEtiket);
+
+  if (yeniIcerik !== icerik) {
+    writeFileSync(dosya, yeniIcerik, "utf8");
+    degisenDosyaSayisi++;
+    degisenToplamSayisi += eslesmeler.length;
+    console.log(`[OK] ${dosya.replace(/\\/g, "/")} - ${eslesmeler.length} cache etiketi guncellendi`);
+  }
 }
-
-const eskiEtiket = [...bulunanEtiketler][0]; // örn. "?v=20260529-29"
-
-// ─── Yeni cache etiketi ─────────────────────────────────────────────────────
-
-// Tarih kısmını eskiden al, patch kısmını artır
-const eskiTarihOneki = eskiEtiket.match(/\?v=(\d{8})-\d+/)[1]; // "20260529"
-
-const bugun = new Date();
-const yy = bugun.getFullYear();
-const aa = String(bugun.getMonth() + 1).padStart(2, "0");
-const gg = String(bugun.getDate()).padStart(2, "0");
-const bugunOneki = `${yy}${aa}${gg}`;
-
-// Yeni etikette bugünün tarihini ve artırılmış patch numarasını kullan
-const yeniTarihOneki = bugunOneki;
-const yeniEtiket = `?v=${yeniTarihOneki}-${yeniPatch}`;
-
-const gosterimTarihi = `${gg}.${aa}.${yy}`;
-
-if (eskiTarihOneki !== bugunOneki) {
-  console.log(`  ℹ Tarih değişti: ${eskiTarihOneki} → ${bugunOneki}`);
-}
-
-// ─── version.js güncelle ────────────────────────────────────────────────────
 
 const yeniVersionIcerik = versionIcerik
-  .replace(/APP_VERSION\s*=\s*"[\d.]+"/, `APP_VERSION = "${yeniSurum}"`)
-  .replace(/APP_UPDATED_AT\s*=\s*"[\d.]+"/, `APP_UPDATED_AT = "${gosterimTarihi}"`);
+  .replace(APP_VERSION_DESENI, `APP_VERSION = "${yeniSurum}"`)
+  .replace(APP_UPDATED_AT_DESENI, `APP_UPDATED_AT = "${yeniGosterimTarihi}"`);
 
 writeFileSync(VERSION_DOSYASI, yeniVersionIcerik, "utf8");
-console.log(`\n✔ version.js güncellendi: ${eskiSurum} → ${yeniSurum}`);
+console.log(`[OK] version.js: ${eskiSurum} -> ${yeniSurum}`);
 
-// ─── sw.js CACHE_VERSION güncelle ───────────────────────────────────────────
+if (swIcerik) {
+  if (SW_CACHE_VERSION_DESENI.test(swIcerik)) {
+    const yeniSwIcerik = swIcerik.replace(
+      SW_CACHE_VERSION_DESENI,
+      `const CACHE_VERSION = "obs-cache-v${yeniSurum}"`
+    );
 
-const swIcerik = readFileSync(SW_DOSYASI, "utf8");
-const swVerDeseni = /const CACHE_VERSION\s*=\s*"obs-cache-v[\d.]+"/;
-const yeniSwVer = `const CACHE_VERSION = "obs-cache-v${yeniSurum}"`;
-
-if (swVerDeseni.test(swIcerik)) {
-  const eskiSwVer = swIcerik.match(swVerDeseni)[0];
-  writeFileSync(SW_DOSYASI, swIcerik.replace(swVerDeseni, yeniSwVer), "utf8");
-  console.log(`✔ sw.js güncellendi: ${eskiSwVer.match(/"([^"]+)"/)[1]} → obs-cache-v${yeniSurum}`);
-} else {
-  console.warn("⚠ sw.js içinde CACHE_VERSION deseni bulunamadı — elle kontrol edin.");
+    writeFileSync(SW_DOSYASI, yeniSwIcerik, "utf8");
+    console.log(`[OK] sw.js: obs-cache-v${yeniSurum}`);
+  } else {
+    console.warn("[UYARI] sw.js icinde CACHE_VERSION bulunamadi. Elle kontrol edin.");
+  }
 }
 
-// ─── Tüm dosyalarda etiketi değiştir ────────────────────────────────────────
-
-let degistirilmeDosyaSayisi = 0;
-let degistirilmeToplamSayisi = 0;
-
-for (const dosya of dosyalar) {
-  const icerik = readFileSync(dosya, "utf8");
-  if (!icerik.includes(eskiEtiket)) continue;
-
-  const sayac = (icerik.match(new RegExp(eskiEtiket.replace("?", "\\?"), "g")) || []).length;
-  writeFileSync(dosya, icerik.replaceAll(eskiEtiket, yeniEtiket), "utf8");
-
-  console.log(`  ✔ ${dosya.replace(/\\/g, "/")}  (${sayac} değişiklik)`);
-  degistirilmeDosyaSayisi++;
-  degistirilmeToplamSayisi += sayac;
-}
-
-// ─── Özet ───────────────────────────────────────────────────────────────────
-
-console.log(`
-────────────────────────────────────────
-  Sürüm   : ${eskiSurum} → ${yeniSurum}
-  Tarih   : ${gosterimTarihi}
-  Etiket  : ${eskiEtiket} → ${yeniEtiket}
-  Dosya   : ${degistirilmeDosyaSayisi} dosyada ${degistirilmeToplamSayisi} referans güncellendi
-────────────────────────────────────────
-`);
+console.log("");
+console.log("========================================");
+console.log("Surum guncelleme tamamlandi");
+console.log("========================================");
+console.log(`Eski surum       : ${eskiSurum}`);
+console.log(`Yeni surum       : ${yeniSurum}`);
+console.log(`Yeni cache etiketi: ${yeniEtiket}`);
+console.log(`Guncellenen dosya : ${degisenDosyaSayisi}`);
+console.log(`Toplam degisiklik : ${degisenToplamSayisi}`);
+console.log("========================================");
