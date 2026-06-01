@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260601-38";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260601-38";
-import { escapeHtml } from "./utils.js?v=20260601-38";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260601-39";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260601-39";
+import { escapeHtml } from "./utils.js?v=20260601-39";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -500,7 +500,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand d-flex align-items-center gap-2">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260601-38" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260601-39" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text fw-semibold">Öğrenci Bilgileri</span>
         </a>
         <ul class="navbar-nav d-none d-md-flex ms-3 top-menu">
@@ -527,7 +527,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260601-38");
+    const { logout } = await import("./auth.js?v=20260601-39");
     logout();
   });
 
@@ -556,7 +556,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260601-38");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260601-39");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -628,7 +628,7 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260601-38");
+    const { db } = await import("./firebase-config.js?v=20260601-39");
     const { collection, query, limit, onSnapshot } =
       await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
     const q = query(collection(db, "_settings"), limit(1));

@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-38">
+  <link rel="manifest" href="manifest.webmanifest?v=20260601-39">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-38">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-38">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-38">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-38">
-  <script src="file-redirect.js?v=20260601-38"></script>
-  <script src="pwa.js?v=20260601-38"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-39">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-39">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-39">
+  <link rel="shortcut icon" href="favicon.ico?v=20260601-39">
+  <script src="file-redirect.js?v=20260601-39"></script>
+  <script src="pwa.js?v=20260601-39"></script>
   <title>Davranış Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-38">
+  <link rel="stylesheet" href="app.css?v=20260601-39">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -91,13 +91,68 @@
           </div>
         </div>
 
+        <!-- Özet Kartlar -->
+        <div class="row g-3 mb-3" id="ozet-kartlar" style="display:none!important">
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+              <div class="card-body py-2">
+                <div class="text-muted small">Toplam Kayıt</div>
+                <div class="fw-bold fs-4" id="ozet-toplam">0</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+              <div class="card-body py-2">
+                <div class="text-success small"><i class="bi bi-hand-thumbs-up-fill me-1"></i>Olumlu</div>
+                <div class="fw-bold fs-4 text-success" id="ozet-olumlu">0</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+              <div class="card-body py-2">
+                <div class="text-danger small"><i class="bi bi-hand-thumbs-down-fill me-1"></i>Olumsuz</div>
+                <div class="fw-bold fs-4 text-danger" id="ozet-olumsuz">0</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+              <div class="card-body py-2">
+                <div class="text-muted small"><i class="bi bi-people me-1"></i>Öğrenci Sayısı</div>
+                <div class="fw-bold fs-4" id="ozet-ogrenci-sayisi">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="row g-3">
-          <!-- Grafik -->
+          <!-- Grafikler -->
           <div class="col-12 col-md-4">
             <div class="card h-100">
-              <div class="card-header"><h6 class="mb-0">Kategori Dağılımı</h6></div>
-              <div class="card-body d-flex align-items-center justify-content-center">
-                <canvas id="kategori-grafik" width="260" height="260"></canvas>
+              <div class="card-header d-flex align-items-center justify-content-between">
+                <h6 class="mb-0">Kategori Dağılımı</h6>
+                <div class="btn-group btn-group-sm no-print" id="grafik-mod-grup" role="group">
+                  <button type="button" class="btn btn-outline-secondary active" data-grafik-mod="tum">Tümü</button>
+                  <button type="button" class="btn btn-outline-success" data-grafik-mod="olumlu">Olumlu</button>
+                  <button type="button" class="btn btn-outline-danger" data-grafik-mod="olumsuz">Olumsuz</button>
+                </div>
+              </div>
+              <div class="card-body d-flex flex-column align-items-center justify-content-center gap-3">
+                <canvas id="kategori-grafik" width="240" height="240"></canvas>
+                <!-- Olumlu/Olumsuz karşılaştırma çubuğu -->
+                <div id="tur-karsilastirma" class="w-100 d-none">
+                  <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span><i class="bi bi-hand-thumbs-up-fill text-success me-1"></i>Olumlu</span>
+                    <span id="tur-karsilastirma-yuzdeler"></span>
+                    <span><i class="bi bi-hand-thumbs-down-fill text-danger me-1"></i>Olumsuz</span>
+                  </div>
+                  <div class="progress" style="height:10px">
+                    <div class="progress-bar bg-success" id="tur-bar-olumlu" style="width:50%"></div>
+                    <div class="progress-bar bg-danger" id="tur-bar-olumsuz" style="width:50%"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -156,14 +211,15 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260601-38";
-  import { layoutYukle } from "./layout.js?v=20260601-38";
-  import { tumOgrencileriGetir, siniflarGetir, tumDavranislariGetir } from "./students.js?v=20260601-38";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260601-38";
+  import { requireAuth } from "./auth.js?v=20260601-39";
+  import { layoutYukle } from "./layout.js?v=20260601-39";
+  import { tumOgrencileriGetir, siniflarGetir, tumDavranislariGetir } from "./students.js?v=20260601-39";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260601-39";
 
   let raporVerisi = [];
   let dt = null;
   let grafik = null;
+  let aktifGrafikMod = "tum"; // "tum" | "olumlu" | "olumsuz"
 
   requireAuth(async () => {
     layoutYukle();
@@ -174,14 +230,41 @@
     flatpickr("#filtre-bit", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
     document.getElementById("filtre-uygula").addEventListener("click", yukleRapor);
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
+
+    // Grafik mod butonları
+    document.querySelectorAll("[data-grafik-mod]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        aktifGrafikMod = btn.dataset.grafikMod;
+        document.querySelectorAll("[data-grafik-mod]").forEach(b => {
+          b.classList.remove("active");
+          b.className = b.className.replace(/btn-(success|danger|secondary)/, "btn-outline-secondary");
+        });
+        btn.classList.add("active");
+        if (aktifGrafikMod === "olumlu") btn.className = btn.className.replace("btn-outline-success", "btn-success");
+        else if (aktifGrafikMod === "olumsuz") btn.className = btn.className.replace("btn-outline-danger", "btn-danger");
+        grafikGuncelle();
+      });
+    });
+
     tabloBekle();
   });
+
+  function iskeletGoster() {
+    if (dt) { dt.destroy(); dt = null; }
+    document.getElementById("yukleniyor").classList.add("d-none");
+    document.getElementById("tablo-kap").classList.remove("d-none");
+    const tbody = document.getElementById("davranis-tbody");
+    const satir = `<tr>${Array.from({ length: 6 }).map(() => `<td><div class="skeleton skeleton-satir"></div></td>`).join("")}</tr>`;
+    tbody.innerHTML = satir.repeat(7);
+  }
 
   function tabloBekle() {
     if (dt) { dt.destroy(); dt = null; }
     if (grafik) { grafik.destroy(); grafik = null; }
     raporVerisi = [];
     document.getElementById("kayit-sayisi").textContent = "0";
+    document.getElementById("ozet-kartlar").style.display = "none";
+    document.getElementById("tur-karsilastirma").classList.add("d-none");
     document.getElementById("davranis-tbody").innerHTML =
       `<tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip arama düğmesine basın.</td></tr>`;
     document.getElementById("yukleniyor").classList.add("d-none");
@@ -189,6 +272,7 @@
   }
 
   async function yukleRapor() {
+    iskeletGoster();
     document.getElementById("yukleniyor").classList.remove("d-none");
     document.getElementById("tablo-kap").classList.add("d-none");
     if (dt) { dt.destroy(); dt = null; }
@@ -222,25 +306,41 @@
     });
 
     raporVerisi.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+
+    // Özet kartları güncelle
+    const olumluSayisi = raporVerisi.filter(d => d.tur === "Olumlu").length;
+    const olumsuzSayisi = raporVerisi.filter(d => d.tur === "Olumsuz").length;
+    const teksilOgrenci = new Set(raporVerisi.map(d => d.ogr.id)).size;
     document.getElementById("kayit-sayisi").textContent = raporVerisi.length;
+    document.getElementById("ozet-toplam").textContent = raporVerisi.length;
+    document.getElementById("ozet-olumlu").textContent = olumluSayisi;
+    document.getElementById("ozet-olumsuz").textContent = olumsuzSayisi;
+    document.getElementById("ozet-ogrenci-sayisi").textContent = teksilOgrenci;
+    document.getElementById("ozet-kartlar").style.removeProperty("display");
+    document.getElementById("ozet-kartlar").style.display = raporVerisi.length > 0 ? "flex" : "none";
 
     const tbody = document.getElementById("davranis-tbody");
-    tbody.innerHTML = raporVerisi.length === 0
-      ? `<tr><td colspan="6" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
-      : raporVerisi.map(d => {
-          const olumlu = d.tur === "Olumlu";
-          const tamAd = `${d.ogr.ad} ${d.ogr.soyad}`.trim();
-          return `<tr>
-            <td data-order="${escapeAttr(tarihSiralamaAnahtari(d.tarih))}">${escapeHtml(d.tarih || "—")}</td>
-            <td><a href="students-detail.html?id=${escapeAttr(d.ogr.id)}" class="text-decoration-none">${escapeHtml(tamAd)}</a></td>
-            <td data-order="${escapeAttr(sinifSiralamaAnahtari(d.ogr.sinif))}">${escapeHtml(d.ogr.sinif || "—")}</td>
-            <td><span class="badge ${olumlu ? "bg-success" : "bg-danger"}">${escapeHtml(d.tur)}</span></td>
-            <td>${escapeHtml(d.kategori || "—")}</td>
-            <td class="small text-muted">${escapeHtml(d.aciklama || "—")}</td>
-          </tr>`;
-        }).join("");
+    if (raporVerisi.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6">
+        <div class="bos-durum">
+          <i class="bi bi-search"></i>
+          <div class="baslik">Kayıt bulunamadı</div>
+          <div class="aciklama">Filtreleri değiştirip tekrar deneyin.</div>
+        </div></td></tr>`;
+    } else {
+      tbody.innerHTML = raporVerisi.map(d => {
+        const olumlu = d.tur === "Olumlu";
+        const tamAd = `${d.ogr.ad} ${d.ogr.soyad}`.trim();
+        return `<tr>
+          <td data-order="${escapeAttr(tarihSiralamaAnahtari(d.tarih))}">${escapeHtml(d.tarih || "—")}</td>
+          <td><a href="students-detail.html?id=${escapeAttr(d.ogr.id)}" class="text-decoration-none">${escapeHtml(tamAd)}</a></td>
+          <td data-order="${escapeAttr(sinifSiralamaAnahtari(d.ogr.sinif))}">${escapeHtml(d.ogr.sinif || "—")}</td>
+          <td><span class="badge ${olumlu ? "bg-success" : "bg-danger"}">${escapeHtml(d.tur)}</span></td>
+          <td>${escapeHtml(d.kategori || "—")}</td>
+          <td class="small text-muted">${escapeHtml(d.aciklama || "—")}</td>
+        </tr>`;
+      }).join("");
 
-    if (raporVerisi.length > 0) {
       dt = new DataTable("#davranis-tablo", {
         language: {
           search: "Ara:", lengthMenu: "_MENU_ kayıt göster",
@@ -253,22 +353,65 @@
       });
     }
 
-    // Grafik
-    const kategoriSayac = {};
-    raporVerisi.forEach(d => { kategoriSayac[d.kategori] = (kategoriSayac[d.kategori] || 0) + 1; });
-    const etiketler = Object.keys(kategoriSayac);
-    const veriler = etiketler.map(k => kategoriSayac[k]);
-    const renkler = ["#0d6efd","#198754","#dc3545","#ffc107","#6f42c1","#0dcaf0","#fd7e14","#6c757d","#d63384","#20c997"];
-
-    if (grafik) grafik.destroy();
-    grafik = new Chart(document.getElementById("kategori-grafik"), {
-      type: "doughnut",
-      data: { labels: etiketler, datasets: [{ data: veriler, backgroundColor: renkler.slice(0, etiketler.length) }] },
-      options: { plugins: { legend: { position: "bottom", labels: { font: { size: 11 } } } }, cutout: "55%" }
-    });
+    grafikGuncelle();
 
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
+  }
+
+  function grafikGuncelle() {
+    const renkler = ["#0d6efd","#198754","#dc3545","#ffc107","#6f42c1","#0dcaf0","#fd7e14","#6c757d","#d63384","#20c997"];
+
+    // Filtrelenmiş veri
+    const filtreliVeri = aktifGrafikMod === "olumlu"
+      ? raporVerisi.filter(d => d.tur === "Olumlu")
+      : aktifGrafikMod === "olumsuz"
+        ? raporVerisi.filter(d => d.tur === "Olumsuz")
+        : raporVerisi;
+
+    const kategoriSayac = {};
+    filtreliVeri.forEach(d => { kategoriSayac[d.kategori] = (kategoriSayac[d.kategori] || 0) + 1; });
+    const etiketler = Object.keys(kategoriSayac);
+    const veriler = etiketler.map(k => kategoriSayac[k]);
+
+    if (grafik) grafik.destroy();
+    if (etiketler.length > 0) {
+      grafik = new Chart(document.getElementById("kategori-grafik"), {
+        type: "doughnut",
+        data: { labels: etiketler, datasets: [{ data: veriler, backgroundColor: renkler.slice(0, etiketler.length) }] },
+        options: {
+          plugins: {
+            legend: { position: "bottom", labels: { font: { size: 11 }, boxWidth: 14 } },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => {
+                  const toplam = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = toplam ? ((ctx.parsed / toplam) * 100).toFixed(1) : 0;
+                  return ` ${ctx.label}: ${ctx.parsed} (%${pct})`;
+                }
+              }
+            }
+          },
+          cutout: "50%"
+        }
+      });
+    }
+
+    // Olumlu/Olumsuz oranı çubuğu
+    const olumluSayisi = raporVerisi.filter(d => d.tur === "Olumlu").length;
+    const olumsuzSayisi = raporVerisi.filter(d => d.tur === "Olumsuz").length;
+    const toplamTur = olumluSayisi + olumsuzSayisi;
+    const karsilastirmaEl = document.getElementById("tur-karsilastirma");
+    if (toplamTur > 0) {
+      const olumluPct = Math.round((olumluSayisi / toplamTur) * 100);
+      const olumsuzPct = 100 - olumluPct;
+      document.getElementById("tur-bar-olumlu").style.width = olumluPct + "%";
+      document.getElementById("tur-bar-olumsuz").style.width = olumsuzPct + "%";
+      document.getElementById("tur-karsilastirma-yuzdeler").textContent = `%${olumluPct} / %${olumsuzPct}`;
+      karsilastirmaEl.classList.remove("d-none");
+    } else {
+      karsilastirmaEl.classList.add("d-none");
+    }
   }
 
   function excelExport() {

@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-38">
+  <link rel="manifest" href="manifest.webmanifest?v=20260601-39">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-38">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-38">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-38">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-38">
-  <script src="file-redirect.js?v=20260601-38"></script>
-  <script src="pwa.js?v=20260601-38"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-39">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-39">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-39">
+  <link rel="shortcut icon" href="favicon.ico?v=20260601-39">
+  <script src="file-redirect.js?v=20260601-39"></script>
+  <script src="pwa.js?v=20260601-39"></script>
   <title>Görüşme Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-38">
+  <link rel="stylesheet" href="app.css?v=20260601-39">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -139,11 +139,11 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260601-38";
-  import { layoutYukle } from "./layout.js?v=20260601-38";
-  import { tumOgrencileriGetir, siniflarGetir, tumGorusmeleriGetir } from "./students.js?v=20260601-38";
-  import { autocompleteYukle } from "./autocomplete.js?v=20260601-38";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260601-38";
+  import { requireAuth } from "./auth.js?v=20260601-39";
+  import { layoutYukle } from "./layout.js?v=20260601-39";
+  import { tumOgrencileriGetir, siniflarGetir, tumGorusmeleriGetir } from "./students.js?v=20260601-39";
+  import { autocompleteYukle } from "./autocomplete.js?v=20260601-39";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260601-39";
 
   let raporVerisi = [];
   let dt = null;
@@ -175,7 +175,16 @@
     document.getElementById("tablo-kap").classList.remove("d-none");
   }
 
+  function iskeletGoster() {
+    if (dt) { dt.destroy(); dt = null; }
+    document.getElementById("yukleniyor").classList.add("d-none");
+    document.getElementById("tablo-kap").classList.remove("d-none");
+    const satir = `<tr>${Array.from({ length: 7 }).map(() => `<td><div class="skeleton skeleton-satir"></div></td>`).join("")}</tr>`;
+    document.getElementById("gorusme-tbody").innerHTML = satir.repeat(7);
+  }
+
   async function yukle() {
+    iskeletGoster();
     document.getElementById("yukleniyor").classList.remove("d-none");
     document.getElementById("tablo-kap").classList.add("d-none");
     if (dt) { dt.destroy(); dt = null; }
@@ -213,7 +222,12 @@
 
     const tbody = document.getElementById("gorusme-tbody");
     tbody.innerHTML = raporVerisi.length === 0
-      ? `<tr><td colspan="7" class="text-center text-muted py-3">Kayıt bulunamadı.</td></tr>`
+      ? `<tr><td colspan="7">
+          <div class="bos-durum">
+            <i class="bi bi-chat-dots"></i>
+            <div class="baslik">Kayıt bulunamadı</div>
+            <div class="aciklama">Filtreleri değiştirip tekrar deneyin.</div>
+          </div></td></tr>`
       : raporVerisi.map(g => `<tr>
           <td data-order="${escapeAttr(tarihSiralamaAnahtari(g.tarih))}">${escapeHtml(g.tarih || "—")}</td>
           <td><a href="students-detail.html?id=${escapeAttr(g.ogr.id)}" class="text-decoration-none">

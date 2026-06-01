@@ -3,22 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-38">
+  <link rel="manifest" href="manifest.webmanifest?v=20260601-39">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-38">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-38">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-38">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-38">
-  <script src="file-redirect.js?v=20260601-38"></script>
-  <script src="pwa.js?v=20260601-38"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-39">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-39">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-39">
+  <link rel="shortcut icon" href="favicon.ico?v=20260601-39">
+  <script src="file-redirect.js?v=20260601-39"></script>
+  <script src="pwa.js?v=20260601-39"></script>
   <title>Ayarlar</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-38">
+  <link rel="stylesheet" href="app.css?v=20260601-39">
+  <style>
+    .tema-renk-btn {
+      width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent;
+      cursor: pointer; transition: transform .15s, border-color .15s; display: inline-flex;
+      align-items: center; justify-content: center; font-size: 14px; color: #fff;
+    }
+    .tema-renk-btn:hover { transform: scale(1.15); }
+    .tema-renk-btn.aktif { border-color: #000; box-shadow: 0 0 0 3px rgba(0,0,0,.2); transform: scale(1.1); }
+    .skeleton-satir { border-radius: 4px; }
+  </style>
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -51,6 +61,46 @@
         </div>
 
         <div id="islem-durum" class="alert d-none"></div>
+
+        <!-- Veri Özeti Kartları -->
+        <div class="row g-3 mb-3" id="veri-ozet-kartlar">
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+              <div class="card-body py-3">
+                <div class="skeleton skeleton-satir mb-2" style="height:28px;width:60%;margin:0 auto;" id="ozet-ogrenci-skel"></div>
+                <div class="fw-bold fs-3 text-primary d-none" id="ozet-ogrenci-sayi">—</div>
+                <div class="text-muted small mt-1"><i class="bi bi-people me-1"></i>Öğrenci</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+              <div class="card-body py-3">
+                <div class="skeleton skeleton-satir mb-2" style="height:28px;width:60%;margin:0 auto;" id="ozet-veli-skel"></div>
+                <div class="fw-bold fs-3 text-success d-none" id="ozet-veli-sayi">—</div>
+                <div class="text-muted small mt-1"><i class="bi bi-person-heart me-1"></i>Veli</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+              <div class="card-body py-3">
+                <div class="skeleton skeleton-satir mb-2" style="height:28px;width:60%;margin:0 auto;" id="ozet-davranis-skel"></div>
+                <div class="fw-bold fs-3 text-warning d-none" id="ozet-davranis-sayi">—</div>
+                <div class="text-muted small mt-1"><i class="bi bi-star-half me-1"></i>Davranış Kaydı</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="card text-center border-0 shadow-sm h-100">
+              <div class="card-body py-3">
+                <div class="skeleton skeleton-satir mb-2" style="height:28px;width:60%;margin:0 auto;" id="ozet-gorusme-skel"></div>
+                <div class="fw-bold fs-3 text-info d-none" id="ozet-gorusme-sayi">—</div>
+                <div class="text-muted small mt-1"><i class="bi bi-chat-dots me-1"></i>Görüşme</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="row g-3">
           <div class="col-12">
@@ -92,6 +142,33 @@
                     </button>
                     <span class="small text-muted" id="okul-ayar-durum"></span>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-palette me-1"></i>Tema Rengi</h6>
+              </div>
+              <div class="card-body">
+                <p class="text-muted small mb-3">Uygulamanın ana rengini özelleştirin. Seçim tarayıcınıza kaydedilir.</p>
+                <div class="d-flex flex-wrap gap-2 mb-3" id="tema-renk-secici">
+                  <button class="tema-renk-btn" data-renk="#D9542B" style="background:#D9542B" title="Tuğla (Varsayılan)"></button>
+                  <button class="tema-renk-btn" data-renk="#0d6efd" style="background:#0d6efd" title="Mavi"></button>
+                  <button class="tema-renk-btn" data-renk="#198754" style="background:#198754" title="Yeşil"></button>
+                  <button class="tema-renk-btn" data-renk="#6f42c1" style="background:#6f42c1" title="Mor"></button>
+                  <button class="tema-renk-btn" data-renk="#dc3545" style="background:#dc3545" title="Kırmızı"></button>
+                  <button class="tema-renk-btn" data-renk="#0dcaf0" style="background:#0dcaf0" title="Cyan"></button>
+                  <button class="tema-renk-btn" data-renk="#fd7e14" style="background:#fd7e14" title="Turuncu"></button>
+                  <button class="tema-renk-btn" data-renk="#20c997" style="background:#20c997" title="Teal"></button>
+                  <button class="tema-renk-btn" data-renk="#6c757d" style="background:#6c757d" title="Gri"></button>
+                  <button class="tema-renk-btn tema-renk-ozel" data-renk="" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" title="Özel Renk"><i class="bi bi-plus"></i></button>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="color" class="form-control form-control-color" id="tema-renk-picker" value="#D9542B" style="width:42px;height:36px;padding:2px">
+                  <input type="text" class="form-control form-control-sm" id="tema-renk-hex" placeholder="#D9542B" style="max-width:100px">
+                  <button class="btn btn-sm btn-primary" id="tema-renk-uygula"><i class="bi bi-check2 me-1"></i>Uygula</button>
+                  <button class="btn btn-sm btn-outline-secondary" id="tema-renk-sifirla"><i class="bi bi-arrow-counterclockwise me-1"></i>Sıfırla</button>
                 </div>
               </div>
             </div>
@@ -212,22 +289,52 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260601-38";
-  import { layoutYukle } from "./layout.js?v=20260601-38";
-  import { db } from "./firebase-config.js?v=20260601-38";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260601-39";
+  import { layoutYukle } from "./layout.js?v=20260601-39";
+  import { db } from "./firebase-config.js?v=20260601-39";
   import {
     EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     collection, doc, getDocs, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, bugun } from "./utils.js?v=20260601-38";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260601-38";
+  import { toast, bugun } from "./utils.js?v=20260601-39";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260601-39";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260601-38";
+  } from "./school-settings.js?v=20260601-39";
+  import { tumOgrencileriGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260601-39";
+
+  // --- Tema Rengi ---
+  const TEMA_DEPO_ANAHTARI = "obs-tema-rengi";
+  const VARSAYILAN_RENK = "#D9542B";
+
+  function temaRengiUygula(renk) {
+    const gecerli = /^#[0-9A-Fa-f]{6}$/.test(renk) ? renk : VARSAYILAN_RENK;
+    document.documentElement.style.setProperty("--obs-brand", gecerli);
+    document.documentElement.style.setProperty("--bs-primary", gecerli);
+    document.documentElement.style.setProperty("--bs-primary-rgb",
+      parseInt(gecerli.slice(1,3),16)+","+parseInt(gecerli.slice(3,5),16)+","+parseInt(gecerli.slice(5,7),16));
+    try { localStorage.setItem(TEMA_DEPO_ANAHTARI, gecerli); } catch {}
+    // Aktif butonu işaretle
+    document.querySelectorAll(".tema-renk-btn").forEach(b => {
+      b.classList.toggle("aktif", b.dataset.renk === gecerli);
+    });
+    document.getElementById("tema-renk-picker").value = gecerli;
+    document.getElementById("tema-renk-hex").value = gecerli;
+  }
+
+  function kaydedilenTemaRenginiYukle() {
+    try {
+      const kayitli = localStorage.getItem(TEMA_DEPO_ANAHTARI);
+      if (kayitli) temaRengiUygula(kayitli);
+      else temaRengiUygula(VARSAYILAN_RENK);
+    } catch { temaRengiUygula(VARSAYILAN_RENK); }
+  }
+
+  kaydedilenTemaRenginiYukle();
 
   const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {
@@ -310,7 +417,61 @@
       guvenlikModal.hide();
       await yedekDisariAktar();
     });
+
+    // Veri özeti kartları
+    yukleVeriOzetleri();
+
+    // Tema rengi event listeners
+    document.querySelectorAll(".tema-renk-btn:not(.tema-renk-ozel)").forEach(btn => {
+      btn.addEventListener("click", () => temaRengiUygula(btn.dataset.renk));
+    });
+    document.querySelector(".tema-renk-ozel").addEventListener("click", () => {
+      document.getElementById("tema-renk-picker").click();
+    });
+    document.getElementById("tema-renk-picker").addEventListener("input", (e) => {
+      document.getElementById("tema-renk-hex").value = e.target.value;
+    });
+    document.getElementById("tema-renk-uygula").addEventListener("click", () => {
+      const hex = document.getElementById("tema-renk-hex").value.trim();
+      const renk = hex.startsWith("#") ? hex : "#" + hex;
+      temaRengiUygula(renk);
+      toast("Tema rengi uygulandı.", "success");
+    });
+    document.getElementById("tema-renk-sifirla").addEventListener("click", () => {
+      temaRengiUygula(VARSAYILAN_RENK);
+      toast("Tema rengi sıfırlandı.", "info");
+    });
   });
+
+  async function yukleVeriOzetleri() {
+    try {
+      const [ogrenciler, veliler, davranislar, gorusmeler] = await Promise.all([
+        tumOgrencileriGetir(),
+        tumVelileriGetir(),
+        tumDavranislariGetir(),
+        tumGorusmeleriGetir ? tumGorusmeleriGetir() : Promise.resolve([])
+      ]);
+      const goster = (skelId, sayiId, deger) => {
+        document.getElementById(skelId).classList.add("d-none");
+        const el = document.getElementById(sayiId);
+        el.textContent = deger;
+        el.classList.remove("d-none");
+      };
+      goster("ozet-ogrenci-skel", "ozet-ogrenci-sayi", ogrenciler.length);
+      goster("ozet-veli-skel", "ozet-veli-sayi", veliler.length);
+      goster("ozet-davranis-skel", "ozet-davranis-sayi", davranislar.length);
+      goster("ozet-gorusme-skel", "ozet-gorusme-sayi", gorusmeler.length);
+    } catch (err) {
+      ["ozet-ogrenci-skel","ozet-veli-skel","ozet-davranis-skel","ozet-gorusme-skel"].forEach(id => {
+        document.getElementById(id).classList.add("d-none");
+      });
+      ["ozet-ogrenci-sayi","ozet-veli-sayi","ozet-davranis-sayi","ozet-gorusme-sayi"].forEach(id => {
+        const el = document.getElementById(id);
+        el.textContent = "—";
+        el.classList.remove("d-none");
+      });
+    }
+  }
 
   async function okulAyarlariYukle() {
     const ayarlar = await okulAyarlariGetir(true);
