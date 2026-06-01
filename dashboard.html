@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-40">
+  <link rel="manifest" href="manifest.webmanifest?v=20260601-41">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-40">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-40">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-40">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-40">
-  <script src="file-redirect.js?v=20260601-40"></script>
-  <script src="pwa.js?v=20260601-40"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-41">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-41">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-41">
+  <link rel="shortcut icon" href="favicon.ico?v=20260601-41">
+  <script src="file-redirect.js?v=20260601-41"></script>
+  <script src="pwa.js?v=20260601-41"></script>
   <title>Gösterge Paneli</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-40">
+  <link rel="stylesheet" href="app.css?v=20260601-41">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -111,15 +111,14 @@
                 </div>
               </div>
               <div class="col-12 col-md-4">
-                <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing:.05em">Yatılılık</div>
-                <div class="grafik-segment mb-3" id="yatililik-segment"></div>
-                <div class="d-flex flex-column gap-1" id="yatililik-legend"></div>
-              </div>
-              <div class="col-12 col-md-4">
                 <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing:.05em">Sınıf Dağılımı</div>
-                <div id="sinif-barlar" style="max-height:230px;overflow-y:auto">
+                <div id="sinif-barlar">
                   <div class="text-muted small">—</div>
                 </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="small text-muted fw-bold text-uppercase mb-2" style="letter-spacing:.05em">Yatılılık</div>
+                <div class="d-flex flex-column gap-1" id="yatililik-legend"></div>
               </div>
             </div>
           </div>
@@ -193,17 +192,17 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260601-40";
-  import { layoutYukle } from "./layout.js?v=20260601-40";
+  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260601-41";
+  import { layoutYukle } from "./layout.js?v=20260601-41";
   import {
     tumOgrencileriGetir,
     tumDevamsizliklariGetir, tumDavranislariGetir, ogrenciSil
-  } from "./students.js?v=20260601-40";
+  } from "./students.js?v=20260601-41";
   import {
     devamsizlikDurum, devamsizlikGunDegeri,
     compareSinif, compareOgrenciNo, compareTarihDesc,
     sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260601-40";
+  } from "./utils.js?v=20260601-41";
 
   let tumOgrenciler = [];
   let seciliOgrenci = null;
@@ -275,34 +274,30 @@
 
   function dagilimGoster(sayilar, ogrenciler) {
     const { toplam = 0, kiz = 0, erkek = 0, gunduzlu = 0, parali = 0, parasiz = 0 } = sayilar || {};
-    // Cinsiyet halkası
+    // Cinsiyet halkası — önce Kız (pembe), sonra Erkek (mavi)
     const toplamCinsiyet = (kiz + erkek) || 1;
-    const erkekYuzde = Math.round((erkek / toplamCinsiyet) * 100);
+    const kizYuzde = Math.round((kiz / toplamCinsiyet) * 100);
     const donut = document.getElementById("cinsiyet-donut");
     if (donut) donut.style.background =
-      `conic-gradient(#4A90D9 0 ${erkekYuzde}%, #D96A9A ${erkekYuzde}% 100%)`;
+      `conic-gradient(#D96A9A 0 ${kizYuzde}%, #4A90D9 ${kizYuzde}% 100%)`;
     setText("donut-toplam", toplam);
     setText("lg-erkek", erkek);
     setText("lg-kiz", kiz);
 
-    // Yatılılık segmenti
-    const yatToplam = (gunduzlu + parali + parasiz) || 1;
-    const segEl = document.getElementById("yatililik-segment");
+    // Yatılılık — sadece legend (bar yok)
     const legEl = document.getElementById("yatililik-legend");
     const segmentler = [
-      { ad: "Gündüzlü", deger: gunduzlu, renk: "var(--obs-primary)" },
-      { ad: "Paralı Yatılı", deger: parali, renk: "var(--obs-secondary)" },
-      { ad: "Parasız Yatılı", deger: parasiz, renk: "var(--obs-success)" }
+      { ad: "Gündüzlü",      deger: gunduzlu, renk: "var(--obs-primary)" },
+      { ad: "Paralı Yatılı", deger: parali,   renk: "var(--obs-secondary)" },
+      { ad: "Parasız Yatılı",deger: parasiz,  renk: "var(--obs-success)" }
     ];
-    if (segEl) segEl.innerHTML = segmentler
-      .map(s => `<span style="width:${(s.deger / yatToplam) * 100}%;background:${s.renk}"></span>`).join("");
     if (legEl) legEl.innerHTML = segmentler.map(s => `
       <div class="d-flex align-items-center justify-content-between small">
         <span class="d-inline-flex align-items-center gap-2"><i class="grafik-nokta" style="background:${s.renk}"></i>${s.ad}</span>
         <strong>${s.deger}</strong>
       </div>`).join("");
 
-    // Sınıf barları
+    // Sınıf barları — dikey sütun grafiği
     const barEl = document.getElementById("sinif-barlar");
     if (barEl) {
       const sayim = new Map();
@@ -315,23 +310,29 @@
       });
       const girisler = [...sayim.entries()].sort((a, b) => compareSinif(a[0], b[0]));
       const enYuksek = Math.max(1, ...girisler.map(([, s]) => s.erkek + s.kiz));
+      const COL_W = 42; // px — her sütun genişliği
+      const CHART_H = 120; // px — maksimum bar yüksekliği
       barEl.innerHTML = girisler.length
-        ? girisler.map(([sinif, s]) => {
-            const toplam = s.erkek + s.kiz;
-            const erkekPct = toplam ? (s.erkek / enYuksek) * 100 : 0;
-            const kizPct  = toplam ? (s.kiz  / enYuksek) * 100 : 0;
-            const erkekIci = s.erkek > 0 ? `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;font-size:.7rem;font-weight:700;color:#fff;line-height:13px">${s.erkek}</span>` : "";
-            const kizIci  = s.kiz  > 0 ? `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;font-size:.7rem;font-weight:700;color:#fff;line-height:13px">${s.kiz}</span>`  : "";
-            return `
-          <div class="grafik-bar-satir">
-            <span class="ad">${escapeHtml(sinif)}</span>
-            <div class="grafik-bar-iz" style="display:flex;overflow:hidden">
-              <div style="width:${erkekPct}%;background:#4A90D9;height:100%;border-radius:999px 0 0 999px;display:flex;align-items:center;justify-content:center;transition:width .5s ease">${erkekIci}</div>
-              <div style="width:${kizPct}%;background:#D96A9A;height:100%;border-radius:${s.erkek===0?"999px":"0"} 999px 999px ${s.erkek===0?"999px":"0"};display:flex;align-items:center;justify-content:center;transition:width .5s ease">${kizIci}</div>
-            </div>
-            <span class="deg">${toplam}</span>
-          </div>`;
-          }).join("")
+        ? `<div style="display:flex;align-items:flex-end;gap:6px;overflow-x:auto;padding-bottom:4px;min-height:${CHART_H + 40}px">
+            ${girisler.map(([sinif, s]) => {
+              const toplamS = s.erkek + s.kiz;
+              const erkekH = Math.round((s.erkek / enYuksek) * CHART_H);
+              const kizH   = Math.round((s.kiz   / enYuksek) * CHART_H);
+              return `
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:${COL_W}px">
+                <span style="font-size:.68rem;font-weight:700;color:var(--obs-muted)">${toplamS}</span>
+                <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;height:${CHART_H}px;gap:2px">
+                  ${s.erkek > 0 ? `<div title="Erkek: ${s.erkek}" style="width:100%;height:${erkekH}px;background:#4A90D9;border-radius:4px 4px 0 0;display:flex;align-items:center;justify-content:center">
+                    ${erkekH >= 16 ? `<span style="font-size:.62rem;font-weight:700;color:#fff">${s.erkek}</span>` : ""}
+                  </div>` : ""}
+                  ${s.kiz > 0 ? `<div title="Kız: ${s.kiz}" style="width:100%;height:${kizH}px;background:#D96A9A;border-radius:${s.erkek===0?"4px 4px":"0 0"} 0 0;display:flex;align-items:center;justify-content:center">
+                    ${kizH >= 16 ? `<span style="font-size:.62rem;font-weight:700;color:#fff">${s.kiz}</span>` : ""}
+                  </div>` : ""}
+                </div>
+                <span style="font-size:.68rem;font-weight:700;color:var(--obs-ink);text-align:center;line-height:1.1;white-space:nowrap">${escapeHtml(sinif)}</span>
+              </div>`;
+            }).join("")}
+          </div>`
         : `<div class="text-muted small">Kayıt yok</div>`;
     }
   }
