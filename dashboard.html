@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-37">
+  <link rel="manifest" href="manifest.webmanifest?v=20260601-38">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-37">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-37">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-37">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-37">
-  <script src="file-redirect.js?v=20260601-37"></script>
-  <script src="pwa.js?v=20260601-37"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-38">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-38">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-38">
+  <link rel="shortcut icon" href="favicon.ico?v=20260601-38">
+  <script src="file-redirect.js?v=20260601-38"></script>
+  <script src="pwa.js?v=20260601-38"></script>
   <title>Gösterge Paneli</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-37">
+  <link rel="stylesheet" href="app.css?v=20260601-38">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -44,49 +44,6 @@
 
     <div class="app-content">
       <div class="container-fluid">
-
-        <!-- Özet Kartlar -->
-        <div class="row g-3 mb-4">
-          <div class="col-12 col-md-4">
-            <div class="card text-white bg-primary dashboard-summary-card h-100">
-              <div class="card-body d-flex align-items-center gap-3">
-                <i class="bi bi-people-fill fs-2 opacity-75"></i>
-                <div>
-                  <div class="small">Toplam Öğrenci</div>
-                  <div class="fs-4 fw-bold lh-sm">
-                    <span id="kart-toplam">—</span>
-                    <span class="fs-6 fw-semibold opacity-75" id="kart-toplam-detay"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="card text-white bg-success dashboard-summary-card h-100">
-              <div class="card-body d-flex align-items-center gap-3">
-                <i class="bi bi-house-fill fs-2 opacity-75"></i>
-                <div>
-                  <div class="small">Gündüzlü / Yatılı</div>
-                  <div class="fs-5 fw-bold lh-sm">
-                    <span id="kart-yatili">—</span>
-                    <span class="fs-6 fw-semibold opacity-75" id="kart-yatili-detay"></span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-md-4">
-            <div class="card text-white bg-warning dashboard-summary-card h-100">
-              <div class="card-body d-flex align-items-center gap-3">
-                <i class="bi bi-exclamation-triangle-fill fs-2 opacity-75"></i>
-                <div>
-                  <div class="small">Devamsızlık Uyarısı</div>
-                  <div class="fs-4 fw-bold" id="kart-uyari">—</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- Hızlı Öğrenci İşlemleri -->
         <div class="card mb-4 no-print" id="ogrenci-ara">
@@ -148,8 +105,8 @@
                     </div>
                   </div>
                   <div class="grafik-legend">
-                    <span><i class="grafik-nokta" style="background:var(--obs-primary)"></i> Erkek <strong id="lg-erkek" class="ms-1">0</strong></span>
-                    <span><i class="grafik-nokta" style="background:var(--obs-secondary)"></i> Kız <strong id="lg-kiz" class="ms-1">0</strong></span>
+                    <span><i class="grafik-nokta" style="background:#4A90D9"></i> Erkek <strong id="lg-erkek" class="ms-1">0</strong></span>
+                    <span><i class="grafik-nokta" style="background:#D96A9A"></i> Kız <strong id="lg-kiz" class="ms-1">0</strong></span>
                   </div>
                 </div>
               </div>
@@ -179,33 +136,7 @@
                 <div class="row g-2" id="devamsizlik-durum-ozet">
                   <div class="col-12 text-muted small">Hazırlanıyor...</div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-lg-6">
-            <div class="card h-100">
-              <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-cake2 me-1"></i> Doğum Günleri (Bu Hafta)</h6>
-              </div>
-              <div class="card-body p-0">
-                <ul class="list-group list-group-flush" id="dogumgunu-liste">
-                  <li class="list-group-item text-muted text-center py-3">Hazırlanıyor...</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row g-3">
-
-          <!-- Devamsızlık Uyarı Listesi -->
-          <div class="col-12 col-lg-6">
-            <div class="card h-100">
-              <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-exclamation-circle me-1"></i> Devamsızlık Uyarıları</h6>
-              </div>
-              <div class="card-body p-0">
-                <div class="table-responsive">
+                <div class="table-responsive mt-3">
                   <table class="table table-sm table-hover mb-0">
                     <thead class="table-light">
                       <tr>
@@ -224,21 +155,30 @@
               </div>
             </div>
           </div>
-
-          <!-- Son Davranış Kayıtları -->
           <div class="col-12 col-lg-6">
             <div class="card h-100">
               <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-star-half me-1"></i> Son Davranışlar</h6>
+                <h6 class="mb-0"><i class="bi bi-cake2 me-1"></i> Doğum Günleri (Bugün)</h6>
               </div>
               <div class="card-body p-0">
-                <ul class="list-group list-group-flush" id="davranis-liste">
-                  <li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>
+                <ul class="list-group list-group-flush" id="dogumgunu-liste">
+                  <li class="list-group-item text-muted text-center py-3">Hazırlanıyor...</li>
                 </ul>
               </div>
             </div>
           </div>
+        </div>
 
+        <!-- Son Davranış Kayıtları -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-star-half me-1"></i> Son Davranışlar</h6>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush" id="davranis-liste">
+              <li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -253,17 +193,17 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260601-37";
-  import { layoutYukle } from "./layout.js?v=20260601-37";
+  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260601-38";
+  import { layoutYukle } from "./layout.js?v=20260601-38";
   import {
     tumOgrencileriGetir,
     tumDevamsizliklariGetir, tumDavranislariGetir, ogrenciSil
-  } from "./students.js?v=20260601-37";
+  } from "./students.js?v=20260601-38";
   import {
     devamsizlikDurum, devamsizlikGunDegeri,
     compareSinif, compareOgrenciNo, compareTarihDesc,
     sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260601-37";
+  } from "./utils.js?v=20260601-38";
 
   let tumOgrenciler = [];
   let seciliOgrenci = null;
@@ -328,10 +268,7 @@
   }
 
   function dashboardOzetGoster({ toplam = 0, kiz = 0, erkek = 0, gunduzlu = 0, parali = 0, parasiz = 0 }) {
-    document.getElementById("kart-toplam").textContent = toplam;
-    document.getElementById("kart-toplam-detay").textContent = `(${kiz} Kız, ${erkek} Erkek)`;
-    document.getElementById("kart-yatili").textContent = `${gunduzlu} / ${parali + parasiz}`;
-    document.getElementById("kart-yatili-detay").textContent = `(${parali} Paralı / ${parasiz} Parasız Yatılı)`;
+    // Özet kartlar kaldırıldı; bu fonksiyon yalnızca cache uyumluluğu için korunmaktadır.
   }
 
   function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
@@ -343,7 +280,7 @@
     const erkekYuzde = Math.round((erkek / toplamCinsiyet) * 100);
     const donut = document.getElementById("cinsiyet-donut");
     if (donut) donut.style.background =
-      `conic-gradient(var(--obs-primary) 0 ${erkekYuzde}%, var(--obs-secondary) ${erkekYuzde}% 100%)`;
+      `conic-gradient(#4A90D9 0 ${erkekYuzde}%, #D96A9A ${erkekYuzde}% 100%)`;
     setText("donut-toplam", toplam);
     setText("lg-erkek", erkek);
     setText("lg-kiz", kiz);
@@ -371,17 +308,30 @@
       const sayim = new Map();
       (ogrenciler || []).forEach(o => {
         const s = o.sinif || "—";
-        sayim.set(s, (sayim.get(s) || 0) + 1);
+        const mevcut = sayim.get(s) || { erkek: 0, kiz: 0 };
+        if (o.cinsiyet === "Erkek") mevcut.erkek++;
+        else if (o.cinsiyet === "Kız") mevcut.kiz++;
+        sayim.set(s, mevcut);
       });
       const girisler = [...sayim.entries()].sort((a, b) => compareSinif(a[0], b[0]));
-      const enYuksek = Math.max(1, ...girisler.map(([, n]) => n));
+      const enYuksek = Math.max(1, ...girisler.map(([, s]) => s.erkek + s.kiz));
       barEl.innerHTML = girisler.length
-        ? girisler.map(([sinif, n]) => `
+        ? girisler.map(([sinif, s]) => {
+            const toplam = s.erkek + s.kiz;
+            const erkekPct = toplam ? (s.erkek / enYuksek) * 100 : 0;
+            const kizPct  = toplam ? (s.kiz  / enYuksek) * 100 : 0;
+            const erkekIci = s.erkek > 0 ? `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;font-size:.7rem;font-weight:700;color:#fff;line-height:13px">${s.erkek}</span>` : "";
+            const kizIci  = s.kiz  > 0 ? `<span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;font-size:.7rem;font-weight:700;color:#fff;line-height:13px">${s.kiz}</span>`  : "";
+            return `
           <div class="grafik-bar-satir">
             <span class="ad">${escapeHtml(sinif)}</span>
-            <div class="grafik-bar-iz"><div class="grafik-bar-dolu" style="width:${(n / enYuksek) * 100}%"></div></div>
-            <span class="deg">${n}</span>
-          </div>`).join("")
+            <div class="grafik-bar-iz" style="display:flex;overflow:hidden">
+              <div style="width:${erkekPct}%;background:#4A90D9;height:100%;border-radius:999px 0 0 999px;display:flex;align-items:center;justify-content:center;transition:width .5s ease">${erkekIci}</div>
+              <div style="width:${kizPct}%;background:#D96A9A;height:100%;border-radius:${s.erkek===0?"999px":"0"} 999px 999px ${s.erkek===0?"999px":"0"};display:flex;align-items:center;justify-content:center;transition:width .5s ease">${kizIci}</div>
+            </div>
+            <span class="deg">${toplam}</span>
+          </div>`;
+          }).join("")
         : `<div class="text-muted small">Kayıt yok</div>`;
     }
   }
@@ -414,27 +364,22 @@
     const liste = document.getElementById("dogumgunu-liste");
     if (!liste) return;
     const bugunD = new Date(); bugunD.setHours(0, 0, 0, 0);
-    const gunAdlari = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
-    const hedefler = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(bugunD); d.setDate(d.getDate() + i);
-      hedefler.push({ gun: d.getDate(), ay: d.getMonth() + 1, ofset: i, gunAdi: gunAdlari[d.getDay()] });
-    }
+    const bugunGun = bugunD.getDate();
+    const bugunAy  = bugunD.getMonth() + 1;
     const sonuc = [];
     (ogrenciler || []).forEach(o => {
       const m = String(o.dogum_tarihi || "").trim().match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
       if (!m) return;
       const g = Number(m[1]), a = Number(m[2]), y = Number(m[3]);
-      const h = hedefler.find(x => x.gun === g && x.ay === a);
-      if (!h) return;
+      if (g !== bugunGun || a !== bugunAy) return;
       const yas = bugunD.getFullYear() - y;
       sonuc.push({
-        o, ofset: h.ofset,
-        gunAdi: h.ofset === 0 ? "Bugün" : (h.ofset === 1 ? "Yarın" : h.gunAdi),
-        tarih: `${String(g).padStart(2, "0")}.${String(a).padStart(2, "0")}`, yas
+        o,
+        tarih: `${String(g).padStart(2, "0")}.${String(a).padStart(2, "0")}`,
+        yas
       });
     });
-    sonuc.sort((a, b) => a.ofset - b.ofset);
+    sonuc.sort((a, b) => compareOgrenciNo(a.o, b.o));
     liste.innerHTML = sonuc.length
       ? sonuc.map(s => `
         <li class="list-group-item d-flex align-items-center justify-content-between">
@@ -443,11 +388,11 @@
             <span class="text-muted small ms-1">${escapeHtml(s.o.sinif || "")}</span>
           </a>
           <span class="text-end">
-            <span class="badge bg-secondary">${s.gunAdi}</span>
+            <span class="badge bg-secondary">Bugün</span>
             <div class="small text-muted">${s.tarih}${s.yas > 0 ? ` · ${s.yas} yaş` : ""}</div>
           </span>
         </li>`).join("")
-      : `<li class="list-group-item text-muted text-center py-4"><i class="bi bi-cake2 d-block fs-3 mb-2" style="color:var(--obs-secondary)"></i>Bu hafta doğum günü yok</li>`;
+      : `<li class="list-group-item text-muted text-center py-4"><i class="bi bi-cake2 d-block fs-3 mb-2" style="color:var(--obs-secondary)"></i>Bugün doğum günü yok</li>`;
   }
 
   function kayitPanelleriniHazirla() {
@@ -475,7 +420,6 @@
     if (cache.ozet) dashboardOzetGoster(cache.ozet);
     if (cache.ozet) dagilimGoster(cache.ozet, tumOgrenciler);
     dogumGunleriGoster(tumOgrenciler);
-    if (cache.kartUyari !== undefined) document.getElementById("kart-uyari").textContent = cache.kartUyari;
     if (cache.devamsizlikHtml) document.getElementById("devamsizlik-tablo").innerHTML = cache.devamsizlikHtml;
     if (cache.davranisHtml) document.getElementById("davranis-liste").innerHTML = cache.davranisHtml;
     return true;
@@ -488,7 +432,6 @@
         zaman: Date.now(),
         ozet: ozetSayilar,
         ogrenciler: tumOgrenciler.map(ogrenciCacheOzet),
-        kartUyari: document.getElementById("kart-uyari").textContent,
         devamsizlikHtml: document.getElementById("devamsizlik-tablo").innerHTML,
         davranisHtml: document.getElementById("davranis-liste").innerHTML
       }));
@@ -513,11 +456,6 @@
   function dashboardBosDurum(mesaj) {
     tumOgrenciler = [];
     ogrenciSeciminiTemizle();
-    document.getElementById("kart-toplam").textContent = "0";
-    document.getElementById("kart-toplam-detay").textContent = "(0 Kız, 0 Erkek)";
-    document.getElementById("kart-yatili").textContent = "0 / 0";
-    document.getElementById("kart-yatili-detay").textContent = "(0 Paralı / 0 Parasız Yatılı)";
-    document.getElementById("kart-uyari").textContent = "0";
     document.getElementById("devamsizlik-tablo").innerHTML =
       `<tr><td colspan="5" class="text-center text-muted py-3">${escapeHtml(mesaj || "Veri bulunamadı.")}</td></tr>`;
     document.getElementById("davranis-liste").innerHTML =
@@ -549,8 +487,6 @@
         uyarilar.push({ ogr, ozurlu, ozursuz, durum });
       }
     }
-
-    document.getElementById("kart-uyari").textContent = uyarilar.length;
 
     if (uyarilar.length === 0) {
       tablo.innerHTML = `<tr><td colspan="5" class="text-center text-success py-3">
