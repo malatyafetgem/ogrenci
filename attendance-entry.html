@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-39">
+  <link rel="manifest" href="manifest.webmanifest?v=20260601-40">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-39">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-39">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-39">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-39">
-  <script src="file-redirect.js?v=20260601-39"></script>
-  <script src="pwa.js?v=20260601-39"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-40">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-40">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-40">
+  <link rel="shortcut icon" href="favicon.ico?v=20260601-40">
+  <script src="file-redirect.js?v=20260601-40"></script>
+  <script src="pwa.js?v=20260601-40"></script>
   <title>Devamsızlık Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-39">
+  <link rel="stylesheet" href="app.css?v=20260601-40">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -217,17 +217,17 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260601-39";
-  import { layoutYukle } from "./layout.js?v=20260601-39";
+  import { requireAdmin } from "./auth.js?v=20260601-40";
+  import { layoutYukle } from "./layout.js?v=20260601-40";
   import {
     tumOgrencileriGetir, devamsizlikEkle,
     devamsizliklarGetir, devamsizlikHesapla
-  } from "./students.js?v=20260601-39";
+  } from "./students.js?v=20260601-40";
   import {
     devamsizlikDurum, devamsizlikKapsananTarihler, devamsizlikMiktarEtiketi,
     devamsizlikMiktarSayisi, devamsizlikTarihEtiketi, sayiEtiketiTR,
     toast, formatTarih, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260601-39";
+  } from "./utils.js?v=20260601-40";
 
   let tumOgrenciler = [];
   let excelSatirlar = [];
