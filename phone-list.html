@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-41">
+  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-41">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-41">
-  <script src="file-redirect.js?v=20260601-41"></script>
-  <script src="pwa.js?v=20260601-41"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
+  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
+  <script src="file-redirect.js?v=20260602-47"></script>
+  <script src="pwa.js?v=20260602-47"></script>
   <title>Toplu Telefon Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-41">
+  <link rel="stylesheet" href="app.css?v=20260602-47">
   <style>
     .print-baslik { display: none; }
   </style>
@@ -74,6 +74,14 @@
                 </select>
               </div>
               <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Durum</label>
+                <select id="filtre-durum" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option value="Aktif">Aktif</option>
+                  <option value="Mezun">Mezun</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
                 <button id="filtre-uygula" class="btn btn-sm btn-primary">
                   <i class="bi bi-search me-1"></i>Uygula
                 </button>
@@ -141,32 +149,32 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260601-41";
-  import { layoutYukle } from "./layout.js?v=20260601-41";
-  import { tumOgrencileriGetir, siniflarGetir, tumVelileriGetir } from "./students.js?v=20260601-41";
+  import { requireAuth } from "./auth.js?v=20260602-47";
+  import { layoutYukle } from "./layout.js?v=20260602-47";
+  import { tumOgrencileriDurumlariylaGetir, tumSiniflariGetir, tumVelileriGetir } from "./students.js?v=20260602-47";
   import {
     compareSinif, compareOgrenciNo, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari,
     escapeHtml, escapeAttr, formatTelefon
-  } from "./utils.js?v=20260601-41";
+  } from "./utils.js?v=20260602-47";
 
   let tumVerisi = [];
   let dt = null;
 
   requireAuth(async () => {
     layoutYukle();
-    const siniflar = await siniflarGetir();
+    const siniflar = await tumSiniflariGetir();
     const sel = document.getElementById("filtre-sinif");
     siniflar.forEach(s => { const o = document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
 
     document.getElementById("filtre-uygula").addEventListener("click", yukle);
     document.getElementById("filtre-temizle").addEventListener("click", () => {
-      ["filtre-sinif","filtre-cinsiyet","filtre-yatililik"].forEach(id => document.getElementById(id).value = "");
+      ["filtre-sinif","filtre-cinsiyet","filtre-yatililik","filtre-durum"].forEach(id => document.getElementById(id).value = "");
       tabloBekle();
     });
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
@@ -201,9 +209,10 @@
     const filtSinif    = document.getElementById("filtre-sinif").value;
     const filtCinsiyet = document.getElementById("filtre-cinsiyet").value;
     const filtYatililik= document.getElementById("filtre-yatililik").value;
+    const filtDurum    = document.getElementById("filtre-durum").value;
 
     const [ogrenciler, tumVeliler] = await Promise.all([
-      tumOgrencileriGetir(),
+      tumOgrencileriDurumlariylaGetir(),
       tumVelileriGetir()
     ]);
     const velilerByOgrenci = new Map();
@@ -217,6 +226,7 @@
       if (filtSinif     && ogr.sinif     !== filtSinif)     continue;
       if (filtCinsiyet  && ogr.cinsiyet  !== filtCinsiyet)  continue;
       if (filtYatililik && ogr.yatililik !== filtYatililik) continue;
+      if (filtDurum     && (ogr.durum || "Aktif") !== filtDurum) continue;
 
       const veliler = velilerByOgrenci.get(ogr.id) || [];
       const baba = veliler.find(v => v.yakinlik === "Baba") || {};

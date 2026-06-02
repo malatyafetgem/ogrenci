@@ -22,7 +22,6 @@ const HEDEF_UZANTILAR = new Set([
 ]);
 
 const ATLANACAK_DOSYALAR = new Set([
-  "bump-version.js",
   "bump-version.mjs"
 ]);
 

@@ -1,19 +1,21 @@
-import { auth } from "./firebase-config.js?v=20260601-41";
+import { auth } from "./firebase-config.js?v=20260602-47";
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { toast } from "./utils.js?v=20260601-41";
+import { toast } from "./utils.js?v=20260602-47";
 
-// Sistemde yalnızca bu Firebase UID Admin kabul edilir.
+// Bootstrap Admin UID; ileride Firebase custom claim admin=true ile genişletilebilir.
 const ADMIN_UIDS = ["zpaTsm2L7FSCqLA8BDkxI7bX9vM2"];
+const adminClaimUids = new Set();
 
 /**
  * Oturum gerektiren sayfalarda çağrılır.
  * Giriş yoksa login sayfasına yönlendirir.
  */
 export function requireAuth(callback) {
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = "index.html";
     } else {
+      await adminClaiminiHazirla(user);
       document.body.classList.toggle("admin-user", isAdminUser(user));
       if (callback) callback(user);
       applyAdminVisibility(document);
@@ -23,7 +25,17 @@ export function requireAuth(callback) {
 
 export function isAdminUser(user = getCurrentUser()) {
   if (!user) return false;
-  return ADMIN_UIDS.includes(user.uid);
+  return ADMIN_UIDS.includes(user.uid) || adminClaimUids.has(user.uid);
+}
+
+async function adminClaiminiHazirla(user) {
+  if (!user || ADMIN_UIDS.includes(user.uid) || adminClaimUids.has(user.uid)) return;
+  try {
+    const token = await user.getIdTokenResult();
+    if (token?.claims?.admin === true) adminClaimUids.add(user.uid);
+  } catch {
+    // Token okunamazsa UID tabanlı kontrol geçerli kalır.
+  }
 }
 
 export function requireAdmin(callback) {

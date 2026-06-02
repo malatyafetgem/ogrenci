@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-41">
+  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-41">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-41">
-  <script src="file-redirect.js?v=20260601-41"></script>
-  <script src="pwa.js?v=20260601-41"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
+  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
+  <script src="file-redirect.js?v=20260602-47"></script>
+  <script src="pwa.js?v=20260602-47"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-41">
+  <link rel="stylesheet" href="app.css?v=20260602-47">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -449,20 +449,20 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260601-41";
-  import { layoutYukle } from "./layout.js?v=20260601-41";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260602-47";
+  import { layoutYukle } from "./layout.js?v=20260602-47";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
     davranislarGetir, davranisSil, davranisGuncelle,
     gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
-  } from "./students.js?v=20260601-41";
+  } from "./students.js?v=20260602-47";
   import {
     devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260601-41";
-  import { avatarSrc } from "./avatar.js?v=20260601-41";
+  } from "./utils.js?v=20260602-47";
+  import { avatarSrc } from "./avatar.js?v=20260602-47";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -478,12 +478,24 @@
     ogrenciId = params.get("id");
     if (!ogrenciId) { location.href = "students-list.html"; return; }
     await yukle();
-    document.getElementById("kart-yazdir-btn")?.addEventListener("click", () => {
-      document.body.classList.add("kart-print");
-      window.print();
-    });
+    document.getElementById("kart-yazdir-btn")?.addEventListener("click", kartYazdir);
     window.addEventListener("afterprint", () => document.body.classList.remove("kart-print"));
   });
+
+  function kartYazdir() {
+    document.body.classList.add("kart-print");
+    if (typeof window.obsYazdir === "function") {
+      window.obsYazdir();
+      return;
+    }
+    setTimeout(() => {
+      try {
+        window.print();
+      } catch {
+        document.body.classList.remove("kart-print");
+      }
+    }, 180);
+  }
 
   async function yukle() {
     try {
@@ -491,6 +503,8 @@
       if (!o) { location.href = "students-list.html"; return; }
 
       const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
+      const okulNo = o.numara || o.id;
+      const kayitIdFarkli = o.id !== okulNo;
       document.title = tamAd || "Öğrenci Detayı";
       document.getElementById("sayfa-baslik").textContent = tamAd;
       document.getElementById("breadcrumb-ad").textContent = tamAd;
@@ -502,6 +516,7 @@
         `<span class="badge bg-primary">${escapeHtml(o.sinif || "—")}</span>`,
         `<span class="badge bg-secondary">${escapeHtml(o.cinsiyet || "—")}</span>`,
         `<span class="badge bg-info text-dark">${escapeHtml(o.yatililik || "—")}</span>`,
+        kayitIdFarkli ? `<span class="badge bg-light text-dark border">ID: ${escapeHtml(o.id)}</span>` : "",
         o.durum !== "Aktif" ? `<span class="badge bg-warning text-dark">${escapeHtml(o.durum)}</span>` : ""
       ].join("");
 
@@ -512,7 +527,8 @@
 
       // Bloklar
       blokDoldurTelefon("blok-kimlik", [
-        ["Öğrenci No", o.id, false],
+        ["Öğrenci No", okulNo, false],
+        ...(kayitIdFarkli ? [["Kayıt ID", o.id, false]] : []),
         ["Öğrenci Telefonu", o.telefon || "", true],
         ["TC Kimlik", o.tc_kimlik, false],
         ["Doğum Tarihi", o.dogum_tarihi, false],
@@ -563,6 +579,8 @@
     const el = document.getElementById("ogrenci-kart");
     if (!el) return;
     const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
+    const okulNo = o.numara || o.id;
+    const kayitIdFarkli = o.id !== okulNo;
     const satir = (et, dg) => `<div class="satir"><span class="et">${escapeHtml(et)}</span><span>${dg ? escapeHtml(dg) : "—"}</span></div>`;
     const dev = sonDevOzet || { ozurlu: 0, ozursuz: 0, toplam: 0 };
     const dav = sonDavOzet || { olumlu: 0, olumsuz: 0 };
@@ -571,12 +589,13 @@
     ).join("") || satir("Veli", "—");
     el.innerHTML = `<div class="ogrkart">
       <div class="ogrkart-baslik">
-        <img class="ogrkart-logo" src="icon-192.png?v=20260601-41" alt="">
-        <div><h1>${escapeHtml(tamAd)}</h1><div class="alt">Öğrenci Kartı · No: ${escapeHtml(o.id)} · ${escapeHtml(o.sinif || "—")}</div></div>
+        <img class="ogrkart-logo" src="icon-192.png?v=20260602-47" alt="">
+        <div><h1>${escapeHtml(tamAd)}</h1><div class="alt">Öğrenci Kartı · No: ${escapeHtml(okulNo)} · ${escapeHtml(o.sinif || "—")}</div></div>
       </div>
       <div class="ogrkart-bolum-baslik">Kimlik Bilgileri</div>
       <div class="ogrkart-grid">
-        ${satir("Öğrenci No", o.id)}
+        ${satir("Öğrenci No", okulNo)}
+        ${kayitIdFarkli ? satir("Kayıt ID", o.id) : ""}
         ${satir("Sınıf", o.sinif)}
         ${satir("Cinsiyet", o.cinsiyet)}
         ${satir("Yatılılık", o.yatililik)}
@@ -699,8 +718,7 @@
       "Vefat": "dark",
       "Ulaşılamıyor": "warning text-dark",
       "Velayeti Yok": "warning text-dark",
-      "Aranmasın": "danger",
-      "Pasif": "secondary"
+      "Aranmasın": "danger"
     }[durum] || "secondary";
   }
 

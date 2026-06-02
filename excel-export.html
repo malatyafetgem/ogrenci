@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-41">
+  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-41">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-41">
-  <script src="file-redirect.js?v=20260601-41"></script>
-  <script src="pwa.js?v=20260601-41"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
+  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
+  <script src="file-redirect.js?v=20260602-47"></script>
+  <script src="pwa.js?v=20260602-47"></script>
   <title>Excel Aktarım</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-41">
+  <link rel="stylesheet" href="app.css?v=20260602-47">
   <style>
     .sutun-kart {
       background:#fff; border:1px solid #dee2e6; border-radius:8px;
@@ -219,12 +219,12 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260601-41";
-  import { layoutYukle } from "./layout.js?v=20260601-41";
-  import { db } from "./firebase-config.js?v=20260601-41";
+  import { requireAdmin } from "./auth.js?v=20260602-47";
+  import { layoutYukle } from "./layout.js?v=20260602-47";
+  import { db } from "./firebase-config.js?v=20260602-47";
   import { collection, getDocs }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { compareOgrenci } from "./utils.js?v=20260601-41";
+  import { compareOgrenci, onayIste, toast } from "./utils.js?v=20260602-47";
 
   // ═══════════════════════════════════════════════════════════════
   // ALAN TANIMI
@@ -255,7 +255,8 @@
       filtre:{ baslik:"Maddi Durum", secenekler:["Düşük","Orta","İyi","Çok İyi"], kaynak:"ogrenci" } },
     { grup:"Öğrenci - Temel", label:"Geldiği Okul",  key:"s.geldigi_okul",
       filtre:{ baslik:"Geldiği Okul", dinamik:true, kaynak:"ogrenci" } },
-    { grup:"Öğrenci - Temel", label:"Durum",         key:"s.durum" },
+    { grup:"Öğrenci - Temel", label:"Durum",         key:"s.durum",
+      filtre:{ baslik:"Durum", secenekler:["Aktif","Mezun"], kaynak:"ogrenci" } },
     // ── Öğrenci - Kimlik ────────────────────────────────────────
     { grup:"Öğrenci - Kimlik", label:"TC Kimlik No", key:"s.tc_kimlik" },
     { grup:"Öğrenci - Kimlik", label:"Doğum Tarihi", key:"s.dogum_tarihi" },
@@ -446,8 +447,14 @@
     sutunKaydet(); sutunlariRender();
   }
 
-  function varsayilanadon() {
-    if (!confirm("Sütunlar varsayılana dönecek. Devam edilsin mi?")) return;
+  async function varsayilanadon() {
+    const onay = await onayIste({
+      baslik: "Sütunları sıfırla",
+      mesaj: "Sütunlar varsayılana dönecek.",
+      onayButonu: "Varsayılana Dön",
+      tip: "warning"
+    });
+    if (!onay) return;
     sutunlar = VARSAYILAN_SUTUNLAR.map(s=>({...s}));
     sutunKaydet(); sutunlariRender();
     document.getElementById("onizleme-kart").classList.add("d-none");
@@ -481,8 +488,10 @@
         });
       });
       tumOgrenciler = ogrSnap.docs
-        .map(d => ({ id:d.id, ...d.data() }))
-        .filter(o => (o.durum||"Aktif") === "Aktif")
+        .map(d => {
+          const veri = { id:d.id, ...d.data() };
+          return { ...veri, durum: ogrenciDurumu(veri.durum) };
+        })
         .sort(compareOgrenci);
       veriYuklendi = true;
       // Yükleme mesajını kaldır, filtreyi güncelle
@@ -493,6 +502,12 @@
       const el = document.getElementById("filtre-yukl-mesaj");
       if (el) el.textContent = "Veriler yüklenemedi: " + err.message;
     }
+  }
+
+  function ogrenciDurumu(durum) {
+    const deger = String(durum || "").trim();
+    if (!deger || deger === "Aktif") return "Aktif";
+    return "Mezun";
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -715,7 +730,7 @@
   // ═══════════════════════════════════════════════════════════════
   async function onizle() {
     if (!veriYuklendi) { yukleniyorGoster("Veriler yükleniyor…"); await veriYukle(); yukleniyorGizle(); }
-    if (!sutunlar.some(s => s.key)) { alert("Lütfen en az bir sütun seçin."); return; }
+    if (!sutunlar.some(s => s.key)) { toast("Lütfen en az bir sütun seçin.", "warning"); return; }
     const liste = filtreliOgrenciler();
     const thead = document.querySelector("#onizleme-tablo thead");
     const tbody = document.querySelector("#onizleme-tablo tbody");
@@ -738,7 +753,7 @@
   // ═══════════════════════════════════════════════════════════════
   async function excelAktar() {
     if (!veriYuklendi) { yukleniyorGoster("Veriler yükleniyor…"); await veriYukle(); yukleniyorGizle(); }
-    if (!sutunlar.some(s => s.key)) { alert("Lütfen en az bir sütun seçin."); return; }
+    if (!sutunlar.some(s => s.key)) { toast("Lütfen en az bir sütun seçin.", "warning"); return; }
     yukleniyorGoster("Excel dosyası hazırlanıyor…");
     try {
       const liste      = filtreliOgrenciler();

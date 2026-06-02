@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-41">
+  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-41">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-41">
-  <script src="file-redirect.js?v=20260601-41"></script>
-  <script src="pwa.js?v=20260601-41"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
+  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
+  <script src="file-redirect.js?v=20260602-47"></script>
+  <script src="pwa.js?v=20260602-47"></script>
   <title>Veli Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-41">
+  <link rel="stylesheet" href="app.css?v=20260602-47">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -47,16 +47,34 @@
         <div class="card mb-3 no-print">
           <div class="card-body py-2">
             <div class="row g-2 align-items-end">
-              <div class="col-6 col-md-3">
+              <div class="col-6 col-md-2">
                 <label class="form-label small mb-1">Sınıf</label>
                 <select id="filtre-sinif" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                 </select>
               </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Yatılılık</label>
+                <select id="filtre-yatililik" class="form-select form-select-sm">
+                  <option value="">Seçiniz</option>
+                  <option>Gündüzlü</option>
+                  <option value="Yatılı">Yatılı</option>
+                  <option>Paralı Yatılı</option>
+                  <option>Parasız Yatılı</option>
+                </select>
+              </div>
+              <div class="col-6 col-md-2">
+                <label class="form-label small mb-1">Durum</label>
+                <select id="filtre-durum" class="form-select form-select-sm">
+                  <option value="">Tümü</option>
+                  <option value="Aktif">Aktif</option>
+                  <option value="Mezun">Mezun</option>
+                </select>
+              </div>
               <div class="col-6 col-md-3">
                 <label class="form-label small mb-1">Yakınlık</label>
                 <select id="filtre-tur" class="form-select form-select-sm">
-                  <option value="">Seçiniz</option>
+                  <option value="">Tümü</option>
                   <option>Anne</option>
                   <option>Baba</option>
                   <option>Vasi</option>
@@ -105,14 +123,14 @@
               <table id="veli-tablo" class="table table-sm table-hover mb-0 align-middle table-fit-desktop print-landscape print-nowrap">
                 <thead class="table-light">
                   <tr>
-                    <th>Veli</th>
-                    <th>Yakınlık</th>
-                    <th>Durum</th>
-                    <th>Öğrenci</th>
-                    <th>Sınıf</th>
-                    <th>Telefon</th>
-                    <th>Öncelik</th>
-                    <th>İl</th>
+                    <th>Sıra</th>
+                    <th>Öğrenci No</th>
+                    <th>Öğrenci Adı Soyadı</th>
+                    <th>Sınıfı</th>
+                    <th>1. Veli Yakınlık</th>
+                    <th>1. Veli Adı Soyadı</th>
+                    <th>2. Veli Yakınlık</th>
+                    <th>2. Veli Adı Soyadı</th>
                   </tr>
                 </thead>
                 <tbody id="veli-tbody">
@@ -132,28 +150,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260601-41";
-  import { layoutYukle } from "./layout.js?v=20260601-41";
-  import { siniflarGetir, tumOgrencileriGetir, tumVelileriGetir } from "./students.js?v=20260601-41";
+  import { requireAuth } from "./auth.js?v=20260602-47";
+  import { layoutYukle } from "./layout.js?v=20260602-47";
+  import { tumSiniflariGetir, tumOgrencileriDurumlariylaGetir, tumVelileriGetir } from "./students.js?v=20260602-47";
   import {
-    formatTelefon, toast,
-    compareOgrenci, compareSinif, compareOgrenciNo,
+    toast, compareSinif, compareOgrenciNo,
     sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari,
     escapeHtml, escapeAttr
-  } from "./utils.js?v=20260601-41";
+  } from "./utils.js?v=20260602-47";
 
-  let tumVeliler = [];
+  const VELI_BASLIKLARI = [
+    "Sıra", "Öğrenci No", "Öğrenci Adı Soyadı", "Sınıfı",
+    "1. Veli Yakınlık", "1. Veli Adı Soyadı",
+    "2. Veli Yakınlık", "2. Veli Adı Soyadı",
+    "3. Veli Yakınlık", "3. Veli Adı Soyadı"
+  ];
+
+  let tumSatirlar = [];
   let dt = null;
 
   requireAuth(async () => {
     layoutYukle();
-    const siniflar = await siniflarGetir();
+    const siniflar = await tumSiniflariGetir();
     const sinifSel = document.getElementById("filtre-sinif");
     siniflar.forEach(s => {
       const o = document.createElement("option"); o.value = s; o.textContent = s;
@@ -165,7 +189,7 @@
 
   function tabloBekle() {
     if (dt) { dt.destroy(); dt = null; }
-    tumVeliler = [];
+    tumSatirlar = [];
     document.getElementById("kayit-sayisi").textContent = "0";
     document.getElementById("veli-tbody").innerHTML =
       `<tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>`;
@@ -181,7 +205,7 @@
     document.getElementById("veli-tbody").innerHTML = satir.repeat(8);
   }
 
-  async function yukle(sinifFiltre = "", turFiltre = "") {
+  async function yukle(filtreler = {}) {
     iskeletGoster();
     document.getElementById("yukleniyor").classList.remove("d-none");
     document.getElementById("tablo-kap").classList.add("d-none");
@@ -189,53 +213,79 @@
 
     try {
       const [ogrenciler, veliler] = await Promise.all([
-        tumOgrencileriGetir(),
+        tumOgrencileriDurumlariylaGetir(),
         tumVelileriGetir()
       ]);
-      const ogrMap = new Map(ogrenciler.map(o => [String(o.id), o]));
-      const veriListesi = veliler
-        .map(v => veliSatiriOlustur(v, ogrMap.get(String(v.ogrenciId))))
-        .filter(Boolean)
-        .filter(v => !sinifFiltre || v.sinif === sinifFiltre)
-        .filter(v => !turFiltre || v.yakinlik === turFiltre);
+      const velilerByOgrenci = new Map();
+      veliler.forEach(v => {
+        const key = String(v.ogrenciId || "");
+        if (!key) return;
+        if (!velilerByOgrenci.has(key)) velilerByOgrenci.set(key, []);
+        velilerByOgrenci.get(key).push(v);
+      });
 
-      tumVeliler = veriListesi.sort((a, b) =>
-        compareSinif(a.sinif, b.sinif)
-        || compareOgrenciNo(a.no, b.no)
-        || Number(!!b.birincil) - Number(!!a.birincil)
-        || (a.iletisim_sirasi || 999) - (b.iletisim_sirasi || 999)
-        || yakinlikSirasi(a.yakinlik) - yakinlikSirasi(b.yakinlik)
-        || a.veliAd.localeCompare(b.veliAd, "tr")
-      );
-      tabloGoster(tumVeliler);
+      const veriListesi = [];
+      for (const ogr of ogrenciler) {
+        if (!ogrenciFiltreyeUyar(ogr, filtreler)) continue;
+
+        const ogrenciVelileri = veliSirala(velilerByOgrenci.get(String(ogr.id)) || []);
+        const secilenVeliler = filtreler.yakinlik
+          ? ogrenciVelileri.filter(v => (v.yakinlik || "") === filtreler.yakinlik)
+          : ogrenciVelileri;
+        if (!secilenVeliler.length) continue;
+
+        veriListesi.push(ogrenciVeliSatiriOlustur(ogr, secilenVeliler.slice(0, 3)));
+      }
+
+      tumSatirlar = veriListesi
+        .sort((a, b) => compareSinif(a.sinif, b.sinif) || compareOgrenciNo(a.no, b.no))
+        .map((satir, index) => ({ ...satir, sira: index + 1 }));
+      tabloGoster(tumSatirlar);
     } catch (err) {
-      tumVeliler = [];
+      tumSatirlar = [];
       tabloGoster([]);
-      toast("Veri yüklenemedi!", "danger");
+      toast("Veri yüklenemedi: " + err.message, "danger");
     }
   }
 
-  function veliSatiriOlustur(v, ogr) {
-    if (!ogr) return null;
-    const veliAd = `${v.ad || ""} ${v.soyad || ""}`.trim();
+  function ogrenciFiltreyeUyar(ogr, filtreler) {
+    if (filtreler.sinif && ogr.sinif !== filtreler.sinif) return false;
+    if (filtreler.durum && (ogr.durum || "Aktif") !== filtreler.durum) return false;
+    if (filtreler.yatililik === "Yatılı") {
+      if (ogr.yatililik !== "Paralı Yatılı" && ogr.yatililik !== "Parasız Yatılı") return false;
+    } else if (filtreler.yatililik && ogr.yatililik !== filtreler.yatililik) {
+      return false;
+    }
+    return true;
+  }
+
+  function ogrenciVeliSatiriOlustur(ogr, veliler) {
     const ogrAd = `${ogr.ad || ""} ${ogr.soyad || ""}`.trim();
     return {
-      veliAd,
-      yakinlik: v.yakinlik || "—",
-      durum: v.durum || "Aktif",
-      birincil: !!v.birincil,
-      acil_kisi: !!v.acil_kisi,
-      iletisim_sirasi: Number(v.iletisim_sirasi) || 0,
       ogrAd,
       no: ogr.numara || ogr.id,
       ogrId: ogr.id,
       sinif: ogr.sinif || "—",
-      telefon: formatTelefon(v.telefon || ""),
-      eposta: v.e_posta || "—",
-      il: v.il || "—",
-      meslek: [v.calisma_durumu, v.meslek_grubu, v.meslek, v.gorev_unvan, v.kurum]
-        .filter(Boolean).join(" / ")
+      veliler: veliler.map(v => ({
+        yakinlik: v.yakinlik || "—",
+        adSoyad: `${v.ad || ""} ${v.soyad || ""}`.trim() || "—"
+      }))
     };
+  }
+
+  function veliSirala(veliler) {
+    return [...veliler]
+      .filter(v => v && (v.ad || v.soyad || v.yakinlik))
+      .sort((a, b) =>
+        Number(!!b.birincil) - Number(!!a.birincil)
+        || (Number(a.iletisim_sirasi) || 999) - (Number(b.iletisim_sirasi) || 999)
+        || yakinlikSirasi(a.yakinlik) - yakinlikSirasi(b.yakinlik)
+        || veliAdSoyad(a).localeCompare(veliAdSoyad(b), "tr")
+      );
+  }
+
+  function veliAdSoyad(v) {
+    return `${v.ad || ""} ${v.soyad || ""}`.trim();
   }
 
   function tabloGoster(veri) {
@@ -248,18 +298,15 @@
             <div class="baslik">Kayıt bulunamadı</div>
             <div class="aciklama">Filtreleri değiştirip tekrar deneyin.</div>
           </div></td></tr>`
-      : veri.map(v => {
-          const turRenk = v.yakinlik === "Baba" ? "primary" : v.yakinlik === "Anne" ? "danger" : "secondary";
+      : veri.map(satir => {
           return `<tr>
-            <td class="fw-semibold">${escapeHtml(v.veliAd || "—")}</td>
-            <td><span class="badge bg-${turRenk}">${escapeHtml(v.yakinlik)}</span></td>
-            <td>${durumRozeti(v.durum)}</td>
-            <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(v.no))}"><a href="students-detail.html?id=${escapeAttr(v.ogrId)}"
-                   class="text-decoration-none">${escapeHtml(v.ogrAd)}</a></td>
-            <td data-order="${escapeAttr(sinifSiralamaAnahtari(v.sinif))}">${escapeHtml(v.sinif)}</td>
-            <td>${telLinkleri(v.telefon)}</td>
-            <td>${oncelikEtiketi(v)}</td>
-            <td>${escapeHtml(v.il)}</td>
+            <td data-order="${escapeAttr(String(satir.sira).padStart(4, "0"))}">${escapeHtml(satir.sira)}</td>
+            <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(satir.no))}">
+              <a href="students-detail.html?id=${escapeAttr(satir.ogrId)}" class="text-decoration-none">${escapeHtml(satir.no)}</a>
+            </td>
+            <td><a href="students-detail.html?id=${escapeAttr(satir.ogrId)}" class="text-decoration-none fw-semibold">${escapeHtml(satir.ogrAd || "—")}</a></td>
+            <td data-order="${escapeAttr(sinifSiralamaAnahtari(satir.sinif))}">${escapeHtml(satir.sinif)}</td>
+            ${veliHucreleri(satir.veliler)}
           </tr>`;
         }).join("");
 
@@ -276,20 +323,32 @@
           paginate: { next: "İleri", previous: "Geri" }
         },
         pageLength: 25,
-        order: [[4, "asc"], [3, "asc"]]
+        order: [[3, "asc"], [1, "asc"]]
       });
     }
   }
 
+  function veliHucreleri(veliler) {
+    return [0, 1].map(index => {
+      const veli = veliler[index];
+      if (!veli) return `<td>—</td><td>—</td>`;
+      return `<td>${yakinlikEtiketi(veli.yakinlik)}</td><td>${escapeHtml(veli.adSoyad || "—")}</td>`;
+    }).join("");
+  }
+
   function baglayici() {
     document.getElementById("filtre-uygula").addEventListener("click", () => {
-      yukle(
-        document.getElementById("filtre-sinif").value,
-        document.getElementById("filtre-tur").value
-      );
+      yukle({
+        sinif: document.getElementById("filtre-sinif").value,
+        yatililik: document.getElementById("filtre-yatililik").value,
+        durum: document.getElementById("filtre-durum").value,
+        yakinlik: document.getElementById("filtre-tur").value
+      });
     });
     document.getElementById("filtre-temizle").addEventListener("click", () => {
       document.getElementById("filtre-sinif").value = "";
+      document.getElementById("filtre-yatililik").value = "";
+      document.getElementById("filtre-durum").value = "";
       document.getElementById("filtre-tur").value = "";
       tabloBekle();
     });
@@ -297,67 +356,34 @@
   }
 
   function excelExport() {
-    const satirlar = tumVeliler.map(v => ({
-      "Veli Ad Soyad": v.veliAd,
-      "Yakınlık": v.yakinlik,
-      "Durum": v.durum,
-      "Öğrenci": v.ogrAd,
-      "Öğrenci No": v.no,
-      "Sınıf": v.sinif,
-      "Telefon": v.telefon,
-      "E-Posta": v.eposta,
-      "Öncelik": oncelikMetni(v),
-      "İl": v.il,
-      "Meslek": v.meslek
-    }));
+    const satirlar = tumSatirlar.map(excelSatiriOlustur);
     const ws = XLSX.utils.json_to_sheet(satirlar);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Veliler");
     XLSX.writeFile(wb, `veliler_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  function telLinkleri(tel) {
-    const ham = String(tel || "").replace(/\D/g, "");
-    if (!ham) return "—";
-    let ulusal = ham;
-    if (ham.length === 11 && ham.startsWith("0")) ulusal = ham.slice(1);
-    else if (ham.length === 10) ulusal = ham;
-    else ulusal = ham.replace(/^0/, "");
-    const wa = "90" + ulusal;
-    const telHref = "tel:+90" + ulusal;
-    return `<span class="tel-hucre">
-      <span class="tel-no">${escapeHtml(formatTelefon(tel))}</span>
-      <a href="${telHref}" class="tel-ikon no-print" title="Ara"><i class="bi bi-telephone-fill"></i></a>
-      <a href="https://wa.me/${wa}" target="_blank" rel="noopener" class="tel-ikon wa no-print" title="WhatsApp ile yaz"><i class="bi bi-whatsapp"></i></a>
-    </span>`;
+  function excelSatiriOlustur(satir) {
+    const veri = {
+      "Sıra": satir.sira,
+      "Öğrenci No": satir.no,
+      "Öğrenci Adı Soyadı": satir.ogrAd,
+      "Sınıfı": satir.sinif
+    };
+    [0, 1, 2].forEach(index => {
+      const veli = satir.veliler[index] || {};
+      veri[`${index + 1}. Veli Yakınlık`] = veli.yakinlik || "";
+      veri[`${index + 1}. Veli Adı Soyadı`] = veli.adSoyad || "";
+    });
+    return VELI_BASLIKLARI.reduce((sonuc, baslik) => {
+      sonuc[baslik] = veri[baslik] ?? "";
+      return sonuc;
+    }, {});
   }
 
-  function durumRozeti(durum) {
-    const renk = {
-      "Aktif": "success",
-      "Vefat": "dark",
-      "Ulaşılamıyor": "warning text-dark",
-      "Velayeti Yok": "warning text-dark",
-      "Aranmasın": "danger",
-      "Pasif": "secondary"
-    }[durum] || "secondary";
-    return `<span class="badge bg-${renk}">${escapeHtml(durum)}</span>`;
-  }
-
-  function oncelikEtiketi(v) {
-    const etiketler = [];
-    if (v.birincil) etiketler.push('<span class="badge text-bg-success">Birincil</span>');
-    if (v.acil_kisi) etiketler.push('<span class="badge text-bg-info">Acil</span>');
-    if (v.iletisim_sirasi) etiketler.push(`<span class="badge text-bg-light">Sıra ${escapeHtml(String(v.iletisim_sirasi))}</span>`);
-    return etiketler.join(" ") || "—";
-  }
-
-  function oncelikMetni(v) {
-    return [
-      v.birincil ? "Birincil" : "",
-      v.acil_kisi ? "Acil" : "",
-      v.iletisim_sirasi ? `Sıra ${v.iletisim_sirasi}` : ""
-    ].filter(Boolean).join(" / ");
+  function yakinlikEtiketi(yakinlik) {
+    const renk = yakinlik === "Baba" ? "primary" : yakinlik === "Anne" ? "danger" : "secondary";
+    return `<span class="badge bg-${renk}">${escapeHtml(yakinlik || "—")}</span>`;
   }
 
   function yakinlikSirasi(tur) {

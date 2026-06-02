@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-41">
+  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-41">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-41">
-  <script src="file-redirect.js?v=20260601-41"></script>
-  <script src="pwa.js?v=20260601-41"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
+  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
+  <script src="file-redirect.js?v=20260602-47"></script>
+  <script src="pwa.js?v=20260602-47"></script>
   <title>Öğrenci Ekle / Düzenle</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-41">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="app.css?v=20260602-47">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -213,22 +213,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/tr.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260601-41";
-  import { layoutYukle } from "./layout.js?v=20260601-41";
+  import { requireAdmin } from "./auth.js?v=20260602-47";
+  import { layoutYukle } from "./layout.js?v=20260602-47";
   import {
     ogrenciGetir, ogrenciEkle, ogrenciGuncelle,
     velileriGetir, veliEkleGuncelle, veliSil, siniflarGetir, noMevcutMu
-  } from "./students.js?v=20260601-41";
+  } from "./students.js?v=20260602-47";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
     gecerliOgrenciNo, gecerliTc, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260601-41";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260601-41";
-  import { avatarSrc } from "./avatar.js?v=20260601-41";
+  } from "./utils.js?v=20260602-47";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260602-47";
+  import { avatarSrc } from "./avatar.js?v=20260602-47";
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");
@@ -241,7 +241,7 @@
     "Anne", "Baba", "Vasi", "Üvey Anne", "Üvey Baba",
     "Dede", "Nine", "Abi", "Abla", "Koruyucu Aile", "Diğer"
   ];
-  const VELI_DURUMLARI = ["Aktif", "Vefat", "Ulaşılamıyor", "Velayeti Yok", "Aranmasın", "Pasif"];
+  const VELI_DURUMLARI = ["Aktif", "Vefat", "Ulaşılamıyor", "Velayeti Yok", "Aranmasın"];
   const CALISMA_DURUMLARI = ["Çalışıyor", "Çalışmıyor", "İşsiz / iş arıyor", "Emekli", "Ev hanımı", "Öğrenci", "Geçici çalışıyor", "Mevsimlik çalışıyor", "Serbest çalışıyor"];
   const MESLEK_GRUPLARI = ["Eğitim", "Sağlık", "Kamu", "Güvenlik", "Tarım / Hayvancılık", "Sanayi / Üretim", "İnşaat", "Ticaret / Esnaf", "Hizmet Sektörü", "Ulaşım / Taşımacılık", "Bilişim / Teknoloji", "Finans / Muhasebe", "Hukuk", "Serbest Meslek", "Diğer"];
 
@@ -394,8 +394,8 @@
         <div class="card-header d-flex align-items-center justify-content-between gap-2 flex-wrap">
           <div class="fw-semibold veli-kart-baslik">${veliKartBaslik(v)}</div>
           <div class="d-flex gap-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary" data-veli-pasif>
-              <i class="bi bi-slash-circle me-1"></i>Pasifleştir
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-veli-aranmasin>
+              <i class="bi bi-telephone-x me-1"></i>Aranmasın
             </button>
             <button type="button" class="btn btn-sm btn-outline-danger" data-veli-sil>
               <i class="bi bi-trash me-1"></i>Sil
@@ -553,16 +553,16 @@
   async function veliKartTiklama(e) {
     const card = e.target.closest("[data-veli-card]");
     if (!card) return;
-    if (e.target.closest("[data-veli-pasif]")) {
+    if (e.target.closest("[data-veli-aranmasin]")) {
       const durum = card.querySelector('[data-field="durum"]');
-      if (durum) durum.value = "Pasif";
+      if (durum) durum.value = "Aranmasın";
       veliBaslikGuncelle(card);
     }
     if (e.target.closest("[data-veli-sil]")) {
       const onay = await onayIste({
         baslik: "Veli kaydını sil",
         mesaj: "Bu veli kaydı kalıcı olarak silinecek.",
-        detay: "Silmek yerine pasifleştirmek istiyorsanız önce Pasifleştir düğmesini kullanın.",
+        detay: "Silmek yerine aranmaması gerekiyorsa önce Aranmasın düğmesini kullanın.",
         onayButonu: "Sil",
         tip: "danger"
       });

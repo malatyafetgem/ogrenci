@@ -1,7 +1,7 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260601-41";
+import { db } from "./firebase-config.js?v=20260602-47";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, query, where, writeBatch
@@ -9,7 +9,7 @@ import {
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260601-41";
+} from "./utils.js?v=20260602-47";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";
@@ -17,7 +17,9 @@ const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"
 const VERI_CACHE_PREFIX = "obs-data-cache-v1:";
 const OGRENCI_CACHE_TTL = 3 * 60 * 1000;
 const KAYIT_CACHE_TTL = 2 * 60 * 1000;
-const TEMIZLENECEK_EKRAN_CACHELERI = ["obs-dashboard-cache-v3"];
+const TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI = ["obs-dashboard-cache-"];
+export const OGRENCI_DURUMLARI = ["Aktif", "Mezun"];
+const VELI_DURUMLARI = ["Aktif", "Vefat", "Ulaşılamıyor", "Velayeti Yok", "Aranmasın"];
 let ogrenciCachePromise = null;
 let veliCachePromise = null;
 const kayitCachePromises = new Map();
@@ -30,9 +32,7 @@ function ogrenciCacheTemizle() {
 function veliCacheTemizle() {
   veliCachePromise = null;
   yerelCacheSil(VELI_KOLEKSIYON);
-  try {
-    TEMIZLENECEK_EKRAN_CACHELERI.forEach(key => localStorage.removeItem(key));
-  } catch {}
+  ekranCacheleriniTemizle();
 }
 
 function cacheKey(key) {
@@ -65,13 +65,21 @@ function yerelCacheSil(key) {
   } catch {}
 }
 
+function ekranCacheleriniTemizle() {
+  try {
+    Object.keys(localStorage)
+      .filter(key => TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI.some(prefix => key.startsWith(prefix)))
+      .forEach(key => localStorage.removeItem(key));
+  } catch {}
+}
+
 function tumYerelCacheleriTemizle() {
   try {
     Object.keys(localStorage)
       .filter(key => key.startsWith(VERI_CACHE_PREFIX))
       .forEach(key => localStorage.removeItem(key));
-    TEMIZLENECEK_EKRAN_CACHELERI.forEach(key => localStorage.removeItem(key));
   } catch {}
+  ekranCacheleriniTemizle();
 }
 
 function tumCacheleriTemizle() {
@@ -89,9 +97,7 @@ export function veriCacheleriniTemizle() {
 function kayitCacheTemizle(koleksiyon) {
   kayitCachePromises.delete(koleksiyon);
   yerelCacheSil(`kayit:${koleksiyon}`);
-  try {
-    TEMIZLENECEK_EKRAN_CACHELERI.forEach(key => localStorage.removeItem(key));
-  } catch {}
+  ekranCacheleriniTemizle();
 }
 
 function arkaPlandaYenile(key, loader) {
@@ -125,7 +131,24 @@ async function tumOgrenciBelgeleriGetir() {
 
 function ogrenciBelgeleriniFirestoredanGetir() {
   return getDocs(collection(db, KOLEKSIYON))
-      .then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() })))
+      .then(snap => snap.docs.map(d => ogrenciBelgesiniNormalizeEt({ id: d.id, ...d.data() })))
+}
+
+export function ogrenciDurumunuNormalizeEt(durum) {
+  const deger = String(durum || "").trim();
+  if (!deger || deger === "Aktif") return "Aktif";
+  return "Mezun";
+}
+
+function ogrenciBelgesiniNormalizeEt(veri = {}) {
+  return {
+    ...veri,
+    durum: ogrenciDurumunuNormalizeEt(veri.durum)
+  };
+}
+
+export function ogrenciAktifMi(ogrenci) {
+  return ogrenciDurumunuNormalizeEt(ogrenci?.durum) === "Aktif";
 }
 
 async function tumKayitlariGetir(koleksiyon) {
@@ -219,7 +242,7 @@ function veliKaydiniNormalizeEt(ogrenciNo, veri = {}, eski = {}) {
     yakinlik: ilkDolu(veri.yakinlik, eski.yakinlik, "Diğer"),
     ad: ilkDolu(veri.ad, eski.ad),
     soyad: ilkDolu(veri.soyad, eski.soyad),
-    durum: ilkDolu(veri.durum, eski.durum, "Aktif"),
+    durum: veliDurumunuNormalizeEt(ilkDolu(veri.durum, eski.durum, "Aktif")),
     birincil: boolDeger(birincilKaynak),
     acil_kisi: boolDeger(acilKaynak),
     iletisim_sirasi: sayiDeger(ilkDolu(veri.iletisim_sirasi, eski.iletisim_sirasi), 0),
@@ -237,6 +260,12 @@ function veliKaydiniNormalizeEt(ogrenciNo, veri = {}, eski = {}) {
     olusturma_tarihi: olusturmaTarihi,
     guncelleme_tarihi: guncellemeTarihi
   };
+}
+
+function veliDurumunuNormalizeEt(durum) {
+  const deger = String(durum || "").trim();
+  if (!deger) return "Aktif";
+  return VELI_DURUMLARI.includes(deger) ? deger : "Aranmasın";
 }
 
 function veliSiralama(a, b) {
@@ -263,11 +292,18 @@ function tarihliVeri(veri) {
   };
 }
 
-/** Tüm aktif öğrencileri getir */
-export async function tumOgrencileriGetir() {
+/** Tüm aktif ve mezun öğrencileri getir */
+export async function tumOgrencileriDurumlariylaGetir() {
   const ogrenciler = await tumOgrenciBelgeleriGetir();
   return ogrenciler
-    .filter(o => (o.durum || "Aktif") === "Aktif")
+    .map(ogrenciBelgesiniNormalizeEt)
+    .sort(compareOgrenci);
+}
+
+/** Tüm aktif öğrencileri getir */
+export async function tumOgrencileriGetir() {
+  return (await tumOgrencileriDurumlariylaGetir())
+    .filter(ogrenciAktifMi)
     .sort(compareOgrenci);
 }
 
@@ -275,7 +311,7 @@ export async function tumOgrencileriGetir() {
 export async function ogrenciGetir(ogrenciNo) {
   const snap = await getDoc(doc(db, KOLEKSIYON, String(ogrenciNo)));
   if (!snap.exists()) return null;
-  return { id: snap.id, ...snap.data() };
+  return ogrenciBelgesiniNormalizeEt({ id: snap.id, ...snap.data() });
 }
 
 /** Öğrenci numarası daha önce kullanılmış mı? */
@@ -296,9 +332,19 @@ export async function ogrenciEkle(ogrenciNo, veri) {
 
 /** Öğrenci güncelle */
 export async function ogrenciGuncelle(ogrenciNo, veri) {
-  await updateDoc(doc(db, KOLEKSIYON, String(ogrenciNo)), {
+  const ref = doc(db, KOLEKSIYON, String(ogrenciNo));
+  const guncelVeri = {
     ...veri,
     guncelleme_tarihi: bugun()
+  };
+  if ("durum" in guncelVeri) {
+    guncelVeri.durum = ogrenciDurumunuNormalizeEt(guncelVeri.durum);
+  } else {
+    const eskiSnap = await getDoc(ref);
+    guncelVeri.durum = ogrenciDurumunuNormalizeEt(eskiSnap.exists() ? eskiSnap.data().durum : "");
+  }
+  await updateDoc(ref, {
+    ...guncelVeri
   });
   tumCacheleriTemizle();
 }
@@ -324,7 +370,7 @@ export async function tumVelileriGetir() {
     const cached = yerelCacheOku(VELI_KOLEKSIYON, KAYIT_CACHE_TTL);
     if (cached) {
       arkaPlandaYenile(VELI_KOLEKSIYON, tumVelileriFirestoredanGetir);
-      return cached;
+      return cached.map(veri => veliKaydiniNormalizeEt("", veri));
     }
     veliCachePromise = tumVelileriFirestoredanGetir()
       .then(veri => {
@@ -488,7 +534,16 @@ export async function siniflarGetir() {
   const set = new Set();
   const ogrenciler = await tumOgrenciBelgeleriGetir();
   ogrenciler.forEach(veri => {
-    if ((veri.durum || "Aktif") === "Aktif" && veri.sinif) set.add(veri.sinif);
+    if (ogrenciAktifMi(veri) && veri.sinif) set.add(veri.sinif);
+  });
+  return [...set].sort(compareSinif);
+}
+
+export async function tumSiniflariGetir() {
+  const set = new Set();
+  const ogrenciler = await tumOgrencileriDurumlariylaGetir();
+  ogrenciler.forEach(veri => {
+    if (veri.sinif) set.add(veri.sinif);
   });
   return [...set].sort(compareSinif);
 }

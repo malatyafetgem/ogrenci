@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260601-41";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260601-41";
-import { escapeHtml } from "./utils.js?v=20260601-41";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260602-47";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260602-47";
+import { escapeHtml } from "./utils.js?v=20260602-47";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -238,7 +238,10 @@ function listeYazdirmaTablolariEkle() {
     kapsayici.setAttribute("data-obs-print-list-pages", "true");
 
     const sayfaBaslik = document.body.dataset.printTitle || document.title || "Liste";
-    const sinifIndex = basliklar.findIndex(baslik => normalizeYazdirmaBaslik(baslik) === "sinif");
+    const sinifIndex = basliklar.findIndex(baslik => {
+      const temiz = normalizeYazdirmaBaslik(baslik);
+      return temiz === "sinif" || temiz === "sinifi";
+    });
     const gruplar = listeYazdirmaGruplari(satirlar, sinifIndex);
     const genislikler = listeYazdirmaKolonGenislikleri(basliklar);
 
@@ -348,14 +351,17 @@ function listeYazdirmaKolonGenislikleri(basliklar) {
 
 function listeYazdirmaKolonAgirligi(baslik) {
   const temiz = normalizeYazdirmaBaslik(baslik);
+  if (temiz === "sira") return 4;
   if (temiz === "no" || temiz.endsWith(" no")) return 6;
-  if (temiz === "sinif") return 6;
+  if (temiz === "sinif" || temiz === "sinifi") return 6;
   if (temiz.includes("tarih")) return 9;
+  if (temiz.includes("tc kimlik")) return 11;
   if (temiz.includes("telefon") || temiz.includes(" tel")) return 13;
   if (temiz.includes("e posta") || temiz.includes("eposta")) return 16;
   if (temiz.includes("ad soyad")) return 24;
   if (temiz === "ogrenci" || temiz === "veli") return 20;
   if (temiz.includes("ogrenci")) return 20;
+  if (temiz.includes("yakinlik")) return 9;
   if (temiz.includes("veli adi") || temiz.includes("baba adi") || temiz.includes("anne adi")) return 17;
   if (temiz.includes("aciklama")) return 30;
   if (temiz.includes("konu")) return 20;
@@ -372,7 +378,11 @@ function listeYazdirmaKolonAgirligi(baslik) {
 
 function listeYazdirmaSarilabilirMi(baslik) {
   const temiz = normalizeYazdirmaBaslik(baslik);
-  return temiz.includes("aciklama");
+  return temiz.includes("aciklama")
+    || temiz.includes("ad soyad")
+    || temiz.includes("adi soyadi")
+    || temiz.includes("ogrenci adi")
+    || temiz.includes("veli adi");
 }
 
 function listeYazdirmaHucreMetni(table, baslik, cell) {
@@ -501,19 +511,20 @@ function yukleTopbar() {
   kap.outerHTML = `
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
-        <a href="dashboard.html" class="navbar-brand d-flex align-items-center gap-2">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260601-41" alt="Öğrenci Bilgileri"></span>
-          <span class="brand-text fw-semibold">Öğrenci Bilgileri</span>
+        <a href="dashboard.html" class="navbar-brand brand-logo-only d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260602-47" alt="Öğrenci Bilgileri"></span>
         </a>
-        <ul class="navbar-nav d-none d-md-flex ms-3 top-menu">
-          ${MENU_GRUPLARI.map(topMenuDropdown).join("")}
-        </ul>
-        <div class="d-flex align-items-center gap-2 ms-auto">
+        <div class="header-center d-none d-md-flex align-items-center gap-3">
+          <ul class="navbar-nav top-menu">
+            ${MENU_GRUPLARI.map(topMenuDropdown).join("")}
+          </ul>
           <div class="global-arama-kutu d-none d-md-block" id="global-arama-kap">
             <i class="bi bi-search arama-ikon"></i>
             <input type="search" class="form-control form-control-sm" id="global-arama" placeholder="Öğrenci ara..." autocomplete="off" data-testid="global-search-input">
             <div class="global-arama-sonuc d-none" id="global-arama-sonuc"></div>
           </div>
+        </div>
+        <div class="header-actions d-flex align-items-center gap-2">
           <span class="nav-ikon-btn cevrimici" id="baglanti-durum" title="Bağlantı durumu kontrol ediliyor..." data-testid="connection-status">
             <i class="bi bi-wifi"></i>
           </span>
@@ -529,7 +540,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260601-41");
+    const { logout } = await import("./auth.js?v=20260602-47");
     logout();
   });
 
@@ -558,7 +569,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260601-41");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260602-47");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -630,7 +641,7 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260601-41");
+    const { db } = await import("./firebase-config.js?v=20260602-47");
     const { collection, query, limit, onSnapshot } =
       await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
     const q = query(collection(db, "_settings"), limit(1));

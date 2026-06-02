@@ -2,32 +2,33 @@
   if (window.location.protocol !== "file:") return;
 
   const DEFAULT_PORTS = [8091, 5500, 8000, 8080, 3000, 5173];
-  const PROJECT_DIR = "ogrenci";
   const SERVER_PARAM = "obsServer";
   const SERVER_STORAGE_KEY = "obs-local-server";
 
   const fileName = decodeURIComponent(window.location.pathname.split(/[\\/]/).pop() || "index.html");
-  const basePath = localProjectPath();
+  const basePaths = localProjectPaths();
   const searchParams = new URLSearchParams(window.location.search);
   const storedServer = safeLocalStorageGet(SERVER_STORAGE_KEY);
   const explicitServer = searchParams.get(SERVER_PARAM) || storedServer || "";
-  const candidates = buildCandidates(explicitServer, basePath);
+  const candidates = buildCandidates(explicitServer, basePaths);
 
   tryRedirect(candidates, fileName);
 
-  function localProjectPath() {
+  function localProjectPaths() {
     const path = decodeURIComponent(window.location.pathname || "").replace(/\\/g, "/");
     const parts = path.split("/").filter(Boolean);
-    const projectIndex = parts.map(part => part.toLocaleLowerCase("tr-TR")).lastIndexOf(PROJECT_DIR);
-    return projectIndex >= 0 ? `${parts[projectIndex]}/` : "";
+    const currentDir = parts.length >= 2 ? parts[parts.length - 2] : "";
+    return ["", currentDir ? `${currentDir}/` : ""].filter((item, index, arr) => item !== undefined && arr.indexOf(item) === index);
   }
 
-  function buildCandidates(explicit, path) {
+  function buildCandidates(explicit, paths) {
     const urls = [];
-    if (explicit) urls.push(normalizeBase(explicit, path));
+    if (explicit) paths.forEach(path => urls.push(normalizeBase(explicit, path)));
     DEFAULT_PORTS.forEach(port => {
-      urls.push(`http://127.0.0.1:${port}/${path}`);
-      urls.push(`http://localhost:${port}/${path}`);
+      paths.forEach(path => {
+        urls.push(`http://127.0.0.1:${port}/${path}`);
+        urls.push(`http://localhost:${port}/${path}`);
+      });
     });
     return [...new Set(urls.filter(Boolean))];
   }
@@ -38,7 +39,7 @@
     const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
     const url = new URL(withProtocol);
     const pathname = url.pathname.endsWith("/") ? url.pathname : `${url.pathname}/`;
-    if (!pathname.toLocaleLowerCase("tr-TR").endsWith(`/${PROJECT_DIR}/`) && path) {
+    if (path && !pathname.toLocaleLowerCase("tr-TR").endsWith(`/${path.toLocaleLowerCase("tr-TR")}`)) {
       url.pathname = `${pathname}${path}`.replace(/\/{2,}/g, "/");
     } else {
       url.pathname = pathname;
@@ -58,7 +59,7 @@
         // Bir sonraki aday denenir.
       }
     }
-    showServerWarning(baseUrls[0] || `http://127.0.0.1:${DEFAULT_PORTS[0]}/${basePath}`);
+    showServerWarning(baseUrls[0] || `http://127.0.0.1:${DEFAULT_PORTS[0]}/`);
   }
 
   function showServerWarning(suggestedBase) {
@@ -82,7 +83,7 @@
           <p>Bu sistem modul ve Firebase dosyalari kullandigi icin dosyaya cift tiklayarak tam calismaz.</p>
           <p>Yerel sunucuyu baslatin ve tarayicida su adrese gidin:</p>
           <p><strong>${escapeHtml(suggestedBase)}</strong></p>
-          <p style="font-size:13px;color:#6c757d">Farkli bir adres kullaniyorsaniz dosyayi <strong>?${SERVER_PARAM}=http://adres:port/${PROJECT_DIR}/</strong> parametresiyle acabilirsiniz.</p>
+          <p style="font-size:13px;color:#6c757d">Farkli bir adres kullaniyorsaniz dosyayi <strong>?${SERVER_PARAM}=http://adres:port/</strong> parametresiyle acabilirsiniz. Gerekirse adrese alt yolu da ekleyin.</p>
         </div>`;
       document.body.innerHTML = "";
       document.body.appendChild(warning);

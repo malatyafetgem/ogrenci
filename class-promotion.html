@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260601-41">
+  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260601-41">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260601-41">
-  <link rel="shortcut icon" href="favicon.ico?v=20260601-41">
-  <script src="file-redirect.js?v=20260601-41"></script>
-  <script src="pwa.js?v=20260601-41"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
+  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
+  <script src="file-redirect.js?v=20260602-47"></script>
+  <script src="pwa.js?v=20260602-47"></script>
   <title>Sınıf Atlatma</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260601-41">
+  <link rel="stylesheet" href="app.css?v=20260602-47">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -47,7 +47,7 @@
           <i class="bi bi-exclamation-triangle-fill fs-5"></i>
           <div>
             <strong>Dikkat!</strong> Bu işlem tüm aktif öğrencilerin sınıfını toplu güncelleyecektir.
-            9→10, 10→11, 11→12 geçişi otomatik yapılır. 12. sınıf öğrencileri bu aktif sistemden çıkarılır.
+            9→10, 10→11, 11→12 geçişi otomatik yapılır. 12. sınıf öğrencileri M serisi yeni ID ile Mezun olarak etiketlenir.
           </div>
         </div>
 
@@ -102,14 +102,14 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260601-41";
-  import { layoutYukle } from "./layout.js?v=20260601-41";
-  import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260601-41";
-  import { db } from "./firebase-config.js?v=20260601-41";
+  import { requireAdmin } from "./auth.js?v=20260602-47";
+  import { layoutYukle } from "./layout.js?v=20260602-47";
+  import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260602-47";
+  import { db } from "./firebase-config.js?v=20260602-47";
   import {
     collection, getDocs, doc, writeBatch, query, where
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, onayIste, sinifParcala, escapeHtml, escapeAttr } from "./utils.js?v=20260601-41";
+  import { toast, onayIste, sinifParcala, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260602-47";
 
   let ogrenciler = [];
   const islemler = {};
@@ -145,15 +145,15 @@
     if (parca.seviye < 12) {
       return raw.replace(/\d{1,2}/, String(parca.seviye + 1));
     }
-    return "SISTEMDEN_CIKAR";
+    return "MEZUN";
   }
 
   function tabloGoster() {
     const tbody = document.getElementById("aktarim-tbody");
     tbody.innerHTML = ogrenciler.map(o => {
       const sonrakiSinif = sinifHesapla(o.sinif);
-      const sonSinif = sonrakiSinif === "SISTEMDEN_CIKAR";
-      const mevcut = islemler[o.id] || (sonSinif ? "cikar" : "gecis");
+      const sonSinif = sonrakiSinif === "MEZUN";
+      const mevcut = islemler[o.id] || (sonSinif ? "mezun" : "gecis");
 
       return `<tr id="satir-${escapeAttr(o.id)}">
         <td>${escapeHtml(o.id)}</td>
@@ -162,14 +162,14 @@
         <td><span class="badge bg-secondary">${escapeHtml(o.sinif || "—")}</span></td>
         <td id="sonraki-${escapeAttr(o.id)}">
           ${sonSinif
-            ? `<span class="badge bg-danger">Sistemden çıkarılacak</span>`
+            ? `<span class="badge bg-success">Mezun olacak</span>`
             : `<span class="badge bg-primary">${escapeHtml(sonrakiSinif || "—")}</span>`}
         </td>
         <td>
           <select class="form-select form-select-sm" style="max-width:180px"
                   onchange="islemSec('${o.id}', this.value)">
             ${sonSinif
-              ? `<option value="cikar" ${mevcut === "cikar" ? "selected" : ""}>Sistemden Çıkar</option>
+              ? `<option value="mezun" ${mevcut === "mezun" ? "selected" : ""}>Mezun Et</option>
                  <option value="kalir" ${mevcut === "kalir" ? "selected" : ""}>Sınıfta Kal</option>`
               : `<option value="gecis" ${mevcut === "gecis" ? "selected" : ""}>Bir Üst Sınıfa Geç</option>
                  <option value="kalir" ${mevcut === "kalir" ? "selected" : ""}>Sınıfta Kal</option>`}
@@ -187,8 +187,8 @@
   function baglayici() {
     document.getElementById("toplu-otomatik-btn").addEventListener("click", () => {
       ogrenciler.forEach(o => {
-        const sonSinif = sinifHesapla(o.sinif) === "SISTEMDEN_CIKAR";
-        islemler[o.id] = sonSinif ? "cikar" : "gecis";
+        const sonSinif = sinifHesapla(o.sinif) === "MEZUN";
+        islemler[o.id] = sonSinif ? "mezun" : "gecis";
       });
       tabloGoster();
       toast("Tüm öğrenciler için otomatik seçim yapıldı.", "info");
@@ -200,8 +200,12 @@
 
       // Silinecek öğrencileri belirle
       const silinecekler = ogrenciler.filter(o => {
-        const islem = islemler[o.id] || (sinifHesapla(o.sinif) === "SISTEMDEN_CIKAR" ? "cikar" : "gecis");
-        return islem === "cikar" || islem === "sil";
+        const islem = islemler[o.id] || (sinifHesapla(o.sinif) === "MEZUN" ? "mezun" : "gecis");
+        return islem === "sil";
+      });
+      const mezunlar = ogrenciler.filter(o => {
+        const islem = islemler[o.id] || (sinifHesapla(o.sinif) === "MEZUN" ? "mezun" : "gecis");
+        return islem === "mezun";
       });
 
       let ozet = "";
@@ -251,7 +255,7 @@
           onaylaBtn.innerHTML = onaylaBtnOrijinal;
         }
       } else {
-        ozet = "Silinecek öğrenci yok. Sınıf geçişleri ve aynı sınıfta kalanlar işlenecek.";
+        ozet = `Silinecek öğrenci yok. Sınıf geçişleri, mezuniyet ID taşıma işlemleri ve aynı sınıfta kalanlar işlenecek.\n\nMezun edilecek öğrenci: ${mezunlar.length}`;
         onayMetni = "AKTAR";
         onayButonu = "Aktarımı Uygula";
       }
@@ -260,19 +264,28 @@
         baslik: "Sınıf atlatmayı uygula",
         mesaj: silinecekler.length > 0
           ? `${silinecekler.length} öğrenci ve tüm bağlı kayıtları kalıcı olarak silinecek.`
-          : "Seçili işlemler tüm aktif öğrencilere uygulanacak.",
+          : "Seçili sınıf geçişleri ve mezuniyet etiketleri uygulanacak.",
         detay: ozet,
         onayMetni,
         onayButonu,
-        tip: "danger"
+        tip: silinecekler.length > 0 ? "danger" : "warning"
       });
       if (!onay) return;
       document.getElementById("onayla-btn").disabled = true;
       document.getElementById("onayla-btn").innerHTML =
         `<span class="spinner-border spinner-border-sm me-1"></span>İşleniyor...`;
 
-      let basarili = 0, cikarildi = 0, kalir = 0, silindi = 0, hatali = 0;
+      let basarili = 0, mezun = 0, kalir = 0, silindi = 0, hatali = 0;
       const hataMesajlari = [];
+      let mezunIdPlani = new Map();
+      try {
+        mezunIdPlani = await mezunIdPlaniHazirla(mezunlar);
+      } catch (err) {
+        document.getElementById("onayla-btn").disabled = false;
+        document.getElementById("onayla-btn").innerHTML = onaylaBtnOrijinal;
+        toast("Mezun ID planı hazırlanamadı: " + err.message, "danger");
+        return;
+      }
       let batch = writeBatch(db);
       let yazmaSayisi = 0;
 
@@ -290,16 +303,16 @@
       }
 
       for (const o of ogrenciler) {
-        const islem = islemler[o.id] || (sinifHesapla(o.sinif) === "SISTEMDEN_CIKAR" ? "cikar" : "gecis");
+        const islem = islemler[o.id] || (sinifHesapla(o.sinif) === "MEZUN" ? "mezun" : "gecis");
         try {
           if (islem === "gecis") {
             const yeni = sinifHesapla(o.sinif);
-            if (!yeni || yeni === "SISTEMDEN_CIKAR") throw new Error("Sınıf hesaplanamadı");
-            await yaz(b => b.update(doc(db, "students", o.id), { sinif: yeni }));
+            if (!yeni || yeni === "MEZUN") throw new Error("Sınıf hesaplanamadı");
+            await yaz(b => b.update(doc(db, "students", o.id), { sinif: yeni, durum: "Aktif", guncelleme_tarihi: bugun() }));
             basarili++;
-          } else if (islem === "cikar") {
-            await ogrenciyiSistemdenCikar(o.id, yaz);
-            cikarildi++;
+          } else if (islem === "mezun") {
+            await ogrenciyiMezunEt(o, mezunIdPlani.get(o.id), yaz);
+            mezun++;
           } else if (islem === "kalir") {
             kalir++;
           } else if (islem === "sil") {
@@ -322,7 +335,7 @@
       document.getElementById("sonuc-kap").classList.remove("d-none");
       document.getElementById("sonuc-mesaj").innerHTML =
         `Aktarım tamamlandı: <strong>${basarili}</strong> öğrenci bir üst sınıfa geçirildi, 
-         <strong>${cikarildi}</strong> öğrenci sistemden çıkarıldı, 
+         <strong>${mezun}</strong> öğrenci M serisi ID ile Mezun olarak etiketlendi, 
          <strong>${kalir}</strong> öğrenci aynı sınıfta bırakıldı,
          <strong>${silindi}</strong> öğrenci silindi${hatali ? `, <strong>${hatali}</strong> işlem hata verdi` : ""}.
          ${hataMesajlari.length ? `<div class="small mt-2">${escapeHtml(hataMesajlari.slice(0, 5).join(" | "))}</div>` : ""}`;
@@ -335,6 +348,53 @@
       veriCacheleriniTemizle();
       await yukle();
     });
+  }
+
+  async function mezunIdPlaniHazirla(mezunlar) {
+    const plan = new Map();
+    if (!mezunlar.length) return plan;
+
+    const snap = await getDocs(collection(db, "students"));
+    const kullanilanIdler = new Set(snap.docs.map(d => d.id));
+    let sonNo = 0;
+
+    kullanilanIdler.forEach(id => {
+      const eslesen = String(id).match(/^M(\d+)$/i);
+      if (eslesen) sonNo = Math.max(sonNo, Number(eslesen[1]));
+    });
+
+    for (const ogrenci of mezunlar) {
+      let yeniId = "";
+      do {
+        sonNo++;
+        yeniId = `M${String(sonNo).padStart(4, "0")}`;
+      } while (kullanilanIdler.has(yeniId));
+      kullanilanIdler.add(yeniId);
+      plan.set(ogrenci.id, yeniId);
+    }
+
+    return plan;
+  }
+
+  async function ogrenciyiMezunEt(ogrenci, mezunId, yaz) {
+    if (!mezunId) throw new Error("Mezun ID oluşturulamadı");
+    const eskiId = String(ogrenci.id);
+    const { id: _id, ...ogrenciVerisi } = ogrenci;
+    const mezunVerisi = {
+      ...ogrenciVerisi,
+      numara: String(ogrenci.numara || eskiId),
+      durum: "Mezun",
+      guncelleme_tarihi: bugun()
+    };
+
+    await yaz(b => b.set(doc(db, "students", mezunId), mezunVerisi));
+    for (const koleksiyon of BAGLI_KOLEKSIYONLAR) {
+      const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", eskiId)));
+      for (const d of snap.docs) {
+        await yaz(b => b.update(d.ref, { ogrenciId: mezunId, guncelleme_tarihi: bugun() }));
+      }
+    }
+    await yaz(b => b.delete(doc(db, "students", eskiId)));
   }
 
   async function ogrenciyiSistemdenCikar(ogrenciId, yaz) {

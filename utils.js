@@ -203,9 +203,10 @@ export function bugun() {
  */
 export function tarihtenDate(str) {
   if (!str) return null;
-  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(str)) return null;
-  const [g, a, y] = str.split(".");
-  return new Date(`${y}-${a}-${g}`);
+  const tarih = formatTarih(str);
+  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(tarih)) return null;
+  const [g, a, y] = tarih.split(".").map(Number);
+  return new Date(y, a - 1, g);
 }
 
 export function tarihEkle(str, gun) {
@@ -216,16 +217,22 @@ export function tarihEkle(str, gun) {
 }
 
 export function devamsizlikGunDagilimi(kayit) {
-  const baslangic = formatTarih(kayit?.tarih || "");
   const toplamGun = devamsizlikGunDegeri(kayit);
-  if (!baslangic || toplamGun <= 0) return [];
+  if (toplamGun <= 0) return [];
 
   const gunSayisi = toplamGun > 1 ? Math.ceil(toplamGun) : 1;
-  return Array.from({ length: gunSayisi }, (_, index) => {
+  const kapsananTarihler = Array.isArray(kayit?.kapsanan_tarihler)
+    ? kayit.kapsanan_tarihler.map(formatTarih).filter(Boolean)
+    : [];
+  const tarihler = kapsananTarihler.length
+    ? kapsananTarihler
+    : Array.from({ length: gunSayisi }, (_, index) => tarihEkle(kayit?.tarih || "", index));
+
+  return tarihler.map((tarih, index) => {
     const kalan = toplamGun - index;
     const gun = toplamGun <= 1 ? toplamGun : Math.min(1, Math.max(0, kalan));
     return {
-      tarih: tarihEkle(baslangic, index),
+      tarih,
       gun
     };
   }).filter(item => item.tarih && item.gun > 0);

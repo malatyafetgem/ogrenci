@@ -7,7 +7,28 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return signedIn() && request.auth.uid == "zpaTsm2L7FSCqLA8BDkxI7bX9vM2";
+      return signedIn()
+        && (
+          request.auth.uid == "zpaTsm2L7FSCqLA8BDkxI7bX9vM2"
+          || request.auth.token.admin == true
+        );
+    }
+
+    function canReadPersonalData() {
+      return isAdmin()
+        || (signedIn() && request.auth.token.staff == true);
+    }
+
+    function studentExists(ogrenciId) {
+      return existsAfter(/databases/$(database)/documents/students/$(ogrenciId));
+    }
+
+    function validStudentDocumentId(ogrenciNo) {
+      return request.resource.data.numara == ogrenciNo
+        || (
+          request.resource.data.durum == "Mezun"
+          && ogrenciNo.matches("^M[0-9]+$")
+        );
     }
 
     function optionalString(field) {
@@ -50,7 +71,7 @@ service cloud.firestore {
         && requiredString("ad")
         && requiredString("soyad")
         && requiredString("sinif")
-        && request.resource.data.numara == ogrenciNo
+        && validStudentDocumentId(ogrenciNo)
         && optionalString("telefon")
         && optionalString("cinsiyet")
         && optionalString("yatililik")
@@ -71,7 +92,7 @@ service cloud.firestore {
         && optionalEnum("cinsiyet", ["Erkek", "Kız"])
         && optionalEnum("yatililik", ["Gündüzlü", "Paralı Yatılı", "Parasız Yatılı"])
         && optionalEnum("maddi_durum", ["Düşük", "Orta", "İyi", "Çok İyi"])
-        && optionalEnum("durum", ["Aktif", "Pasif"])
+        && optionalEnum("durum", ["Aktif", "Mezun"])
         && optionalEnum("aile_durumu", [
           "Anne-baba birlikte", "Anne-baba ayrı", "Anne vefat", "Baba vefat",
           "Anne ve baba vefat", "Vasi yanında", "Koruyucu aile yanında", "Diğer"
@@ -89,6 +110,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(["ogrenciId"])
         && request.resource.data.ogrenciId is string
         && request.resource.data.ogrenciId.size() > 0
+        && studentExists(request.resource.data.ogrenciId)
         && optionalString("yakinlik")
         && optionalString("ad")
         && optionalString("soyad")
@@ -113,7 +135,7 @@ service cloud.firestore {
           "Anne", "Baba", "Vasi", "Üvey Anne", "Üvey Baba", "Dede",
           "Nine", "Abi", "Abla", "Koruyucu Aile", "Diğer"
         ])
-        && optionalEnum("durum", ["Aktif", "Vefat", "Ulaşılamıyor", "Velayeti Yok", "Aranmasın", "Pasif"]);
+        && optionalEnum("durum", ["Aktif", "Vefat", "Ulaşılamıyor", "Velayeti Yok", "Aranmasın"]);
     }
 
     function validAttendance() {
@@ -125,6 +147,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(["ogrenciId", "tarih", "tur", "gun_degeri"])
         && request.resource.data.ogrenciId is string
         && request.resource.data.ogrenciId.size() > 0
+        && studentExists(request.resource.data.ogrenciId)
         && requiredString("tarih")
         && requiredString("tur")
         && optionalString("tarih_sira")
@@ -149,6 +172,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(["ogrenciId", "tarih", "tur", "kategori"])
         && request.resource.data.ogrenciId is string
         && request.resource.data.ogrenciId.size() > 0
+        && studentExists(request.resource.data.ogrenciId)
         && requiredString("tarih")
         && requiredString("tur")
         && requiredString("kategori")
@@ -169,6 +193,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasAll(["ogrenciId", "tarih", "veli_yakinlik", "konu"])
         && request.resource.data.ogrenciId is string
         && request.resource.data.ogrenciId.size() > 0
+        && studentExists(request.resource.data.ogrenciId)
         && requiredString("tarih")
         && requiredString("veli_yakinlik")
         && requiredString("konu")
@@ -194,43 +219,43 @@ service cloud.firestore {
     }
 
     match /students/{ogrenciNo} {
-      allow read: if signedIn();
+      allow read: if canReadPersonalData();
       allow create, update: if isAdmin() && validStudent(ogrenciNo);
       allow delete: if isAdmin();
     }
 
     match /veliler/{veliId} {
-      allow read: if signedIn();
+      allow read: if canReadPersonalData();
       allow create, update: if isAdmin() && validVeli();
       allow delete: if isAdmin();
     }
 
     match /devamsizliklar/{kayitId} {
-      allow read: if signedIn();
+      allow read: if canReadPersonalData();
       allow create, update: if isAdmin() && validAttendance();
       allow delete: if isAdmin();
     }
 
     match /davranislar/{kayitId} {
-      allow read: if signedIn();
+      allow read: if canReadPersonalData();
       allow create, update: if isAdmin() && validBehavior();
       allow delete: if isAdmin();
     }
 
     match /veligorusmeleri/{kayitId} {
-      allow read: if signedIn();
+      allow read: if canReadPersonalData();
       allow create, update: if isAdmin() && validMeeting();
       allow delete: if isAdmin();
     }
 
     match /_autocomplete/{listeId} {
-      allow read: if signedIn();
+      allow read: if canReadPersonalData();
       allow create, update: if isAdmin() && validAutocomplete();
       allow delete: if isAdmin();
     }
 
     match /_settings/{ayarId} {
-      allow read: if signedIn();
+      allow read: if canReadPersonalData();
       allow create, update: if isAdmin() && validSettings();
       allow delete: if isAdmin();
     }
