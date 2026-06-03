@@ -57,6 +57,7 @@
   --obs-font-body: 'DM Sans', system-ui, sans-serif;
 }
 
+/* Bakım notu: Kullanıcı kararıyla dark mode ve ayarlar üzerinden tema rengi değiştirme desteği eklenmez. */
 
 .app-wrapper {
   min-height: 100vh;
@@ -1265,36 +1266,12 @@ body.sidebar-collapsed .app-footer {
   color: var(--obs-muted);
 }
 
-.tema-renk-btn {
-  width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent;
-  cursor: pointer; transition: transform .15s, border-color .15s; display: inline-flex;
-  align-items: center; justify-content: center; font-size: 14px; color: #fff;
-}
-.tema-renk-btn:hover { transform: scale(1.15); }
-.tema-renk-btn.aktif { border-color: #000; box-shadow: 0 0 0 3px rgba(0,0,0,.2); transform: scale(1.1); }
-.tema-renk-btn[data-renk="#D9542B"] { background: #D9542B; }
-.tema-renk-btn[data-renk="#0d6efd"] { background: #0d6efd; }
-.tema-renk-btn[data-renk="#198754"] { background: #198754; }
-.tema-renk-btn[data-renk="#6f42c1"] { background: #6f42c1; }
-.tema-renk-btn[data-renk="#dc3545"] { background: #dc3545; }
-.tema-renk-btn[data-renk="#0dcaf0"] { background: #0dcaf0; }
-.tema-renk-btn[data-renk="#fd7e14"] { background: #fd7e14; }
-.tema-renk-btn[data-renk="#20c997"] { background: #20c997; }
-.tema-renk-btn[data-renk="#6c757d"] { background: #6c757d; }
-.tema-renk-btn.tema-renk-ozel { background: conic-gradient(red,yellow,lime,cyan,blue,magenta,red); }
 .settings-page .skeleton-satir { border-radius: 4px; }
 .ayar-ozet-skeleton {
   height: 28px;
   width: 60%;
   margin: 0 auto;
 }
-.tema-renk-picker {
-  width: 42px;
-  height: 36px;
-  padding: 2px;
-}
-.tema-renk-hex { max-width: 100px; }
-
 .tur-buton { font-size: 1.1rem; padding: 1rem 2rem; border-width: 2px; }
 .tur-buton.secili-olumlu { background: #198754; color: #fff; border-color: #198754; }
 .tur-buton.secili-olumsuz { background: #dc3545; color: #fff; border-color: #dc3545; }

@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260603-54">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-68">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-54">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-54">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-54">
-  <link rel="shortcut icon" href="favicon.ico?v=20260603-54">
-  <script src="file-redirect.js?v=20260603-54"></script>
-  <script src="pwa.js?v=20260603-54"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-68">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-68">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-68">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-68">
+  <script src="file-redirect.js?v=20260603-68"></script>
+  <script src="pwa.js?v=20260603-68"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260603-54">
+  <link rel="stylesheet" href="app.css?v=20260603-68">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -143,12 +143,12 @@
         </div>
 
         <!-- Excel Import Modal -->
-        <div class="modal fade" id="import-modal" tabindex="-1">
+        <div class="modal fade" id="import-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="import-modal-baslik">
           <div class="modal-dialog modal-lg">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-upload me-2"></i>Excel'den Öğrenci Aktar</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="import-modal-baslik"><i class="bi bi-upload me-2"></i>Excel'den Öğrenci Aktar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
               </div>
               <div class="modal-body">
                 <div id="import-adim-1">
@@ -158,7 +158,7 @@
                     ister tek parça "Adı Soyadı", ister ayrı "Ad" ve "Soyad" alanlarıyla aktarılabilir.
                   </p>
                   <div class="mb-3">
-                    <label class="form-label">Aktarım Tipi</label>
+                    <label class="form-label" for="import-modu">Aktarım Tipi</label>
                     <select class="form-select" id="import-modu">
                       <option value="ekle-guncelle">Yeni öğrenci ekle / mevcutları güncelle</option>
                       <option value="sadece-guncelle">Sadece mevcut öğrencileri numaraya göre güncelle</option>
@@ -168,7 +168,7 @@
                     </div>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Excel Dosyası (.xlsx)</label>
+                    <label class="form-label" for="import-dosya-input">Excel Dosyası (.xlsx)</label>
                     <input type="file" class="form-control" id="import-dosya-input" accept=".xlsx,.xls">
                   </div>
                   <div id="import-onizleme" class="d-none">
@@ -212,22 +212,21 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.3/js/dataTables.bootstrap5.min.js"></script>
+<script src="datatable-fallback.js?v=20260603-68"></script>
+<script src="datatable-loader.js?v=20260603-68"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260603-54";
-  import { layoutYukle } from "./layout.js?v=20260603-54";
+  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260603-68";
+  import { layoutYukle } from "./layout.js?v=20260603-68";
   import {
     ogrenciEkle, ogrenciGuncelle, noMevcutMu,
     velileriGetir, veliEkleGuncelle, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir
-  } from "./students.js?v=20260603-54";
+  } from "./students.js?v=20260603-68";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, formatTarih, toast, bugun,
     compareOgrenci, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
-  } from "./utils.js?v=20260603-54";
+  } from "./utils.js?v=20260603-68";
   let tumOgrenciler = [];
   let dt = null;
   let filtreZamanlayici = null;
@@ -320,6 +319,7 @@
       ogrenciler.sort(compareOgrenci);
 
       tumOgrenciler = ogrenciler;
+      await (window.obsDataTableReady || Promise.resolve());
       tabloYukle(ogrenciler);
     } catch (err) {
       tumOgrenciler = [];
@@ -384,16 +384,16 @@
             <td>${escapeHtml(formatTelefon(o.telefon || "") || "—")}</td>
             <td class="no-print">
               <div class="d-inline-flex gap-1">
-                <a href="students-detail.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-info" title="Detay">
+                <a href="students-detail.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-info" title="Detay" aria-label="Öğrenci detayını aç">
                   <i class="bi bi-eye"></i>
                 </a>
-                <a href="students-add-edit.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-primary" title="Düzenle" data-admin-only>
+                <a href="students-add-edit.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-primary" title="Düzenle" aria-label="Öğrenciyi düzenle" data-admin-only>
                   <i class="bi bi-pencil"></i>
                 </a>
-                <a href="attendance-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-warning" title="Devamsızlık Gir" data-admin-only>
+                <a href="attendance-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-warning" title="Devamsızlık Gir" aria-label="Devamsızlık gir" data-admin-only>
                   <i class="bi bi-calendar-check"></i>
                 </a>
-                <a href="behavior-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-success" title="Davranış Gir" data-admin-only>
+                <a href="behavior-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-success" title="Davranış Gir" aria-label="Davranış gir" data-admin-only>
                   <i class="bi bi-star"></i>
                 </a>
               </div>

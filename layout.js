@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260603-54";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260603-54";
-import { escapeHtml } from "./utils.js?v=20260603-54";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260603-68";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260603-68";
+import { escapeHtml } from "./utils.js?v=20260603-68";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -465,10 +465,6 @@ function dataTableKaynak() {
   if (window.DataTable?.tables && window.DataTable?.Api) {
     return { tables: window.DataTable.tables.bind(window.DataTable), Api: window.DataTable.Api };
   }
-  const jqueryDataTable = window.jQuery?.fn?.dataTable;
-  if (jqueryDataTable?.tables && jqueryDataTable?.Api) {
-    return { tables: jqueryDataTable.tables.bind(jqueryDataTable), Api: jqueryDataTable.Api };
-  }
   return null;
 }
 
@@ -537,7 +533,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-logo-only d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260603-54" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260603-68" alt="Öğrenci Bilgileri"></span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
@@ -567,7 +563,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260603-54");
+    const { logout } = await import("./auth.js?v=20260603-68");
     logout();
   });
 
@@ -596,7 +592,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260603-54");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260603-68");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -686,9 +682,9 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260603-54");
+    const { db } = await import("./firebase-config.js?v=20260603-68");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260603-54");
+      await import("./firebase-imports.js?v=20260603-68");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),
@@ -762,10 +758,10 @@ function yukleBottomNav() {
     </nav>
 
     <!-- Offcanvas: Daha Fazlası -->
-    <div class="offcanvas offcanvas-bottom rounded-top-4 mobile-more-offcanvas" tabindex="-1" id="daha-fazla-menu">
+    <div class="offcanvas offcanvas-bottom rounded-top-4 mobile-more-offcanvas" tabindex="-1" id="daha-fazla-menu" role="dialog" aria-modal="true" aria-labelledby="daha-fazla-menu-baslik">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Menü</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        <h5 class="offcanvas-title" id="daha-fazla-menu-baslik">Menü</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Menüyü kapat"></button>
       </div>
       <div class="offcanvas-body">
         <div class="mobile-more-menu">

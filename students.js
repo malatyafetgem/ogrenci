@@ -1,15 +1,15 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260603-54";
+import { db } from "./firebase-config.js?v=20260603-68";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, query, where, writeBatch
-} from "./firebase-imports.js?v=20260603-54";
+} from "./firebase-imports.js?v=20260603-68";
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260603-54";
+} from "./utils.js?v=20260603-68";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";
@@ -307,6 +307,29 @@ function tarihliVeri(veri) {
   };
 }
 
+function ogrenciIdSorguDegerleri(ogrenciNo) {
+  const id = String(ogrenciNo);
+  const degerler = [id];
+  const sayisal = Number(id);
+  if (/^\d+$/.test(id) && String(sayisal) === id && Number.isSafeInteger(sayisal)) degerler.push(sayisal);
+  return degerler;
+}
+
+async function ogrenciIdIleBelgeleriGetir(koleksiyon, ogrenciNo) {
+  const sonuc = new Map();
+  for (const deger of ogrenciIdSorguDegerleri(ogrenciNo)) {
+    const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", deger)));
+    snap.docs.forEach(d => sonuc.set(d.id, { id: d.id, ...d.data() }));
+  }
+  return [...sonuc.values()];
+}
+
+async function kayitlariOgrenciyeGoreGetir(koleksiyon, ogrenciNo) {
+  return (await ogrenciIdIleBelgeleriGetir(koleksiyon, ogrenciNo))
+    .filter(kayit => kayit.ogrenciId !== undefined && kayit.ogrenciId !== null)
+    .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+}
+
 /** Tüm aktif ve mezun öğrencileri getir */
 export async function tumOgrencileriDurumlariylaGetir() {
   const ogrenciler = await tumOgrenciBelgeleriGetir();
@@ -375,9 +398,10 @@ export async function ogrenciSil(ogrenciNo) {
 // ── Merkezi koleksiyon: Veliler ─────────────────────────────────────────────
 
 export async function velileriGetir(ogrenciNo) {
-  const id = String(ogrenciNo);
-  const veliler = await tumVelileriGetir();
-  return veliler.filter(v => String(v.ogrenciId) === id).sort(veliSiralama);
+  const veliler = await ogrenciIdIleBelgeleriGetir(VELI_KOLEKSIYON, ogrenciNo);
+  return veliler
+    .map(veri => veliKaydiniNormalizeEt(ogrenciNo, veri))
+    .sort(veliSiralama);
 }
 
 export async function tumVelileriGetir() {
@@ -433,11 +457,7 @@ export async function ogrenciVelileriniSil(ogrenciNo) {
 // ── Devamsızlıklar ─────────────────────────────────────────────────────────
 
 export async function devamsizliklarGetir(ogrenciNo) {
-  const id = String(ogrenciNo);
-  const kayitlar = await tumDevamsizliklariGetir();
-  return kayitlar
-    .filter(k => String(k.ogrenciId) === id)
-    .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+  return kayitlariOgrenciyeGoreGetir("devamsizliklar", ogrenciNo);
 }
 
 export async function devamsizlikEkle(ogrenciNo, veri) {
@@ -478,11 +498,7 @@ export async function tumDevamsizliklariGetir() {
 // ── Davranışlar ─────────────────────────────────────────────────────────────
 
 export async function davranislarGetir(ogrenciNo) {
-  const id = String(ogrenciNo);
-  const kayitlar = await tumDavranislariGetir();
-  return kayitlar
-    .filter(k => String(k.ogrenciId) === id)
-    .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+  return kayitlariOgrenciyeGoreGetir("davranislar", ogrenciNo);
 }
 
 export async function davranisEkle(ogrenciNo, veri) {
@@ -512,11 +528,7 @@ export async function tumDavranislariGetir() {
 // ── Veli Görüşmeleri ───────────────────────────────────────────────────────
 
 export async function gorusmeleriGetir(ogrenciNo) {
-  const id = String(ogrenciNo);
-  const kayitlar = await tumGorusmeleriGetir();
-  return kayitlar
-    .filter(k => String(k.ogrenciId) === id)
-    .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+  return kayitlariOgrenciyeGoreGetir("veligorusmeleri", ogrenciNo);
 }
 
 export async function gorusmeEkle(ogrenciNo, veri) {

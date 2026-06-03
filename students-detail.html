@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260603-54">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-68">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-54">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-54">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-54">
-  <link rel="shortcut icon" href="favicon.ico?v=20260603-54">
-  <script src="file-redirect.js?v=20260603-54"></script>
-  <script src="pwa.js?v=20260603-54"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-68">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-68">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-68">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-68">
+  <script src="file-redirect.js?v=20260603-68"></script>
+  <script src="pwa.js?v=20260603-68"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260603-54">
+  <link rel="stylesheet" href="app.css?v=20260603-68">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -308,33 +308,33 @@
   </main>
 </div>
 <!-- Devamsızlık Düzenleme Modali -->
-<div class="modal fade" id="dev-duzenle-modal" tabindex="-1">
+<div class="modal fade" id="dev-duzenle-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="dev-duzenle-modal-baslik">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Devamsızlık Düzenle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="dev-duzenle-modal-baslik"><i class="bi bi-pencil me-2"></i>Devamsızlık Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="dev-duzenle-id">
         <div class="row g-3">
           <div class="col-6">
-            <label class="form-label">Tarih <span class="text-danger">*</span></label>
+            <label class="form-label" for="dev-duzenle-tarih">Tarih <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="dev-duzenle-tarih" placeholder="GG.AA.YYYY">
           </div>
           <div class="col-6">
-            <label class="form-label">Tür <span class="text-danger">*</span></label>
+            <label class="form-label" for="dev-duzenle-tur">Tür <span class="text-danger">*</span></label>
             <select class="form-select" id="dev-duzenle-tur">
               <option value="Özürsüz">Özürsüz</option>
               <option value="Özürlü">Özürlü</option>
             </select>
           </div>
           <div class="col-6">
-            <label class="form-label">Miktar (gün)</label>
+            <label class="form-label" for="dev-duzenle-miktar">Miktar (gün)</label>
             <input type="number" class="form-control" id="dev-duzenle-miktar" min="0.5" step="0.5" value="1">
           </div>
           <div class="col-12">
-            <label class="form-label">Açıklama</label>
+            <label class="form-label" for="dev-duzenle-aciklama">Açıklama</label>
             <input type="text" class="form-control" id="dev-duzenle-aciklama">
           </div>
         </div>
@@ -352,39 +352,39 @@
 </div>
 
 <!-- Davranış Düzenleme Modali -->
-<div class="modal fade" id="davranis-duzenle-modal" tabindex="-1">
+<div class="modal fade" id="davranis-duzenle-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="davranis-duzenle-modal-baslik">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Davranış Düzenle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="davranis-duzenle-modal-baslik"><i class="bi bi-pencil me-2"></i>Davranış Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="davranis-duzenle-id">
         <div class="row g-3">
           <div class="col-6">
-            <label class="form-label">Tarih <span class="text-danger">*</span></label>
+            <label class="form-label" for="davranis-duzenle-tarih">Tarih <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="davranis-duzenle-tarih" placeholder="GG.AA.YYYY">
           </div>
           <div class="col-6">
-            <label class="form-label">Tür <span class="text-danger">*</span></label>
+            <label class="form-label" for="davranis-duzenle-tur">Tür <span class="text-danger">*</span></label>
             <select class="form-select" id="davranis-duzenle-tur">
               <option value="Olumlu">Olumlu</option>
               <option value="Olumsuz">Olumsuz</option>
             </select>
           </div>
           <div class="col-6">
-            <label class="form-label">Kategori</label>
+            <label class="form-label" for="davranis-duzenle-kategori">Kategori</label>
             <input type="text" class="form-control" id="davranis-duzenle-kategori">
           </div>
           <div class="col-12">
-            <label class="form-label">Açıklama</label>
+            <label class="form-label" for="davranis-duzenle-aciklama">Açıklama</label>
             <input type="text" class="form-control" id="davranis-duzenle-aciklama">
           </div>
           <div class="col-12">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="davranis-duzenle-veli-gorusmesi">
-              <label class="form-check-label">Veli Görüşmesi Yapıldı</label>
+              <label class="form-check-label" for="davranis-duzenle-veli-gorusmesi">Veli Görüşmesi Yapıldı</label>
             </div>
           </div>
         </div>
@@ -402,34 +402,34 @@
 </div>
 
 <!-- Görüşme Düzenleme Modali -->
-<div class="modal fade" id="gorusme-duzenle-modal" tabindex="-1">
+<div class="modal fade" id="gorusme-duzenle-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="gorusme-duzenle-modal-baslik">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Görüşme Düzenle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="gorusme-duzenle-modal-baslik"><i class="bi bi-pencil me-2"></i>Görüşme Düzenle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
       </div>
       <div class="modal-body">
         <input type="hidden" id="gorusme-duzenle-id">
         <div class="row g-3">
           <div class="col-6">
-            <label class="form-label">Tarih <span class="text-danger">*</span></label>
+            <label class="form-label" for="gorusme-duzenle-tarih">Tarih <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="gorusme-duzenle-tarih" placeholder="GG.AA.YYYY">
           </div>
           <div class="col-6">
-            <label class="form-label">Veli Yakınlığı</label>
+            <label class="form-label" for="gorusme-duzenle-veli-yakinlik">Veli Yakınlığı</label>
             <input type="text" class="form-control" id="gorusme-duzenle-veli-yakinlik">
           </div>
           <div class="col-12">
-            <label class="form-label">Veli Adı</label>
+            <label class="form-label" for="gorusme-duzenle-veli-adi">Veli Adı</label>
             <input type="text" class="form-control" id="gorusme-duzenle-veli-adi">
           </div>
           <div class="col-12">
-            <label class="form-label">Konu</label>
+            <label class="form-label" for="gorusme-duzenle-konu">Konu</label>
             <input type="text" class="form-control" id="gorusme-duzenle-konu">
           </div>
           <div class="col-12">
-            <label class="form-label">Açıklama</label>
+            <label class="form-label" for="gorusme-duzenle-aciklama">Açıklama</label>
             <textarea class="form-control" id="gorusme-duzenle-aciklama" rows="3"></textarea>
           </div>
         </div>
@@ -454,20 +454,20 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260603-54";
-  import { layoutYukle } from "./layout.js?v=20260603-54";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260603-68";
+  import { layoutYukle } from "./layout.js?v=20260603-68";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
     davranislarGetir, davranisSil, davranisGuncelle,
     gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
-  } from "./students.js?v=20260603-54";
+  } from "./students.js?v=20260603-68";
   import {
     devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260603-54";
-  import { avatarSrc } from "./avatar.js?v=20260603-54";
+  } from "./utils.js?v=20260603-68";
+  import { avatarSrc } from "./avatar.js?v=20260603-68";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -594,7 +594,7 @@
     ).join("") || satir("Veli", "—");
     el.innerHTML = `<div class="ogrkart">
       <div class="ogrkart-baslik">
-        <img class="ogrkart-logo" src="icon-192.png?v=20260603-54" alt="">
+        <img class="ogrkart-logo" src="icon-192.png?v=20260603-68" alt="">
         <div><h1>${escapeHtml(tamAd)}</h1><div class="alt">Öğrenci Kartı · No: ${escapeHtml(okulNo)} · ${escapeHtml(o.sinif || "—")}</div></div>
       </div>
       <div class="ogrkart-bolum-baslik">Kimlik Bilgileri</div>
@@ -633,8 +633,8 @@
     const telHref = "tel:+90" + ulusal;
     return `<span class="tel-hucre">
       <span class="tel-no">${escapeHtml(formatTelefon(tel))}</span>
-      <a href="${telHref}" class="tel-ikon no-print" title="Ara"><i class="bi bi-telephone-fill"></i></a>
-      <a href="https://wa.me/${wa}" target="_blank" rel="noopener" class="tel-ikon wa no-print" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+      <a href="${telHref}" class="tel-ikon no-print" title="Ara" aria-label="Telefonla ara"><i class="bi bi-telephone-fill"></i></a>
+      <a href="https://wa.me/${wa}" target="_blank" rel="noopener" class="tel-ikon wa no-print" title="WhatsApp" aria-label="WhatsApp ile yaz"><i class="bi bi-whatsapp"></i></a>
     </span>`;
   }
 
@@ -764,16 +764,22 @@
           <td data-label="İşlem" class="no-print">
             <div class="d-flex gap-1">
               <button class="btn btn-xs btn-outline-primary" data-admin-only
-                      onclick="duzenleDevamsizlik('${escapeAttr(k.id)}')">
+                      aria-label="Devamsızlık kaydını düzenle"
+                      data-detay-islem="devamsizlik-duzenle"
+                      data-kayit-id="${escapeAttr(k.id)}">
                 <i class="bi bi-pencil"></i>
               </button>
               <button class="btn btn-xs btn-outline-danger" data-admin-only
-                      onclick="silDevamsizlik('${escapeAttr(k.id)}')">
+                      aria-label="Devamsızlık kaydını sil"
+                      data-detay-islem="devamsizlik-sil"
+                      data-kayit-id="${escapeAttr(k.id)}">
                 <i class="bi bi-trash"></i>
               </button>
               <button class="btn btn-xs ${k.tur === "Özürsüz" ? "btn-outline-warning" : "btn-outline-danger"}" data-admin-only
                       title="${k.tur === "Özürsüz" ? "Özürlüye çevir" : "Özürsüze çevir"}"
-                      onclick="turDegistirDevamsizlik('${escapeAttr(k.id)}')">
+                      aria-label="${k.tur === "Özürsüz" ? "Devamsızlığı özürlüye çevir" : "Devamsızlığı özürsüze çevir"}"
+                      data-detay-islem="devamsizlik-tur-degistir"
+                      data-kayit-id="${escapeAttr(k.id)}">
                 <i class="bi bi-arrow-left-right"></i>
               </button>
             </div>
@@ -827,12 +833,16 @@
         <div class="grafik-bar-satir">
           <span class="ad">${v.etiket}</span>
           <div class="grafik-bar-iz grafik-bar-cift">
-            <div class="grafik-bar-ozursuz" style="width:${(v.ozursuz / enYuksek) * 100}%"></div>
-            <div class="grafik-bar-ozurlu" style="width:${(v.ozurlu / enYuksek) * 100}%"></div>
+            <div class="grafik-bar-ozursuz" data-width="${(v.ozursuz / enYuksek) * 100}"></div>
+            <div class="grafik-bar-ozurlu" data-width="${(v.ozurlu / enYuksek) * 100}"></div>
           </div>
           <span class="deg">${v.ozurlu + v.ozursuz}</span>
         </div>`).join("")
       : `<div class="text-muted small">Trend için yeterli veri yok.</div>`;
+    el.querySelectorAll("[data-width]").forEach(bar => {
+      const width = Math.max(0, Math.min(100, Number(bar.dataset.width) || 0));
+      bar.style.width = `${width}%`;
+    });
   }
 
   function davranisDonutGoster() {
@@ -877,11 +887,15 @@
             <td data-label="İşlem" class="no-print">
               <div class="d-flex gap-1">
                 <button class="btn btn-xs btn-outline-primary" data-admin-only
-                        onclick="duzenleDavranis('${escapeAttr(d.id)}')">
+                        aria-label="Davranış kaydını düzenle"
+                        data-detay-islem="davranis-duzenle"
+                        data-kayit-id="${escapeAttr(d.id)}">
                   <i class="bi bi-pencil"></i>
                 </button>
                 <button class="btn btn-xs btn-outline-danger" data-admin-only
-                        onclick="silDavranis('${escapeAttr(d.id)}')">
+                        aria-label="Davranış kaydını sil"
+                        data-detay-islem="davranis-sil"
+                        data-kayit-id="${escapeAttr(d.id)}">
                   <i class="bi bi-trash"></i>
                 </button>
               </div>
@@ -907,11 +921,15 @@
           <td data-label="İşlem" class="no-print">
             <div class="d-flex gap-1">
               <button class="btn btn-xs btn-outline-primary" data-admin-only
-                      onclick="duzenleGorusme('${escapeAttr(g.id)}')">
+                      aria-label="Görüşme kaydını düzenle"
+                      data-detay-islem="gorusme-duzenle"
+                      data-kayit-id="${escapeAttr(g.id)}">
                 <i class="bi bi-pencil"></i>
               </button>
               <button class="btn btn-xs btn-outline-danger" data-admin-only
-                      onclick="silGorusme('${escapeAttr(g.id)}')">
+                      aria-label="Görüşme kaydını sil"
+                      data-detay-islem="gorusme-sil"
+                      data-kayit-id="${escapeAttr(g.id)}">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
@@ -921,7 +939,7 @@
     applyAdminVisibility(tbody);
   }
 
-  // Global silme fonksiyonları (onclick ile kullanılır)
+  // Satır işlem fonksiyonları
   window.silDevamsizlik = async (kayitId) => {
     if (!adminActionAllowed()) return;
     const onay = await onayIste({
@@ -1119,6 +1137,29 @@
       metin.classList.remove("d-none"); yuklen.classList.add("d-none");
       document.getElementById("gorusme-duzenle-kaydet-btn").disabled = false;
     }
+  });
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-detay-islem]");
+    if (!btn) return;
+    e.preventDefault();
+
+    const kayitId = btn.dataset.kayitId;
+    const islem = btn.dataset.detayIslem;
+    if (!kayitId || !islem) return;
+
+    const islemler = {
+      "devamsizlik-duzenle": window.duzenleDevamsizlik,
+      "devamsizlik-sil": window.silDevamsizlik,
+      "devamsizlik-tur-degistir": window.turDegistirDevamsizlik,
+      "davranis-duzenle": window.duzenleDavranis,
+      "davranis-sil": window.silDavranis,
+      "gorusme-duzenle": window.duzenleGorusme,
+      "gorusme-sil": window.silGorusme
+    };
+
+    const calistir = islemler[islem];
+    if (typeof calistir === "function") calistir(kayitId);
   });
 </script>
 </body>

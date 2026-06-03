@@ -1,8 +1,10 @@
 export { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 
 export {
+  EmailAuthProvider,
   getAuth,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   signInWithEmailAndPassword,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
