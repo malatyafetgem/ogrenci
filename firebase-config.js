@@ -1,9 +1,11 @@
-﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, initializeFirestore,
-  persistentLocalCache, persistentMultipleTabManager
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  getAuth,
+  getFirestore,
+  initializeApp,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager
+} from "./firebase-imports.js?v=20260603-52";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCy1ny9QfkRnV3KcMRwBubPCOQyScLylQU",

@@ -1,15 +1,15 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260602-47";
+import { db } from "./firebase-config.js?v=20260603-52";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, query, where, writeBatch
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+} from "./firebase-imports.js?v=20260603-52";
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260602-47";
+} from "./utils.js?v=20260603-52";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";
@@ -24,6 +24,7 @@ let ogrenciCachePromise = null;
 let veliCachePromise = null;
 const kayitCachePromises = new Map();
 const arkaPlanYenilemeleri = new Map();
+const yerelCacheUyarilari = new Set();
 
 function ogrenciCacheTemizle() {
   ogrenciCachePromise = null;
@@ -39,6 +40,13 @@ function cacheKey(key) {
   return `${VERI_CACHE_PREFIX}${key}`;
 }
 
+function yerelCacheHatasiLogla(islem, key, err) {
+  const imza = `${islem}:${key}`;
+  if (yerelCacheUyarilari.has(imza)) return;
+  yerelCacheUyarilari.add(imza);
+  console.warn(`[OBS] Yerel cache ${islem} başarısız: ${key}`, err);
+}
+
 function yerelCacheOku(key, ttl) {
   try {
     const raw = localStorage.getItem(cacheKey(key));
@@ -46,7 +54,8 @@ function yerelCacheOku(key, ttl) {
     const cache = JSON.parse(raw);
     if (!cache?.zaman || Date.now() - cache.zaman > ttl) return null;
     return Array.isArray(cache.veri) ? cache.veri : null;
-  } catch {
+  } catch (err) {
+    yerelCacheHatasiLogla("okuma", key, err);
     return null;
   }
 }
@@ -54,15 +63,17 @@ function yerelCacheOku(key, ttl) {
 function yerelCacheYaz(key, veri) {
   try {
     localStorage.setItem(cacheKey(key), JSON.stringify({ zaman: Date.now(), veri }));
-  } catch {
-    // Depolama doluysa Firestore cache'iyle devam edilir.
+  } catch (err) {
+    yerelCacheHatasiLogla("yazma", key, err);
   }
 }
 
 function yerelCacheSil(key) {
   try {
     localStorage.removeItem(cacheKey(key));
-  } catch {}
+  } catch (err) {
+    yerelCacheHatasiLogla("silme", key, err);
+  }
 }
 
 function ekranCacheleriniTemizle() {
@@ -70,7 +81,9 @@ function ekranCacheleriniTemizle() {
     Object.keys(localStorage)
       .filter(key => TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI.some(prefix => key.startsWith(prefix)))
       .forEach(key => localStorage.removeItem(key));
-  } catch {}
+  } catch (err) {
+    yerelCacheHatasiLogla("ekran temizleme", TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI.join(","), err);
+  }
 }
 
 function tumYerelCacheleriTemizle() {
@@ -78,7 +91,9 @@ function tumYerelCacheleriTemizle() {
     Object.keys(localStorage)
       .filter(key => key.startsWith(VERI_CACHE_PREFIX))
       .forEach(key => localStorage.removeItem(key));
-  } catch {}
+  } catch (err) {
+    yerelCacheHatasiLogla("toplu temizleme", VERI_CACHE_PREFIX, err);
+  }
   ekranCacheleriniTemizle();
 }
 

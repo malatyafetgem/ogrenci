@@ -3,34 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
-  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
-  <script src="file-redirect.js?v=20260602-47"></script>
-  <script src="pwa.js?v=20260602-47"></script>
-  <title>Sistem</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
+  <script src="file-redirect.js?v=20260603-52"></script>
+  <script src="pwa.js?v=20260603-52"></script>
+  <title>Ayarlar ve Yönetim</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260602-47">
-  <style>
-    .tema-renk-btn {
-      width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent;
-      cursor: pointer; transition: transform .15s, border-color .15s; display: inline-flex;
-      align-items: center; justify-content: center; font-size: 14px; color: #fff;
-    }
-    .tema-renk-btn:hover { transform: scale(1.15); }
-    .tema-renk-btn.aktif { border-color: #000; box-shadow: 0 0 0 3px rgba(0,0,0,.2); transform: scale(1.1); }
-    .skeleton-satir { border-radius: 4px; }
-  </style>
+  <link rel="stylesheet" href="app.css?v=20260603-52">
 </head>
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
   <div id="topbar-kap"></div>
   <div id="sidebar-kap"></div>
@@ -39,11 +29,11 @@
     <div class="app-content-header">
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="col-sm-6"><h3 class="mb-0">Sistem</h3></div>
+          <div class="col-sm-6"><h3 class="mb-0">Ayarlar ve Yönetim</h3></div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
               <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
-              <li class="breadcrumb-item active">Sistem</li>
+              <li class="breadcrumb-item active">Ayarlar ve Yönetim</li>
             </ol>
           </div>
         </div>
@@ -67,7 +57,7 @@
           <div class="col-6 col-md-3">
             <div class="card text-center border-0 shadow-sm h-100">
               <div class="card-body py-3">
-                <div class="skeleton skeleton-satir mb-2" style="height:28px;width:60%;margin:0 auto;" id="ozet-ogrenci-skel"></div>
+                <div class="skeleton skeleton-satir ayar-ozet-skeleton mb-2" id="ozet-ogrenci-skel"></div>
                 <div class="fw-bold fs-3 text-primary d-none" id="ozet-ogrenci-sayi">—</div>
                 <div class="text-muted small mt-1"><i class="bi bi-people me-1"></i>Öğrenci</div>
               </div>
@@ -76,7 +66,7 @@
           <div class="col-6 col-md-3">
             <div class="card text-center border-0 shadow-sm h-100">
               <div class="card-body py-3">
-                <div class="skeleton skeleton-satir mb-2" style="height:28px;width:60%;margin:0 auto;" id="ozet-veli-skel"></div>
+                <div class="skeleton skeleton-satir ayar-ozet-skeleton mb-2" id="ozet-veli-skel"></div>
                 <div class="fw-bold fs-3 text-success d-none" id="ozet-veli-sayi">—</div>
                 <div class="text-muted small mt-1"><i class="bi bi-person-heart me-1"></i>Veli</div>
               </div>
@@ -85,7 +75,7 @@
           <div class="col-6 col-md-3">
             <div class="card text-center border-0 shadow-sm h-100">
               <div class="card-body py-3">
-                <div class="skeleton skeleton-satir mb-2" style="height:28px;width:60%;margin:0 auto;" id="ozet-davranis-skel"></div>
+                <div class="skeleton skeleton-satir ayar-ozet-skeleton mb-2" id="ozet-davranis-skel"></div>
                 <div class="fw-bold fs-3 text-warning d-none" id="ozet-davranis-sayi">—</div>
                 <div class="text-muted small mt-1"><i class="bi bi-star-half me-1"></i>Davranış Kaydı</div>
               </div>
@@ -94,7 +84,7 @@
           <div class="col-6 col-md-3">
             <div class="card text-center border-0 shadow-sm h-100">
               <div class="card-body py-3">
-                <div class="skeleton skeleton-satir mb-2" style="height:28px;width:60%;margin:0 auto;" id="ozet-gorusme-skel"></div>
+                <div class="skeleton skeleton-satir ayar-ozet-skeleton mb-2" id="ozet-gorusme-skel"></div>
                 <div class="fw-bold fs-3 text-info d-none" id="ozet-gorusme-sayi">—</div>
                 <div class="text-muted small mt-1"><i class="bi bi-chat-dots me-1"></i>Görüşme</div>
               </div>
@@ -168,20 +158,20 @@
               <div class="card-body">
                 <p class="text-muted small mb-3">Uygulamanın ana rengini özelleştirin. Seçim tarayıcınıza kaydedilir.</p>
                 <div class="d-flex flex-wrap gap-2 mb-3" id="tema-renk-secici">
-                  <button class="tema-renk-btn" data-renk="#D9542B" style="background:#D9542B" title="Tuğla (Varsayılan)"></button>
-                  <button class="tema-renk-btn" data-renk="#0d6efd" style="background:#0d6efd" title="Mavi"></button>
-                  <button class="tema-renk-btn" data-renk="#198754" style="background:#198754" title="Yeşil"></button>
-                  <button class="tema-renk-btn" data-renk="#6f42c1" style="background:#6f42c1" title="Mor"></button>
-                  <button class="tema-renk-btn" data-renk="#dc3545" style="background:#dc3545" title="Kırmızı"></button>
-                  <button class="tema-renk-btn" data-renk="#0dcaf0" style="background:#0dcaf0" title="Cyan"></button>
-                  <button class="tema-renk-btn" data-renk="#fd7e14" style="background:#fd7e14" title="Turuncu"></button>
-                  <button class="tema-renk-btn" data-renk="#20c997" style="background:#20c997" title="Teal"></button>
-                  <button class="tema-renk-btn" data-renk="#6c757d" style="background:#6c757d" title="Gri"></button>
-                  <button class="tema-renk-btn tema-renk-ozel" data-renk="" style="background:conic-gradient(red,yellow,lime,cyan,blue,magenta,red)" title="Özel Renk"><i class="bi bi-plus"></i></button>
+                  <button class="tema-renk-btn" data-renk="#D9542B" title="Tuğla (Varsayılan)"></button>
+                  <button class="tema-renk-btn" data-renk="#0d6efd" title="Mavi"></button>
+                  <button class="tema-renk-btn" data-renk="#198754" title="Yeşil"></button>
+                  <button class="tema-renk-btn" data-renk="#6f42c1" title="Mor"></button>
+                  <button class="tema-renk-btn" data-renk="#dc3545" title="Kırmızı"></button>
+                  <button class="tema-renk-btn" data-renk="#0dcaf0" title="Cyan"></button>
+                  <button class="tema-renk-btn" data-renk="#fd7e14" title="Turuncu"></button>
+                  <button class="tema-renk-btn" data-renk="#20c997" title="Teal"></button>
+                  <button class="tema-renk-btn" data-renk="#6c757d" title="Gri"></button>
+                  <button class="tema-renk-btn tema-renk-ozel" data-renk="" title="Özel Renk"><i class="bi bi-plus"></i></button>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                  <input type="color" class="form-control form-control-color" id="tema-renk-picker" value="#D9542B" style="width:42px;height:36px;padding:2px">
-                  <input type="text" class="form-control form-control-sm" id="tema-renk-hex" placeholder="#D9542B" style="max-width:100px">
+                  <input type="color" class="form-control form-control-color tema-renk-picker" id="tema-renk-picker" value="#D9542B">
+                  <input type="text" class="form-control form-control-sm tema-renk-hex" id="tema-renk-hex" placeholder="#D9542B">
                   <button class="btn btn-sm btn-primary" id="tema-renk-uygula"><i class="bi bi-check2 me-1"></i>Uygula</button>
                   <button class="btn btn-sm btn-outline-secondary" id="tema-renk-sifirla"><i class="bi bi-arrow-counterclockwise me-1"></i>Sıfırla</button>
                 </div>
@@ -304,23 +294,23 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260602-47";
-  import { layoutYukle } from "./layout.js?v=20260602-47";
-  import { db } from "./firebase-config.js?v=20260602-47";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260603-52";
+  import { layoutYukle } from "./layout.js?v=20260603-52";
+  import { db } from "./firebase-config.js?v=20260603-52";
   import {
     EmailAuthProvider, reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import {
     collection, doc, getDocs, writeBatch
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { toast, bugun } from "./utils.js?v=20260602-47";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260602-47";
+  import { toast, bugun } from "./utils.js?v=20260603-52";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260603-52";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260602-47";
-  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260602-47";
+  } from "./school-settings.js?v=20260603-52";
+  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260603-52";
 
   // --- Tema Rengi ---
   const TEMA_DEPO_ANAHTARI = "obs-tema-rengi";

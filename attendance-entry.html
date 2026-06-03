@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
-  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
-  <script src="file-redirect.js?v=20260602-47"></script>
-  <script src="pwa.js?v=20260602-47"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
+  <script src="file-redirect.js?v=20260603-52"></script>
+  <script src="pwa.js?v=20260603-52"></script>
   <title>Devamsızlık Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260602-47">
+  <link rel="stylesheet" href="app.css?v=20260603-52">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -47,7 +47,7 @@
         <!-- Yöntem seçimi -->
         <div class="row g-3 mb-4">
           <div class="col-md-6">
-            <div class="card h-100 border-primary" id="kart-manuel" style="cursor:pointer">
+            <div class="card h-100 border-primary cursor-pointer" id="kart-manuel">
               <div class="card-body text-center py-4">
                 <i class="bi bi-person-check fs-1 text-primary mb-2"></i>
                 <h5>Manuel Giriş</h5>
@@ -56,7 +56,7 @@
             </div>
           </div>
           <div class="col-md-6">
-            <div class="card h-100" id="kart-excel" style="cursor:pointer">
+            <div class="card h-100 cursor-pointer" id="kart-excel">
               <div class="card-body text-center py-4">
                 <i class="bi bi-file-earmark-excel fs-1 text-success mb-2"></i>
                 <h5>Excel'den Aktar</h5>
@@ -172,7 +172,7 @@
           <div id="excel-hata" class="alert alert-warning d-none py-2 small"></div>
           <div id="excel-onizleme-kap" class="d-none">
             <h6>Sütun Eşleştirme</h6>
-            <div id="excel-eslestirme" class="table-responsive" style="max-height:260px;overflow-y:auto"></div>
+            <div id="excel-eslestirme" class="table-responsive excel-eslestirme-kap"></div>
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
               <h6 class="mb-0">Önizleme <span class="badge bg-secondary" id="excel-satir-sayisi"></span></h6>
               <span class="small text-muted" id="excel-ozet"></span>
@@ -193,8 +193,8 @@
         </div>
         <div id="excel-ilerleme" class="d-none">
           <div class="progress mb-2">
-            <div class="progress-bar progress-bar-striped progress-bar-animated"
-                 id="excel-progress-bar" style="width:0%"></div>
+            <div class="progress-bar progress-bar-striped progress-bar-animated excel-progress-bar"
+                 id="excel-progress-bar"></div>
           </div>
           <div id="excel-durum-mesaj" class="text-muted small text-center">Aktarılıyor...</div>
         </div>
@@ -217,17 +217,17 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260602-47";
-  import { layoutYukle } from "./layout.js?v=20260602-47";
+  import { requireAdmin } from "./auth.js?v=20260603-52";
+  import { layoutYukle } from "./layout.js?v=20260603-52";
   import {
     tumOgrencileriGetir, devamsizlikEkle,
     devamsizliklarGetir, devamsizlikHesapla
-  } from "./students.js?v=20260602-47";
+  } from "./students.js?v=20260603-52";
   import {
     devamsizlikDurum, devamsizlikKapsananTarihler, devamsizlikMiktarEtiketi,
     devamsizlikMiktarSayisi, devamsizlikTarihEtiketi, sayiEtiketiTR,
     toast, formatTarih, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260602-47";
+  } from "./utils.js?v=20260603-52";
 
   let tumOgrenciler = [];
   let excelSatirlar = [];
@@ -518,7 +518,7 @@
     document.getElementById("excel-eslestirme").innerHTML = `
       <table class="table table-sm table-bordered align-middle mb-0">
         <thead class="table-light">
-          <tr><th style="width:35%">Sistem Alanı</th><th>Excel Sütunu</th></tr>
+          <tr><th class="excel-alan-th">Sistem Alanı</th><th>Excel Sütunu</th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>`;

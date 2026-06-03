@@ -3,86 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
-  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
-  <script src="file-redirect.js?v=20260602-47"></script>
-  <script src="pwa.js?v=20260602-47"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
+  <script src="file-redirect.js?v=20260603-52"></script>
+  <script src="pwa.js?v=20260603-52"></script>
   <title>Excel Aktarım</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260602-47">
-  <style>
-    .sutun-kart {
-      background:#fff; border:1px solid #dee2e6; border-radius:8px;
-      padding:10px 12px; display:flex; align-items:center; gap:8px; min-width:0;
-    }
-    .sutun-kart .sira-badge {
-      background:#0d6efd; color:#fff; border-radius:50%;
-      width:24px; height:24px; display:flex; align-items:center;
-      justify-content:center; font-size:.75rem; font-weight:600; flex-shrink:0;
-    }
-    .sutun-kart.sira-sutun { background:#f0f4ff; border-color:#c0cfff; }
-    .sutun-kart.sira-sutun .sira-badge { background:#6c757d; }
-    .sutun-kart select {
-      border:none; outline:none; flex:1; min-width:0;
-      font-size:.875rem; background:transparent; cursor:pointer;
-    }
-    .sutun-kart select:focus { outline:2px solid #0d6efd; border-radius:4px; }
-    .sutun-kart .sil-btn {
-      border:none; background:none; color:#dc3545; cursor:pointer;
-      padding:2px 4px; border-radius:4px; flex-shrink:0; opacity:.6; transition:opacity .15s;
-    }
-    .sutun-kart .sil-btn:hover { opacity:1; }
-    #sutunlar-kap {
-      display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;
-    }
-    .filtre-grup { margin-bottom:12px; }
-    .filtre-grup-baslik {
-      font-size:.75rem; font-weight:700; color:#6c757d;
-      text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;
-    }
-    .filtre-chipler { display:flex; flex-wrap:wrap; gap:6px; }
-    .filtre-chip {
-      display:inline-flex; align-items:center; gap:5px;
-      padding:4px 10px; border-radius:20px; font-size:.8rem; cursor:pointer;
-      border:1.5px solid #dee2e6; background:#fff; color:#495057;
-      transition:all .15s; user-select:none;
-    }
-    .filtre-chip:hover { border-color:#0d6efd; color:#0d6efd; }
-    .filtre-chip.secili { background:#0d6efd; border-color:#0d6efd; color:#fff; }
-    .filtre-chip.secili:hover { background:#0b5ed7; border-color:#0b5ed7; }
-    .filtre-chip .chip-icon { font-size:.7rem; }
-    .filtre-temizle { font-size:.78rem; color:#6c757d; cursor:pointer; text-decoration:underline; }
-    .filtre-temizle:hover { color:#dc3545; }
-    #filtre-ozet {
-      display:inline-flex; align-items:center; gap:6px;
-      background:#fff3cd; border:1px solid #ffc107; border-radius:6px;
-      padding:4px 10px; font-size:.8rem; color:#856404;
-    }
-    #filtre-bos-mesaj { font-size:.85rem; color:#6c757d; font-style:italic; }
-    .onizleme-tablo-kap { overflow-x:auto; border-radius:8px; border:1px solid #dee2e6; }
-    .onizleme-tablo-kap table { margin-bottom:0; font-size:.8rem; }
-    .onizleme-tablo-kap th { background:#f8f9fa; white-space:nowrap; font-weight:600; }
-    .onizleme-tablo-kap td { white-space:nowrap; max-width:200px; overflow:hidden; text-overflow:ellipsis; }
-    #yukleniyor-overlay {
-      display:none; position:fixed; inset:0;
-      background:rgba(0,0,0,.35); z-index:9999;
-      justify-content:center; align-items:center;
-    }
-    #yukleniyor-overlay.aktif { display:flex; }
-    .yukleniyor-kutu {
-      background:#fff; border-radius:12px; padding:32px 40px;
-      text-align:center; box-shadow:0 8px 32px rgba(0,0,0,.18);
-    }
-  </style>
+  <link rel="stylesheet" href="app.css?v=20260603-52">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -137,8 +73,8 @@
             <div class="d-flex align-items-center gap-2 flex-wrap border-top pt-3">
               <label class="form-label mb-0 text-muted small fw-semibold">Sütun Ekle:</label>
               <label class="form-label mb-0 small">Adet:</label>
-              <input type="number" class="form-control form-control-sm" id="ekle-adet"
-                     value="1" min="1" max="20" style="width:70px">
+              <input type="number" class="form-control form-control-sm excel-adet-input" id="ekle-adet"
+                     value="1" min="1" max="20">
               <button class="btn btn-sm btn-outline-primary" id="sutun-ekle-btn">
                 <i class="bi bi-plus-lg me-1"></i>Ekle
               </button>
@@ -209,7 +145,7 @@
 
 <div id="yukleniyor-overlay">
   <div class="yukleniyor-kutu">
-    <div class="spinner-border text-success mb-3" style="width:3rem;height:3rem;"></div>
+    <div class="spinner-border text-success mb-3 yukleniyor-spinner-buyuk"></div>
     <div class="fw-semibold" id="yukleniyor-mesaj">Veriler yükleniyor…</div>
   </div>
 </div>
@@ -219,12 +155,12 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260602-47";
-  import { layoutYukle } from "./layout.js?v=20260602-47";
-  import { db } from "./firebase-config.js?v=20260602-47";
+  import { requireAdmin } from "./auth.js?v=20260603-52";
+  import { layoutYukle } from "./layout.js?v=20260603-52";
+  import { db } from "./firebase-config.js?v=20260603-52";
   import { collection, getDocs }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { compareOgrenci, onayIste, toast } from "./utils.js?v=20260602-47";
+  import { compareOgrenci, onayIste, toast } from "./utils.js?v=20260603-52";
 
   // ═══════════════════════════════════════════════════════════════
   // ALAN TANIMI

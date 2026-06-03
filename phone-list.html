@@ -3,26 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
-  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
-  <script src="file-redirect.js?v=20260602-47"></script>
-  <script src="pwa.js?v=20260602-47"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
+  <script src="file-redirect.js?v=20260603-52"></script>
+  <script src="pwa.js?v=20260603-52"></script>
   <title>Toplu Telefon Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260602-47">
-  <style>
-    .print-baslik { display: none; }
-  </style>
+  <link rel="stylesheet" href="app.css?v=20260603-52">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -155,13 +152,13 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260602-47";
-  import { layoutYukle } from "./layout.js?v=20260602-47";
-  import { tumOgrencileriDurumlariylaGetir, tumSiniflariGetir, tumVelileriGetir } from "./students.js?v=20260602-47";
+  import { requireAuth } from "./auth.js?v=20260603-52";
+  import { layoutYukle } from "./layout.js?v=20260603-52";
+  import { tumOgrencileriDurumlariylaGetir, tumSiniflariGetir, tumVelileriGetir } from "./students.js?v=20260603-52";
   import {
     compareSinif, compareOgrenciNo, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari,
     escapeHtml, escapeAttr, formatTelefon
-  } from "./utils.js?v=20260602-47";
+  } from "./utils.js?v=20260603-52";
 
   let tumVerisi = [];
   let dt = null;

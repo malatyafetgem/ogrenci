@@ -27,20 +27,6 @@
       btn.id = "pwa-guncelle-bildirimi";
       btn.type = "button";
       btn.textContent = "Yeni sürüm hazır — yenile";
-      btn.style.cssText = [
-        "position:fixed",
-        "left:1rem",
-        "right:1rem",
-        "bottom:calc(1rem + env(safe-area-inset-bottom,0px))",
-        "z-index:3000",
-        "border:0",
-        "border-radius:12px",
-        "padding:.85rem 1rem",
-        "background:#D9542B",
-        "color:#fff",
-        "font-weight:700",
-        "box-shadow:0 10px 28px rgba(38,32,25,.22)"
-      ].join(";");
 
       btn.addEventListener("click", function () {
         sw.postMessage({ type: "SKIP_WAITING" });

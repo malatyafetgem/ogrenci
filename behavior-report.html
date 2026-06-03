@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
-  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
-  <script src="file-redirect.js?v=20260602-47"></script>
-  <script src="pwa.js?v=20260602-47"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
+  <script src="file-redirect.js?v=20260603-52"></script>
+  <script src="pwa.js?v=20260603-52"></script>
   <title>Davranış Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
-  <link rel="stylesheet" href="app.css?v=20260602-47">
+  <link rel="stylesheet" href="app.css?v=20260603-52">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -82,9 +82,9 @@
                 <label class="form-label small mb-1">Tarih Bitiş</label>
                 <input type="text" class="form-control form-control-sm" id="filtre-bit" placeholder="GG.AA.YYYY">
               </div>
-              <div class="col-6 col-md-1">
-                <button id="filtre-uygula" class="btn btn-sm btn-primary w-100">
-                  <i class="bi bi-search"></i>
+              <div class="col-6 col-md-2">
+                <button id="filtre-uygula" class="btn btn-sm btn-primary w-100" type="button" aria-label="Davranış raporu filtrelerini uygula">
+                  <i class="bi bi-search me-1"></i>Filtrele
                 </button>
               </div>
             </div>
@@ -92,7 +92,7 @@
         </div>
 
         <!-- Özet Kartlar -->
-        <div class="row g-3 mb-3" id="ozet-kartlar" style="display:none!important">
+        <div class="row g-3 mb-3 d-none" id="ozet-kartlar">
           <div class="col-6 col-md-3">
             <div class="card text-center border-0 shadow-sm">
               <div class="card-body py-2">
@@ -148,9 +148,9 @@
                     <span id="tur-karsilastirma-yuzdeler"></span>
                     <span><i class="bi bi-hand-thumbs-down-fill text-danger me-1"></i>Olumsuz</span>
                   </div>
-                  <div class="progress" style="height:10px">
-                    <div class="progress-bar bg-success" id="tur-bar-olumlu" style="width:50%"></div>
-                    <div class="progress-bar bg-danger" id="tur-bar-olumsuz" style="width:50%"></div>
+                  <div class="progress tur-karsilastirma-progress">
+                    <div class="progress-bar bg-success tur-bar-baslangic" id="tur-bar-olumlu"></div>
+                    <div class="progress-bar bg-danger tur-bar-baslangic" id="tur-bar-olumsuz"></div>
                   </div>
                 </div>
               </div>
@@ -211,10 +211,10 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260602-47";
-  import { layoutYukle } from "./layout.js?v=20260602-47";
-  import { tumOgrencileriGetir, siniflarGetir, tumDavranislariGetir } from "./students.js?v=20260602-47";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260602-47";
+  import { requireAuth } from "./auth.js?v=20260603-52";
+  import { layoutYukle } from "./layout.js?v=20260603-52";
+  import { tumOgrencileriGetir, siniflarGetir, tumDavranislariGetir } from "./students.js?v=20260603-52";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260603-52";
 
   let raporVerisi = [];
   let dt = null;
@@ -263,7 +263,7 @@
     if (grafik) { grafik.destroy(); grafik = null; }
     raporVerisi = [];
     document.getElementById("kayit-sayisi").textContent = "0";
-    document.getElementById("ozet-kartlar").style.display = "none";
+    document.getElementById("ozet-kartlar").classList.add("d-none");
     document.getElementById("tur-karsilastirma").classList.add("d-none");
     document.getElementById("davranis-tbody").innerHTML =
       `<tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip arama düğmesine basın.</td></tr>`;
@@ -316,8 +316,7 @@
     document.getElementById("ozet-olumlu").textContent = olumluSayisi;
     document.getElementById("ozet-olumsuz").textContent = olumsuzSayisi;
     document.getElementById("ozet-ogrenci-sayisi").textContent = teksilOgrenci;
-    document.getElementById("ozet-kartlar").style.removeProperty("display");
-    document.getElementById("ozet-kartlar").style.display = raporVerisi.length > 0 ? "flex" : "none";
+    document.getElementById("ozet-kartlar").classList.toggle("d-none", raporVerisi.length === 0);
 
     const tbody = document.getElementById("davranis-tbody");
     if (raporVerisi.length === 0) {

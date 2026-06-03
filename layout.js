@@ -2,13 +2,14 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260602-47";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260602-47";
-import { escapeHtml } from "./utils.js?v=20260602-47";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260603-52";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260603-52";
+import { escapeHtml } from "./utils.js?v=20260603-52";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
 let yazdirmaDtDurumlari = [];
+let yazdirmaSekmeDurumlari = [];
 let yazdirmaHazir = false;
 
 const MENU_GRUPLARI = [
@@ -152,6 +153,7 @@ function obsYazdir() {
 function yazdirmayaHazirla() {
   yazdirmaBasliginiGuncelle();
   if (yazdirmaDtDurumlari.length === 0) dataTableTumSatirlariGoster();
+  yazdirmaSekmeleriniGoster();
   yazdirmaSayfaSinifiGuncelle();
   yazdirmaTabloBasliklariEkle();
   listeYazdirmaTablolariEkle();
@@ -162,10 +164,33 @@ function yazdirmaHazirliginiTemizle() {
   yazdirmaGeciciSatirlariTemizle();
   listeYazdirmaTablolariTemizle();
   dataTableSayfalamayiGeriAl();
+  yazdirmaSekmeleriniGeriAl();
   yazdirmaTabloBasliklariTemizle();
   document.body.classList.remove("obs-print-landscape");
   document.querySelectorAll(".obs-print-wide-card").forEach(card => card.classList.remove("obs-print-wide-card"));
   yazdirmaHazir = false;
+}
+
+function yazdirmaSekmeleriniGoster() {
+  if (!document.body.classList.contains("student-detail-page") || yazdirmaSekmeDurumlari.length > 0) return;
+  document.querySelectorAll(".student-detail-page .tab-content > .tab-pane").forEach(pane => {
+    yazdirmaSekmeDurumlari.push({
+      el: pane,
+      className: pane.className,
+      display: pane.style.display
+    });
+    pane.classList.add("show", "active");
+    pane.style.display = "block";
+  });
+}
+
+function yazdirmaSekmeleriniGeriAl() {
+  yazdirmaSekmeDurumlari.forEach(({ el, className, display }) => {
+    if (!el.isConnected) return;
+    el.className = className;
+    el.style.display = display;
+  });
+  yazdirmaSekmeDurumlari = [];
 }
 
 function yazdirmaBasliginiGuncelle() {
@@ -512,7 +537,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-logo-only d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260602-47" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260603-52" alt="Öğrenci Bilgileri"></span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
@@ -525,13 +550,13 @@ function yukleTopbar() {
           </div>
         </div>
         <div class="header-actions d-flex align-items-center gap-2">
-          <span class="nav-ikon-btn cevrimici" id="baglanti-durum" title="Bağlantı durumu kontrol ediliyor..." data-testid="connection-status">
+          <span class="nav-ikon-btn cevrimici" id="baglanti-durum" title="Bağlantı durumu kontrol ediliyor..." role="status" aria-live="polite" aria-label="Bağlantı durumu kontrol ediliyor" data-testid="connection-status">
             <i class="bi bi-wifi"></i>
           </span>
-          <a class="nav-ikon-btn d-none" href="#" id="pwa-yukle-btn" title="Uygulamayı cihaza yükle" data-testid="pwa-install-btn">
+          <a class="nav-ikon-btn d-none" href="#" id="pwa-yukle-btn" title="Uygulamayı cihaza yükle" aria-label="Uygulamayı cihaza yükle" data-testid="pwa-install-btn">
             <i class="bi bi-download"></i>
           </a>
-          <a class="nav-ikon-btn" href="#" id="cikis-btn" title="Çıkış Yap" data-testid="logout-btn">
+          <a class="nav-ikon-btn" href="#" id="cikis-btn" title="Çıkış Yap" aria-label="Çıkış yap" data-testid="logout-btn">
             <i class="bi bi-box-arrow-right"></i>
           </a>
         </div>
@@ -540,7 +565,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260602-47");
+    const { logout } = await import("./auth.js?v=20260603-52");
     logout();
   });
 
@@ -569,7 +594,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260602-47");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260603-52");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -635,15 +660,16 @@ async function baglantiDurumuBaslat() {
     el.classList.toggle("cevrimdisi", !cevrimici);
     if (ikon) ikon.className = cevrimici ? "bi bi-wifi" : "bi bi-wifi-off";
     el.title = cevrimici ? "Çevrimiçi — Firestore bağlı" : "Çevrimdışı — önbellekten çalışıyor";
+    el.setAttribute("aria-label", el.title);
   };
   guncelle(navigator.onLine);
   window.addEventListener("online", () => guncelle(true));
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260602-47");
+    const { db } = await import("./firebase-config.js?v=20260603-52");
     const { collection, query, limit, onSnapshot } =
-      await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+      await import("./firebase-imports.js?v=20260603-52");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),

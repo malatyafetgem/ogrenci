@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
-  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
-  <script src="file-redirect.js?v=20260602-47"></script>
-  <script src="pwa.js?v=20260602-47"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
+  <script src="file-redirect.js?v=20260603-52"></script>
+  <script src="pwa.js?v=20260603-52"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260602-47">
+  <link rel="stylesheet" href="app.css?v=20260603-52">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -186,8 +186,8 @@
                 <div class="card-body">
                   <div id="dev-trend"><div class="text-muted small">—</div></div>
                   <div class="grafik-legend mt-2 justify-content-start">
-                    <span><i class="grafik-nokta" style="background:var(--obs-danger)"></i> Özürsüz</span>
-                    <span><i class="grafik-nokta" style="background:var(--obs-warning)"></i> Özürlü</span>
+                    <span><i class="grafik-nokta grafik-nokta-danger"></i> Özürsüz</span>
+                    <span><i class="grafik-nokta grafik-nokta-warning"></i> Özürlü</span>
                   </div>
                 </div>
               </div>
@@ -223,7 +223,7 @@
                 <div class="card-body">
                   <div class="row align-items-center g-3">
                     <div class="col-auto">
-                      <div class="grafik-donut kucuk" id="davranis-donut" style="background:conic-gradient(var(--obs-border) 0 100%)">
+                      <div class="grafik-donut kucuk grafik-donut-bos" id="davranis-donut">
                         <div class="grafik-donut-merkez">
                           <div class="sayi" id="davranis-toplam">0</div>
                           <div class="etiket">Kayıt</div>
@@ -232,8 +232,8 @@
                     </div>
                     <div class="col">
                       <div class="grafik-legend justify-content-start">
-                        <span><i class="grafik-nokta" style="background:var(--obs-success)"></i> Olumlu <strong id="davranis-olumlu" class="ms-1">0</strong></span>
-                        <span><i class="grafik-nokta" style="background:var(--obs-danger)"></i> Olumsuz <strong id="davranis-olumsuz" class="ms-1">0</strong></span>
+                        <span><i class="grafik-nokta grafik-nokta-success"></i> Olumlu <strong id="davranis-olumlu" class="ms-1">0</strong></span>
+                        <span><i class="grafik-nokta grafik-nokta-danger"></i> Olumsuz <strong id="davranis-olumsuz" class="ms-1">0</strong></span>
                       </div>
                     </div>
                   </div>
@@ -241,7 +241,7 @@
               </div>
               <div class="card">
                 <div class="card-header d-flex gap-2 align-items-center no-print">
-                  <select id="davranis-filtre" class="form-select form-select-sm" style="max-width:150px">
+                  <select id="davranis-filtre" class="form-select form-select-sm davranis-filtre-select">
                     <option value="">Tümü</option>
                     <option value="Olumlu">Olumlu</option>
                     <option value="Olumsuz">Olumsuz</option>
@@ -449,20 +449,20 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260602-47";
-  import { layoutYukle } from "./layout.js?v=20260602-47";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260603-52";
+  import { layoutYukle } from "./layout.js?v=20260603-52";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
     davranislarGetir, davranisSil, davranisGuncelle,
     gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
-  } from "./students.js?v=20260602-47";
+  } from "./students.js?v=20260603-52";
   import {
-    devamsizlikDurum, devamsizlikRenk, devamsizlikMiktarEtiketi,
+    devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260602-47";
-  import { avatarSrc } from "./avatar.js?v=20260602-47";
+  } from "./utils.js?v=20260603-52";
+  import { avatarSrc } from "./avatar.js?v=20260603-52";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -589,7 +589,7 @@
     ).join("") || satir("Veli", "—");
     el.innerHTML = `<div class="ogrkart">
       <div class="ogrkart-baslik">
-        <img class="ogrkart-logo" src="icon-192.png?v=20260602-47" alt="">
+        <img class="ogrkart-logo" src="icon-192.png?v=20260603-52" alt="">
         <div><h1>${escapeHtml(tamAd)}</h1><div class="alt">Öğrenci Kartı · No: ${escapeHtml(okulNo)} · ${escapeHtml(o.sinif || "—")}</div></div>
       </div>
       <div class="ogrkart-bolum-baslik">Kimlik Bilgileri</div>
@@ -613,7 +613,7 @@
         ${satir("Olumlu Davranış", String(dav.olumlu))}
         ${satir("Olumsuz Davranış", String(dav.olumsuz))}
       </div>
-      <div class="alt" style="margin-top:18px">Malatya FETGEM · Yazdırma tarihi: ${new Date().toLocaleDateString("tr-TR")}</div>
+      <div class="alt print-alt-bosluk">Malatya FETGEM · Yazdırma tarihi: ${new Date().toLocaleDateString("tr-TR")}</div>
     </div>`;
   }
 
@@ -726,7 +726,7 @@
     if (!dg) return "";
     return `<div class="veli-bilgi-satir d-flex justify-content-between mb-1 small border-bottom pb-1">
       <span class="text-muted">${escapeHtml(et)}</span>
-      <span class="fw-semibold text-end" style="max-width:60%">${escapeHtml(dg)}</span>
+      <span class="fw-semibold text-end veli-bilgi-deger">${escapeHtml(dg)}</span>
     </div>`;
   }
 
@@ -801,13 +801,6 @@
     }));
   }
 
-  function devamsizlikDurumEtiketi(durum) {
-    if (durum === "kaldi") return "Kaldı";
-    if (durum === "kritik") return "Kritik";
-    if (durum === "uyari") return "Uyarı";
-    return "Normal";
-  }
-
   function devamsizlikTrendGoster(satirlar) {
     const el = document.getElementById("dev-trend");
     if (!el) return;
@@ -828,9 +821,9 @@
       ? sirali.map(([, v]) => `
         <div class="grafik-bar-satir">
           <span class="ad">${v.etiket}</span>
-          <div class="grafik-bar-iz" style="display:flex">
-            <div style="width:${(v.ozursuz / enYuksek) * 100}%;background:var(--obs-danger)"></div>
-            <div style="width:${(v.ozurlu / enYuksek) * 100}%;background:var(--obs-warning)"></div>
+          <div class="grafik-bar-iz grafik-bar-cift">
+            <div class="grafik-bar-ozursuz" style="width:${(v.ozursuz / enYuksek) * 100}%"></div>
+            <div class="grafik-bar-ozurlu" style="width:${(v.ozurlu / enYuksek) * 100}%"></div>
           </div>
           <span class="deg">${v.ozurlu + v.ozursuz}</span>
         </div>`).join("")

@@ -3,97 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
-  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
-  <script src="file-redirect.js?v=20260602-47"></script>
-  <script src="pwa.js?v=20260602-47"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
+  <script src="file-redirect.js?v=20260603-52"></script>
+  <script src="pwa.js?v=20260603-52"></script>
   <title>Giriş</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260602-47">
-  <style>
-    body {
-      background-color: #F4F0E9;
-      background-image:
-        radial-gradient(circle at 12% 16%, rgba(240,169,43,.14), transparent 42%),
-        radial-gradient(circle at 88% 84%, rgba(217,84,43,.12), transparent 46%);
-      min-height: 100vh;
-      font-family: 'DM Sans', system-ui, sans-serif;
-    }
-    .login-kart { max-width: 420px; margin: 9vh auto 0; }
-    .login-logo { text-align: center; margin-bottom: 1.75rem; }
-    .login-logo-mark {
-      width: 74px;
-      height: 74px;
-      border-radius: 18px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      background: #fff;
-      border: 1px solid #E4DACB;
-      box-shadow: 0 12px 30px rgba(38,32,25,.12);
-    }
-    .login-logo-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .login-logo .baslik {
-      font-family: 'Outfit', system-ui, sans-serif;
-      font-size: 1.55rem;
-      font-weight: 800;
-      letter-spacing: -.02em;
-      color: #262019;
-      display: block;
-      margin-top: 1rem;
-    }
-    .login-logo .alt-baslik {
-      display: inline-block;
-      margin-top: .4rem;
-      font-size: .74rem;
-      font-weight: 700;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: #BE4421;
-      background: #FBEEE6;
-      border: 1px solid #F0D4C5;
-      border-radius: 999px;
-      padding: .2rem .8rem;
-    }
-    .login-kart .card { border-radius: 16px; }
-    .login-kart .card-title {
-      float: none;
-      display: block;
-      font-family: 'Outfit', system-ui, sans-serif;
-      font-weight: 800;
-      letter-spacing: -.02em;
-      color: #262019;
-    }
-    .login-kart .copyright {
-      font-weight: 600;
-      letter-spacing: .03em;
-      color: #857B70;
-    }
-    @media (max-width: 480px) {
-      .login-kart {
-        margin: 4vh auto 0;
-        padding: 0 .75rem;
-      }
-      .login-logo-mark { width: 64px; height: 64px; }
-    }
-  </style>
+  <link rel="stylesheet" href="app.css?v=20260603-52">
 </head>
-<body>
+<body class="login-page">
 
 <div class="container">
   <div class="login-kart">
     <div class="login-logo">
-      <span class="login-logo-mark"><img src="icon-192.png?v=20260602-47" alt="Öğrenci Bilgileri"></span>
+      <span class="login-logo-mark"><img src="icon-192.png?v=20260603-52" alt="Öğrenci Bilgileri"></span>
       <span class="baslik">Öğrenci Bilgileri</span>
       <span class="alt-baslik">Malatya FETGEM</span>
     </div>
@@ -140,7 +72,7 @@
 
 <!-- Giriş akışı -->
 <script type="module">
-  import { login, redirectIfLoggedIn } from "./auth.js?v=20260602-47";
+  import { login, redirectIfLoggedIn } from "./auth.js?v=20260603-52";
 
   redirectIfLoggedIn();
 

@@ -1,9 +1,7 @@
-import { auth } from "./firebase-config.js?v=20260602-47";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { toast } from "./utils.js?v=20260602-47";
+import { auth } from "./firebase-config.js?v=20260603-52";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260603-52";
+import { toast } from "./utils.js?v=20260603-52";
 
-// Bootstrap Admin UID; ileride Firebase custom claim admin=true ile genişletilebilir.
-const ADMIN_UIDS = ["zpaTsm2L7FSCqLA8BDkxI7bX9vM2"];
 const adminClaimUids = new Set();
 
 /**
@@ -25,16 +23,21 @@ export function requireAuth(callback) {
 
 export function isAdminUser(user = getCurrentUser()) {
   if (!user) return false;
-  return ADMIN_UIDS.includes(user.uid) || adminClaimUids.has(user.uid);
+  return adminClaimUids.has(user.uid);
 }
 
 async function adminClaiminiHazirla(user) {
-  if (!user || ADMIN_UIDS.includes(user.uid) || adminClaimUids.has(user.uid)) return;
+  if (!user) return;
   try {
-    const token = await user.getIdTokenResult();
-    if (token?.claims?.admin === true) adminClaimUids.add(user.uid);
+    const token = await user.getIdTokenResult(true);
+    if (token?.claims?.admin === true) {
+      adminClaimUids.add(user.uid);
+    } else {
+      adminClaimUids.delete(user.uid);
+    }
   } catch {
-    // Token okunamazsa UID tabanlı kontrol geçerli kalır.
+    // Token okunamazsa kullanıcı admin sayılmaz; server-side rules yine belirleyicidir.
+    adminClaimUids.delete(user.uid);
   }
 }
 
@@ -45,7 +48,7 @@ export function requireAdmin(callback) {
         <main class="container py-5">
           <div class="alert alert-warning shadow-sm">
             <h5 class="alert-heading">Admin yetkisi gerekli</h5>
-            <p class="mb-3">Bu sayfa yalnızca Admin UID ile giriş yapan kullanıcılar içindir.</p>
+            <p class="mb-3">Bu sayfa yalnızca admin yetkisi tanımlanmış kullanıcılar içindir.</p>
             <a href="dashboard.html" class="btn btn-primary btn-sm">Ana sayfaya dön</a>
           </div>
         </main>`;

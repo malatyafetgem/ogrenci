@@ -387,6 +387,18 @@ export function devamsizlikDurum(ozurlu, ozursuz) {
 }
 
 /**
+ * Devamsızlık durumunun kullanıcıya gösterilecek etiketini döndürür.
+ */
+export function devamsizlikDurumEtiketi(durum) {
+  switch (durum) {
+    case "kaldi":  return "Kaldı";
+    case "kritik": return "Kritik";
+    case "uyari":  return "Uyarı";
+    default:       return "Normal";
+  }
+}
+
+/**
  * Bootstrap badge renk sınıfı döndürür (devamsızlık durumuna göre).
  */
 export function devamsizlikRenk(durum) {
@@ -396,6 +408,10 @@ export function devamsizlikRenk(durum) {
     case "uyari":  return "warning";
     default:       return "success";
   }
+}
+
+export function devamsizlikDurumRenk(durum) {
+  return devamsizlikRenk(durum);
 }
 
 /**
@@ -493,17 +509,47 @@ export function onayIste({
         </div>
       </div>`;
 
+    const odaklanabilirSecici = [
+      "a[href]",
+      "button:not([disabled])",
+      "textarea:not([disabled])",
+      "input:not([disabled])",
+      "select:not([disabled])",
+      "[tabindex]:not([tabindex='-1'])"
+    ].join(",");
     const kapat = sonuc => {
       backdrop.remove();
-      document.removeEventListener("keydown", escDinle);
+      document.removeEventListener("keydown", tusDinle);
       resolve(sonuc);
     };
-    const escDinle = e => {
-      if (e.key === "Escape") kapat(false);
+    const tusDinle = e => {
+      if (e.key === "Escape") {
+        kapat(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      const dialog = backdrop.querySelector(".obs-confirm");
+      const odaklanabilirler = Array.from(dialog.querySelectorAll(odaklanabilirSecici))
+        .filter(el => el.offsetParent !== null);
+      if (odaklanabilirler.length === 0) {
+        e.preventDefault();
+        return;
+      }
+
+      const ilk = odaklanabilirler[0];
+      const son = odaklanabilirler[odaklanabilirler.length - 1];
+      if (e.shiftKey && document.activeElement === ilk) {
+        e.preventDefault();
+        son.focus();
+      } else if (!e.shiftKey && document.activeElement === son) {
+        e.preventDefault();
+        ilk.focus();
+      }
     };
 
     document.body.appendChild(backdrop);
-    document.addEventListener("keydown", escDinle);
+    document.addEventListener("keydown", tusDinle);
     const input = backdrop.querySelector("[data-confirm-input]");
     const okBtn = backdrop.querySelector("[data-confirm-ok]");
     backdrop.querySelector("[data-confirm-cancel]").addEventListener("click", () => kapat(false));

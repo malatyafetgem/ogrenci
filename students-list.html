@@ -3,23 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260602-47">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260602-47">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260602-47">
-  <link rel="shortcut icon" href="favicon.ico?v=20260602-47">
-  <script src="file-redirect.js?v=20260602-47"></script>
-  <script src="pwa.js?v=20260602-47"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
+  <script src="file-redirect.js?v=20260603-52"></script>
+  <script src="pwa.js?v=20260603-52"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.bootstrap5.min.css">
-  <link rel="stylesheet" href="app.css?v=20260602-47">
+  <link rel="stylesheet" href="app.css?v=20260603-52">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -76,7 +76,7 @@
                 <label class="form-label small mb-1">Durum</label>
                 <select id="filtre-durum" class="form-select form-select-sm">
                   <option value="">Tümü</option>
-                  <option value="Aktif">Aktif</option>
+                  <option value="Aktif" selected>Aktif</option>
                   <option value="Mezun">Mezun</option>
                 </select>
               </div>
@@ -135,7 +135,7 @@
                   </tr>
                 </thead>
                 <tbody id="ogrenci-tbody">
-                  <tr><td colspan="9" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
+                  <tr><td colspan="9" class="text-center text-muted py-3">Öğrenciler yükleniyor...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -174,7 +174,7 @@
                   <div id="import-onizleme" class="d-none">
                     <div id="import-hata" class="alert alert-warning d-none py-2 small"></div>
                     <h6>Sütun Eşleştirme</h6>
-                    <div id="eslestirme-tablo" class="table-responsive" style="max-height:300px;overflow-y:auto"></div>
+                    <div id="eslestirme-tablo" class="table-responsive import-eslestirme-kap"></div>
                     <div class="mt-2">
                       <span class="badge bg-info" id="import-satir-sayisi"></span>
                     </div>
@@ -184,8 +184,8 @@
                 </div>
                 <div id="import-ilerleme" class="d-none">
                   <div class="progress mb-2">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated"
-                         id="import-progress-bar" style="width:0%"></div>
+                    <div class="progress-bar progress-bar-striped progress-bar-animated import-progress-bar"
+                         id="import-progress-bar"></div>
                   </div>
                   <div id="import-durum-mesaj" class="text-muted small text-center">Aktarılıyor...</div>
                 </div>
@@ -218,18 +218,19 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script type="module">
-  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260602-47";
-  import { layoutYukle } from "./layout.js?v=20260602-47";
+  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260603-52";
+  import { layoutYukle } from "./layout.js?v=20260603-52";
   import {
     ogrenciEkle, ogrenciGuncelle, noMevcutMu,
     velileriGetir, veliEkleGuncelle, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir
-  } from "./students.js?v=20260602-47";
+  } from "./students.js?v=20260603-52";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, formatTarih, toast, bugun,
     compareOgrenci, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
-  } from "./utils.js?v=20260602-47";
+  } from "./utils.js?v=20260603-52";
   let tumOgrenciler = [];
   let dt = null;
+  let filtreZamanlayici = null;
 
   const IMPORT_ALANLARI = [
     { key: "numara",         label: "Öğrenci No",          required: true,     aliases: ["no", "numara", "öğrenci no", "ogrenci no", "öğrenci numarası"] },
@@ -285,6 +286,7 @@
     layoutYukle();
     await ilkYukle();
     baglayici();
+    await yukleOgrenciler(filtreleriOku());
   });
 
   async function ilkYukle() {
@@ -294,7 +296,7 @@
       const o = document.createElement("option"); o.value = s; o.textContent = s;
       sinifSel.appendChild(o);
     });
-    tabloBekle("Filtreleri seçip Filtrele'ye basın.");
+    tabloBekle("Öğrenciler yükleniyor...");
   }
 
   function tabloBekle(mesaj) {
@@ -422,23 +424,39 @@
     }
   }
 
+  function filtreleriOku() {
+    return {
+      sinif: document.getElementById("filtre-sinif").value,
+      cinsiyet: document.getElementById("filtre-cinsiyet").value,
+      yatililik: document.getElementById("filtre-yatililik").value,
+      durum: document.getElementById("filtre-durum").value
+    };
+  }
+
+  function filtreDegisinceYukle() {
+    clearTimeout(filtreZamanlayici);
+    filtreZamanlayici = setTimeout(() => {
+      yukleOgrenciler(filtreleriOku());
+    }, 250);
+  }
+
   function baglayici() {
     document.getElementById("filtre-uygula").addEventListener("click", () => {
-      yukleOgrenciler({
-        sinif: document.getElementById("filtre-sinif").value,
-        cinsiyet: document.getElementById("filtre-cinsiyet").value,
-        yatililik: document.getElementById("filtre-yatililik").value,
-        durum: document.getElementById("filtre-durum").value
-      });
+      clearTimeout(filtreZamanlayici);
+      yukleOgrenciler(filtreleriOku());
     });
 
     document.getElementById("filtre-temizle").addEventListener("click", () => {
       document.getElementById("filtre-sinif").value = "";
       document.getElementById("filtre-cinsiyet").value = "";
       document.getElementById("filtre-yatililik").value = "";
-      document.getElementById("filtre-durum").value = "";
-      tabloBekle("Filtreleri seçip Filtrele'ye basın.");
+      document.getElementById("filtre-durum").value = "Aktif";
+      clearTimeout(filtreZamanlayici);
+      yukleOgrenciler(filtreleriOku());
     });
+
+    ["filtre-sinif", "filtre-cinsiyet", "filtre-yatililik", "filtre-durum"]
+      .forEach(id => document.getElementById(id).addEventListener("change", filtreDegisinceYukle));
 
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
 
@@ -557,7 +575,7 @@
     document.getElementById("eslestirme-tablo").innerHTML = `
       <table class="table table-sm table-bordered align-middle mb-0">
         <thead class="table-light">
-          <tr><th style="width:40%">Sistem Alanı</th><th>Excel Sütunu</th></tr>
+          <tr><th class="import-alan-th">Sistem Alanı</th><th>Excel Sütunu</th></tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>`;

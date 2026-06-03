@@ -7,16 +7,11 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return signedIn()
-        && (
-          request.auth.uid == "zpaTsm2L7FSCqLA8BDkxI7bX9vM2"
-          || request.auth.token.admin == true
-        );
+      return signedIn() && request.auth.token.admin == true;
     }
 
     function canReadPersonalData() {
-      return isAdmin()
-        || (signedIn() && request.auth.token.staff == true);
+      return signedIn();
     }
 
     function studentExists(ogrenciId) {
