@@ -2561,6 +2561,13 @@ div.dt-container .dt-input {
     font-weight: 700 !important;
   }
 
+  /* Y-04: Devamsızlık durum badge'leri — Firefox'ta print-color-adjust desteklenmeyince
+     arka plan rengi kaybolabilir. Metin rengi + alt çizgi ile durum bilgisi korunur. */
+  .badge.bg-danger  { color: #b91c1c !important; text-decoration: underline !important; }
+  .badge.bg-dark    { color: #111827 !important; text-decoration: underline !important; }
+  .badge.bg-warning { color: #92400e !important; text-decoration: underline !important; }
+  .badge.bg-success { color: #166534 !important; }
+
   .alert,
   .detay-bilgi-satir,
   .veli-bilgi-satir,

@@ -1,15 +1,15 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260603-68";
+import { db } from "./firebase-config.js?v=20260603-73";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, query, where, writeBatch
-} from "./firebase-imports.js?v=20260603-68";
+} from "./firebase-imports.js?v=20260603-73";
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260603-68";
+} from "./utils.js?v=20260603-73";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";
@@ -192,6 +192,24 @@ async function tumKayitlariFirestoredanGetir(koleksiyon) {
   return snap.docs
     .map(d => ({ id: d.id, ...d.data() }))
     .filter(kayit => kayit.ogrenciId);
+}
+
+/**
+ * Firestore "in" operatörü en fazla 30 değer kabul eder.
+ * Bu fonksiyon ID listesini 30'luk gruplara bölerek birden fazla sorgu
+ * paralel çalıştırır ve sonuçları birleştirir.
+ */
+async function ogrenciIdlerineGoreKayitlariGetir(koleksiyon, idler) {
+  const BATCH = 30;
+  const sonuclar = [];
+  for (let i = 0; i < idler.length; i += BATCH) {
+    const grup = idler.slice(i, i + BATCH);
+    const snap = await getDocs(
+      query(collection(db, koleksiyon), where("ogrenciId", "in", grup))
+    );
+    snap.docs.forEach(d => sonuclar.push({ id: d.id, ...d.data() }));
+  }
+  return sonuclar.filter(kayit => kayit.ogrenciId);
 }
 
 /**
@@ -495,6 +513,25 @@ export async function tumDevamsizliklariGetir() {
   return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
+/**
+ * Verilen sınıfa ait devamsızlık kayıtlarını getirir.
+ * sinif boş verilirse tüm kayıtlar döner.
+ *
+ * Firestore Console'da performans için önerilen index:
+ *   Koleksiyon: devamsizliklar | Alan: ogrenciId (ASC) | Alan: tarih_sira (DESC)
+ *   https://console.firebase.google.com/project/_/firestore/indexes
+ */
+export async function sinifaGoreDevamsizliklariGetir(sinif) {
+  if (!sinif) return tumDevamsizliklariGetir();
+  const ogrenciler = await tumOgrencileriGetir();
+  const sinifIdleri = ogrenciler
+    .filter(o => o.sinif === sinif)
+    .map(o => String(o.id));
+  if (!sinifIdleri.length) return [];
+  const kayitlar = await ogrenciIdlerineGoreKayitlariGetir("devamsizliklar", sinifIdleri);
+  return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+}
+
 // ── Davranışlar ─────────────────────────────────────────────────────────────
 
 export async function davranislarGetir(ogrenciNo) {
@@ -525,6 +562,25 @@ export async function tumDavranislariGetir() {
   return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 
+/**
+ * Verilen sınıfa ait davranış kayıtlarını getirir.
+ * sinif boş verilirse tüm kayıtlar döner.
+ *
+ * Firestore Console'da performans için önerilen index:
+ *   Koleksiyon: davranislar | Alan: ogrenciId (ASC) | Alan: tarih_sira (DESC)
+ *   https://console.firebase.google.com/project/_/firestore/indexes
+ */
+export async function sinifaGoreDavranislariGetir(sinif) {
+  if (!sinif) return tumDavranislariGetir();
+  const ogrenciler = await tumOgrencileriGetir();
+  const sinifIdleri = ogrenciler
+    .filter(o => o.sinif === sinif)
+    .map(o => String(o.id));
+  if (!sinifIdleri.length) return [];
+  const kayitlar = await ogrenciIdlerineGoreKayitlariGetir("davranislar", sinifIdleri);
+  return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+}
+
 // ── Veli Görüşmeleri ───────────────────────────────────────────────────────
 
 export async function gorusmeleriGetir(ogrenciNo) {
@@ -552,6 +608,25 @@ export async function gorusmeGuncelle(_ogrenciNo, kayitId, veri) {
 
 export async function tumGorusmeleriGetir() {
   const kayitlar = await tumKayitlariGetir("veligorusmeleri");
+  return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+}
+
+/**
+ * Verilen sınıfa ait veli görüşmesi kayıtlarını getirir.
+ * sinif boş verilirse tüm kayıtlar döner.
+ *
+ * Firestore Console'da performans için önerilen index:
+ *   Koleksiyon: veligorusmeleri | Alan: ogrenciId (ASC) | Alan: tarih_sira (DESC)
+ *   https://console.firebase.google.com/project/_/firestore/indexes
+ */
+export async function sinifaGoreGorusmeleriGetir(sinif) {
+  if (!sinif) return tumGorusmeleriGetir();
+  const ogrenciler = await tumOgrencileriGetir();
+  const sinifIdleri = ogrenciler
+    .filter(o => o.sinif === sinif)
+    .map(o => String(o.id));
+  if (!sinifIdleri.length) return [];
+  const kayitlar = await ogrenciIdlerineGoreKayitlariGetir("veligorusmeleri", sinifIdleri);
   return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
 }
 

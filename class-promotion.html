@@ -3,22 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260603-68">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-73">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-68">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-68">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-68">
-  <link rel="shortcut icon" href="favicon.ico?v=20260603-68">
-  <script src="file-redirect.js?v=20260603-68"></script>
-  <script src="pwa.js?v=20260603-68"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-73">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-73">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-73">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-73">
+  <script src="file-redirect.js?v=20260603-73"></script>
+  <script src="pwa.js?v=20260603-73"></script>
   <title>Sınıf Atlatma</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260603-68">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
+          integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
+          crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
+          crossorigin="anonymous">
+  <link rel="stylesheet" href="app.css?v=20260603-73">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -98,18 +102,22 @@
 <div id="footer-kap"></div>
 <div id="bottom-nav-kap"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"
+        integrity="sha384-+4p7LDsv7qv4DpdBj3wITizBeFFK5pEwCMHKkmWRepY1L4SzbJD1DKvVWOlFvqMQ"
+        crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260603-68";
-  import { layoutYukle } from "./layout.js?v=20260603-68";
-  import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260603-68";
-  import { db } from "./firebase-config.js?v=20260603-68";
+  import { requireAdmin } from "./auth.js?v=20260603-73";
+  import { layoutYukle } from "./layout.js?v=20260603-73";
+  import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260603-73";
+  import { db } from "./firebase-config.js?v=20260603-73";
   import {
     collection, getDocs, doc, writeBatch, query, where
-  } from "./firebase-imports.js?v=20260603-68";
-  import { toast, onayIste, sinifParcala, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260603-68";
+  } from "./firebase-imports.js?v=20260603-73";
+  import { toast, onayIste, sinifParcala, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260603-73";
 
   let ogrenciler = [];
   let sonGeriAlma = null;
