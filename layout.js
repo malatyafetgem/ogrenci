@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260603-52";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260603-52";
-import { escapeHtml } from "./utils.js?v=20260603-52";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260603-54";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260603-54";
+import { escapeHtml } from "./utils.js?v=20260603-54";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -537,7 +537,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-logo-only d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260603-52" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260603-54" alt="Öğrenci Bilgileri"></span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
@@ -545,8 +545,10 @@ function yukleTopbar() {
           </ul>
           <div class="global-arama-kutu d-none d-md-block" id="global-arama-kap">
             <i class="bi bi-search arama-ikon"></i>
-            <input type="search" class="form-control form-control-sm" id="global-arama" placeholder="Öğrenci ara..." autocomplete="off" data-testid="global-search-input">
-            <div class="global-arama-sonuc d-none" id="global-arama-sonuc"></div>
+            <input type="search" class="form-control form-control-sm" id="global-arama" placeholder="Öğrenci ara..."
+                   autocomplete="off" aria-label="Öğrenci ara" role="combobox" aria-autocomplete="list"
+                   aria-expanded="false" aria-controls="global-arama-sonuc" data-testid="global-search-input">
+            <div class="global-arama-sonuc d-none" id="global-arama-sonuc" role="listbox"></div>
           </div>
         </div>
         <div class="header-actions d-flex align-items-center gap-2">
@@ -565,7 +567,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260603-52");
+    const { logout } = await import("./auth.js?v=20260603-54");
     logout();
   });
 
@@ -594,7 +596,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260603-52");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260603-54");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -607,7 +609,21 @@ function globalAramaBagla() {
 
   let aktifIndex = -1;
   const norm = s => String(s || "").toLocaleLowerCase("tr-TR");
-  const kapat = () => { sonucEl.classList.add("d-none"); aktifIndex = -1; };
+  const kapat = () => {
+    sonucEl.classList.add("d-none");
+    input.setAttribute("aria-expanded", "false");
+    input.removeAttribute("aria-activedescendant");
+    aktifIndex = -1;
+  };
+  const aktifSonucuGuncelle = (items) => {
+    items.forEach((it, i) => {
+      const aktif = i === aktifIndex;
+      it.classList.toggle("aktif", aktif);
+      it.setAttribute("aria-selected", aktif ? "true" : "false");
+    });
+    if (items[aktifIndex]) input.setAttribute("aria-activedescendant", items[aktifIndex].id);
+    else input.removeAttribute("aria-activedescendant");
+  };
 
   input.addEventListener("focus", () => { globalAramaYukle().catch(() => {}); });
 
@@ -624,15 +640,18 @@ function globalAramaBagla() {
 
     sonucEl.innerHTML = sonuclar.length
       ? sonuclar.map((o, i) => `
-        <a class="ga-item" href="students-detail.html?id=${encodeURIComponent(o.id)}" data-i="${i}">
+        <a class="ga-item" id="global-arama-sonuc-${i}" role="option" aria-selected="false"
+           href="students-detail.html?id=${encodeURIComponent(o.id)}" data-i="${i}">
           <i class="bi bi-person-circle text-muted"></i>
           <span class="flex-grow-1">
             <span class="ga-ad">${escapeHtml(`${o.ad || ""} ${o.soyad || ""}`.trim() || "—")}</span>
             <span class="ga-meta d-block">No: ${escapeHtml(o.id)} · ${escapeHtml(o.sinif || "—")} · ${escapeHtml(o.cinsiyet || "")}</span>
           </span>
         </a>`).join("")
-      : `<div class="ga-bos">Sonuç bulunamadı</div>`;
+      : `<div class="ga-bos" role="status">Sonuç bulunamadı</div>`;
     sonucEl.classList.remove("d-none");
+    input.setAttribute("aria-expanded", "true");
+    input.removeAttribute("aria-activedescendant");
     aktifIndex = -1;
   });
 
@@ -643,7 +662,7 @@ function globalAramaBagla() {
     else if (e.key === "Enter") { if (items[aktifIndex]) { e.preventDefault(); location.href = items[aktifIndex].href; } return; }
     else if (e.key === "Escape") { kapat(); return; }
     else return;
-    items.forEach((it, i) => it.classList.toggle("aktif", i === aktifIndex));
+    aktifSonucuGuncelle(items);
     items[aktifIndex]?.scrollIntoView({ block: "nearest" });
   });
 
@@ -667,9 +686,9 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260603-52");
+    const { db } = await import("./firebase-config.js?v=20260603-54");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260603-52");
+      await import("./firebase-imports.js?v=20260603-54");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),
@@ -743,7 +762,7 @@ function yukleBottomNav() {
     </nav>
 
     <!-- Offcanvas: Daha Fazlası -->
-    <div class="offcanvas offcanvas-bottom rounded-top-4" tabindex="-1" id="daha-fazla-menu" style="height:auto;max-height:88vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,0px)">
+    <div class="offcanvas offcanvas-bottom rounded-top-4 mobile-more-offcanvas" tabindex="-1" id="daha-fazla-menu">
       <div class="offcanvas-header">
         <h5 class="offcanvas-title">Menü</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>

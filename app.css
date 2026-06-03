@@ -44,6 +44,14 @@
   --obs-radius-sm: 9px;
   --obs-text: #262019;
   --obs-muted: #6D6258;
+  --obs-brand-logo-size: 40px;
+  --obs-brand-logo-size-mobile: 34px;
+  --obs-brand-logo-radius: 10px;
+  --obs-brand-logo-shell-size: 48px;
+  --obs-brand-logo-shell-size-mobile: 38px;
+  --obs-login-logo-size: 74px;
+  --obs-login-logo-size-mobile: 64px;
+  --obs-login-logo-radius: 18px;
 
   --obs-font-head: 'Outfit', system-ui, sans-serif;
   --obs-font-body: 'DM Sans', system-ui, sans-serif;
@@ -110,21 +118,31 @@
 }
 
 .brand-logo-mark {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: var(--obs-brand-logo-size);
+  height: var(--obs-brand-logo-size);
+  border-radius: var(--obs-brand-logo-radius);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #0f766e;
-  background: #eefaf7;
-  border: 1px solid #cbece4;
-  box-shadow: 0 3px 10px rgba(15, 118, 110, .1);
+  color: var(--obs-primary);
+  background: #fff;
+  border: 1px solid var(--obs-border);
+  box-shadow: none;
   flex: 0 0 auto;
+  overflow: hidden;
+  padding: 0;
+}
+
+.brand-logo-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .brand-logo-mark i {
-  font-size: 1.12rem;
+  color: var(--obs-primary);
+  font-size: 1.15rem;
 }
 
 .brand-logo-mark-sm {
@@ -134,21 +152,21 @@
 }
 
 .navbar-brand {
-  border-radius: 12px;
-  color: #111827;
+  border-radius: var(--obs-brand-logo-radius);
+  color: var(--obs-ink);
   margin-right: 0;
   min-width: 0;
-  padding: .25rem;
+  padding: .22rem;
   min-height: 44px;
 }
 
 .navbar-brand:hover {
-  background: #f8fafc;
+  background: var(--obs-surface-alt);
 }
 
 .navbar-brand.brand-logo-only {
-  width: 48px;
-  height: 48px;
+  width: var(--obs-brand-logo-shell-size);
+  height: var(--obs-brand-logo-shell-size);
   justify-content: center;
 }
 
@@ -164,7 +182,8 @@
 }
 
 .brand-text {
-  color: #172033;
+  color: var(--obs-ink);
+  font-family: var(--obs-font-head);
   font-size: 1.08rem;
   font-weight: 800 !important;
   letter-spacing: 0;
@@ -350,15 +369,15 @@ body.sidebar-collapsed .app-footer {
 
 @media (max-width: 575.98px) {
   .brand-logo-mark {
-    width: 34px;
-    height: 34px;
+    width: var(--obs-brand-logo-size-mobile);
+    height: var(--obs-brand-logo-size-mobile);
     border-radius: 9px;
   }
 
   .navbar-brand.brand-logo-only {
-    width: 38px;
-    height: 38px;
-    min-height: 38px;
+    width: var(--obs-brand-logo-shell-size-mobile);
+    height: var(--obs-brand-logo-shell-size-mobile);
+    min-height: var(--obs-brand-logo-shell-size-mobile);
     padding: .1rem;
   }
 
@@ -769,7 +788,8 @@ body.sidebar-collapsed .app-footer {
 }
 
 .ac-dropdown .ac-item:hover,
-.ac-dropdown .ac-item:focus {
+.ac-dropdown .ac-item:focus,
+.ac-dropdown .ac-item.aktif {
   background: #eef4ff;
   color: #0b5ed7;
 }
@@ -1196,9 +1216,9 @@ body.sidebar-collapsed .app-footer {
 .login-kart { max-width: 420px; margin: 9vh auto 0; }
 .login-logo { text-align: center; margin-bottom: 1.75rem; }
 .login-logo-mark {
-  width: 74px;
-  height: 74px;
-  border-radius: 18px;
+  width: var(--obs-login-logo-size);
+  height: var(--obs-login-logo-size);
+  border-radius: var(--obs-login-logo-radius);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1440,7 +1460,10 @@ body.sidebar-collapsed .app-footer {
     margin: 4vh auto 0;
     padding: 0 .75rem;
   }
-  .login-logo-mark { width: 64px; height: 64px; }
+  .login-logo-mark {
+    width: var(--obs-login-logo-size-mobile);
+    height: var(--obs-login-logo-size-mobile);
+  }
 }
 
 /* --- Sayfa özel form ayarları --- */
@@ -1600,21 +1623,6 @@ a:hover { color: var(--obs-primary); }
   box-shadow: 0 2px 10px rgba(38, 32, 25, .04);
   backdrop-filter: none;
 }
-.brand-logo-mark {
-  width: 40px; height: 40px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--obs-border);
-  background: #fff;
-  box-shadow: none;
-  padding: 0;
-}
-.brand-logo-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.brand-logo-mark i { color: var(--obs-primary); font-size: 1.15rem; }
-.brand-text { font-family: var(--obs-font-head); font-weight: 800 !important; color: var(--obs-ink); letter-spacing: 0; }
-.navbar-brand { border-radius: 10px; padding: .22rem; }
-.navbar-brand.brand-logo-only { width: 48px; height: 48px; justify-content: center; }
-.navbar-brand:hover { background: var(--obs-surface-alt); }
 .header-center {
   flex: 1 1 auto;
   justify-content: center;
@@ -1970,6 +1978,12 @@ div.dt-container .dt-input {
 
 /* --- Offcanvas / Mobil "Fazlası" --- */
 .offcanvas { background: #fff; border-top: 1px solid var(--obs-border); }
+.mobile-more-offcanvas {
+  height: auto;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
 .offcanvas-header { background: #fff; border-bottom: 1px solid var(--obs-border); backdrop-filter: none; }
 .offcanvas-title { font-family: var(--obs-font-head); font-weight: 700; }
 .mobile-more-group h6 { color: var(--obs-muted); font-family: var(--obs-font-head); }
@@ -1989,7 +2003,9 @@ div.dt-container .dt-input {
 .obs-confirm-icon { border: 1px solid var(--obs-border); background: var(--obs-surface-alt); color: var(--obs-primary); }
 .obs-confirm-detail { border: 1px solid var(--obs-border); background: var(--obs-surface-alt); }
 .ac-dropdown { border: 1px solid var(--obs-border); border-radius: var(--obs-radius-sm); box-shadow: var(--obs-shadow-lg); }
-.ac-dropdown .ac-item:hover, .ac-dropdown .ac-item:focus { background: var(--obs-surface-alt); color: var(--obs-primary-dark); }
+.ac-dropdown .ac-item:hover,
+.ac-dropdown .ac-item:focus,
+.ac-dropdown .ac-item.aktif { background: var(--obs-surface-alt); color: var(--obs-primary-dark); }
 .toast { border: 1px solid var(--obs-border); border-radius: var(--obs-radius-sm); box-shadow: var(--obs-shadow-lg); }
 .modal-content { border: 1px solid var(--obs-border); border-radius: var(--obs-radius); box-shadow: var(--obs-shadow-lg); }
 .modal-header { border-bottom: 1px solid var(--obs-border); }

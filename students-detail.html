@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260603-52">
+  <link rel="manifest" href="manifest.webmanifest?v=20260603-54">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-52">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-52">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-52">
-  <link rel="shortcut icon" href="favicon.ico?v=20260603-52">
-  <script src="file-redirect.js?v=20260603-52"></script>
-  <script src="pwa.js?v=20260603-52"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260603-54">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260603-54">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260603-54">
+  <link rel="shortcut icon" href="favicon.ico?v=20260603-54">
+  <script src="file-redirect.js?v=20260603-54"></script>
+  <script src="pwa.js?v=20260603-54"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <link rel="stylesheet" href="app.css?v=20260603-52">
+  <link rel="stylesheet" href="app.css?v=20260603-54">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -75,30 +75,35 @@
           </div>
 
           <!-- Sekmeler -->
-          <ul class="nav nav-tabs mb-3 no-print" id="sekme-nav">
+          <ul class="nav nav-tabs mb-3 no-print" id="sekme-nav" role="tablist" aria-label="Öğrenci detay bölümleri">
             <li class="nav-item">
-              <a class="nav-link active" data-bs-toggle="tab" href="#sekme-kisisel">
+              <a class="nav-link active" id="tab-kisisel" data-bs-toggle="tab" href="#sekme-kisisel"
+                 role="tab" aria-controls="sekme-kisisel" aria-selected="true">
                 <i class="bi bi-person me-1"></i>Kişisel
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#sekme-veli">
+              <a class="nav-link" id="tab-veli" data-bs-toggle="tab" href="#sekme-veli"
+                 role="tab" aria-controls="sekme-veli" aria-selected="false">
                 <i class="bi bi-people me-1"></i>Veliler
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#sekme-devamsizlik">
+              <a class="nav-link" id="tab-devamsizlik" data-bs-toggle="tab" href="#sekme-devamsizlik"
+                 role="tab" aria-controls="sekme-devamsizlik" aria-selected="false">
                 <i class="bi bi-calendar-x me-1"></i>Devamsızlık
                 <span class="badge bg-secondary ms-1" id="dev-sayac">—</span>
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#sekme-davranis">
+              <a class="nav-link" id="tab-davranis" data-bs-toggle="tab" href="#sekme-davranis"
+                 role="tab" aria-controls="sekme-davranis" aria-selected="false">
                 <i class="bi bi-star-half me-1"></i>Davranış
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" href="#sekme-gorusme">
+              <a class="nav-link" id="tab-gorusme" data-bs-toggle="tab" href="#sekme-gorusme"
+                 role="tab" aria-controls="sekme-gorusme" aria-selected="false">
                 <i class="bi bi-chat-dots me-1"></i>Veli Görüşmeleri
               </a>
             </li>
@@ -107,7 +112,7 @@
           <div class="tab-content">
 
         <!-- KİŞİSEL BİLGİLER -->
-            <div class="tab-pane fade show active" id="sekme-kisisel">
+            <div class="tab-pane fade show active" id="sekme-kisisel" role="tabpanel" aria-labelledby="tab-kisisel" tabindex="0">
               <div class="row g-3">
                 <div class="col-md-6">
                   <div class="card h-100">
@@ -137,14 +142,14 @@
             </div>
 
             <!-- VELİ BİLGİLERİ -->
-            <div class="tab-pane fade" id="sekme-veli">
+            <div class="tab-pane fade" id="sekme-veli" role="tabpanel" aria-labelledby="tab-veli" tabindex="0">
               <div class="row g-3" id="veli-kartlar">
                 <div class="col-12 text-center text-muted py-3">Hazırlanıyor...</div>
               </div>
             </div>
 
             <!-- DEVAMSIZLIK -->
-            <div class="tab-pane fade" id="sekme-devamsizlik">
+            <div class="tab-pane fade" id="sekme-devamsizlik" role="tabpanel" aria-labelledby="tab-devamsizlik" tabindex="0">
               <div class="row g-3 mb-3">
                 <div class="col-6 col-md-3">
                   <div class="card text-center">
@@ -215,7 +220,7 @@
             </div>
 
               <!-- DAVRANIŞ -->
-            <div class="tab-pane fade" id="sekme-davranis">
+            <div class="tab-pane fade" id="sekme-davranis" role="tabpanel" aria-labelledby="tab-davranis" tabindex="0">
               <div class="card mb-3">
                 <div class="card-header">
                   <h6 class="mb-0"><i class="bi bi-pie-chart me-1"></i>Davranış Dağılımı</h6>
@@ -269,7 +274,7 @@
             </div>
 
               <!-- VELİ GÖRÜŞMELERİ -->
-            <div class="tab-pane fade" id="sekme-gorusme">
+            <div class="tab-pane fade" id="sekme-gorusme" role="tabpanel" aria-labelledby="tab-gorusme" tabindex="0">
               <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                   <h6 class="mb-0"><i class="bi bi-chat-dots me-1"></i>Görüşme Kayıtları</h6>
@@ -449,20 +454,20 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/js/adminlte.min.js"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260603-52";
-  import { layoutYukle } from "./layout.js?v=20260603-52";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260603-54";
+  import { layoutYukle } from "./layout.js?v=20260603-54";
   import {
     ogrenciGetir, velileriGetir,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
     davranislarGetir, davranisSil, davranisGuncelle,
     gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
-  } from "./students.js?v=20260603-52";
+  } from "./students.js?v=20260603-54";
   import {
     devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260603-52";
-  import { avatarSrc } from "./avatar.js?v=20260603-52";
+  } from "./utils.js?v=20260603-54";
+  import { avatarSrc } from "./avatar.js?v=20260603-54";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -589,7 +594,7 @@
     ).join("") || satir("Veli", "—");
     el.innerHTML = `<div class="ogrkart">
       <div class="ogrkart-baslik">
-        <img class="ogrkart-logo" src="icon-192.png?v=20260603-52" alt="">
+        <img class="ogrkart-logo" src="icon-192.png?v=20260603-54" alt="">
         <div><h1>${escapeHtml(tamAd)}</h1><div class="alt">Öğrenci Kartı · No: ${escapeHtml(okulNo)} · ${escapeHtml(o.sinif || "—")}</div></div>
       </div>
       <div class="ogrkart-bolum-baslik">Kimlik Bilgileri</div>
