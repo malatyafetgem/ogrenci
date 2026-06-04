@@ -1,5 +1,5 @@
 // sw.js — Öğrenci Bilgileri Service Worker
-const CACHE_VERSION = "obs-cache-v1.0.75";
+const CACHE_VERSION = "obs-cache-v1.0.80";
 const CACHE_NAME = CACHE_VERSION;
 
 const SHELL_URLS = [
@@ -33,6 +33,7 @@ const SHELL_URLS = [
   "./file-redirect.js",
   "./firebase-config.js",
   "./firebase-imports.js",
+  "./class-promotion.js",
   "./datatable-fallback.js",
 
   "./pwa.js",

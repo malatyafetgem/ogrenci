@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-80">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
-  <script src="file-redirect.js?v=20260604-75"></script>
-  <script src="pwa.js?v=20260604-75"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-80">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-80">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-80">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-80">
+  <script src="file-redirect.js?v=20260604-80"></script>
+  <script src="pwa.js?v=20260604-80"></script>
   <title>Ayarlar ve Yönetim</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-75">
+  <link rel="stylesheet" href="app.css?v=20260604-80">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -120,9 +120,9 @@
                   <strong>Sınıf Atlatma</strong>
                   <span class="text-muted small ms-2">Öğrencileri bir üst sınıfa toplu olarak taşıyın.</span>
                 </div>
-                <a href="class-promotion.html" class="btn btn-primary btn-sm">
-                  <i class="bi bi-arrow-up-circle me-1"></i>Sınıf Atlatma Sayfasına Git
-                </a>
+                <button type="button" class="btn btn-primary btn-sm" id="sinif-atlat-ac-btn">
+                  <i class="bi bi-arrow-up-circle me-1"></i>Sınıf Atlatmayı Aç
+                </button>
               </div>
             </div>
           </div>
@@ -267,6 +267,28 @@
   </div>
 </div>
 
+<!-- Sınıf Atlatma modalı: içerik class-promotion.js tarafından doldurulur -->
+<div class="modal fade" id="sinif-atlat-modal" tabindex="-1" aria-modal="true" aria-labelledby="sinif-atlat-baslik">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable modal-fullscreen-md-down">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="sinif-atlat-baslik">
+          <i class="bi bi-arrow-up-circle me-1"></i>Sınıf Atlatma
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+      </div>
+      <div class="modal-body" id="sinif-atlat-root">
+        <div class="text-center py-4 text-muted">
+          <div class="spinner-border text-primary mb-2"></div><div>Hazırlanıyor...</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
@@ -275,21 +297,21 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260604-75";
-  import { layoutYukle } from "./layout.js?v=20260604-75";
-  import { db } from "./firebase-config.js?v=20260604-75";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260604-80";
+  import { layoutYukle } from "./layout.js?v=20260604-80";
+  import { db } from "./firebase-config.js?v=20260604-80";
   import {
     EmailAuthProvider, reauthenticateWithCredential,
     collection, doc, getDocs, writeBatch
-  } from "./firebase-imports.js?v=20260604-75";
-  import { toast, bugun } from "./utils.js?v=20260604-75";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260604-75";
+  } from "./firebase-imports.js?v=20260604-80";
+  import { toast, bugun } from "./utils.js?v=20260604-80";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260604-80";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260604-75";
-  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260604-75";
+  } from "./school-settings.js?v=20260604-80";
+  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260604-80";
 
   const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {
@@ -376,7 +398,53 @@
     // Veri özeti kartları
     yukleVeriOzetleri();
 
+    // Sınıf Atlatma modalını bağla (içerik modal her açıldığında baştan kurulur)
+    sinifAtlatModaliniBagla();
   });
+
+  function sinifAtlatModaliniBagla() {
+    const modalEl = document.getElementById("sinif-atlat-modal");
+    const acBtn = document.getElementById("sinif-atlat-ac-btn");
+    if (!modalEl || !acBtn) return;
+    const modal = new bootstrap.Modal(modalEl);
+    const root = document.getElementById("sinif-atlat-root");
+    let yukleniyor = false;
+
+    acBtn.addEventListener("click", () => modal.show());
+
+    // class-promotion.html yer imi → settings.html#sinif-atlat olarak yönleniyor;
+    // bu hash ile geldiyse modalı otomatik aç.
+    if (location.hash === "#sinif-atlat") {
+      // Bootstrap modalını sayfa render'ı tamamlandıktan sonra aç
+      setTimeout(() => modal.show(), 0);
+    }
+
+    modalEl.addEventListener("shown.bs.modal", async () => {
+      if (yukleniyor) return;
+      yukleniyor = true;
+      try {
+        const mod = await import("./class-promotion.js?v=20260604-80");
+        await mod.classPromotionAc(root);
+      } catch (err) {
+        root.innerHTML =
+          `<div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Sınıf Atlatma modülü yüklenemedi.
+            <div class="small text-muted mt-1">${(err && err.message) || err}</div>
+          </div>`;
+      } finally {
+        yukleniyor = false;
+      }
+    });
+
+    // Modal kapanınca içeriği temizle; bir sonraki açılışta taze başlasın
+    modalEl.addEventListener("hidden.bs.modal", () => {
+      root.innerHTML =
+        `<div class="text-center py-4 text-muted">
+          <div class="spinner-border text-primary mb-2"></div><div>Hazırlanıyor...</div>
+        </div>`;
+    });
+  }
 
   async function yukleVeriOzetleri() {
     try {

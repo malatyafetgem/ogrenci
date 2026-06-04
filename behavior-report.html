@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-80">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
-  <script src="file-redirect.js?v=20260604-75"></script>
-  <script src="pwa.js?v=20260604-75"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-80">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-80">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-80">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-80">
+  <script src="file-redirect.js?v=20260604-80"></script>
+  <script src="pwa.js?v=20260604-80"></script>
   <title>Davranış Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-75">
+  <link rel="stylesheet" href="app.css?v=20260604-80">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -220,14 +220,14 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260604-75"></script>
+<script src="datatable-fallback.js?v=20260604-80"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"
         integrity="sha384-5JqMv4L/Xa0hfvtF06qboNdhvuYXUku9ZrhZh3bSk8VXF0A/RuSLHpLsSV9Zqhl6"
         crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/tr.js"
         integrity="sha384-Y7O43PM3w1lzpD9Tbq06VLD7WvMJZsaVsjXBZ4rAzAPqUdizcCJYmImbIXN6f2+r"
         crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"
         integrity="sha384-dug+JxfBvklEQdJ4AYuBBAIScUz0bVN73xpy273gcAwHjb3qI0fXmuYNaNfdyYJG"
         crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
@@ -235,10 +235,10 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260604-75";
-  import { layoutYukle } from "./layout.js?v=20260604-75";
-  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir } from "./students.js?v=20260604-75";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast } from "./utils.js?v=20260604-75";
+  import { requireAuth } from "./auth.js?v=20260604-80";
+  import { layoutYukle } from "./layout.js?v=20260604-80";
+  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir } from "./students.js?v=20260604-80";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast } from "./utils.js?v=20260604-80";
 
   let raporVerisi = [];
   let dt = null;
@@ -248,9 +248,9 @@
 
   requireAuth(async () => {
     layoutYukle();
-    const siniflar = await siniflarGetir();
-    const sel = document.getElementById("filtre-sinif");
-    siniflar.forEach(s => { const o = document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
+
+    // Olay dinleyicilerini ve flatpickr'ı, sınıf listesi yüklenmeden ÖNCE bağla
+    // (aksi halde sayfa açılır açılmaz Filtrele'ye basıldığında ilk tık kaybolur).
     flatpickr("#filtre-bas", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
     flatpickr("#filtre-bit", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
     document.getElementById("filtre-uygula").addEventListener("click", yukleRapor);
@@ -272,6 +272,15 @@
     });
 
     tabloBekle();
+
+    // Sınıf listesi arka planda yüklensin; gecikmesi butonu engellemesin.
+    try {
+      const siniflar = await siniflarGetir();
+      const sel = document.getElementById("filtre-sinif");
+      siniflar.forEach(s => { const o = document.createElement("option"); o.value=s; o.textContent=s; sel.appendChild(o); });
+    } catch (err) {
+      console.error("[DavranışRaporu] Sınıf listesi yüklenemedi:", err);
+    }
   });
 
   function iskeletGoster() {
@@ -309,82 +318,99 @@
     const filtBas      = document.getElementById("filtre-bas").value;
     const filtBit      = document.getElementById("filtre-bit").value;
 
-    // sinifaGoreDavranislariGetir: sinif seçiliyse yalnızca o sınıfın
-    // kayıtlarını Firestore'dan çeker; boşsa tüm koleksiyonu getirir.
-    const [ogrenciler, tumKayitlar] = await Promise.all([
-      tumOgrencileriGetir(),
-      sinifaGoreDavranislariGetir(filtSinif)
-    ]);
-    const ogrById = new Map(ogrenciler.map(ogr => [ogr.id, ogr]));
-    raporVerisi = [];
+    try {
+      // sinifaGoreDavranislariGetir: sinif seçiliyse yalnızca o sınıfın
+      // kayıtlarını Firestore'dan çeker; boşsa tüm koleksiyonu getirir.
+      const [ogrenciler, tumKayitlar] = await Promise.all([
+        tumOgrencileriGetir(),
+        sinifaGoreDavranislariGetir(filtSinif)
+      ]);
+      const ogrById = new Map(ogrenciler.map(ogr => [ogr.id, ogr]));
+      raporVerisi = [];
 
-    tumKayitlar.forEach(k => {
-      const ogr = ogrById.get(k.ogrenciId);
-      if (!ogr) return;
-      if (filtSinif && ogr.sinif !== filtSinif) return;
-      if (filtTur && k.tur !== filtTur) return;
-      if (filtKategori && k.kategori !== filtKategori) return;
-      if (filtBas || filtBit) {
-        const t = tarihtenDate(k.tarih);
-        if (!t) return;
-        if (filtBas && t < tarihtenDate(filtBas)) return;
-        if (filtBit && t > tarihtenDate(filtBit)) return;
+      tumKayitlar.forEach(k => {
+        const ogr = ogrById.get(k.ogrenciId);
+        if (!ogr) return;
+        if (filtSinif && ogr.sinif !== filtSinif) return;
+        if (filtTur && k.tur !== filtTur) return;
+        if (filtKategori && k.kategori !== filtKategori) return;
+        if (filtBas || filtBit) {
+          const t = tarihtenDate(k.tarih);
+          if (!t) return;
+          if (filtBas && t < tarihtenDate(filtBas)) return;
+          if (filtBit && t > tarihtenDate(filtBit)) return;
+        }
+        raporVerisi.push({ ogr, ...k });
+      });
+
+      raporVerisi.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+
+      // Özet kartları güncelle
+      const olumluSayisi = raporVerisi.filter(d => d.tur === "Olumlu").length;
+      const olumsuzSayisi = raporVerisi.filter(d => d.tur === "Olumsuz").length;
+      const teksilOgrenci = new Set(raporVerisi.map(d => d.ogr.id)).size;
+      document.getElementById("kayit-sayisi").textContent = raporVerisi.length;
+      document.getElementById("ozet-toplam").textContent = raporVerisi.length;
+      document.getElementById("ozet-olumlu").textContent = olumluSayisi;
+      document.getElementById("ozet-olumsuz").textContent = olumsuzSayisi;
+      document.getElementById("ozet-ogrenci-sayisi").textContent = teksilOgrenci;
+      document.getElementById("ozet-kartlar").classList.toggle("d-none", raporVerisi.length === 0);
+
+      const tbody = document.getElementById("davranis-tbody");
+      if (raporVerisi.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6">
+          <div class="bos-durum">
+            <i class="bi bi-search"></i>
+            <div class="baslik">Kayıt bulunamadı</div>
+            <div class="aciklama">Filtreleri değiştirip tekrar deneyin.</div>
+          </div></td></tr>`;
+      } else {
+        tbody.innerHTML = raporVerisi.map(d => {
+          const olumlu = d.tur === "Olumlu";
+          const tamAd = `${d.ogr.ad} ${d.ogr.soyad}`.trim();
+          return `<tr>
+            <td data-order="${escapeAttr(tarihSiralamaAnahtari(d.tarih))}">${escapeHtml(d.tarih || "—")}</td>
+            <td><a href="students-detail.html?id=${escapeAttr(d.ogr.id)}" class="text-decoration-none">${escapeHtml(tamAd)}</a></td>
+            <td data-order="${escapeAttr(sinifSiralamaAnahtari(d.ogr.sinif))}">${escapeHtml(d.ogr.sinif || "—")}</td>
+            <td><span class="badge ${olumlu ? "bg-success" : "bg-danger"}">${escapeHtml(d.tur)}</span></td>
+            <td>${escapeHtml(d.kategori || "—")}</td>
+            <td class="small text-muted">${escapeHtml(d.aciklama || "—")}</td>
+          </tr>`;
+        }).join("");
+
+        dt = new DataTable("#davranis-tablo", {
+          language: {
+            search: "Ara:", lengthMenu: "_MENU_ kayıt göster",
+            info: "_TOTAL_ kayıt içinden _START_–_END_",
+            infoEmpty: "Kayıt yok", zeroRecords: "Bulunamadı",
+            emptyTable: "Kayıt yok",
+            paginate: { next: "İleri", previous: "Geri" }
+          },
+          pageLength: 20, order: [[0, "desc"]]
+        });
       }
-      raporVerisi.push({ ogr, ...k });
-    });
 
-    raporVerisi.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
-
-    // Özet kartları güncelle
-    const olumluSayisi = raporVerisi.filter(d => d.tur === "Olumlu").length;
-    const olumsuzSayisi = raporVerisi.filter(d => d.tur === "Olumsuz").length;
-    const teksilOgrenci = new Set(raporVerisi.map(d => d.ogr.id)).size;
-    document.getElementById("kayit-sayisi").textContent = raporVerisi.length;
-    document.getElementById("ozet-toplam").textContent = raporVerisi.length;
-    document.getElementById("ozet-olumlu").textContent = olumluSayisi;
-    document.getElementById("ozet-olumsuz").textContent = olumsuzSayisi;
-    document.getElementById("ozet-ogrenci-sayisi").textContent = teksilOgrenci;
-    document.getElementById("ozet-kartlar").classList.toggle("d-none", raporVerisi.length === 0);
-
-    const tbody = document.getElementById("davranis-tbody");
-    if (raporVerisi.length === 0) {
+      grafikGuncelle();
+      filtreUygulandi = true;
+    } catch (err) {
+      console.error("[DavranışRaporu] Veri yüklenirken hata:", err);
+      const tbody = document.getElementById("davranis-tbody");
+      const detay = err?.code ? `(${err.code})` : err?.message ? `(${err.message})` : "";
       tbody.innerHTML = `<tr><td colspan="6">
         <div class="bos-durum">
-          <i class="bi bi-search"></i>
-          <div class="baslik">Kayıt bulunamadı</div>
-          <div class="aciklama">Filtreleri değiştirip tekrar deneyin.</div>
+          <i class="bi bi-exclamation-triangle text-danger"></i>
+          <div class="baslik">Veri yüklenemedi</div>
+          <div class="aciklama">Bağlantınızı kontrol edip tekrar deneyin${detay ? ": " + escapeHtml(detay) : "."}
+            <br><button class="btn btn-sm btn-outline-primary mt-2" onclick="document.getElementById('filtre-uygula').click()">
+              <i class="bi bi-arrow-clockwise me-1"></i>Tekrar Dene
+            </button>
+          </div>
         </div></td></tr>`;
-    } else {
-      tbody.innerHTML = raporVerisi.map(d => {
-        const olumlu = d.tur === "Olumlu";
-        const tamAd = `${d.ogr.ad} ${d.ogr.soyad}`.trim();
-        return `<tr>
-          <td data-order="${escapeAttr(tarihSiralamaAnahtari(d.tarih))}">${escapeHtml(d.tarih || "—")}</td>
-          <td><a href="students-detail.html?id=${escapeAttr(d.ogr.id)}" class="text-decoration-none">${escapeHtml(tamAd)}</a></td>
-          <td data-order="${escapeAttr(sinifSiralamaAnahtari(d.ogr.sinif))}">${escapeHtml(d.ogr.sinif || "—")}</td>
-          <td><span class="badge ${olumlu ? "bg-success" : "bg-danger"}">${escapeHtml(d.tur)}</span></td>
-          <td>${escapeHtml(d.kategori || "—")}</td>
-          <td class="small text-muted">${escapeHtml(d.aciklama || "—")}</td>
-        </tr>`;
-      }).join("");
-
-      dt = new DataTable("#davranis-tablo", {
-        language: {
-          search: "Ara:", lengthMenu: "_MENU_ kayıt göster",
-          info: "_TOTAL_ kayıt içinden _START_–_END_",
-          infoEmpty: "Kayıt yok", zeroRecords: "Bulunamadı",
-          emptyTable: "Kayıt yok",
-          paginate: { next: "İleri", previous: "Geri" }
-        },
-        pageLength: 20, order: [[0, "desc"]]
-      });
+      toast("Veri yüklenirken bir hata oluştu. " + (err?.code || err?.message || ""), "danger");
+    } finally {
+      document.getElementById("yukleniyor").classList.add("d-none");
+      document.getElementById("tablo-kap").classList.remove("d-none");
     }
-
-    grafikGuncelle();
-
-    filtreUygulandi = true;
-    document.getElementById("yukleniyor").classList.add("d-none");
-    document.getElementById("tablo-kap").classList.remove("d-none");
   }
 
   function grafikGuncelle() {
