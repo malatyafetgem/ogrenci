@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260603-73";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260603-73";
-import { escapeHtml } from "./utils.js?v=20260603-73";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260604-74";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260604-74";
+import { escapeHtml } from "./utils.js?v=20260604-74";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -533,7 +533,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-logo-only d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260603-73" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260604-74" alt="Öğrenci Bilgileri"></span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
@@ -563,7 +563,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260603-73");
+    const { logout } = await import("./auth.js?v=20260604-74");
     logout();
   });
 
@@ -592,7 +592,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260603-73");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260604-74");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -682,9 +682,9 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260603-73");
+    const { db } = await import("./firebase-config.js?v=20260604-74");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260603-73");
+      await import("./firebase-imports.js?v=20260604-74");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),

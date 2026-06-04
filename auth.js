@@ -1,6 +1,6 @@
-import { auth } from "./firebase-config.js?v=20260603-73";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260603-73";
-import { toast } from "./utils.js?v=20260603-73";
+import { auth } from "./firebase-config.js?v=20260604-74";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260604-74";
+import { toast } from "./utils.js?v=20260604-74";
 
 const adminClaimUids = new Set();
 
