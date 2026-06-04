@@ -34,6 +34,7 @@
         btn.textContent = "Yenileniyor...";
       });
 
+      document.body.classList.add("pwa-guncelle-var");
       document.body.appendChild(btn);
     });
   }

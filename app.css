@@ -1304,6 +1304,43 @@ body.sidebar-collapsed .app-footer {
   max-width: 640px;
   margin: 0 auto;
 }
+.gorusme-bilgi-kutusu,
+.davranis-bilgi-kutusu {
+  border: 1px solid rgba(217, 84, 43, .18);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(217, 84, 43, .08), rgba(255, 255, 255, .82));
+  padding: .85rem .95rem;
+}
+.gorusme-bilgi-ikon,
+.davranis-bilgi-ikon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  color: var(--obs-primary);
+  background: rgba(217, 84, 43, .12);
+}
+.gorusme-form-actions,
+.davranis-form-actions {
+  display: flex;
+  justify-content: center;
+}
+.gorusme-kaydet-btn,
+.davranis-kaydet-btn {
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .gorusme-kaydet-btn,
+  .davranis-kaydet-btn {
+    width: auto;
+    min-width: 220px;
+    padding-left: 2.25rem;
+    padding-right: 2.25rem;
+  }
+}
 .sinif-islem-select { max-width: 180px; }
 .yetenek-tur-select { width: 140px; }
 .import-eslestirme-kap {
@@ -2171,9 +2208,9 @@ div.dt-container .dt-input {
 /* --- PWA güncelle / yükle bildirim butonu --- */
 #pwa-guncelle-bildirimi {
   position: fixed;
-  left: 1rem;
   right: 1rem;
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  width: min(360px, calc(100vw - 2rem));
   z-index: 3000;
   border: 0;
   border-radius: 12px;
@@ -2183,6 +2220,21 @@ div.dt-container .dt-input {
   font-family: var(--obs-font-head);
   font-weight: 700;
   box-shadow: 0 10px 28px rgba(38,32,25,.22);
+}
+body.pwa-guncelle-var .app-wrapper {
+  padding-bottom: 4.5rem;
+}
+@media (max-width: 767.98px) {
+  #pwa-guncelle-bildirimi {
+    right: .75rem;
+    left: .75rem;
+    bottom: calc(var(--obs-bottom-nav-height) + var(--obs-safe-bottom) + .75rem);
+    width: auto;
+    padding: .75rem .9rem;
+  }
+  body.pwa-guncelle-var .app-wrapper {
+    padding-bottom: calc(var(--obs-bottom-nav-height) + var(--obs-safe-bottom) + 5rem) !important;
+  }
 }
 
 /* --- Telefon hücresi: ara / whatsapp ikonları --- */

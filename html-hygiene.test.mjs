@@ -163,17 +163,60 @@ test("Devamsızlık giriş yöntemi kartlarının seçili durumu erişilebilirdi
 
 test("Sınıf atlatma öğrenci satırı yerine sınıf düzeyi gruplarıyla çalışır", () => {
   const html = readFileSync("class-promotion.html", "utf8");
-  assert.match(html, /Sınıf Düzeyi Aktarım Tablosu/);
-  assert.match(html, /<th>Sınıf Düzeyi<\/th>/);
-  assert.match(html, /<th>Kapsam<\/th>/);
-  assert.match(html, /data-grup-key/);
-  assert.doesNotMatch(html, /data-ogr-id/);
-  assert.doesNotMatch(html, /islemler\[o\.id\]/);
-  assert.match(html, /function\s+sinifGruplariniHazirla/);
-  assert.match(html, /function\s+grupVarsayilanIslem/);
-  assert.match(html, /function\s+ogrenciIslemi/);
-  assert.match(html, /function\s+grupOzeti/);
-  assert.match(html, /9→10, 10→11, 11→12/);
+  const settings = readFileSync("settings.html", "utf8");
+  const js = readFileSync("class-promotion.js", "utf8");
+  assert.match(html, /settings\.html#sinif-atlat/);
+  assert.match(settings, /id="sinif-atlat-root"/);
+  assert.match(settings, /import\("\.\/class-promotion\.js\?v=/);
+  assert.match(js, /Sınıf Düzeyi Aktarım Tablosu/);
+  assert.match(js, /<th>Sınıf Grubu<\/th>/);
+  assert.match(js, /<th>Şubeler<\/th>/);
+  assert.match(js, /data-grup-key/);
+  assert.doesNotMatch(js, /data-ogr-id/);
+  assert.doesNotMatch(js, /islemler\[o\.id\]/);
+  assert.match(js, /function\s+sinifGruplariniHazirla/);
+  assert.match(js, /function\s+grupVarsayilanIslem/);
+  assert.match(js, /function\s+ogrenciIslemi/);
+  assert.match(js, /function\s+grupOzeti/);
+  assert.match(js, /9→10, 10→11, 11→12/);
+});
+
+test("Görüşme girişinde açıklama ve masaüstü kayıt butonu düzeni vardır", () => {
+  const html = readFileSync("meetings-entry.html", "utf8");
+  const css = readFileSync("app.css", "utf8");
+  assert.match(html, /gorusme-bilgi-kutusu/);
+  assert.match(html, /role="note"/);
+  assert.match(html, /Görüşme kaydı için kısa not/);
+  assert.match(html, /gorusme-form-actions/);
+  assert.match(html, /gorusme-kaydet-btn/);
+  assert.match(css, /\.gorusme-bilgi-kutusu/);
+  assert.match(css, /\.gorusme-form-actions/);
+  assert.match(css, /\.gorusme-kaydet-btn/);
+  assert.match(css, /@media \(min-width:\s*768px\)[\s\S]*\.gorusme-kaydet-btn/);
+});
+
+test("Davranış girişinde açıklama ve masaüstü kayıt butonu düzeni vardır", () => {
+  const html = readFileSync("behavior-entry.html", "utf8");
+  const css = readFileSync("app.css", "utf8");
+  assert.match(html, /davranis-bilgi-kutusu/);
+  assert.match(html, /role="note"/);
+  assert.match(html, /Davranış kaydı için kısa not/);
+  assert.match(html, /davranis-form-actions/);
+  assert.match(html, /davranis-kaydet-btn/);
+  assert.match(css, /\.davranis-bilgi-kutusu/);
+  assert.match(css, /\.davranis-form-actions/);
+  assert.match(css, /\.davranis-kaydet-btn/);
+  assert.match(css, /@media \(min-width:\s*768px\)[\s\S]*\.davranis-kaydet-btn/);
+});
+
+test("PWA güncelleme bildirimi masaüstünde form eylemlerini örtmez", () => {
+  const css = readFileSync("app.css", "utf8");
+  const js = readFileSync("pwa.js", "utf8");
+  assert.match(js, /classList\.add\("pwa-guncelle-var"\)/);
+  assert.match(css, /#pwa-guncelle-bildirimi\s*\{[\s\S]*right:\s*1rem/);
+  assert.match(css, /#pwa-guncelle-bildirimi\s*\{[\s\S]*width:\s*min\(360px,\s*calc\(100vw - 2rem\)\)/);
+  assert.match(css, /body\.pwa-guncelle-var \.app-wrapper/);
+  assert.match(css, /@media \(max-width:\s*767\.98px\)[\s\S]*#pwa-guncelle-bildirimi[\s\S]*bottom:\s*calc\(var\(--obs-bottom-nav-height\)/);
 });
 
 test("Filtre sayfalarında Excel aktarımı filtre uygulanmadan çalışmaz", () => {
