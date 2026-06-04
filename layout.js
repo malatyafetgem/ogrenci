@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260604-83";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260604-83";
-import { escapeHtml, toast } from "./utils.js?v=20260604-83";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260604-90";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260604-90";
+import { escapeHtml, toast } from "./utils.js?v=20260604-90";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -18,15 +18,9 @@ const MENU_GRUPLARI = [
     baslik: "Öğrenciler",
     ogeler: [
       { href: "dashboard.html#ogrenci-ara", ikon: "bi-search", etiket: "Öğrenci Ara" },
+      { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true },
       { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
-      { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true }
-    ]
-  },
-  {
-    baslik: "Listeler",
-    ogeler: [
-      { href: "phone-list.html", ikon: "bi-telephone-fill", etiket: "Toplu Telefon Listesi" },
-      { href: "parents-list.html", ikon: "bi-people-fill", etiket: "Veli Listesi" }
+      { href: "phone-list.html", ikon: "bi-telephone-fill", etiket: "Telefon Listesi" }
     ]
   },
   {
@@ -53,19 +47,34 @@ const MENU_GRUPLARI = [
   {
     baslik: "Sistem",
     ogeler: [
+      { href: "settings.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true },
       { href: "excel-export.html", ikon: "bi-file-earmark-excel", etiket: "Excel Aktarım", adminOnly: true },
-      { href: "settings.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true }
+      { href: "settings.html#sinif-atlat", ikon: "bi-arrow-up-circle", etiket: "Sınıf Atlatma", adminOnly: true }
     ],
     adminOnly: true
   }
 ];
 
+function menuGrubuBul(baslik) {
+  return MENU_GRUPLARI.find(grup => grup.baslik === baslik);
+}
+
+const MOBIL_ALT_MENU_GRUPLARI = [
+  { key: "ogrenciler", baslik: "Öğrenciler", ikon: "bi-people", ogeler: menuGrubuBul("Öğrenciler").ogeler },
+  { key: "devamsizlik", baslik: "Devamsızlık", ikon: "bi-calendar-check", ogeler: menuGrubuBul("Devamsızlık").ogeler },
+  { key: "davranis", baslik: "Davranış", ikon: "bi-bar-chart", ogeler: menuGrubuBul("Davranış").ogeler },
+  { key: "gorusmeler", baslik: "Görüşmeler", ikon: "bi-chat-dots", ogeler: menuGrubuBul("Veli Görüşmeleri").ogeler },
+  { key: "sistem", baslik: "Sistem", ikon: "bi-gear", ogeler: menuGrubuBul("Sistem").ogeler, adminOnly: true }
+];
+
 // Aktif menü öğesini belirle
 function aktifMi(href) {
-  const mevcut = window.location.pathname;
-  // Hem tam yol hem de sadece dosya adı karşılaştırması
-  const dosyaAdi = href.split("/").pop();
-  return mevcut.endsWith(href) || mevcut.endsWith(dosyaAdi) ? "active" : "";
+  const hedef = new URL(href, window.location.href);
+  const mevcutDosya = window.location.pathname.split("/").pop() || "dashboard.html";
+  const hedefDosya = hedef.pathname.split("/").pop() || "dashboard.html";
+  if (mevcutDosya !== hedefDosya) return "";
+  if (hedef.hash) return window.location.hash === hedef.hash ? "active" : "";
+  return "active";
 }
 
 export function layoutYukle() {
@@ -554,7 +563,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-logo-only d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260604-83" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260604-90" alt="Öğrenci Bilgileri"></span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
@@ -584,7 +593,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260604-83");
+    const { logout } = await import("./auth.js?v=20260604-90");
     logout();
   });
 
@@ -613,7 +622,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260604-83");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260604-90");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -703,9 +712,9 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260604-83");
+    const { db } = await import("./firebase-config.js?v=20260604-90");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260604-83");
+      await import("./firebase-imports.js?v=20260604-90");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),
@@ -751,47 +760,27 @@ function yukleBottomNav() {
   const kap = document.getElementById("bottom-nav-kap");
   if (!kap) return;
 
-  const ogeler = [
-    { href: "dashboard.html", ikon: "bi-speedometer2", etiket: "Panel" },
-    { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenciler" },
-    { href: "attendance-report.html", ikon: "bi-calendar-check", etiket: "Devamsızlık" },
-    { href: "behavior-report.html", ikon: "bi-bar-chart", etiket: "Davranış" }
-  ];
+  const aktifGrup = MOBIL_ALT_MENU_GRUPLARI.find(mobilAltMenuGrubuAktifMi) || MOBIL_ALT_MENU_GRUPLARI[0];
 
   let html = `
-    <nav class="bottom-navbar d-flex d-md-none">`;
-
-  for (const oge of ogeler) {
-    const aktif = aktifMi(oge.href) ? "aktif" : "";
-    html += `
-      <a href="${oge.href}" class="bottom-nav-item ${aktif}">
-        <i class="bi ${oge.ikon}"></i>
-        <span>${oge.etiket}</span>
-      </a>`;
-  }
-
-  // Daha Fazlası
-  html += `
-      <a href="#" class="bottom-nav-item" data-bs-toggle="offcanvas" data-bs-target="#daha-fazla-menu">
-        <i class="bi bi-grid-3x3-gap"></i>
-        <span>Fazlası</span>
-      </a>
+    <nav class="bottom-navbar d-flex d-md-none" aria-label="Mobil bölüm menüsü">
+      ${MOBIL_ALT_MENU_GRUPLARI.map(grup => mobilAltNavButonu(grup)).join("")}
     </nav>
 
-    <!-- Offcanvas: Daha Fazlası -->
-    <div class="offcanvas offcanvas-bottom rounded-top-4 mobile-more-offcanvas" tabindex="-1" id="daha-fazla-menu" role="dialog" aria-modal="true" aria-labelledby="daha-fazla-menu-baslik">
+    <div class="offcanvas offcanvas-bottom rounded-top-4 mobile-nav-sheet" tabindex="-1" id="mobil-alt-menu" role="dialog" aria-modal="true" aria-labelledby="mobil-alt-menu-baslik">
       <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="daha-fazla-menu-baslik">Menü</h5>
+        <h5 class="offcanvas-title" id="mobil-alt-menu-baslik">${aktifGrup.baslik}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Menüyü kapat"></button>
       </div>
       <div class="offcanvas-body">
-        <div class="mobile-more-menu">
-          ${MENU_GRUPLARI.map(offcanvasGrup).join("")}
+        <div class="mobile-nav-sheet-menu">
+          ${MOBIL_ALT_MENU_GRUPLARI.map(grup => mobilAltMenuGrup(grup, grup.key === aktifGrup.key)).join("")}
         </div>
       </div>
     </div>`;
 
   kap.innerHTML = html;
+  mobilAltMenuBagla(aktifGrup.key);
 
   // Klavye açıkken bottom navbar'ı gizle
   (function klavyeGizlemeBaslat() {
@@ -812,29 +801,92 @@ function yukleBottomNav() {
   })();
 }
 
-function offcanvasGrup(grup) {
-  if (grup.href) {
-    return `
-    <section class="mobile-more-group">
-      <h6>${grup.baslik}</h6>
-      <div class="mobile-more-grid">
-        ${offcanvasOge(grup.href, grup.ikon, grup.baslik, grup.adminOnly)}
-      </div>
-    </section>`;
-  }
+let mobilAltMenuGecmisAktif = false;
 
+function mobilAltNavButonu(grup) {
+  const aktif = mobilAltMenuGrubuAktifMi(grup) ? "aktif" : "";
   return `
-    <section class="mobile-more-group">
+      <button type="button" class="bottom-nav-item ${aktif}" data-mobile-menu-key="${grup.key}"
+              data-bs-toggle="offcanvas" data-bs-target="#mobil-alt-menu" aria-controls="mobil-alt-menu"
+              aria-expanded="false" aria-label="${grup.baslik} menüsünü aç" ${grup.adminOnly ? "data-admin-only" : ""}>
+        <i class="bi ${grup.ikon}"></i>
+        <span>${grup.baslik}</span>
+      </button>`;
+}
+
+function mobilAltMenuGrubuAktifMi(grup) {
+  return grup.ogeler.some(oge => aktifMi(oge.href));
+}
+
+function mobilAltMenuBagla(varsayilanKey) {
+  const modalEl = document.getElementById("mobil-alt-menu");
+  if (!modalEl) return;
+
+  mobilAltMenuSec(varsayilanKey);
+
+  document.querySelectorAll("[data-mobile-menu-key]").forEach(btn => {
+    btn.addEventListener("click", () => mobilAltMenuSec(btn.dataset.mobileMenuKey, true));
+  });
+
+  if (!window.bootstrap?.Offcanvas) return;
+
+  modalEl.addEventListener("shown.bs.offcanvas", () => {
+    mobilAltMenuDugmeleriniGuncelle(modalEl.dataset.activeMobileMenuKey, true);
+    if (mobilAltMenuGecmisAktif) return;
+    mobilAltMenuGecmisAktif = true;
+    const oncekiDurum = history.state && typeof history.state === "object" ? history.state : {};
+    history.pushState({ ...oncekiDurum, obsMobileNav: true }, "", location.href);
+  });
+
+  modalEl.addEventListener("hidden.bs.offcanvas", () => {
+    mobilAltMenuDugmeleriniGuncelle(modalEl.dataset.activeMobileMenuKey, false);
+    if (!mobilAltMenuGecmisAktif || !history.state?.obsMobileNav) return;
+    mobilAltMenuGecmisAktif = false;
+    history.back();
+  });
+
+  window.addEventListener("popstate", () => {
+    if (!modalEl.classList.contains("show")) return;
+    mobilAltMenuGecmisAktif = false;
+    window.bootstrap.Offcanvas.getOrCreateInstance(modalEl).hide();
+  });
+}
+
+function mobilAltMenuSec(key, acik = false) {
+  const grup = MOBIL_ALT_MENU_GRUPLARI.find(item => item.key === key) || MOBIL_ALT_MENU_GRUPLARI[0];
+  const modalEl = document.getElementById("mobil-alt-menu");
+  const baslikEl = document.getElementById("mobil-alt-menu-baslik");
+  if (!modalEl || !baslikEl) return;
+
+  modalEl.dataset.activeMobileMenuKey = grup.key;
+  baslikEl.textContent = grup.baslik;
+  document.querySelectorAll("[data-mobile-menu-panel]").forEach(panel => {
+    panel.hidden = panel.dataset.mobileMenuPanel !== grup.key;
+  });
+  mobilAltMenuDugmeleriniGuncelle(grup.key, acik);
+}
+
+function mobilAltMenuDugmeleriniGuncelle(key, acik) {
+  document.querySelectorAll("[data-mobile-menu-key]").forEach(btn => {
+    const dugmeAcik = acik && btn.dataset.mobileMenuKey === key;
+    btn.classList.toggle("acik", dugmeAcik);
+    btn.setAttribute("aria-expanded", String(dugmeAcik));
+  });
+}
+
+function mobilAltMenuGrup(grup, aktif) {
+  return `
+    <section class="mobile-nav-sheet-panel" data-mobile-menu-panel="${grup.key}" ${aktif ? "" : "hidden"} ${grup.adminOnly ? "data-admin-only" : ""}>
       <h6>${grup.baslik}</h6>
-      <div class="mobile-more-grid">
-        ${grup.ogeler.map(oge => offcanvasOge(oge.href, oge.ikon, oge.etiket, oge.adminOnly)).join("")}
+      <div class="mobile-nav-sheet-grid">
+        ${grup.ogeler.map(oge => mobilAltMenuOge(oge.href, oge.ikon, oge.etiket, oge.adminOnly)).join("")}
       </div>
     </section>`;
 }
 
-function offcanvasOge(href, ikon, etiket, adminOnly = false) {
+function mobilAltMenuOge(href, ikon, etiket, adminOnly = false) {
   return `
-    <a href="${href}" class="mobile-more-item" ${adminOnly ? "data-admin-only" : ""}>
+    <a href="${href}" class="mobile-nav-sheet-item" ${adminOnly ? "data-admin-only" : ""}>
       <i class="bi ${ikon}"></i>
       <span>${etiket}</span>
     </a>`;

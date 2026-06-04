@@ -1,6 +1,6 @@
-import { db } from "./firebase-config.js?v=20260604-83";
-import { doc, getDoc, setDoc } from "./firebase-imports.js?v=20260604-83";
-import { bugun } from "./utils.js?v=20260604-83";
+import { db } from "./firebase-config.js?v=20260604-90";
+import { doc, getDoc, setDoc } from "./firebase-imports.js?v=20260604-90";
+import { bugun } from "./utils.js?v=20260604-90";
 
 const SETTINGS_COLLECTION = "_settings";
 const SCHOOL_DOC_ID = "school";

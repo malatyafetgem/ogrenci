@@ -65,25 +65,14 @@
   function showServerWarning(suggestedBase) {
     window.addEventListener("DOMContentLoaded", () => {
       const warning = document.createElement("div");
-      warning.style.cssText = [
-        "position:fixed",
-        "inset:0",
-        "z-index:99999",
-        "display:flex",
-        "align-items:center",
-        "justify-content:center",
-        "background:#f8f9fa",
-        "font-family:system-ui,sans-serif",
-        "padding:24px",
-        "text-align:center"
-      ].join(";");
+      warning.className = "file-redirect-warning";
       warning.innerHTML = `
-        <div style="max-width:560px;background:#fff;border:1px solid #dee2e6;border-radius:8px;padding:24px;box-shadow:0 10px 30px rgba(0,0,0,.08)">
-          <h2 style="margin-top:0">Yerel sunucu gerekli</h2>
+        <div class="file-redirect-warning-card">
+          <h2 class="file-redirect-warning-title">Yerel sunucu gerekli</h2>
           <p>Bu sistem modul ve Firebase dosyalari kullandigi icin dosyaya cift tiklayarak tam calismaz.</p>
           <p>Yerel sunucuyu baslatin ve tarayicida su adrese gidin:</p>
           <p><strong>${escapeHtml(suggestedBase)}</strong></p>
-          <p style="font-size:13px;color:#6c757d">Farkli bir adres kullaniyorsaniz dosyayi <strong>?${SERVER_PARAM}=http://adres:port/</strong> parametresiyle acabilirsiniz. Gerekirse adrese alt yolu da ekleyin.</p>
+          <p class="file-redirect-warning-note">Farkli bir adres kullaniyorsaniz dosyayi <strong>?${SERVER_PARAM}=http://adres:port/</strong> parametresiyle acabilirsiniz. Gerekirse adrese alt yolu da ekleyin.</p>
         </div>`;
       document.body.innerHTML = "";
       document.body.appendChild(warning);

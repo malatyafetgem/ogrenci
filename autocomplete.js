@@ -1,8 +1,8 @@
 ﻿/**
  * autocomplete.js — Firestore'daki _autocomplete koleksiyonunu okur/yazar.
  */
-import { db } from "./firebase-config.js?v=20260604-83";
-import { doc, getDoc, setDoc } from "./firebase-imports.js?v=20260604-83";
+import { db } from "./firebase-config.js?v=20260604-90";
+import { doc, getDoc, setDoc } from "./firebase-imports.js?v=20260604-90";
 
 // Bellek içi önbellek (aynı oturumda tekrar Firestore'a gitmesin)
 const onbellek = {};
