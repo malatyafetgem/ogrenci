@@ -33,6 +33,8 @@ test("firebase.json güvenlik headerlarını ve gerekli CDN kaynaklarını sın�
   assert.ok(csp.includes("https://cdn.jsdelivr.net"));
   assert.ok(csp.includes("https://cdn.datatables.net"));
   assert.ok(csp.includes("https://www.gstatic.com"));
+  assert.ok(csp.includes("https://fonts.googleapis.com"));
+  assert.ok(csp.includes("https://fonts.gstatic.com"));
   assert.ok(csp.includes("https://*.googleapis.com"));
   assert.ok(csp.includes("object-src 'none'"));
   assert.ok(csp.includes("frame-ancestors 'none'"));

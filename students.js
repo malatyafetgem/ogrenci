@@ -1,15 +1,15 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260604-74";
+import { db } from "./firebase-config.js?v=20260604-75";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, query, where, writeBatch
-} from "./firebase-imports.js?v=20260604-74";
+} from "./firebase-imports.js?v=20260604-75";
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260604-74";
+} from "./utils.js?v=20260604-75";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";

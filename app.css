@@ -25,6 +25,8 @@
   --obs-warning: #E0A100;
   --obs-danger: #D64545;
   --obs-info: #2C82C9;
+  --obs-chart-boy: #4A90D9;
+  --obs-chart-girl: #D96A9A;
 
   --obs-body-bg: #F4F0E9;      /* sıcak kum/krem */
   --obs-surface: #FFFFFF;
@@ -1278,6 +1280,22 @@ body.sidebar-collapsed .app-footer {
 
 .print-baslik { display: none; }
 .cursor-pointer { cursor: pointer; }
+.giris-yontem-kart {
+  border-width: 2px;
+  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+.giris-yontem-kart:hover {
+  border-color: var(--obs-primary);
+  box-shadow: var(--obs-soft-shadow);
+}
+.giris-yontem-kart.secili {
+  background: var(--obs-surface-alt);
+  border-color: var(--obs-primary) !important;
+  box-shadow: 0 0 0 3px rgba(217, 84, 43, .12);
+}
+.giris-yontem-kart:active {
+  transform: scale(.995);
+}
 .davranis-form-card {
   max-width: 680px;
   margin: 0 auto;
@@ -1349,9 +1367,9 @@ body.sidebar-collapsed .app-footer {
   align-items: center;
   justify-content: center;
 }
-.sinif-bar-parca-erkek { background: #4A90D9; }
+.sinif-bar-parca-erkek { background: var(--obs-chart-boy); }
 .sinif-bar-parca-kiz {
-  background: #D96A9A;
+  background: var(--obs-chart-girl);
   border-radius: 0;
 }
 .sinif-bar-parca-kiz.sinif-bar-parca-tek { border-radius: 4px 4px 0 0; }
@@ -2111,8 +2129,8 @@ div.dt-container .dt-input {
 .grafik-legend span { display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; font-size: .82rem; color: var(--obs-ink); }
 .grafik-nokta { width: 11px; height: 11px; border-radius: 4px; flex: none; }
 .grafik-donut-bos { background: conic-gradient(var(--obs-border) 0 100%); }
-.grafik-nokta-erkek { background: #4A90D9; }
-.grafik-nokta-kiz { background: #D96A9A; }
+.grafik-nokta-erkek { background: var(--obs-chart-boy); }
+.grafik-nokta-kiz { background: var(--obs-chart-girl); }
 .grafik-nokta-primary { background: var(--obs-primary); }
 .grafik-nokta-secondary { background: var(--obs-secondary); }
 .grafik-nokta-success { background: var(--obs-success); }
@@ -2225,6 +2243,12 @@ div.dt-container .dt-input {
   .dataTables_paginate,
   .no-print {
     display: none !important;
+  }
+
+  .print-full-width {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
   }
 
   html,

@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-74">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-74">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-74">
-  <script src="file-redirect.js?v=20260604-74"></script>
-  <script src="pwa.js?v=20260604-74"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
+  <script src="file-redirect.js?v=20260604-75"></script>
+  <script src="pwa.js?v=20260604-75"></script>
   <title>Devamsızlık Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-74">
+  <link rel="stylesheet" href="app.css?v=20260604-75">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -53,7 +53,8 @@
         <!-- Yöntem seçimi -->
         <div class="row g-3 mb-4">
           <div class="col-md-6">
-            <div class="card h-100 border-primary cursor-pointer" id="kart-manuel">
+            <div class="card h-100 border-primary cursor-pointer giris-yontem-kart secili"
+                 id="kart-manuel" role="button" tabindex="0" aria-pressed="true" aria-controls="bolum-manuel">
               <div class="card-body text-center py-4">
                 <i class="bi bi-person-check fs-1 text-primary mb-2"></i>
                 <h5>Manuel Giriş</h5>
@@ -62,7 +63,8 @@
             </div>
           </div>
           <div class="col-md-6">
-            <div class="card h-100 cursor-pointer" id="kart-excel">
+            <div class="card h-100 cursor-pointer giris-yontem-kart"
+                 id="kart-excel" role="button" tabindex="0" aria-pressed="false" aria-controls="excel-modal">
               <div class="card-body text-center py-4">
                 <i class="bi bi-file-earmark-excel fs-1 text-success mb-2"></i>
                 <h5>Excel'den Aktar</h5>
@@ -84,7 +86,7 @@
             <div class="row g-3">
               <!-- Öğrenci Ara -->
               <div class="col-md-5">
-                <label class="form-label">Öğrenci <span class="text-danger">*</span></label>
+                <label class="form-label" for="ogr-ara">Öğrenci <span class="text-danger">*</span></label>
                 <div class="position-relative">
                   <input type="text" class="form-control" id="ogr-ara"
                          placeholder="Ad, soyad veya numara ile ara..." autocomplete="off">
@@ -97,12 +99,12 @@
               </div>
 
               <div class="col-md-3">
-                <label class="form-label">Tarih <span class="text-danger">*</span></label>
+                <label class="form-label" for="d-tarih">Tarih <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="d-tarih" placeholder="GG.AA.YYYY">
               </div>
 
               <div class="col-md-2">
-                <label class="form-label">Tür <span class="text-danger">*</span></label>
+                <label class="form-label" for="d-tur">Tür <span class="text-danger">*</span></label>
                 <select class="form-select" id="d-tur">
                   <option value="Özürsüz">Özürsüz</option>
                   <option value="Özürlü">Özürlü</option>
@@ -110,13 +112,13 @@
               </div>
 
               <div class="col-md-2">
-                <label class="form-label">Miktar <span class="text-danger">*</span></label>
+                <label class="form-label" for="d-miktar">Miktar <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="d-miktar" value="1"
                        inputmode="decimal" placeholder="0,5 / 1 / 2">
               </div>
 
               <div class="col-12">
-                <label class="form-label">Açıklama</label>
+                <label class="form-label" for="d-aciklama">Açıklama</label>
                 <input type="text" class="form-control" id="d-aciklama" placeholder="İsteğe bağlı">
               </div>
 
@@ -171,6 +173,12 @@
             bu listenin dışındaki kodlar aktarılmaz. Miktar bilgisi Excel'deki <strong>Miktar</strong>
             sütunundan alınır; 0,5 ve 1 seçili tarih, 2 ve üzeri seçili tarihten başlayan gün aralığıdır.
           </p>
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <span class="small text-muted">Doğru sütun başlıkları ve neden kodlarıyla başlamak için hazır şablonu indirebilirsiniz.</span>
+            <button type="button" class="btn btn-sm btn-outline-success" id="excel-sablon-btn">
+              <i class="bi bi-download me-1"></i>Şablon İndir
+            </button>
+          </div>
           <div class="mb-3">
             <label class="form-label" for="excel-dosya">Excel Dosyası (.xls / .xlsx)</label>
             <input type="file" class="form-control" id="excel-dosya" accept=".xlsx,.xls">
@@ -233,17 +241,17 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260604-74";
-  import { layoutYukle } from "./layout.js?v=20260604-74";
+  import { requireAdmin } from "./auth.js?v=20260604-75";
+  import { layoutYukle } from "./layout.js?v=20260604-75";
   import {
     tumOgrencileriGetir, devamsizlikEkle,
     devamsizliklarGetir, devamsizlikHesapla
-  } from "./students.js?v=20260604-74";
+  } from "./students.js?v=20260604-75";
   import {
     devamsizlikDurum, devamsizlikKapsananTarihler, devamsizlikMiktarEtiketi,
     devamsizlikMiktarSayisi, devamsizlikTarihEtiketi, sayiEtiketiTR,
     toast, formatTarih, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260604-74";
+  } from "./utils.js?v=20260604-75";
 
   let tumOgrenciler = [];
   let excelSatirlar = [];
@@ -302,16 +310,15 @@
 
   function baglayici() {
     // Yöntem kartları
-    document.getElementById("kart-manuel").addEventListener("click", () => {
-      document.getElementById("kart-manuel").classList.add("border-primary");
-      document.getElementById("kart-excel").classList.remove("border-primary");
-      document.getElementById("bolum-manuel").classList.remove("d-none");
-    });
-    document.getElementById("kart-excel").addEventListener("click", () => {
-      document.getElementById("kart-excel").classList.add("border-primary");
-      document.getElementById("kart-manuel").classList.remove("border-primary");
+    const manuelKart = document.getElementById("kart-manuel");
+    const excelKart = document.getElementById("kart-excel");
+    manuelKart.addEventListener("click", () => girisYontemiSec("manuel"));
+    excelKart.addEventListener("click", () => {
+      girisYontemiSec("excel");
       excelSihirbazAc();
     });
+    manuelKart.addEventListener("keydown", event => girisYontemiKlavye(event, "manuel"));
+    excelKart.addEventListener("keydown", event => girisYontemiKlavye(event, "excel"));
 
     // Öğrenci arama
     const araEl = document.getElementById("ogr-ara");
@@ -349,10 +356,30 @@
     // Excel
     document.getElementById("excel-dosya").addEventListener("change", excelDosyaOku);
     document.getElementById("excel-aktar-btn").addEventListener("click", excelAktar);
+    document.getElementById("excel-sablon-btn").addEventListener("click", devamsizlikImportSablonuIndir);
     document.getElementById("excel-modal").addEventListener("hidden.bs.modal", () => {
-      document.getElementById("kart-manuel").classList.add("border-primary");
-      document.getElementById("kart-excel").classList.remove("border-primary");
+      girisYontemiSec("manuel");
     });
+  }
+
+  function girisYontemiKlavye(event, yontem) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    girisYontemiSec(yontem);
+    if (yontem === "excel") excelSihirbazAc();
+  }
+
+  function girisYontemiSec(yontem) {
+    const manuelSecili = yontem === "manuel";
+    const manuelKart = document.getElementById("kart-manuel");
+    const excelKart = document.getElementById("kart-excel");
+    manuelKart.classList.toggle("border-primary", manuelSecili);
+    manuelKart.classList.toggle("secili", manuelSecili);
+    manuelKart.setAttribute("aria-pressed", String(manuelSecili));
+    excelKart.classList.toggle("border-primary", !manuelSecili);
+    excelKart.classList.toggle("secili", !manuelSecili);
+    excelKart.setAttribute("aria-pressed", String(!manuelSecili));
+    document.getElementById("bolum-manuel").classList.remove("d-none");
   }
 
   async function ogrenciSec(ogr) {
@@ -447,6 +474,29 @@
       veri.tarih_bitis = kapsananTarihler[kapsananTarihler.length - 1];
     }
     return veri;
+  }
+
+  function devamsizlikImportSablonuIndir() {
+    const basliklar = EXCEL_ALANLARI.map(alan => alan.aliases?.[0] || alan.label);
+    const satirlar = [
+      { "Öğr. No": "1001", "Tarihi": "01.10.2026", "Miktarı": "1",   "Nedeni": "D" },
+      { "Öğr. No": "1002", "Tarihi": "02.10.2026", "Miktarı": "0,5", "Nedeni": "İ" }
+    ];
+    const ws = XLSX.utils.json_to_sheet(satirlar, { header: basliklar });
+    ws["!cols"] = basliklar.map(baslik => ({ wch: Math.max(12, baslik.length + 2) }));
+
+    const kodSatirlari = Object.entries(NEDEN_TANIMLARI).map(([kod, tanim]) => ({
+      "Kod": kod,
+      "Tür": tanim.tur,
+      "Açıklama": tanim.aciklama
+    }));
+    const kodWs = XLSX.utils.json_to_sheet(kodSatirlari, { header: ["Kod", "Tür", "Açıklama"] });
+    kodWs["!cols"] = [{ wch: 8 }, { wch: 12 }, { wch: 34 }];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Devamsızlık Şablonu");
+    XLSX.utils.book_append_sheet(wb, kodWs, "Neden Kodları");
+    XLSX.writeFile(wb, "devamsizlik_import_sablonu.xlsx");
   }
 
   function cakisanTarihler(tarihler, kayitlar) {

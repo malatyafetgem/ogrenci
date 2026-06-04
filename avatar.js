@@ -82,7 +82,7 @@ export function avatarSrc(cinsiyet) {
         <path d="M31 42c14-5 34-8 61-8" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-opacity=".5"/>
       </g>
 
-      <g filter="url(#avatar-text-shadow)" text-anchor="middle" font-family="Arial Black, Impact, Montserrat, system-ui, sans-serif" font-weight="900" font-style="italic" letter-spacing="1.5">
+      <g filter="url(#avatar-text-shadow)" text-anchor="middle" font-family="Outfit, Impact, Montserrat, system-ui, sans-serif" font-weight="900" font-style="italic" letter-spacing="1.5">
         <text x="64" y="59" fill="#ffffff" stroke="${renk.text}" stroke-width="1.3" paint-order="stroke" font-size="35">FET</text>
         <text x="64" y="93" fill="#ffffff" stroke="${renk.text}" stroke-width="1.3" paint-order="stroke" font-size="35">GEM</text>
       </g>

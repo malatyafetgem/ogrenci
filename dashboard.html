@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-74">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-74">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-74">
-  <script src="file-redirect.js?v=20260604-74"></script>
-  <script src="pwa.js?v=20260604-74"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
+  <script src="file-redirect.js?v=20260604-75"></script>
+  <script src="pwa.js?v=20260604-75"></script>
   <title>Gösterge Paneli</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-74">
+  <link rel="stylesheet" href="app.css?v=20260604-75">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -139,7 +139,7 @@
                 <h6 class="mb-0"><i class="bi bi-clipboard2-pulse me-1"></i> Devamsızlık Durumu</h6>
               </div>
               <div class="card-body">
-                <div class="row g-2" id="devamsizlik-durum-ozet">
+                <div class="row g-2" id="devamsizlik-durum-ozet" aria-live="polite">
                   <div class="col-12 text-muted small">Hazırlanıyor...</div>
                 </div>
                 <div class="table-responsive dashboard-attendance-responsive mt-3">
@@ -153,7 +153,7 @@
                         <th class="text-center">Durum</th>
                       </tr>
                     </thead>
-                    <tbody id="devamsizlik-tablo">
+                    <tbody id="devamsizlik-tablo" aria-live="polite">
                       <tr><td colspan="5" class="text-center text-muted py-3">Veriler hazırlanıyor...</td></tr>
                     </tbody>
                   </table>
@@ -167,7 +167,7 @@
                 <h6 class="mb-0"><i class="bi bi-cake2 me-1"></i> Doğum Günleri (Bugün)</h6>
               </div>
               <div class="card-body p-0">
-                <ul class="list-group list-group-flush" id="dogumgunu-liste">
+                <ul class="list-group list-group-flush" id="dogumgunu-liste" aria-live="polite">
                   <li class="list-group-item text-muted text-center py-3">Hazırlanıyor...</li>
                 </ul>
               </div>
@@ -181,7 +181,7 @@
             <h6 class="mb-0"><i class="bi bi-star-half me-1"></i> Son Davranışlar</h6>
           </div>
           <div class="card-body p-0">
-            <ul class="list-group list-group-flush" id="davranis-liste">
+            <ul class="list-group list-group-flush" id="davranis-liste" aria-live="polite">
               <li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>
             </ul>
           </div>
@@ -203,18 +203,18 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260604-74";
-  import { layoutYukle } from "./layout.js?v=20260604-74";
+  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260604-75";
+  import { layoutYukle } from "./layout.js?v=20260604-75";
   import {
     tumOgrencileriGetir,
     tumDevamsizliklariGetir, tumDavranislariGetir, ogrenciSil
-  } from "./students.js?v=20260604-74";
+  } from "./students.js?v=20260604-75";
   import {
     devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikGunDegeri, devamsizlikRenk,
     compareSinif, compareOgrenciNo, compareTarihDesc,
     sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260604-74";
-  import { APP_VERSION } from "./version.js?v=20260604-74";
+  } from "./utils.js?v=20260604-75";
+  import { APP_VERSION } from "./version.js?v=20260604-75";
 
   let tumOgrenciler = [];
   let seciliOgrenci = null;
@@ -235,7 +235,6 @@
       const ogrenciler = await tumOgrencileriGetir();
       const ozet = ogrenciOzetHazirla(ogrenciler);
       tumOgrencileriAyarla(ozet.ogrenciler);
-      dashboardOzetGoster(ozet);
       dagilimGoster(ozet, ozet.ogrenciler);
       dogumGunleriGoster(ozet.ogrenciler);
       if (!cacheUygulandi) kayitPanelleriniHazirla();
@@ -279,10 +278,6 @@
     }
   }
 
-  function dashboardOzetGoster({ toplam = 0, kiz = 0, erkek = 0, gunduzlu = 0, parali = 0, parasiz = 0 }) {
-    // Özet kartlar kaldırıldı; bu fonksiyon yalnızca cache uyumluluğu için korunmaktadır.
-  }
-
   function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
 
   function dagilimGoster(sayilar, ogrenciler) {
@@ -292,7 +287,7 @@
     const kizYuzde = Math.round((kiz / toplamCinsiyet) * 100);
     const donut = document.getElementById("cinsiyet-donut");
     if (donut) donut.style.background =
-      `conic-gradient(#D96A9A 0 ${kizYuzde}%, #4A90D9 ${kizYuzde}% 100%)`;
+      `conic-gradient(var(--obs-chart-girl) 0 ${kizYuzde}%, var(--obs-chart-boy) ${kizYuzde}% 100%)`;
     setText("donut-toplam", toplam);
     setText("lg-erkek", erkek);
     setText("lg-kiz", kiz);
@@ -434,7 +429,6 @@
   function dashboardCacheUygula(cache) {
     if (!cache) return false;
     if (Array.isArray(cache.ogrenciler)) tumOgrencileriAyarla(cache.ogrenciler);
-    if (cache.ozet) dashboardOzetGoster(cache.ozet);
     if (cache.ozet) dagilimGoster(cache.ozet, tumOgrenciler);
     dogumGunleriGoster(tumOgrenciler);
     if (cache.devamsizlikHtml) document.getElementById("devamsizlik-tablo").innerHTML = cache.devamsizlikHtml;

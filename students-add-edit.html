@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-74">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-74">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-74">
-  <script src="file-redirect.js?v=20260604-74"></script>
-  <script src="pwa.js?v=20260604-74"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
+  <script src="file-redirect.js?v=20260604-75"></script>
+  <script src="pwa.js?v=20260604-75"></script>
   <title>Öğrenci Ekle / Düzenle</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-74">
+  <link rel="stylesheet" href="app.css?v=20260604-75">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -63,31 +63,31 @@
             <p class="form-bolum-baslik">1. Kişisel Bilgiler</p>
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">Ad <span class="text-danger">*</span></label>
+                <label class="form-label" for="f-ad">Ad <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="f-ad" autocomplete="off">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Soyad <span class="text-danger">*</span></label>
+                <label class="form-label" for="f-soyad">Soyad <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="f-soyad" autocomplete="off">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Öğrenci No <span class="text-danger">*</span></label>
+                <label class="form-label" for="f-numara">Öğrenci No <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="f-numara" inputmode="numeric"
                        placeholder="Sadece rakam" autocomplete="off">
                 <div class="invalid-feedback" id="no-hata">Bu numara zaten kullanımda.</div>
               </div>
               <div class="col-md-4">
-                <label class="form-label">Öğrenci Telefonu</label>
+                <label class="form-label" for="f-telefon">Öğrenci Telefonu</label>
                 <input type="text" class="form-control" id="f-telefon" inputmode="numeric" autocomplete="off">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Sınıf <span class="text-danger">*</span></label>
+                <label class="form-label" for="f-sinif">Sınıf <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="f-sinif" list="sinif-list" autocomplete="off"
                        placeholder="Örn: 9-A">
                 <datalist id="sinif-list"></datalist>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Cinsiyet</label>
+                <label class="form-label" for="f-cinsiyet">Cinsiyet</label>
                 <select class="form-select" id="f-cinsiyet">
                   <option value="">Seçin</option>
                   <option>Erkek</option>
@@ -95,7 +95,7 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Yatılılık</label>
+                <label class="form-label" for="f-yatililik">Yatılılık</label>
                 <select class="form-select" id="f-yatililik">
                   <option value="">Seçin</option>
                   <option>Gündüzlü</option>
@@ -104,7 +104,7 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label">Maddi Durum</label>
+                <label class="form-label" for="f-maddi-durum">Maddi Durum</label>
                 <select class="form-select" id="f-maddi-durum">
                   <option value="">Seçin</option>
                   <option>Düşük</option>
@@ -114,11 +114,11 @@
                 </select>
               </div>
               <div class="col-md-8">
-                <label class="form-label">Geldiği Okulun Adı</label>
+                <label class="form-label" for="f-geldigi-okul">Geldiği Okulun Adı</label>
                 <input type="text" class="form-control" id="f-geldigi-okul" autocomplete="off">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Avatar</label>
+                <div class="form-label">Avatar</div>
                 <div class="mt-1">
                   <img id="foto-onizleme" class="ogrenci-avatar-buyuk" alt="">
                 </div>
@@ -128,15 +128,15 @@
             <p class="form-bolum-baslik">2. Kimlik & Doğum</p>
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">TC Kimlik No</label>
+                <label class="form-label" for="f-tc">TC Kimlik No</label>
                 <input type="text" class="form-control" id="f-tc" maxlength="11" inputmode="numeric">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Doğum Tarihi</label>
+                <label class="form-label" for="f-dogum-tarihi">Doğum Tarihi</label>
                 <input type="text" class="form-control" id="f-dogum-tarihi" placeholder="GG.AA.YYYY">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Doğum Yeri</label>
+                <label class="form-label" for="f-dogum-yeri">Doğum Yeri</label>
                 <input type="text" class="form-control" id="f-dogum-yeri" list="dogum-yeri-list" autocomplete="off">
                 <datalist id="dogum-yeri-list"></datalist>
               </div>
@@ -145,15 +145,15 @@
             <p class="form-bolum-baslik">3. Sağlık Bilgileri</p>
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">Hastalık</label>
+                <label class="form-label" for="f-hastalik">Hastalık</label>
                 <input type="text" class="form-control" id="f-hastalik">
               </div>
               <div class="col-md-4">
-                <label class="form-label">Engel</label>
+                <label class="form-label" for="f-engel">Engel</label>
                 <input type="text" class="form-control" id="f-engel">
               </div>
               <div class="col-md-4">
-                <label class="form-label">İlaç</label>
+                <label class="form-label" for="f-ilac">İlaç</label>
                 <input type="text" class="form-control" id="f-ilac">
               </div>
             </div>
@@ -167,7 +167,7 @@
             <p class="form-bolum-baslik">5. Aile Durumu</p>
             <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Aile Durumu</label>
+                <label class="form-label" for="f-aile-durum">Aile Durumu</label>
                 <select class="form-select" id="f-aile-durum">
                   <option value="">Seçin</option>
                   <option>Anne-baba birlikte</option>
@@ -231,18 +231,18 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260604-74";
-  import { layoutYukle } from "./layout.js?v=20260604-74";
+  import { requireAdmin } from "./auth.js?v=20260604-75";
+  import { layoutYukle } from "./layout.js?v=20260604-75";
   import {
     ogrenciGetir, ogrenciEkle, ogrenciGuncelle,
     velileriGetir, veliEkleGuncelle, veliSil, siniflarGetir, noMevcutMu
-  } from "./students.js?v=20260604-74";
+  } from "./students.js?v=20260604-75";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
     gecerliOgrenciNo, gecerliTc, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260604-74";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260604-74";
-  import { avatarSrc } from "./avatar.js?v=20260604-74";
+  } from "./utils.js?v=20260604-75";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260604-75";
+  import { avatarSrc } from "./avatar.js?v=20260604-75";
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");
@@ -398,6 +398,7 @@
 
   function veliKartEkle(veri = {}) {
     const localId = `veli-${veliSayac++}`;
+    const alanId = alan => `${localId}-${alan.replace(/_/g, "-")}`;
     const v = veliNormalize(veri);
     const col = document.createElement("div");
     col.className = "col-12";
@@ -419,79 +420,79 @@
         <div class="card-body">
           <div class="row g-3">
             <div class="col-md-3">
-              <label class="form-label">Yakınlık</label>
-              <select class="form-select" data-field="yakinlik">${selectOptions(YAKINLIK_SECENEKLERI, v.yakinlik, "Seçin")}</select>
+              <label class="form-label" for="${alanId("yakinlik")}">Yakınlık</label>
+              <select class="form-select" id="${alanId("yakinlik")}" data-field="yakinlik">${selectOptions(YAKINLIK_SECENEKLERI, v.yakinlik, "Seçin")}</select>
             </div>
             <div class="col-md-3">
-              <label class="form-label">Durum</label>
-              <select class="form-select" data-field="durum">${selectOptions(VELI_DURUMLARI, v.durum || "Aktif")}</select>
+              <label class="form-label" for="${alanId("durum")}">Durum</label>
+              <select class="form-select" id="${alanId("durum")}" data-field="durum">${selectOptions(VELI_DURUMLARI, v.durum || "Aktif")}</select>
             </div>
             <div class="col-md-3">
-              <label class="form-label">Ad</label>
-              <input type="text" class="form-control" data-field="ad" value="${escapeAttr(v.ad)}" autocomplete="off">
+              <label class="form-label" for="${alanId("ad")}">Ad</label>
+              <input type="text" class="form-control" id="${alanId("ad")}" data-field="ad" value="${escapeAttr(v.ad)}" autocomplete="off">
             </div>
             <div class="col-md-3">
-              <label class="form-label">Soyad</label>
-              <input type="text" class="form-control" data-field="soyad" value="${escapeAttr(v.soyad)}" autocomplete="off">
+              <label class="form-label" for="${alanId("soyad")}">Soyad</label>
+              <input type="text" class="form-control" id="${alanId("soyad")}" data-field="soyad" value="${escapeAttr(v.soyad)}" autocomplete="off">
             </div>
             <div class="col-md-3">
-              <label class="form-label">Telefon</label>
-              <input type="text" class="form-control" data-field="telefon" value="${escapeAttr(v.telefon)}" inputmode="numeric">
+              <label class="form-label" for="${alanId("telefon")}">Telefon</label>
+              <input type="text" class="form-control" id="${alanId("telefon")}" data-field="telefon" value="${escapeAttr(v.telefon)}" inputmode="numeric">
             </div>
             <div class="col-md-3">
-              <label class="form-label">E-Posta</label>
-              <input type="email" class="form-control" data-field="e_posta" value="${escapeAttr(v.e_posta)}">
+              <label class="form-label" for="${alanId("e_posta")}">E-Posta</label>
+              <input type="email" class="form-control" id="${alanId("e_posta")}" data-field="e_posta" value="${escapeAttr(v.e_posta)}">
             </div>
             <div class="col-md-3">
-              <label class="form-label">İletişim Sırası</label>
-              <input type="number" class="form-control" data-field="iletisim_sirasi" value="${escapeAttr(v.iletisim_sirasi || "")}" min="0">
+              <label class="form-label" for="${alanId("iletisim_sirasi")}">İletişim Sırası</label>
+              <input type="number" class="form-control" id="${alanId("iletisim_sirasi")}" data-field="iletisim_sirasi" value="${escapeAttr(v.iletisim_sirasi || "")}" min="0">
             </div>
             <div class="col-md-3">
-              <label class="form-label">Çalışma Durumu</label>
-              <select class="form-select" data-field="calisma_durumu">${selectOptions(CALISMA_DURUMLARI, v.calisma_durumu, "Seçin")}</select>
+              <label class="form-label" for="${alanId("calisma_durumu")}">Çalışma Durumu</label>
+              <select class="form-select" id="${alanId("calisma_durumu")}" data-field="calisma_durumu">${selectOptions(CALISMA_DURUMLARI, v.calisma_durumu, "Seçin")}</select>
             </div>
             <div class="col-md-3">
-              <label class="form-label">Meslek Grubu / Sektör</label>
-              <input type="text" class="form-control" data-field="meslek_grubu" value="${escapeAttr(v.meslek_grubu)}" list="meslek-grubu-list" autocomplete="off">
+              <label class="form-label" for="${alanId("meslek_grubu")}">Meslek Grubu / Sektör</label>
+              <input type="text" class="form-control" id="${alanId("meslek_grubu")}" data-field="meslek_grubu" value="${escapeAttr(v.meslek_grubu)}" list="meslek-grubu-list" autocomplete="off">
             </div>
             <div class="col-md-3">
-              <label class="form-label">Meslek</label>
-              <input type="text" class="form-control" data-field="meslek" value="${escapeAttr(v.meslek)}" list="meslek-list" autocomplete="off">
+              <label class="form-label" for="${alanId("meslek")}">Meslek</label>
+              <input type="text" class="form-control" id="${alanId("meslek")}" data-field="meslek" value="${escapeAttr(v.meslek)}" list="meslek-list" autocomplete="off">
             </div>
             <div class="col-md-3">
-              <label class="form-label">Görev / Unvan</label>
-              <input type="text" class="form-control" data-field="gorev_unvan" value="${escapeAttr(v.gorev_unvan)}" list="gorev-list" autocomplete="off">
+              <label class="form-label" for="${alanId("gorev_unvan")}">Görev / Unvan</label>
+              <input type="text" class="form-control" id="${alanId("gorev_unvan")}" data-field="gorev_unvan" value="${escapeAttr(v.gorev_unvan)}" list="gorev-list" autocomplete="off">
             </div>
             <div class="col-md-4">
-              <label class="form-label">Kurum / İş Yeri</label>
-              <input type="text" class="form-control" data-field="kurum" value="${escapeAttr(v.kurum)}" list="kurum-list" autocomplete="off">
+              <label class="form-label" for="${alanId("kurum")}">Kurum / İş Yeri</label>
+              <input type="text" class="form-control" id="${alanId("kurum")}" data-field="kurum" value="${escapeAttr(v.kurum)}" list="kurum-list" autocomplete="off">
             </div>
             <div class="col-md-4">
-              <label class="form-label">İl</label>
-              <input type="text" class="form-control" data-field="il" value="${escapeAttr(v.il)}" list="il-list" autocomplete="off">
+              <label class="form-label" for="${alanId("il")}">İl</label>
+              <input type="text" class="form-control" id="${alanId("il")}" data-field="il" value="${escapeAttr(v.il)}" list="il-list" autocomplete="off">
             </div>
             <div class="col-md-4">
-              <label class="form-label">İlçe</label>
-              <input type="text" class="form-control" data-field="ilce" value="${escapeAttr(v.ilce)}" autocomplete="off">
+              <label class="form-label" for="${alanId("ilce")}">İlçe</label>
+              <input type="text" class="form-control" id="${alanId("ilce")}" data-field="ilce" value="${escapeAttr(v.ilce)}" autocomplete="off">
             </div>
             <div class="col-md-8">
-              <label class="form-label">Adres</label>
-              <input type="text" class="form-control" data-field="adres" value="${escapeAttr(v.adres)}" autocomplete="off">
+              <label class="form-label" for="${alanId("adres")}">Adres</label>
+              <input type="text" class="form-control" id="${alanId("adres")}" data-field="adres" value="${escapeAttr(v.adres)}" autocomplete="off">
             </div>
             <div class="col-md-4">
-              <label class="form-label">Notlar</label>
-              <input type="text" class="form-control" data-field="notlar" value="${escapeAttr(v.notlar)}" autocomplete="off">
+              <label class="form-label" for="${alanId("notlar")}">Notlar</label>
+              <input type="text" class="form-control" id="${alanId("notlar")}" data-field="notlar" value="${escapeAttr(v.notlar)}" autocomplete="off">
             </div>
             <div class="col-md-6">
               <div class="form-check form-switch mt-2">
-                <input class="form-check-input" type="checkbox" data-field="birincil" ${v.birincil ? "checked" : ""}>
-                <label class="form-check-label">Birincil veli</label>
+                <input class="form-check-input" type="checkbox" id="${alanId("birincil")}" data-field="birincil" ${v.birincil ? "checked" : ""}>
+                <label class="form-check-label" for="${alanId("birincil")}">Birincil veli</label>
               </div>
             </div>
             <div class="col-md-6">
               <div class="form-check form-switch mt-2">
-                <input class="form-check-input" type="checkbox" data-field="acil_kisi" ${v.acil_kisi ? "checked" : ""}>
-                <label class="form-check-label">Acil durumda aranacak kişi</label>
+                <input class="form-check-input" type="checkbox" id="${alanId("acil_kisi")}" data-field="acil_kisi" ${v.acil_kisi ? "checked" : ""}>
+                <label class="form-check-label" for="${alanId("acil_kisi")}">Acil durumda aranacak kişi</label>
               </div>
             </div>
           </div>

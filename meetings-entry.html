@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-74">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-74">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-74">
-  <script src="file-redirect.js?v=20260604-74"></script>
-  <script src="pwa.js?v=20260604-74"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
+  <script src="file-redirect.js?v=20260604-75"></script>
+  <script src="pwa.js?v=20260604-75"></script>
   <title>Veli Görüşmesi Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-74">
+  <link rel="stylesheet" href="app.css?v=20260604-75">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -57,7 +57,7 @@
             <div class="row g-3">
               <!-- Öğrenci -->
               <div class="col-12">
-                <label class="form-label">Öğrenci <span class="text-danger">*</span></label>
+                <label class="form-label" for="ogr-ara">Öğrenci <span class="text-danger">*</span></label>
                 <div class="position-relative">
                   <input type="text" class="form-control" id="ogr-ara"
                          placeholder="Ad, soyad veya numara..." autocomplete="off">
@@ -71,13 +71,13 @@
 
               <!-- Tarih -->
               <div class="col-md-4">
-                <label class="form-label">Görüşme Tarihi <span class="text-danger">*</span></label>
+                <label class="form-label" for="g-tarih">Görüşme Tarihi <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="g-tarih" placeholder="GG.AA.YYYY">
               </div>
 
               <!-- Veli -->
               <div class="col-md-4">
-                <label class="form-label">Veli <span class="text-danger">*</span></label>
+                <label class="form-label" for="g-veli-tur">Veli <span class="text-danger">*</span></label>
                 <select class="form-select" id="g-veli-tur">
                   <option value="">Seçin</option>
                 </select>
@@ -85,14 +85,14 @@
 
               <!-- Veli adı -->
               <div class="col-md-4">
-                <label class="form-label">Veli Adı</label>
+                <label class="form-label" for="g-veli-adi">Veli Adı</label>
                 <input type="text" class="form-control" id="g-veli-adi"
                        placeholder="Otomatik dolabilir">
               </div>
 
               <!-- Konu -->
               <div class="col-12">
-                <label class="form-label">Görüşme Konusu <span class="text-danger">*</span></label>
+                <label class="form-label" for="g-konu">Görüşme Konusu <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="g-konu"
                        list="konu-list" autocomplete="off"
                        placeholder="Örn: Devamsızlık, Başarı Durumu...">
@@ -101,7 +101,7 @@
 
               <!-- Açıklama -->
               <div class="col-12">
-                <label class="form-label">Açıklama / Notlar</label>
+                <label class="form-label" for="g-aciklama">Açıklama / Notlar</label>
                 <textarea class="form-control" id="g-aciklama" rows="4"
                           placeholder="Görüşme özeti..."></textarea>
               </div>
@@ -138,11 +138,11 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260604-74";
-  import { layoutYukle } from "./layout.js?v=20260604-74";
-  import { tumOgrencileriGetir, velileriGetir, gorusmeEkle } from "./students.js?v=20260604-74";
-  import { formatMetin, formatAd, escapeHtml, escapeAttr } from "./utils.js?v=20260604-74";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260604-74";
+  import { requireAdmin } from "./auth.js?v=20260604-75";
+  import { layoutYukle } from "./layout.js?v=20260604-75";
+  import { tumOgrencileriGetir, velileriGetir, gorusmeEkle } from "./students.js?v=20260604-75";
+  import { formatMetin, formatAd, escapeHtml, escapeAttr } from "./utils.js?v=20260604-75";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260604-75";
 
   let tumOgrenciler = [];
   let seciliOgrVeliler = [];

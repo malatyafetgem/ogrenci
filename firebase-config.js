@@ -5,7 +5,7 @@ import {
   initializeFirestore,
   persistentLocalCache,
   persistentMultipleTabManager
-} from "./firebase-imports.js?v=20260604-74";
+} from "./firebase-imports.js?v=20260604-75";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCy1ny9QfkRnV3KcMRwBubPCOQyScLylQU",

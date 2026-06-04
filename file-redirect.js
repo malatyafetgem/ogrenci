@@ -73,7 +73,7 @@
         "align-items:center",
         "justify-content:center",
         "background:#f8f9fa",
-        "font-family:Arial,sans-serif",
+        "font-family:system-ui,sans-serif",
         "padding:24px",
         "text-align:center"
       ].join(";");

@@ -2,15 +2,16 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260604-74";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260604-74";
-import { escapeHtml } from "./utils.js?v=20260604-74";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260604-75";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260604-75";
+import { escapeHtml, toast } from "./utils.js?v=20260604-75";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
 let yazdirmaDtDurumlari = [];
 let yazdirmaSekmeDurumlari = [];
 let yazdirmaHazir = false;
+let yazdirmaDonemi = okulDonemiEtiketi();
 
 const MENU_GRUPLARI = [
   {
@@ -98,10 +99,13 @@ async function okulDonemiYukle() {
   if (!el) return;
   try {
     const ayarlar = await okulAyarlariGetir();
-    el.textContent = okulDonemiEtiketi(ayarlar);
+    yazdirmaDonemi = okulDonemiEtiketi(ayarlar);
+    el.textContent = yazdirmaDonemi;
   } catch {
-    el.textContent = "2025-2026 · 2. Dönem";
+    yazdirmaDonemi = okulDonemiEtiketi();
+    el.textContent = yazdirmaDonemi;
   }
+  yazdirmaBasliginiGuncelle();
 }
 
 function baglaYazdirmaYardimcilari() {
@@ -140,6 +144,10 @@ function yazdirmaTiklamaDinle(e) {
 }
 
 function obsYazdir() {
+  if (yazdirmaFiltreBekliyorMu()) {
+    toast("Önce filtreleri seçip Filtrele'ye basın.", "warning");
+    return;
+  }
   yazdirmayaHazirla();
   setTimeout(() => {
     try {
@@ -198,6 +206,20 @@ function yazdirmaBasliginiGuncelle() {
     || document.title
     || "Öğrenci Bilgileri";
   document.body.dataset.printTitle = baslik;
+  document.body.dataset.printPeriod = yazdirmaDonemi;
+}
+
+function yazdirmaBaslikEtiketi(baslik) {
+  const temizBaslik = String(baslik || "").replace(/\s+/g, " ").trim() || "Öğrenci Bilgileri";
+  const donem = (document.body.dataset.printPeriod || yazdirmaDonemi || "").replace(/\s+/g, " ").trim();
+  if (!donem || temizBaslik.includes(donem)) return temizBaslik;
+  return `${temizBaslik} · ${donem}`;
+}
+
+function yazdirmaFiltreBekliyorMu() {
+  return Array.from(document.querySelectorAll("table tbody"))
+    .filter(tbody => !tbody.closest(".no-print"))
+    .some(tbody => (tbody.textContent || "").includes("Filtreleri seçip Filtrele'ye basın"));
 }
 
 function yazdirmaSayfaSinifiGuncelle() {
@@ -228,7 +250,7 @@ function yazdirmaTabloBasliklariEkle() {
     row.setAttribute("data-obs-print-title-row", "true");
     const cell = document.createElement("th");
     cell.colSpan = kolonSayisi;
-    cell.textContent = tamBaslik;
+    cell.textContent = yazdirmaBaslikEtiketi(tamBaslik);
     row.appendChild(cell);
   });
 }
@@ -286,7 +308,7 @@ function listeYazdirmaTablolariEkle() {
       titleRow.className = "obs-list-print-title-row";
       const titleCell = document.createElement("th");
       titleCell.colSpan = basliklar.length;
-      titleCell.textContent = sinif ? `${sinif} ${sayfaBaslik}` : sayfaBaslik;
+      titleCell.textContent = yazdirmaBaslikEtiketi(sinif ? `${sinif} ${sayfaBaslik}` : sayfaBaslik);
       titleRow.appendChild(titleCell);
 
       const headerRow = thead.insertRow();
@@ -533,7 +555,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-logo-only d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260604-74" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260604-75" alt="Öğrenci Bilgileri"></span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
@@ -563,7 +585,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260604-74");
+    const { logout } = await import("./auth.js?v=20260604-75");
     logout();
   });
 
@@ -592,7 +614,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260604-74");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260604-75");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -682,9 +704,9 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260604-74");
+    const { db } = await import("./firebase-config.js?v=20260604-75");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260604-74");
+      await import("./firebase-imports.js?v=20260604-75");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),

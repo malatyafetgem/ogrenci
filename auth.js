@@ -1,6 +1,6 @@
-import { auth } from "./firebase-config.js?v=20260604-74";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260604-74";
-import { toast } from "./utils.js?v=20260604-74";
+import { auth } from "./firebase-config.js?v=20260604-75";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260604-75";
+import { toast } from "./utils.js?v=20260604-75";
 
 const adminClaimUids = new Set();
 
@@ -93,7 +93,19 @@ export async function login(email, password) {
  */
 export async function logout() {
   await signOut(auth);
+  adminClaimUids.clear();
+  temizleYerelOturumCache();
   window.location.href = "index.html";
+}
+
+function temizleYerelOturumCache() {
+  try {
+    Object.keys(localStorage)
+      .filter(key => key.startsWith("obs-"))
+      .forEach(key => localStorage.removeItem(key));
+  } catch {
+    // localStorage kapalıysa çıkış akışı yine devam eder.
+  }
 }
 
 /**

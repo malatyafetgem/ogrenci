@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-74">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-74">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-74">
-  <script src="file-redirect.js?v=20260604-74"></script>
-  <script src="pwa.js?v=20260604-74"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
+  <script src="file-redirect.js?v=20260604-75"></script>
+  <script src="pwa.js?v=20260604-75"></script>
   <title>Davranış Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-74">
+  <link rel="stylesheet" href="app.css?v=20260604-75">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -58,13 +58,13 @@
           <div class="card-body py-2">
             <div class="row g-2 align-items-end">
               <div class="col-6 col-md-3">
-                <label class="form-label small mb-1">Sınıf</label>
+                <label class="form-label small mb-1" for="filtre-sinif">Sınıf</label>
                 <select id="filtre-sinif" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Tür</label>
+                <label class="form-label small mb-1" for="filtre-tur">Tür</label>
                 <select id="filtre-tur" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                   <option>Olumlu</option>
@@ -72,7 +72,7 @@
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Kategori</label>
+                <label class="form-label small mb-1" for="filtre-kategori">Kategori</label>
                 <select id="filtre-kategori" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                   <option>Yardımseverlik</option><option>Sosyal Katkı</option>
@@ -83,11 +83,11 @@
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Tarih Başlangıç</label>
+                <label class="form-label small mb-1" for="filtre-bas">Tarih Başlangıç</label>
                 <input type="text" class="form-control form-control-sm" id="filtre-bas" placeholder="GG.AA.YYYY">
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Tarih Bitiş</label>
+                <label class="form-label small mb-1" for="filtre-bit">Tarih Bitiş</label>
                 <input type="text" class="form-control form-control-sm" id="filtre-bit" placeholder="GG.AA.YYYY">
               </div>
               <div class="col-6 col-md-2">
@@ -137,7 +137,7 @@
 
         <div class="row g-3">
           <!-- Grafikler -->
-          <div class="col-12 col-md-4">
+          <div class="col-12 col-md-4 no-print">
             <div class="card h-100">
               <div class="card-header d-flex align-items-center justify-content-between">
                 <h6 class="mb-0">Kategori Dağılımı</h6>
@@ -166,7 +166,7 @@
           </div>
 
           <!-- Tablo -->
-          <div class="col-12 col-md-8">
+          <div class="col-12 col-md-8 print-full-width">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="mb-0">Kayıtlar <span class="badge bg-secondary ms-1" id="kayit-sayisi">0</span></h6>
@@ -192,7 +192,7 @@
                       </tr>
                     </thead>
                     <tbody id="davranis-tbody">
-                      <tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip arama düğmesine basın.</td></tr>
+                      <tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -220,7 +220,7 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260604-74"></script>
+<script src="datatable-fallback.js?v=20260604-75"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"
         integrity="sha384-5JqMv4L/Xa0hfvtF06qboNdhvuYXUku9ZrhZh3bSk8VXF0A/RuSLHpLsSV9Zqhl6"
         crossorigin="anonymous"></script>
@@ -235,15 +235,16 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260604-74";
-  import { layoutYukle } from "./layout.js?v=20260604-74";
-  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir } from "./students.js?v=20260604-74";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr } from "./utils.js?v=20260604-74";
+  import { requireAuth } from "./auth.js?v=20260604-75";
+  import { layoutYukle } from "./layout.js?v=20260604-75";
+  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir } from "./students.js?v=20260604-75";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast } from "./utils.js?v=20260604-75";
 
   let raporVerisi = [];
   let dt = null;
   let grafik = null;
   let aktifGrafikMod = "tum"; // "tum" | "olumlu" | "olumsuz"
+  let filtreUygulandi = false;
 
   requireAuth(async () => {
     layoutYukle();
@@ -286,11 +287,12 @@
     if (dt) { dt.destroy(); dt = null; }
     if (grafik) { grafik.destroy(); grafik = null; }
     raporVerisi = [];
+    filtreUygulandi = false;
     document.getElementById("kayit-sayisi").textContent = "0";
     document.getElementById("ozet-kartlar").classList.add("d-none");
     document.getElementById("tur-karsilastirma").classList.add("d-none");
     document.getElementById("davranis-tbody").innerHTML =
-      `<tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip arama düğmesine basın.</td></tr>`;
+      `<tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>`;
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
   }
@@ -380,6 +382,7 @@
 
     grafikGuncelle();
 
+    filtreUygulandi = true;
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
   }
@@ -440,6 +443,14 @@
   }
 
   function excelExport() {
+    if (!filtreUygulandi) {
+      toast("Önce filtreleri seçip Filtrele'ye basın.", "warning");
+      return;
+    }
+    if (!raporVerisi.length) {
+      toast("Excel'e aktarılacak kayıt yok.", "warning");
+      return;
+    }
     const satirlar = raporVerisi.map(d => ({
       "Tarih": d.tarih, "Ad": d.ogr.ad, "Soyad": d.ogr.soyad, "Sınıf": d.ogr.sinif,
       "Tür": d.tur, "Kategori": d.kategori, "Açıklama": d.aciklama

@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-74">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-74">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-74">
-  <script src="file-redirect.js?v=20260604-74"></script>
-  <script src="pwa.js?v=20260604-74"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
+  <script src="file-redirect.js?v=20260604-75"></script>
+  <script src="pwa.js?v=20260604-75"></script>
   <title>Veli Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/css/dataTables.bootstrap5.min.css"
           integrity="sha384-xkQqWcEusZ1bIXoKJoItkNbJJ1LG5QwR5InghOwFLsCoEkGcNLYjE0O83wWruaK9"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-74">
+  <link rel="stylesheet" href="app.css?v=20260604-75">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -54,13 +54,13 @@
           <div class="card-body py-2">
             <div class="row g-2 align-items-end">
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Sınıf</label>
+                <label class="form-label small mb-1" for="filtre-sinif">Sınıf</label>
                 <select id="filtre-sinif" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Yatılılık</label>
+                <label class="form-label small mb-1" for="filtre-yatililik">Yatılılık</label>
                 <select id="filtre-yatililik" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                   <option>Gündüzlü</option>
@@ -70,7 +70,7 @@
                 </select>
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1">Durum</label>
+                <label class="form-label small mb-1" for="filtre-durum">Durum</label>
                 <select id="filtre-durum" class="form-select form-select-sm">
                   <option value="">Tümü</option>
                   <option value="Aktif">Aktif</option>
@@ -78,7 +78,7 @@
                 </select>
               </div>
               <div class="col-6 col-md-3">
-                <label class="form-label small mb-1">Yakınlık</label>
+                <label class="form-label small mb-1" for="filtre-tur">Yakınlık</label>
                 <select id="filtre-tur" class="form-select form-select-sm">
                   <option value="">Tümü</option>
                   <option>Anne</option>
@@ -166,20 +166,20 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260604-74"></script>
+<script src="datatable-fallback.js?v=20260604-75"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
         integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260604-74";
-  import { layoutYukle } from "./layout.js?v=20260604-74";
-  import { tumSiniflariGetir, tumOgrencileriDurumlariylaGetir, tumVelileriGetir } from "./students.js?v=20260604-74";
+  import { requireAuth } from "./auth.js?v=20260604-75";
+  import { layoutYukle } from "./layout.js?v=20260604-75";
+  import { tumSiniflariGetir, tumOgrencileriDurumlariylaGetir, tumVelileriGetir } from "./students.js?v=20260604-75";
   import {
     toast, compareSinif, compareOgrenciNo,
     sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari,
     escapeHtml, escapeAttr
-  } from "./utils.js?v=20260604-74";
+  } from "./utils.js?v=20260604-75";
 
   const VELI_BASLIKLARI = [
     "Sıra", "Öğrenci No", "Öğrenci Adı Soyadı", "Sınıfı",
@@ -190,6 +190,7 @@
 
   let tumSatirlar = [];
   let dt = null;
+  let filtreUygulandi = false;
 
   requireAuth(async () => {
     layoutYukle();
@@ -206,6 +207,7 @@
   function tabloBekle() {
     if (dt) { dt.destroy(); dt = null; }
     tumSatirlar = [];
+    filtreUygulandi = false;
     document.getElementById("kayit-sayisi").textContent = "0";
     document.getElementById("veli-tbody").innerHTML =
       `<tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>`;
@@ -256,6 +258,7 @@
       tumSatirlar = veriListesi
         .sort((a, b) => compareSinif(a.sinif, b.sinif) || compareOgrenciNo(a.no, b.no))
         .map((satir, index) => ({ ...satir, sira: index + 1 }));
+      filtreUygulandi = true;
       tabloGoster(tumSatirlar);
     } catch (err) {
       tumSatirlar = [];
@@ -372,6 +375,14 @@
   }
 
   function excelExport() {
+    if (!filtreUygulandi) {
+      toast("Önce filtreleri seçip Filtrele'ye basın.", "warning");
+      return;
+    }
+    if (!tumSatirlar.length) {
+      toast("Excel'e aktarılacak kayıt yok.", "warning");
+      return;
+    }
     const satirlar = tumSatirlar.map(excelSatiriOlustur);
     const ws = XLSX.utils.json_to_sheet(satirlar);
     const wb = XLSX.utils.book_new();

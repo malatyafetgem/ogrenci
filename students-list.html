@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-74">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-74">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-74">
-  <script src="file-redirect.js?v=20260604-74"></script>
-  <script src="pwa.js?v=20260604-74"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
+  <script src="file-redirect.js?v=20260604-75"></script>
+  <script src="pwa.js?v=20260604-75"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/css/dataTables.bootstrap5.min.css"
           integrity="sha384-xkQqWcEusZ1bIXoKJoItkNbJJ1LG5QwR5InghOwFLsCoEkGcNLYjE0O83wWruaK9"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-74">
+  <link rel="stylesheet" href="app.css?v=20260604-75">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -55,13 +55,13 @@
           <div class="card-body py-2">
             <div class="row g-2 align-items-end">
               <div class="col-6 col-md-3">
-                <label class="form-label small mb-1">Sınıf</label>
+                <label class="form-label small mb-1" for="filtre-sinif">Sınıf</label>
                 <select id="filtre-sinif" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                 </select>
               </div>
               <div class="col-6 col-md-3">
-                <label class="form-label small mb-1">Cinsiyet</label>
+                <label class="form-label small mb-1" for="filtre-cinsiyet">Cinsiyet</label>
                 <select id="filtre-cinsiyet" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                   <option>Erkek</option>
@@ -69,7 +69,7 @@
                 </select>
               </div>
               <div class="col-6 col-md-3">
-                <label class="form-label small mb-1">Yatılılık</label>
+                <label class="form-label small mb-1" for="filtre-yatililik">Yatılılık</label>
                 <select id="filtre-yatililik" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
                   <option>Gündüzlü</option>
@@ -79,7 +79,7 @@
                 </select>
               </div>
               <div class="col-6 col-md-3">
-                <label class="form-label small mb-1">Durum</label>
+                <label class="form-label small mb-1" for="filtre-durum">Durum</label>
                 <select id="filtre-durum" class="form-select form-select-sm">
                   <option value="">Tümü</option>
                   <option value="Aktif" selected>Aktif</option>
@@ -163,6 +163,12 @@
                     Öğrenci No her aktarımda eşleştirilmelidir. Öğrenci ve veli adları
                     ister tek parça "Adı Soyadı", ister ayrı "Ad" ve "Soyad" alanlarıyla aktarılabilir.
                   </p>
+                  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <span class="small text-muted">Doğru sütun başlıklarıyla başlamak için hazır şablonu indirebilirsiniz.</span>
+                    <button type="button" class="btn btn-sm btn-outline-success" id="import-sablon-btn">
+                      <i class="bi bi-download me-1"></i>Şablon İndir
+                    </button>
+                  </div>
                   <div class="mb-3">
                     <label class="form-label" for="import-modu">Aktarım Tipi</label>
                     <select class="form-select" id="import-modu">
@@ -228,25 +234,26 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260604-74"></script>
+<script src="datatable-fallback.js?v=20260604-75"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
         integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260604-74";
-  import { layoutYukle } from "./layout.js?v=20260604-74";
+  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260604-75";
+  import { layoutYukle } from "./layout.js?v=20260604-75";
   import {
     ogrenciEkle, ogrenciGuncelle, noMevcutMu,
     velileriGetir, veliEkleGuncelle, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir
-  } from "./students.js?v=20260604-74";
+  } from "./students.js?v=20260604-75";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, formatTarih, toast, bugun,
     compareOgrenci, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
-  } from "./utils.js?v=20260604-74";
+  } from "./utils.js?v=20260604-75";
   let tumOgrenciler = [];
   let dt = null;
   let filtreZamanlayici = null;
+  let filtreUygulandi = false;
 
   const IMPORT_ALANLARI = [
     { key: "numara",         label: "Öğrenci No",          required: true,     aliases: ["no", "numara", "öğrenci no", "ogrenci no", "öğrenci numarası"] },
@@ -316,6 +323,7 @@
   function tabloBekle() {
     if (dt) { dt.destroy(); dt = null; }
     tumOgrenciler = [];
+    filtreUygulandi = false;
     document.getElementById("kayit-sayisi").textContent = "0";
     document.getElementById("ozet-cipler").innerHTML = "";
     document.getElementById("ogrenci-tbody").innerHTML =
@@ -338,6 +346,7 @@
       ogrenciler.sort(compareOgrenci);
 
       tumOgrenciler = ogrenciler;
+      filtreUygulandi = true;
       tabloYukle(ogrenciler);
     } catch (err) {
       tumOgrenciler = [];
@@ -477,6 +486,7 @@
 
     document.getElementById("import-dosya-input").addEventListener("change", dosyaOku);
     document.getElementById("import-baslat-btn").addEventListener("click", importBaslat);
+    document.getElementById("import-sablon-btn").addEventListener("click", ogrenciImportSablonuIndir);
     document.getElementById("import-modu").addEventListener("change", () => {
       importModuAciklamaGuncelle();
       previewGuncelle();
@@ -484,6 +494,14 @@
   }
 
   function excelExport() {
+    if (!filtreUygulandi) {
+      toast("Önce filtreleri seçip Filtrele'ye basın.", "warning");
+      return;
+    }
+    if (!tumOgrenciler.length) {
+      toast("Excel'e aktarılacak kayıt yok.", "warning");
+      return;
+    }
     const satirlar = tumOgrenciler.map(o => ({
       "No": o.numara || o.id,
       "Ad": o.ad || "",
@@ -498,6 +516,38 @@
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Öğrenciler");
     XLSX.writeFile(wb, `ogrenciler_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  function ogrenciImportSablonuIndir() {
+    const basliklar = IMPORT_ALANLARI.map(alan => alan.label);
+    const ornekSatir = basliklar.reduce((satir, baslik) => {
+      satir[baslik] = ogrenciSablonOrnegi(baslik);
+      return satir;
+    }, {});
+    const ws = XLSX.utils.json_to_sheet([ornekSatir], { header: basliklar });
+    ws["!cols"] = basliklar.map(baslik => ({ wch: Math.max(14, Math.min(28, baslik.length + 2)) }));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Öğrenci Şablonu");
+    XLSX.writeFile(wb, "ogrenci_import_sablonu.xlsx");
+  }
+
+  function ogrenciSablonOrnegi(baslik) {
+    const ornekler = {
+      "Öğrenci No": "1001",
+      "Ad": "Ada",
+      "Soyad": "Yılmaz",
+      "Sınıf": "9-A",
+      "Doğum Tarihi": "01.09.2011",
+      "Cinsiyet": "Kız",
+      "Öğrenci Telefonu": "05xx xxx xx xx",
+      "Yatılılık": "Gündüzlü",
+      "Veli 1 Yakınlık": "Anne",
+      "Veli 1 Ad": "Ayşe",
+      "Veli 1 Soyad": "Yılmaz",
+      "Veli 1 Telefon": "05xx xxx xx xx",
+      "Veli 1 Birincil": "Evet"
+    };
+    return ornekler[baslik] || "";
   }
 
   let importVerisi = [];

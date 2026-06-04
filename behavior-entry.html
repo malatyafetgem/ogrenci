@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260604-74">
+  <link rel="manifest" href="manifest.webmanifest?v=20260604-75">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-74">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-74">
-  <link rel="shortcut icon" href="favicon.ico?v=20260604-74">
-  <script src="file-redirect.js?v=20260604-74"></script>
-  <script src="pwa.js?v=20260604-74"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260604-75">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260604-75">
+  <link rel="shortcut icon" href="favicon.ico?v=20260604-75">
+  <script src="file-redirect.js?v=20260604-75"></script>
+  <script src="pwa.js?v=20260604-75"></script>
   <title>Davranış Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260604-74">
+  <link rel="stylesheet" href="app.css?v=20260604-75">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -69,7 +69,7 @@
             <div id="form-alani" class="d-none">
               <!-- Öğrenci -->
               <div class="mb-3">
-                <label class="form-label">Öğrenci <span class="text-danger">*</span></label>
+                <label class="form-label" for="ogr-ara">Öğrenci <span class="text-danger">*</span></label>
                 <div class="position-relative">
                   <input type="text" class="form-control" id="ogr-ara"
                          placeholder="Ad, soyad veya numara..." autocomplete="off">
@@ -83,21 +83,22 @@
 
               <!-- Tarih -->
               <div class="mb-3">
-                <label class="form-label">Tarih <span class="text-danger">*</span></label>
+                <label class="form-label" for="d-tarih">Tarih <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="d-tarih" placeholder="GG.AA.YYYY">
               </div>
 
               <!-- Kategori -->
               <div class="mb-3">
-                <label class="form-label">Kategori <span class="text-danger">*</span></label>
+                <label class="form-label" for="d-kategori">Kategori <span class="text-danger">*</span></label>
                 <select class="form-select" id="d-kategori">
                   <option value="">Seçin</option>
                 </select>
+                <div id="kategori-yardim" class="form-text d-none" aria-live="polite"></div>
               </div>
 
               <!-- Açıklama -->
               <div class="mb-3">
-                <label class="form-label">Açıklama</label>
+                <label class="form-label" for="d-aciklama">Açıklama</label>
                 <textarea class="form-control" id="d-aciklama" rows="3"
                           placeholder="Davranışa ilişkin not..."></textarea>
               </div>
@@ -132,10 +133,10 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260604-74";
-  import { layoutYukle } from "./layout.js?v=20260604-74";
-  import { tumOgrencileriGetir, davranisEkle } from "./students.js?v=20260604-74";
-  import { escapeHtml, escapeAttr } from "./utils.js?v=20260604-74";
+  import { requireAdmin } from "./auth.js?v=20260604-75";
+  import { layoutYukle } from "./layout.js?v=20260604-75";
+  import { tumOgrencileriGetir, davranisEkle } from "./students.js?v=20260604-75";
+  import { escapeHtml, escapeAttr } from "./utils.js?v=20260604-75";
 
   const KATEGORILER = {
     Olumlu:  ["Yardımseverlik", "Sosyal Katkı", "Başarılı Davranış", "Diğer"],
@@ -183,8 +184,17 @@
     btnN.className = `btn btn-outline-danger tur-buton${tur === "Olumsuz" ? " secili-olumsuz" : ""}`;
 
     const katSel = document.getElementById("d-kategori");
+    const yardimEl = document.getElementById("kategori-yardim");
+    const kategoriler = KATEGORILER[tur] || [];
     katSel.innerHTML = `<option value="">Seçin</option>`;
-    KATEGORILER[tur].forEach(k => {
+    katSel.disabled = !kategoriler.length;
+    if (yardimEl) {
+      yardimEl.textContent = kategoriler.length
+        ? ""
+        : "Bu davranış türü için kategori tanımlı değil. Sistem yöneticisine bildirin.";
+      yardimEl.classList.toggle("d-none", kategoriler.length > 0);
+    }
+    kategoriler.forEach(k => {
       const o = document.createElement("option"); o.value = k; o.textContent = k; katSel.appendChild(o);
     });
   }
@@ -238,6 +248,12 @@
 
     hataEl.classList.add("d-none");
     basariEl.classList.add("d-none");
+
+    if (tur && document.getElementById("d-kategori").disabled) {
+      hataEl.textContent = "Bu davranış türü için kategori tanımlı değil.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
 
     if (!ogrId || !tur || !tarih || !kategori) {
       hataEl.textContent = "Öğrenci, tür, tarih ve kategori zorunludur.";

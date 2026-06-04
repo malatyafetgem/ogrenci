@@ -410,10 +410,6 @@ export function devamsizlikRenk(durum) {
   }
 }
 
-export function devamsizlikDurumRenk(durum) {
-  return devamsizlikRenk(durum);
-}
-
 /**
  * Maddi durum seçenekleri.
  */
