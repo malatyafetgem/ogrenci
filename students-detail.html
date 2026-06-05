@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260605-91">
+  <link rel="manifest" href="manifest.webmanifest?v=20260605-93">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-91">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-91">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-91">
-  <link rel="shortcut icon" href="favicon.ico?v=20260605-91">
-  <script src="file-redirect.js?v=20260605-91"></script>
-  <script src="pwa.js?v=20260605-91"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-93">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-93">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-93">
+  <link rel="shortcut icon" href="favicon.ico?v=20260605-93">
+  <script src="file-redirect.js?v=20260605-93"></script>
+  <script src="pwa.js?v=20260605-93"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260605-91">
+  <link rel="stylesheet" href="app.css?v=20260605-93">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -63,16 +63,34 @@
                   <h4 class="mb-1" id="profil-ad"></h4>
                   <div class="d-flex gap-2 flex-wrap align-items-center" id="profil-rozetler"></div>
                 </div>
-                <div class="d-flex gap-2 no-print">
-                  <a href="#" id="duzenle-btn" class="btn btn-primary btn-sm" data-admin-only>
-                    <i class="bi bi-pencil me-1"></i>Düzenle
-                  </a>
-                  <button class="btn btn-outline-primary btn-sm" id="kart-yazdir-btn">
-                    <i class="bi bi-card-heading me-1"></i>Kart Yazdır
-                  </button>
-                  <button class="btn btn-outline-secondary btn-sm" data-obs-print>
-                    <i class="bi bi-printer me-1"></i>Yazdır
-                  </button>
+                <div class="student-detail-actions no-print" aria-label="Öğrenci işlemleri">
+                  <div class="detail-action-group detail-action-group-manage" data-admin-only>
+                    <a href="#" id="duzenle-btn" class="btn btn-sm detail-action-btn detail-action-edit" data-admin-only>
+                      <i class="bi bi-pencil"></i>Düzenle
+                    </a>
+                    <button type="button" class="btn btn-sm detail-action-btn detail-action-delete" id="ogrenci-sil-btn" data-admin-only>
+                      <i class="bi bi-trash"></i>Sil
+                    </button>
+                  </div>
+                  <div class="detail-action-group detail-action-group-add" data-admin-only>
+                    <a href="#" id="devamsizlik-ekle-btn" class="btn btn-sm detail-action-btn detail-action-attendance" data-admin-only>
+                      <i class="bi bi-calendar-plus"></i>Devamsızlık Ekle
+                    </a>
+                    <a href="#" id="davranis-ekle-btn" class="btn btn-sm detail-action-btn detail-action-behavior" data-admin-only>
+                      <i class="bi bi-star"></i>Davranış Ekle
+                    </a>
+                    <a href="#" id="gorusme-ekle-btn" class="btn btn-sm detail-action-btn detail-action-meeting" data-admin-only>
+                      <i class="bi bi-chat-dots"></i>Görüşme Ekle
+                    </a>
+                  </div>
+                  <div class="detail-action-group detail-action-group-print">
+                    <button type="button" class="btn btn-sm detail-action-btn detail-action-card" id="kart-yazdir-btn">
+                      <i class="bi bi-card-heading"></i>Kart Yazdır
+                    </button>
+                    <button type="button" class="btn btn-sm detail-action-btn detail-action-print" data-obs-print>
+                      <i class="bi bi-printer"></i>Yazdır
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -462,20 +480,21 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260605-91";
-  import { layoutYukle } from "./layout.js?v=20260605-91";
+  import { requireAuth, adminActionAllowed, applyAdminVisibility } from "./auth.js?v=20260605-93";
+  import { layoutYukle } from "./layout.js?v=20260605-93";
   import {
     ogrenciGetir, velileriGetir,
+    ogrenciSil,
     devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
     davranislarGetir, davranisSil, davranisGuncelle,
     gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
-  } from "./students.js?v=20260605-91";
+  } from "./students.js?v=20260605-93";
   import {
     devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikRenk, devamsizlikMiktarEtiketi,
     devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
     formatTelefon, sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260605-91";
-  import { avatarSrc } from "./avatar.js?v=20260605-91";
+  } from "./utils.js?v=20260605-93";
+  import { avatarSrc } from "./avatar.js?v=20260605-93";
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -492,6 +511,7 @@
     if (!ogrenciId) { location.href = "students-list.html"; return; }
     await yukle();
     document.getElementById("kart-yazdir-btn")?.addEventListener("click", kartYazdir);
+    document.getElementById("ogrenci-sil-btn")?.addEventListener("click", ogrenciSilOnayla);
     window.addEventListener("afterprint", () => document.body.classList.remove("kart-print"));
   });
 
@@ -508,6 +528,34 @@
         document.body.classList.remove("kart-print");
       }
     }, 180);
+  }
+
+  async function ogrenciSilOnayla() {
+    if (!adminActionAllowed()) return;
+    const ad = document.getElementById("profil-ad")?.textContent?.trim() || "Bu öğrenci";
+    const onay = await onayIste({
+      baslik: "Öğrenciyi sil",
+      mesaj: `${ad} ve öğrenciye bağlı tüm kayıtlar kalıcı olarak silinecek.`,
+      detay: "Veli, devamsızlık, davranış ve veli görüşmesi kayıtları da silinir. Bu işlem geri alınamaz.",
+      onayMetni: "SİL",
+      onayButonu: "Sil",
+      tip: "danger"
+    });
+    if (!onay) return;
+
+    const silBtn = document.getElementById("ogrenci-sil-btn");
+    const eskiHtml = silBtn.innerHTML;
+    silBtn.disabled = true;
+    silBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Siliniyor...`;
+    try {
+      await ogrenciSil(ogrenciId);
+      toast("Öğrenci ve tüm bağlı kayıtları silindi.", "success");
+      setTimeout(() => { location.href = "students-list.html"; }, 600);
+    } catch (err) {
+      toast("Öğrenci silinemedi: " + err.message, "danger");
+      silBtn.disabled = false;
+      silBtn.innerHTML = eskiHtml;
+    }
   }
 
   async function yukle() {
@@ -535,6 +583,12 @@
 
       document.getElementById("duzenle-btn").href =
         `students-add-edit.html?id=${ogrenciId}`;
+      document.getElementById("devamsizlik-ekle-btn").href =
+        `attendance-entry.html?id=${ogrenciId}`;
+      document.getElementById("davranis-ekle-btn").href =
+        `behavior-entry.html?id=${ogrenciId}`;
+      document.getElementById("gorusme-ekle-btn").href =
+        `meetings-entry.html?id=${ogrenciId}`;
       document.getElementById("gorusme-ekle-link").href =
         `meetings-entry.html?id=${ogrenciId}`;
 
@@ -602,7 +656,7 @@
     ).join("") || satir("Veli", "—");
     el.innerHTML = `<div class="ogrkart">
       <div class="ogrkart-baslik">
-        <img class="ogrkart-logo" src="icon-192.png?v=20260605-91" alt="">
+        <img class="ogrkart-logo" src="icon-192.png?v=20260605-93" alt="">
         <div><h1>${escapeHtml(tamAd)}</h1><div class="alt">Öğrenci Kartı · No: ${escapeHtml(okulNo)} · ${escapeHtml(o.sinif || "—")}</div></div>
       </div>
       <div class="ogrkart-bolum-baslik">Kimlik Bilgileri</div>

@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260605-91">
+  <link rel="manifest" href="manifest.webmanifest?v=20260605-93">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-91">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-91">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-91">
-  <link rel="shortcut icon" href="favicon.ico?v=20260605-91">
-  <script src="file-redirect.js?v=20260605-91"></script>
-  <script src="pwa.js?v=20260605-91"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-93">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-93">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-93">
+  <link rel="shortcut icon" href="favicon.ico?v=20260605-93">
+  <script src="file-redirect.js?v=20260605-93"></script>
+  <script src="pwa.js?v=20260605-93"></script>
   <title>Gösterge Paneli</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260605-91">
+  <link rel="stylesheet" href="app.css?v=20260605-93">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -31,68 +31,25 @@
   <div id="sidebar-kap"></div>
 
   <main class="app-main">
-    <div class="app-content-header">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-sm-6">
-            <h3 class="mb-0">Gösterge Paneli</h3>
-          </div>
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-end">
-              <li class="breadcrumb-item active">Ana Sayfa</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="app-content">
       <div class="container-fluid">
 
-        <!-- Hızlı Öğrenci İşlemleri -->
+        <!-- Öğrenci Arama -->
         <div class="card mb-4 no-print" id="ogrenci-ara">
           <div class="card-header">
             <h6 class="mb-0"><i class="bi bi-search me-1"></i> Öğrenci Ara</h6>
           </div>
           <div class="card-body">
-            <div class="row g-3 align-items-end">
-              <div class="col-12 col-lg-5">
-                <label class="form-label small mb-1" for="hizli-ogr-ara">Ad, Soyad veya Numara</label>
-                <div class="position-relative">
-                  <input type="text" class="form-control" id="hizli-ogr-ara"
-                         placeholder="Ad, soyad veya numara..." autocomplete="off"
-                         role="combobox" aria-autocomplete="list" aria-expanded="false"
-                         aria-controls="hizli-ogr-sonuclar">
-                  <div id="hizli-ogr-sonuclar" class="ac-dropdown d-none" role="listbox"></div>
-                </div>
-                <div class="small text-muted mt-2" id="hizli-secili-ogrenci">
-                  Seçili Öğrenci: —
-                </div>
-              </div>
-              <div class="col-12 col-lg-7">
-                <div class="d-grid d-sm-flex flex-wrap gap-2 justify-content-lg-end hizli-islem-butonlar">
-                  <button type="button" class="btn btn-sm btn-outline-dark hizli-islem-btn" id="btn-ogr-goruntule" disabled>
-                    <i class="bi bi-eye me-1"></i>Görüntüle
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-primary hizli-islem-btn" id="btn-devamsizlik-ekle" data-admin-only disabled>
-                    <i class="bi bi-calendar-plus me-1"></i>Devamsızlık Ekle
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-success hizli-islem-btn" id="btn-davranis-ekle" data-admin-only disabled>
-                    <i class="bi bi-star me-1"></i>Davranış Ekle
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-info hizli-islem-btn" id="btn-gorusme-ekle" data-admin-only disabled>
-                    <i class="bi bi-chat-dots me-1"></i>Görüşme Ekle
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-secondary hizli-islem-btn" id="btn-ogr-duzenle" data-admin-only disabled>
-                    <i class="bi bi-pencil me-1"></i>Düzenle
-                  </button>
-                  <button type="button" class="btn btn-sm btn-outline-danger hizli-islem-btn" id="btn-ogr-sil" data-admin-only disabled>
-                    <i class="bi bi-trash me-1"></i>Sil
-                  </button>
-                </div>
+            <div class="dashboard-search-shell">
+              <div class="global-arama-kutu dashboard-arama-kutu" id="hizli-ogr-ara-kap">
+                <i class="bi bi-search arama-ikon"></i>
+                <input type="search" class="form-control" id="hizli-ogr-ara"
+                       placeholder="Öğrenci ara..." autocomplete="off" aria-label="Öğrenci ara"
+                       role="combobox" aria-autocomplete="list" aria-expanded="false"
+                       aria-controls="hizli-ogr-sonuclar" data-testid="dashboard-search-input">
+                <div id="hizli-ogr-sonuclar" class="global-arama-sonuc dashboard-arama-sonuc d-none" role="listbox"></div>
               </div>
             </div>
-            <div class="alert alert-success d-none align-items-center justify-content-between flex-wrap gap-2 mt-3 mb-0" id="sil-sonrasi-bilgi" role="status" aria-live="polite"></div>
           </div>
         </div>
 
@@ -104,6 +61,7 @@
           <div class="card-body">
             <div class="dashboard-distribution-grid">
               <div class="dashboard-distribution-panel dashboard-donut-panel">
+                <div class="small text-muted fw-bold text-uppercase dashboard-grafik-baslik">Cinsiyet</div>
                 <div class="grafik-donut-wrap">
                   <div class="grafik-donut grafik-donut-bos" id="cinsiyet-donut">
                     <div class="grafik-donut-merkez">
@@ -139,7 +97,6 @@
           </div>
         </div>
 
-        <!-- Devamsızlık Durumu + Doğum Günleri -->
         <div class="row g-3 mb-4">
           <div class="col-12 col-lg-6">
             <div class="card h-100">
@@ -156,8 +113,8 @@
                       <tr>
                         <th>Öğrenci</th>
                         <th>Sınıf</th>
-                        <th class="text-center"><span class="d-none d-sm-inline">Özürsüz</span><span class="d-sm-none">Ö.süz</span></th>
-                        <th class="text-center"><span class="d-none d-sm-inline">Özürlü</span><span class="d-sm-none">Ö.lü</span></th>
+                        <th class="text-center">Özürsüz</th>
+                        <th class="text-center">Özürlü</th>
                         <th class="text-center">Durum</th>
                       </tr>
                     </thead>
@@ -172,34 +129,36 @@
           <div class="col-12 col-lg-6">
             <div class="card h-100">
               <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-cake2 me-1"></i> Doğum Günleri (Bugün)</h6>
+                <h6 class="mb-0"><i class="bi bi-cake2 me-1"></i> Doğum Günleri</h6>
               </div>
               <div class="card-body p-0">
                 <ul class="list-group list-group-flush" id="dogumgunu-liste" aria-live="polite">
-                  <li class="list-group-item text-muted text-center py-3">Hazırlanıyor...</li>
+                  <li class="list-group-item text-muted text-center py-4">Hazırlanıyor...</li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Son Davranış Kayıtları -->
-        <div class="card mb-4">
-          <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-star-half me-1"></i> Son Davranışlar</h6>
-          </div>
-          <div class="card-body p-0">
-            <ul class="list-group list-group-flush" id="davranis-liste" aria-live="polite">
-              <li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>
-            </ul>
+        <div class="row g-3 mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-star-half me-1"></i> Son Davranış Kayıtları</h6>
+              </div>
+              <div class="card-body p-0">
+                <ul class="list-group list-group-flush" id="davranis-liste" aria-live="polite">
+                  <li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
+
       </div>
     </div>
   </main>
 </div>
-
-<!-- Bottom Nav (Telefon) -->
 <div id="footer-kap"></div>
 <div id="bottom-nav-kap"></div>
 
@@ -211,21 +170,20 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth, adminActionAllowed } from "./auth.js?v=20260605-91";
-  import { layoutYukle } from "./layout.js?v=20260605-91";
+  import { requireAuth } from "./auth.js?v=20260605-93";
+  import { layoutYukle } from "./layout.js?v=20260605-93";
   import {
     tumOgrencileriGetir,
-    tumDevamsizliklariGetir, tumDavranislariGetir, ogrenciSil
-  } from "./students.js?v=20260605-91";
+    tumDevamsizliklariGetir, tumDavranislariGetir
+  } from "./students.js?v=20260605-93";
   import {
     devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikGunDegeri, devamsizlikRenk,
     compareSinif, compareOgrenciNo, compareTarihDesc,
-    sayiEtiketiTR, toast, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260605-91";
-  import { APP_VERSION } from "./version.js?v=20260605-91";
+    sayiEtiketiTR, toast, escapeHtml, escapeAttr
+  } from "./utils.js?v=20260605-93";
+  import { APP_VERSION } from "./version.js?v=20260605-93";
 
   let tumOgrenciler = [];
-  let seciliOgrenci = null;
   let hizliAramaAktifIndex = -1;
   const DASHBOARD_CACHE_KEY = `obs-dashboard-cache-v4:${APP_VERSION}`;
   const DASHBOARD_CACHE_TTL = 5 * 60 * 1000;
@@ -254,7 +212,6 @@
       yukleDevamsizlikUyarilari(ozet.ogrenciler, devamsizliklar);
       yukleSonDavranislar(ozet.ogrenciler, davranislar);
       dashboardCacheYaz(ozet);
-
     } catch (err) {
       if (!cacheUygulandi) dashboardBosDurum(err.message);
       else toast("Güncel veriler alınamadı, son kaydedilen görünüm gösteriliyor.", "warning");
@@ -281,16 +238,15 @@
 
   function tumOgrencileriAyarla(ogrenciler) {
     tumOgrenciler = ogrenciler;
-    if (seciliOgrenci && !tumOgrenciler.some(o => o.id === seciliOgrenci.id)) {
-      ogrenciSeciminiTemizle();
-    }
   }
 
-  function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function setText(id, v) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = v;
+  }
 
   function dagilimGoster(sayilar, ogrenciler) {
     const { toplam = 0, kiz = 0, erkek = 0, gunduzlu = 0, parali = 0, parasiz = 0 } = sayilar || {};
-    // Cinsiyet halkası — önce Kız (pembe), sonra Erkek (mavi)
     const toplamCinsiyet = (kiz + erkek) || 1;
     const kizYuzde = Math.round((kiz / toplamCinsiyet) * 100);
     const donut = document.getElementById("cinsiyet-donut");
@@ -300,7 +256,6 @@
     setText("lg-erkek", erkek);
     setText("lg-kiz", kiz);
 
-    // Yatılılık halkası
     const yatililikDonut = document.getElementById("yatililik-donut");
     const toplamYatililik = gunduzlu + parali + parasiz;
     const legEl = document.getElementById("yatililik-legend");
@@ -321,47 +276,45 @@
         <strong class="ms-1">${s.deger}</strong>
       </span>`).join("");
 
-    // Sınıf barları — dikey sütun grafiği
     const barEl = document.getElementById("sinif-barlar");
-    if (barEl) {
-      const sayim = new Map();
-      (ogrenciler || []).forEach(o => {
-        const s = o.sinif || "—";
-        const mevcut = sayim.get(s) || { erkek: 0, kiz: 0 };
-        if (o.cinsiyet === "Erkek") mevcut.erkek++;
-        else if (o.cinsiyet === "Kız") mevcut.kiz++;
-        sayim.set(s, mevcut);
-      });
-      const girisler = [...sayim.entries()].sort((a, b) => compareSinif(a[0], b[0]));
-      const enYuksek = Math.max(1, ...girisler.map(([, s]) => s.erkek + s.kiz));
-      const CHART_H = 120; // px — maksimum bar yüksekliği
-      barEl.innerHTML = girisler.length
-        ? `<div class="sinif-barlar-kap">
-            ${girisler.map(([sinif, s]) => {
-              const toplamS = s.erkek + s.kiz;
-              const erkekH = Math.round((s.erkek / enYuksek) * CHART_H);
-              const kizH   = Math.round((s.kiz   / enYuksek) * CHART_H);
-              return `
-              <div class="sinif-bar-kolon">
-                <span class="sinif-bar-toplam">${toplamS}</span>
-                <div class="sinif-bar-yigin">
-                  ${s.erkek > 0 ? `<div title="Erkek: ${s.erkek}" class="sinif-bar-parca sinif-bar-parca-erkek" data-height="${erkekH}">
-                    ${erkekH >= 16 ? `<span class="sinif-bar-deger">${s.erkek}</span>` : ""}
-                  </div>` : ""}
-                  ${s.kiz > 0 ? `<div title="Kız: ${s.kiz}" class="sinif-bar-parca sinif-bar-parca-kiz ${s.erkek === 0 ? "sinif-bar-parca-tek" : ""}" data-height="${kizH}">
-                    ${kizH >= 16 ? `<span class="sinif-bar-deger">${s.kiz}</span>` : ""}
-                  </div>` : ""}
-                </div>
-                <span class="sinif-bar-etiket">${escapeHtml(sinif)}</span>
-              </div>`;
-            }).join("")}
-          </div>`
-        : `<div class="text-muted small">Kayıt yok</div>`;
-      barEl.querySelectorAll(".sinif-bar-parca[data-height]").forEach(parca => {
-        const height = Math.max(0, Math.min(CHART_H, Number(parca.dataset.height) || 0));
-        parca.style.height = `${height}px`;
-      });
-    }
+    if (!barEl) return;
+    const sayim = new Map();
+    (ogrenciler || []).forEach(o => {
+      const s = o.sinif || "—";
+      const mevcut = sayim.get(s) || { erkek: 0, kiz: 0 };
+      if (o.cinsiyet === "Erkek") mevcut.erkek++;
+      else if (o.cinsiyet === "Kız") mevcut.kiz++;
+      sayim.set(s, mevcut);
+    });
+    const girisler = [...sayim.entries()].sort((a, b) => compareSinif(a[0], b[0]));
+    const enYuksek = Math.max(1, ...girisler.map(([, s]) => s.erkek + s.kiz));
+    const CHART_H = 120;
+    barEl.innerHTML = girisler.length
+      ? `<div class="sinif-barlar-kap">
+          ${girisler.map(([sinif, s]) => {
+            const toplamS = s.erkek + s.kiz;
+            const erkekH = Math.round((s.erkek / enYuksek) * CHART_H);
+            const kizH = Math.round((s.kiz / enYuksek) * CHART_H);
+            return `
+            <div class="sinif-bar-kolon">
+              <span class="sinif-bar-toplam">${toplamS}</span>
+              <div class="sinif-bar-yigin">
+                ${s.erkek > 0 ? `<div title="Erkek: ${s.erkek}" class="sinif-bar-parca sinif-bar-parca-erkek" data-height="${erkekH}">
+                  ${erkekH >= 16 ? `<span class="sinif-bar-deger">${s.erkek}</span>` : ""}
+                </div>` : ""}
+                ${s.kiz > 0 ? `<div title="Kız: ${s.kiz}" class="sinif-bar-parca sinif-bar-parca-kiz ${s.erkek === 0 ? "sinif-bar-parca-tek" : ""}" data-height="${kizH}">
+                  ${kizH >= 16 ? `<span class="sinif-bar-deger">${s.kiz}</span>` : ""}
+                </div>` : ""}
+              </div>
+              <span class="sinif-bar-etiket">${escapeHtml(sinif)}</span>
+            </div>`;
+          }).join("")}
+        </div>`
+      : `<div class="text-muted small">Kayıt yok</div>`;
+    barEl.querySelectorAll(".sinif-bar-parca[data-height]").forEach(parca => {
+      const height = Math.max(0, Math.min(CHART_H, Number(parca.dataset.height) || 0));
+      parca.style.height = `${height}px`;
+    });
   }
 
   function donutGradient(segmentler) {
@@ -407,9 +360,10 @@
   function dogumGunleriGoster(ogrenciler) {
     const liste = document.getElementById("dogumgunu-liste");
     if (!liste) return;
-    const bugunD = new Date(); bugunD.setHours(0, 0, 0, 0);
+    const bugunD = new Date();
+    bugunD.setHours(0, 0, 0, 0);
     const bugunGun = bugunD.getDate();
-    const bugunAy  = bugunD.getMonth() + 1;
+    const bugunAy = bugunD.getMonth() + 1;
     const sonuc = [];
     (ogrenciler || []).forEach(o => {
       const m = String(o.dogum_tarihi || "").trim().match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/);
@@ -498,7 +452,7 @@
 
   function dashboardBosDurum(mesaj) {
     tumOgrenciler = [];
-    ogrenciSeciminiTemizle();
+    hizliAramaKapat();
     document.getElementById("devamsizlik-tablo").innerHTML =
       `<tr><td colspan="5" class="text-center text-muted py-3">${escapeHtml(mesaj || "Veri bulunamadı.")}</td></tr>`;
     document.getElementById("davranis-liste").innerHTML =
@@ -522,13 +476,10 @@
     devamsizlikDurumOzetiGoster(ogrenciler, toplamlar);
 
     const uyarilar = [];
-
     for (const [ogrenciId, { ozurlu, ozursuz }] of toplamlar) {
       const ogr = ogrById.get(ogrenciId);
       const durum = devamsizlikDurum(ozurlu, ozursuz);
-      if (durum !== "normal") {
-        uyarilar.push({ ogr, ozurlu, ozursuz, durum });
-      }
+      if (durum !== "normal") uyarilar.push({ ogr, ozurlu, ozursuz, durum });
     }
 
     if (uyarilar.length === 0) {
@@ -602,22 +553,13 @@
     const araEl = document.getElementById("hizli-ogr-ara");
     const sonucEl = document.getElementById("hizli-ogr-sonuclar");
 
-    araEl.addEventListener("input", () => {
-      silSonrasiBilgiGizle();
-      aramaSonuclariGoster();
-    });
+    araEl.addEventListener("input", aramaSonuclariGoster);
     araEl.addEventListener("focus", aramaSonuclariGoster);
     araEl.addEventListener("keydown", hizliAramaKlavye);
     document.addEventListener("click", e => {
       if (!araEl.contains(e.target) && !sonucEl.contains(e.target)) hizliAramaKapat();
     });
 
-    document.getElementById("btn-ogr-goruntule").addEventListener("click", () => seciliOgrenciyeGit("students-detail.html"));
-    document.getElementById("btn-devamsizlik-ekle").addEventListener("click", () => seciliOgrenciyeGit("attendance-entry.html"));
-    document.getElementById("btn-davranis-ekle").addEventListener("click", () => seciliOgrenciyeGit("behavior-entry.html"));
-    document.getElementById("btn-gorusme-ekle").addEventListener("click", () => seciliOgrenciyeGit("meetings-entry.html"));
-    document.getElementById("btn-ogr-duzenle").addEventListener("click", () => seciliOgrenciyeGit("students-add-edit.html"));
-    document.getElementById("btn-ogr-sil").addEventListener("click", seciliOgrenciSil);
     window.addEventListener("hashchange", ogrenciAramayaOdaklan);
     ogrenciAramayaOdaklan();
   }
@@ -644,49 +586,22 @@
 
     const eslesen = tumOgrenciler.filter(o => ogrenciAramaMetni(o).includes(q)).slice(0, 8);
     if (!eslesen.length) {
-      sonucEl.innerHTML = `<div class="ac-item text-muted" role="status">Sonuç bulunamadı</div>`;
+      sonucEl.innerHTML = `<div class="ga-bos" role="status">Sonuç bulunamadı</div>`;
       hizliAramaAc();
       return;
     }
 
     sonucEl.innerHTML = eslesen.map((o, i) => `
-      <div class="ac-item" id="hizli-ogr-sonuc-${i}" role="option" aria-selected="false" data-id="${escapeAttr(o.id)}">
-        <strong>${escapeHtml(ogrenciAd(o))}</strong>
-        <span class="text-muted ms-2 small">${escapeHtml(o.sinif || "Sınıf yok")} · No: ${escapeHtml(o.numara || o.id)}</span>
-      </div>
+      <a class="ga-item ac-item" id="hizli-ogr-sonuc-${i}" role="option" aria-selected="false"
+         href="students-detail.html?id=${encodeURIComponent(o.id)}" data-id="${escapeAttr(o.id)}">
+        <i class="bi bi-person-circle text-muted"></i>
+        <span class="flex-grow-1">
+          <span class="ga-ad">${escapeHtml(ogrenciAd(o))}</span>
+          <span class="ga-meta d-block">No: ${escapeHtml(o.numara || o.id)} · ${escapeHtml(o.sinif || "Sınıf yok")} · ${escapeHtml(o.cinsiyet || "")}</span>
+        </span>
+      </a>
     `).join("");
     hizliAramaAc();
-    sonucEl.querySelectorAll(".ac-item[data-id]").forEach(el => {
-      el.addEventListener("click", () => {
-        const ogr = tumOgrenciler.find(o => o.id === el.dataset.id);
-        if (ogr) ogrenciSec(ogr);
-      });
-    });
-  }
-
-  function ogrenciSec(ogr) {
-    seciliOgrenci = ogr;
-    silSonrasiBilgiGizle();
-    document.getElementById("hizli-ogr-ara").value = ogrenciAd(ogr);
-    hizliAramaKapat();
-    document.getElementById("hizli-secili-ogrenci").innerHTML =
-      `Seçili Öğrenci: <strong>${escapeHtml(ogrenciAd(ogr))}</strong> <span class="text-muted">(${escapeHtml(ogr.sinif || "Sınıf yok")} · No: ${escapeHtml(ogr.numara || ogr.id)})</span>`;
-    islemButonlariniGuncelle();
-  }
-
-  function ogrenciSeciminiTemizle() {
-    seciliOgrenci = null;
-    const araEl = document.getElementById("hizli-ogr-ara");
-    if (araEl) araEl.value = "";
-    hizliAramaKapat();
-    const seciliEl = document.getElementById("hizli-secili-ogrenci");
-    if (seciliEl) seciliEl.textContent = "Seçili Öğrenci: —";
-    islemButonlariniGuncelle();
-  }
-
-  function islemButonlariniGuncelle(zorlaDevreDisi = false) {
-    const devreDisi = zorlaDevreDisi || !seciliOgrenci;
-    document.querySelectorAll(".hizli-islem-btn").forEach(btn => { btn.disabled = devreDisi; });
   }
 
   function hizliAramaAc() {
@@ -720,7 +635,7 @@
 
   function hizliAramaKlavye(e) {
     const sonucEl = document.getElementById("hizli-ogr-sonuclar");
-    const items = [...(sonucEl?.querySelectorAll(".ac-item[data-id]") || [])];
+    const items = [...(sonucEl?.querySelectorAll(".ga-item") || [])];
     if (e.key === "ArrowDown") {
       if (!items.length) return;
       e.preventDefault();
@@ -732,8 +647,7 @@
     } else if (e.key === "Enter") {
       if (!items[hizliAramaAktifIndex]) return;
       e.preventDefault();
-      const ogr = tumOgrenciler.find(o => o.id === items[hizliAramaAktifIndex].dataset.id);
-      if (ogr) ogrenciSec(ogr);
+      location.href = items[hizliAramaAktifIndex].href;
       return;
     } else if (e.key === "Escape") {
       hizliAramaKapat();
@@ -743,72 +657,6 @@
     }
     hizliAramaAktifSonucuGuncelle(items);
     items[hizliAramaAktifIndex]?.scrollIntoView({ block: "nearest" });
-  }
-
-  function seciliOgrenciyeGit(sayfa) {
-    if (!seciliOgrenci) {
-      toast("Önce öğrenci seçin.", "warning");
-      return;
-    }
-    if (sayfa !== "students-detail.html" && !adminActionAllowed()) return;
-    location.href = `${sayfa}?id=${encodeURIComponent(seciliOgrenci.id)}`;
-  }
-
-  async function seciliOgrenciSil() {
-    if (!seciliOgrenci) {
-      toast("Önce öğrenci seçin.", "warning");
-      return;
-    }
-    if (!adminActionAllowed()) return;
-
-    const ogr = seciliOgrenci;
-    const ad = ogrenciAd(ogr);
-    const onay = await onayIste({
-      baslik: "Öğrenciyi sil",
-      mesaj: `${ad} ve öğrenciye bağlı tüm kayıtlar kalıcı olarak silinecek.`,
-      detay: "Veli, devamsızlık, davranış ve veli görüşmesi kayıtları da silinir. Bu işlem geri alınamaz.",
-      onayMetni: "SİL",
-      onayButonu: "Sil",
-      tip: "danger"
-    });
-    if (!onay) return;
-
-    const silBtn = document.getElementById("btn-ogr-sil");
-    const eskiHtml = silBtn.innerHTML;
-    islemButonlariniGuncelle(true);
-    silBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Siliniyor...`;
-    try {
-      await ogrenciSil(ogr.id);
-      toast("Öğrenci ve tüm bağlı kayıtları silindi.", "success");
-      ogrenciSeciminiTemizle();
-      await yukleVeriler();
-      silSonrasiBilgiGoster(ad);
-    } catch (err) {
-      toast("Öğrenci silinemedi: " + err.message, "danger");
-      islemButonlariniGuncelle();
-    } finally {
-      silBtn.innerHTML = eskiHtml;
-    }
-  }
-
-  function silSonrasiBilgiGoster(ad) {
-    const el = document.getElementById("sil-sonrasi-bilgi");
-    if (!el) return;
-    el.innerHTML = `
-      <span><strong>${escapeHtml(ad)}</strong> silindi. Listeyi kontrol etmek için devam edebilirsiniz.</span>
-      <a class="btn btn-sm btn-success" href="students-list.html">
-        <i class="bi bi-list-ul me-1"></i>Öğrenci listesine git
-      </a>`;
-    el.classList.remove("d-none");
-    el.classList.add("d-flex");
-  }
-
-  function silSonrasiBilgiGizle() {
-    const el = document.getElementById("sil-sonrasi-bilgi");
-    if (!el) return;
-    el.classList.add("d-none");
-    el.classList.remove("d-flex");
-    el.innerHTML = "";
   }
 
   function ogrenciAd(ogr) {

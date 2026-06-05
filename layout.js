@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260605-91";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260605-91";
-import { escapeHtml, toast } from "./utils.js?v=20260605-91";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260605-93";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260605-93";
+import { escapeHtml, toast } from "./utils.js?v=20260605-93";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -562,20 +562,14 @@ function yukleTopbar() {
   kap.outerHTML = `
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
-        <a href="dashboard.html" class="navbar-brand brand-logo-only d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260605-91" alt="Öğrenci Bilgileri"></span>
+        <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260605-93" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
             ${MENU_GRUPLARI.map(topMenuDropdown).join("")}
           </ul>
-          <div class="global-arama-kutu d-none d-md-block" id="global-arama-kap">
-            <i class="bi bi-search arama-ikon"></i>
-            <input type="search" class="form-control form-control-sm" id="global-arama" placeholder="Öğrenci ara..."
-                   autocomplete="off" aria-label="Öğrenci ara" role="combobox" aria-autocomplete="list"
-                   aria-expanded="false" aria-controls="global-arama-sonuc" data-testid="global-search-input">
-            <div class="global-arama-sonuc d-none" id="global-arama-sonuc" role="listbox"></div>
-          </div>
         </div>
         <div class="header-actions d-flex align-items-center gap-2">
           <span class="nav-ikon-btn cevrimici" id="baglanti-durum" title="Bağlantı durumu kontrol ediliyor..." role="status" aria-live="polite" aria-label="Bağlantı durumu kontrol ediliyor" data-testid="connection-status">
@@ -593,7 +587,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260605-91");
+    const { logout } = await import("./auth.js?v=20260605-93");
     logout();
   });
 
@@ -622,7 +616,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260605-91");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260605-93");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -712,9 +706,9 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260605-91");
+    const { db } = await import("./firebase-config.js?v=20260605-93");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260605-91");
+      await import("./firebase-imports.js?v=20260605-93");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),

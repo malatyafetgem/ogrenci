@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260605-91">
+  <link rel="manifest" href="manifest.webmanifest?v=20260605-93">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-91">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-91">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-91">
-  <link rel="shortcut icon" href="favicon.ico?v=20260605-91">
-  <script src="file-redirect.js?v=20260605-91"></script>
-  <script src="pwa.js?v=20260605-91"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-93">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-93">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-93">
+  <link rel="shortcut icon" href="favicon.ico?v=20260605-93">
+  <script src="file-redirect.js?v=20260605-93"></script>
+  <script src="pwa.js?v=20260605-93"></script>
   <title>Öğrenci Ekle / Düzenle</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260605-91">
+  <link rel="stylesheet" href="app.css?v=20260605-93">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -59,6 +59,13 @@
         <div class="card" id="form-kart">
           <div class="card-body">
             <div id="hata-mesaji" class="alert alert-danger d-none"></div>
+
+            <div class="student-form-avatar-row">
+              <div class="student-form-avatar-card">
+                <div class="form-label">Avatar</div>
+                <img id="foto-onizleme" class="ogrenci-avatar-buyuk" alt="">
+              </div>
+            </div>
 
             <p class="form-bolum-baslik">1. Kişisel Bilgiler</p>
             <div class="row g-3">
@@ -116,12 +123,6 @@
               <div class="col-md-8">
                 <label class="form-label" for="f-geldigi-okul">Geldiği Okulun Adı</label>
                 <input type="text" class="form-control" id="f-geldigi-okul" autocomplete="off">
-              </div>
-              <div class="col-md-4">
-                <div class="form-label">Avatar</div>
-                <div class="mt-1">
-                  <img id="foto-onizleme" class="ogrenci-avatar-buyuk" alt="">
-                </div>
               </div>
             </div>
 
@@ -231,18 +232,18 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260605-91";
-  import { layoutYukle } from "./layout.js?v=20260605-91";
+  import { requireAdmin } from "./auth.js?v=20260605-93";
+  import { layoutYukle } from "./layout.js?v=20260605-93";
   import {
     ogrenciGetir, ogrenciEkle, ogrenciGuncelle,
     velileriGetir, veliEkleGuncelle, veliSil, siniflarGetir, noMevcutMu
-  } from "./students.js?v=20260605-91";
+  } from "./students.js?v=20260605-93";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, baglaFormat, toast,
     gecerliOgrenciNo, gecerliTc, onayIste, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260605-91";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260605-91";
-  import { avatarSrc } from "./avatar.js?v=20260605-91";
+  } from "./utils.js?v=20260605-93";
+  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260605-93";
+  import { avatarSrc } from "./avatar.js?v=20260605-93";
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");

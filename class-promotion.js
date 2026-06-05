@@ -4,12 +4,12 @@
 // taşındı. Tüm ID'ler "cp-" önekiyle scoped tutulur ki sayfa ID'leriyle
 // çakışmasın. Tek kullanım: classPromotionAc(rootEl).
 
-import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260605-91";
-import { db } from "./firebase-config.js?v=20260605-91";
+import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260605-93";
+import { db } from "./firebase-config.js?v=20260605-93";
 import {
   collection, getDocs, doc, writeBatch, query, where
-} from "./firebase-imports.js?v=20260605-91";
-import { toast, onayIste, sinifParcala, compareSinif, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260605-91";
+} from "./firebase-imports.js?v=20260605-93";
+import { toast, onayIste, sinifParcala, compareSinif, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260605-93";
 
 const BAGLI_KOLEKSIYONLAR = ["veliler", "devamsizliklar", "davranislar", "veligorusmeleri"];
 

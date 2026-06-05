@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260605-91">
+  <link rel="manifest" href="manifest.webmanifest?v=20260605-93">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-91">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-91">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-91">
-  <link rel="shortcut icon" href="favicon.ico?v=20260605-91">
-  <script src="file-redirect.js?v=20260605-91"></script>
-  <script src="pwa.js?v=20260605-91"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-93">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-93">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-93">
+  <link rel="shortcut icon" href="favicon.ico?v=20260605-93">
+  <script src="file-redirect.js?v=20260605-93"></script>
+  <script src="pwa.js?v=20260605-93"></script>
   <title>Excel Aktarım</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260605-91">
+  <link rel="stylesheet" href="app.css?v=20260605-93">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -165,11 +165,11 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260605-91";
-  import { layoutYukle } from "./layout.js?v=20260605-91";
-  import { db } from "./firebase-config.js?v=20260605-91";
-  import { collection, getDocs } from "./firebase-imports.js?v=20260605-91";
-  import { compareOgrenci, onayIste, toast } from "./utils.js?v=20260605-91";
+  import { requireAdmin } from "./auth.js?v=20260605-93";
+  import { layoutYukle } from "./layout.js?v=20260605-93";
+  import { db } from "./firebase-config.js?v=20260605-93";
+  import { collection, getDocs } from "./firebase-imports.js?v=20260605-93";
+  import { compareOgrenci, compareTarihDesc, devamsizlikGunDegeri, onayIste, toast } from "./utils.js?v=20260605-93";
 
   // ═══════════════════════════════════════════════════════════════
   // ALAN TANIMI
@@ -280,6 +280,29 @@
     { grup:"Veli - 3. Veli", label:"3. Veli İlçe",      key:"v3.ilce" },
     { grup:"Veli - 3. Veli", label:"3. Veli Adres",     key:"v3.adres" },
     { grup:"Veli - 3. Veli", label:"3. Veli Notlar",    key:"v3.notlar" },
+    // ── Devamsızlık ─────────────────────────────────────────────
+    { grup:"Devamsızlık", label:"Devamsızlık Kayıt Sayısı", key:"dev.kayit_sayisi" },
+    { grup:"Devamsızlık", label:"Özürlü Gün",              key:"dev.ozurlu_gun" },
+    { grup:"Devamsızlık", label:"Özürsüz Gün",             key:"dev.ozursuz_gun" },
+    { grup:"Devamsızlık", label:"Toplam Devamsızlık Günü", key:"dev.toplam_gun" },
+    { grup:"Devamsızlık", label:"Son Devamsızlık Tarihi",  key:"dev.son_tarih" },
+    { grup:"Devamsızlık", label:"Son Devamsızlık Türü",    key:"dev.son_tur" },
+    { grup:"Devamsızlık", label:"Son Devamsızlık Açıklama", key:"dev.son_aciklama" },
+    // ── Davranış ────────────────────────────────────────────────
+    { grup:"Davranış", label:"Davranış Kayıt Sayısı",       key:"dav.kayit_sayisi" },
+    { grup:"Davranış", label:"Olumlu Davranış Sayısı",      key:"dav.olumlu_sayisi" },
+    { grup:"Davranış", label:"Olumsuz Davranış Sayısı",     key:"dav.olumsuz_sayisi" },
+    { grup:"Davranış", label:"Veli Görüşmeli Davranış",     key:"dav.veli_gorusmeli_sayisi" },
+    { grup:"Davranış", label:"Son Davranış Tarihi",         key:"dav.son_tarih" },
+    { grup:"Davranış", label:"Son Davranış Türü",           key:"dav.son_tur" },
+    { grup:"Davranış", label:"Son Davranış Kategori",       key:"dav.son_kategori" },
+    { grup:"Davranış", label:"Son Davranış Açıklama",       key:"dav.son_aciklama" },
+    // ── Veli Görüşmeleri ────────────────────────────────────────
+    { grup:"Veli Görüşmeleri", label:"Görüşme Kayıt Sayısı", key:"gor.kayit_sayisi" },
+    { grup:"Veli Görüşmeleri", label:"Son Görüşme Tarihi",   key:"gor.son_tarih" },
+    { grup:"Veli Görüşmeleri", label:"Son Görüşülen Veli",   key:"gor.son_veli" },
+    { grup:"Veli Görüşmeleri", label:"Son Görüşme Konusu",   key:"gor.son_konu" },
+    { grup:"Veli Görüşmeleri", label:"Son Görüşme Açıklama", key:"gor.son_aciklama" },
   ];
 
   const VARSAYILAN_SUTUNLAR = [
@@ -302,6 +325,9 @@
 
   let tumOgrenciler = [];
   let velilerMap    = {};
+  let devamsizlikMap = {};
+  let davranisMap    = {};
+  let gorusmeMap     = {};
   let veriYuklendi  = false;
 
   // ═══════════════════════════════════════════════════════════════
@@ -417,9 +443,12 @@
   async function veriYukle() {
     if (veriYuklendi) return;
     try {
-      const [ogrSnap, veliSnap] = await Promise.all([
+      const [ogrSnap, veliSnap, devSnap, davSnap, gorSnap] = await Promise.all([
         getDocs(collection(db, "students")),
-        getDocs(collection(db, "veliler"))
+        getDocs(collection(db, "veliler")),
+        getDocs(collection(db, "devamsizliklar")),
+        getDocs(collection(db, "davranislar")),
+        getDocs(collection(db, "veligorusmeleri"))
       ]);
       const tumVeliler = veliSnap.docs.map(d => ({ id:d.id, ...d.data() }));
       velilerMap = {};
@@ -440,6 +469,9 @@
           return { ...veri, durum: ogrenciDurumu(veri.durum) };
         })
         .sort(compareOgrenci);
+      devamsizlikMap = devamsizlikOzetMap(devSnap.docs.map(d => ({ id:d.id, ...d.data() })));
+      davranisMap = davranisOzetMap(davSnap.docs.map(d => ({ id:d.id, ...d.data() })));
+      gorusmeMap = gorusmeOzetMap(gorSnap.docs.map(d => ({ id:d.id, ...d.data() })));
       veriYuklendi = true;
       // Yükleme mesajını kaldır, filtreyi güncelle
       const yukl = document.getElementById("filtre-yukl-mesaj");
@@ -455,6 +487,74 @@
     const deger = String(durum || "").trim();
     if (!deger || deger === "Aktif") return "Aktif";
     return "Mezun";
+  }
+
+  function kayitlariOgrenciyeGrupla(kayitlar) {
+    const map = {};
+    kayitlar.forEach(kayit => {
+      const oid = String(kayit.ogrenciId || "");
+      if (!oid) return;
+      if (!map[oid]) map[oid] = [];
+      map[oid].push(kayit);
+    });
+    Object.values(map).forEach(liste => liste.sort((a, b) => compareTarihDesc(a.tarih, b.tarih)));
+    return map;
+  }
+
+  function devamsizlikOzetMap(kayitlar) {
+    const map = kayitlariOgrenciyeGrupla(kayitlar);
+    Object.keys(map).forEach(oid => {
+      const liste = map[oid];
+      const ozet = { kayit_sayisi: liste.length, ozurlu_gun: 0, ozursuz_gun: 0 };
+      liste.forEach(kayit => {
+        const gun = devamsizlikGunDegeri(kayit);
+        if (kayit.tur === "Özürlü") ozet.ozurlu_gun += gun;
+        else ozet.ozursuz_gun += gun;
+      });
+      const son = liste[0] || {};
+      ozet.toplam_gun = ozet.ozurlu_gun + ozet.ozursuz_gun;
+      ozet.son_tarih = son.tarih || "";
+      ozet.son_tur = son.tur || "";
+      ozet.son_aciklama = son.aciklama || "";
+      map[oid] = ozet;
+    });
+    return map;
+  }
+
+  function davranisOzetMap(kayitlar) {
+    const map = kayitlariOgrenciyeGrupla(kayitlar);
+    Object.keys(map).forEach(oid => {
+      const liste = map[oid];
+      const ozet = {
+        kayit_sayisi: liste.length,
+        olumlu_sayisi: liste.filter(kayit => kayit.tur === "Olumlu").length,
+        olumsuz_sayisi: liste.filter(kayit => kayit.tur === "Olumsuz").length,
+        veli_gorusmeli_sayisi: liste.filter(kayit => !!kayit.veli_gorusmesi).length
+      };
+      const son = liste[0] || {};
+      ozet.son_tarih = son.tarih || "";
+      ozet.son_tur = son.tur || "";
+      ozet.son_kategori = son.kategori || "";
+      ozet.son_aciklama = son.aciklama || "";
+      map[oid] = ozet;
+    });
+    return map;
+  }
+
+  function gorusmeOzetMap(kayitlar) {
+    const map = kayitlariOgrenciyeGrupla(kayitlar);
+    Object.keys(map).forEach(oid => {
+      const liste = map[oid];
+      const son = liste[0] || {};
+      map[oid] = {
+        kayit_sayisi: liste.length,
+        son_tarih: son.tarih || "",
+        son_veli: [son.veli_yakinlik, son.veli_adi].filter(Boolean).join(" - "),
+        son_konu: son.konu || "",
+        son_aciklama: son.aciklama || ""
+      };
+    });
+    return map;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -630,6 +730,9 @@
     if (key.startsWith("v1.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v1):String(v1[f]??""); }
     if (key.startsWith("v2.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v2):String(v2[f]??""); }
     if (key.startsWith("v3.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v3):String(v3[f]??""); }
+    if (key.startsWith("dev.")) return String(devamsizlikMap[ogrId]?.[key.slice(4)] ?? "");
+    if (key.startsWith("dav.")) return String(davranisMap[ogrId]?.[key.slice(4)] ?? "");
+    if (key.startsWith("gor.")) return String(gorusmeMap[ogrId]?.[key.slice(4)] ?? "");
     return "";
   }
 

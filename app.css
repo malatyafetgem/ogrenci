@@ -197,6 +197,10 @@
   gap: .45rem;
 }
 
+.app-header .navbar-brand.brand-link {
+  padding-right: .65rem;
+}
+
 .top-menu {
   align-items: center;
   justify-content: center;
@@ -883,14 +887,19 @@ body.sidebar-collapsed .app-footer {
     justify-content: center;
   }
 
-  .student-detail-page #icerik > .card:first-child .no-print {
+  .student-detail-page #icerik > .card:first-child .student-detail-actions {
     width: 100%;
     justify-content: center;
   }
 
-  .student-detail-page #duzenle-btn,
-  .student-detail-page #icerik > .card:first-child button {
-    flex: 1 1 0;
+  .student-detail-page .detail-action-group {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .student-detail-page .student-detail-actions .detail-action-btn {
+    flex: 1 1 calc(50% - .35rem);
+    min-width: 128px;
   }
 
   .student-detail-page #sekme-nav {
@@ -1433,19 +1442,13 @@ body.sidebar-collapsed .app-footer {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 .dashboard-class-panel {
   display: flex;
   min-height: 210px;
   flex-direction: column;
   justify-content: center;
-}
-.grafik-donut.dashboard-yatililik-donut {
-  width: 138px;
-  height: 138px;
-}
-.grafik-donut.dashboard-yatililik-donut::after {
-  inset: 18px;
 }
 .dashboard-yatililik-legend {
   flex-direction: column;
@@ -1460,7 +1463,7 @@ body.sidebar-collapsed .app-footer {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(38px, 1fr));
   align-items: flex-end;
-  gap: 8px;
+  gap: 5px;
   overflow: visible;
   padding: .25rem .1rem .1rem;
   min-height: 160px;
@@ -1482,7 +1485,7 @@ body.sidebar-collapsed .app-footer {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  width: min(100%, 44px);
+  width: min(100%, 36px);
   height: 120px;
   gap: 2px;
 }
@@ -1514,14 +1517,14 @@ body.sidebar-collapsed .app-footer {
 }
 @media (min-width: 992px) {
   .dashboard-distribution-grid {
-    grid-template-columns: minmax(170px, 220px) minmax(420px, 1fr) minmax(170px, 220px);
-    gap: 1.75rem;
+    grid-template-columns: minmax(150px, 180px) minmax(0, 1fr) minmax(150px, 180px);
+    gap: 1rem;
   }
 }
 @media (min-width: 1200px) {
   .dashboard-distribution-grid {
     grid-template-columns: minmax(180px, 220px) minmax(680px, 1fr) minmax(170px, 210px);
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 }
 @media (max-width: 575.98px) {
@@ -1546,6 +1549,139 @@ body.sidebar-collapsed .app-footer {
   .dashboard-yatililik-legend {
     min-width: min(100%, 210px);
   }
+}
+
+.student-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .55rem;
+  max-width: min(100%, 900px);
+  margin-left: auto;
+}
+
+.detail-action-group {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .3rem;
+  padding: .28rem;
+  border: 1px solid var(--obs-border);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(38, 32, 25, .06);
+}
+
+.student-detail-actions .detail-action-btn {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  border: 0 !important;
+  border-radius: 6px;
+  padding: .45rem .7rem;
+  line-height: 1.1;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: none !important;
+  transition: transform .14s ease, background-color .14s ease, color .14s ease;
+}
+
+.student-detail-actions .detail-action-btn i {
+  font-size: .95rem;
+  line-height: 1;
+}
+
+.student-detail-actions .detail-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.detail-action-edit {
+  background: var(--obs-primary) !important;
+  color: #fff !important;
+}
+
+.detail-action-edit:hover {
+  background: var(--obs-primary-dark) !important;
+}
+
+.detail-action-delete {
+  background: #FFF1F1 !important;
+  color: #B23B3B !important;
+}
+
+.detail-action-delete:hover {
+  background: var(--obs-danger) !important;
+  color: #fff !important;
+}
+
+.detail-action-attendance {
+  background: #FFF2ED !important;
+  color: var(--obs-primary-dark) !important;
+}
+
+.detail-action-attendance:hover {
+  background: var(--obs-primary) !important;
+  color: #fff !important;
+}
+
+.detail-action-behavior {
+  background: #EDF8F2 !important;
+  color: #1F7A50 !important;
+}
+
+.detail-action-behavior:hover {
+  background: var(--obs-success) !important;
+  color: #fff !important;
+}
+
+.detail-action-meeting {
+  background: #EEF6FF !important;
+  color: #1F6FB0 !important;
+}
+
+.detail-action-meeting:hover {
+  background: var(--obs-info) !important;
+  color: #fff !important;
+}
+
+.detail-action-card {
+  background: #FFF2ED !important;
+  color: var(--obs-primary-dark) !important;
+}
+
+.detail-action-card:hover {
+  background: var(--obs-primary) !important;
+  color: #fff !important;
+}
+
+.detail-action-print {
+  background: #F8F4EE !important;
+  color: var(--obs-muted) !important;
+}
+
+.detail-action-print:hover {
+  background: var(--obs-surface-alt) !important;
+  color: var(--obs-ink) !important;
+}
+
+.student-form-avatar-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+.student-form-avatar-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .45rem;
+  padding: .85rem 1rem;
+  border: 1px solid var(--obs-border);
+  border-radius: 8px;
+  background: var(--obs-surface-alt);
 }
 
 .sutun-kart {
@@ -2245,6 +2381,23 @@ div.dt-container .dt-input {
 .global-arama-sonuc .ga-ad { font-weight: 600; font-family: var(--obs-font-head); }
 .global-arama-sonuc .ga-meta { font-size: .78rem; color: var(--obs-muted); }
 .global-arama-sonuc .ga-bos { padding: .8rem; color: var(--obs-muted); text-align: center; font-size: .85rem; }
+
+.dashboard-search-shell {
+  width: 100%;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dashboard-arama-kutu .form-control {
+  width: 100%;
+  height: 46px;
+  font-size: 1rem;
+}
+
+.dashboard-arama-sonuc {
+  max-height: 380px;
+}
 
 @media (max-width: 575.98px) {
   .app-header > .container-fluid {
