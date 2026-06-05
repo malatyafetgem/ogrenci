@@ -197,6 +197,7 @@ test("Öğrenci listesinde Adı Soyadı tek linkli kolondur", () => {
   assert.match(tablo, /<th>Adı Soyadı<\/th>/);
   assert.doesNotMatch(tablo, /<th>Ad<\/th>|<th>Soyad<\/th>/);
   assert.match(tablo, /colspan="8"/);
+  assert.doesNotMatch(html, /colspan="9"[^>]*>Filtreleri seçip Filtrele'ye basın\./);
   assert.match(html, /function\s+ogrenciAdSoyad/);
   assert.match(html, /students-detail\.html\?id=\$\{escapeAttr\(o\.id\)\}/);
   assert.match(html, /escapeHtml\(adSoyad \|\| "—"\)/);
