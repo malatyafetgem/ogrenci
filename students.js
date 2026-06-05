@@ -1,15 +1,16 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260605-93";
+import { db } from "./firebase-config.js?v=20260605-94";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
-  updateDoc, deleteDoc, query, where, writeBatch
-} from "./firebase-imports.js?v=20260605-93";
+  updateDoc, deleteDoc, deleteField, query, where, writeBatch
+} from "./firebase-imports.js?v=20260605-94";
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
-  devamsizlikGunDegeri, formatTarih, tarihSiralamaAnahtari
-} from "./utils.js?v=20260605-93";
+  devamsizlikGunDegeri, devamsizlikKapsananTarihler,
+  formatTarih, sayiEtiketiTR, tarihSiralamaAnahtari
+} from "./utils.js?v=20260605-94";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";
@@ -18,6 +19,7 @@ const VERI_CACHE_PREFIX = "obs-data-cache-v1:";
 const OGRENCI_CACHE_TTL = 3 * 60 * 1000;
 const KAYIT_CACHE_TTL = 2 * 60 * 1000;
 const TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI = ["obs-dashboard-cache-"];
+const MAX_ATOMIK_YAZMA = 450;
 export const OGRENCI_DURUMLARI = ["Aktif", "Mezun"];
 const VELI_DURUMLARI = ["Aktif", "Vefat", "Ulaşılamıyor", "Velayeti Yok", "Aranmasın"];
 let ogrenciCachePromise = null;
@@ -49,7 +51,7 @@ function yerelCacheHatasiLogla(islem, key, err) {
 
 function yerelCacheOku(key, ttl) {
   try {
-    const raw = localStorage.getItem(cacheKey(key));
+    const raw = sessionStorage.getItem(cacheKey(key));
     if (!raw) return null;
     const cache = JSON.parse(raw);
     if (!cache?.zaman || Date.now() - cache.zaman > ttl) return null;
@@ -62,7 +64,7 @@ function yerelCacheOku(key, ttl) {
 
 function yerelCacheYaz(key, veri) {
   try {
-    localStorage.setItem(cacheKey(key), JSON.stringify({ zaman: Date.now(), veri }));
+    sessionStorage.setItem(cacheKey(key), JSON.stringify({ zaman: Date.now(), veri }));
   } catch (err) {
     yerelCacheHatasiLogla("yazma", key, err);
   }
@@ -70,7 +72,7 @@ function yerelCacheYaz(key, veri) {
 
 function yerelCacheSil(key) {
   try {
-    localStorage.removeItem(cacheKey(key));
+    sessionStorage.removeItem(cacheKey(key));
   } catch (err) {
     yerelCacheHatasiLogla("silme", key, err);
   }
@@ -78,9 +80,9 @@ function yerelCacheSil(key) {
 
 function ekranCacheleriniTemizle() {
   try {
-    Object.keys(localStorage)
+    Object.keys(sessionStorage)
       .filter(key => TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI.some(prefix => key.startsWith(prefix)))
-      .forEach(key => localStorage.removeItem(key));
+      .forEach(key => sessionStorage.removeItem(key));
   } catch (err) {
     yerelCacheHatasiLogla("ekran temizleme", TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI.join(","), err);
   }
@@ -88,9 +90,9 @@ function ekranCacheleriniTemizle() {
 
 function tumYerelCacheleriTemizle() {
   try {
-    Object.keys(localStorage)
+    Object.keys(sessionStorage)
       .filter(key => key.startsWith(VERI_CACHE_PREFIX))
-      .forEach(key => localStorage.removeItem(key));
+      .forEach(key => sessionStorage.removeItem(key));
   } catch (err) {
     yerelCacheHatasiLogla("toplu temizleme", VERI_CACHE_PREFIX, err);
   }
@@ -224,11 +226,9 @@ async function refleriBatchSil(refler) {
 }
 
 async function ogrenciGlobalKayitlariniSil(ogrenciNo) {
-  const id = String(ogrenciNo);
   const refler = [];
   for (const koleksiyon of KAYIT_KOLEKSIYONLARI) {
-    const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", id)));
-    snap.docs.forEach(d => refler.push(d.ref));
+    refler.push(...await ogrenciIdIleRefleriGetir(koleksiyon, ogrenciNo));
   }
   await refleriBatchSil(refler);
 }
@@ -325,6 +325,39 @@ function tarihliVeri(veri) {
   };
 }
 
+function devamsizlikTemelAlaniDegisti(veri) {
+  return ["tarih", "miktar", "gun_degeri"].some(alan => alan in veri);
+}
+
+function devamsizlikGuncellemeVerisi(mevcut, veri) {
+  const guncelleme = tarihliVeri(veri);
+  if (!devamsizlikTemelAlaniDegisti(guncelleme)) return guncelleme;
+
+  const hesapKaydi = {
+    ...mevcut,
+    ...guncelleme
+  };
+  delete hesapKaydi.kapsanan_tarihler;
+  delete hesapKaydi.tarih_bitis;
+
+  const gunDegeri = devamsizlikGunDegeri(hesapKaydi);
+  if (gunDegeri <= 0) return guncelleme;
+
+  hesapKaydi.gun_degeri = gunDegeri;
+  hesapKaydi.miktar = sayiEtiketiTR(gunDegeri);
+  const kapsananTarihler = devamsizlikKapsananTarihler(hesapKaydi);
+
+  return {
+    ...guncelleme,
+    gun_degeri: gunDegeri,
+    miktar: sayiEtiketiTR(gunDegeri),
+    kapsanan_tarihler: kapsananTarihler,
+    tarih_bitis: kapsananTarihler.length > 1
+      ? kapsananTarihler[kapsananTarihler.length - 1]
+      : deleteField()
+  };
+}
+
 function ogrenciIdSorguDegerleri(ogrenciNo) {
   const id = String(ogrenciNo);
   const degerler = [id];
@@ -338,6 +371,15 @@ async function ogrenciIdIleBelgeleriGetir(koleksiyon, ogrenciNo) {
   for (const deger of ogrenciIdSorguDegerleri(ogrenciNo)) {
     const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", deger)));
     snap.docs.forEach(d => sonuc.set(d.id, { id: d.id, ...d.data() }));
+  }
+  return [...sonuc.values()];
+}
+
+async function ogrenciIdIleRefleriGetir(koleksiyon, ogrenciNo) {
+  const sonuc = new Map();
+  for (const deger of ogrenciIdSorguDegerleri(ogrenciNo)) {
+    const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", deger)));
+    snap.docs.forEach(d => sonuc.set(d.id, d.ref));
   }
   return [...sonuc.values()];
 }
@@ -376,19 +418,15 @@ export async function noMevcutMu(ogrenciNo) {
   return snap.exists();
 }
 
-/** Öğrenci ekle (belge ID = öğrenci numarası) */
-export async function ogrenciEkle(ogrenciNo, veri) {
-  await setDoc(doc(db, KOLEKSIYON, String(ogrenciNo)), {
+function ogrenciEklemeVerisi(veri) {
+  return {
     ...veri,
     durum: "Aktif",
     olusturma_tarihi: bugun()
-  });
-  tumCacheleriTemizle();
+  };
 }
 
-/** Öğrenci güncelle */
-export async function ogrenciGuncelle(ogrenciNo, veri) {
-  const ref = doc(db, KOLEKSIYON, String(ogrenciNo));
+function ogrenciGuncellemeVerisi(veri, eski = {}) {
   const guncelVeri = {
     ...veri,
     guncelleme_tarihi: bugun()
@@ -396,12 +434,83 @@ export async function ogrenciGuncelle(ogrenciNo, veri) {
   if ("durum" in guncelVeri) {
     guncelVeri.durum = ogrenciDurumunuNormalizeEt(guncelVeri.durum);
   } else {
-    const eskiSnap = await getDoc(ref);
-    guncelVeri.durum = ogrenciDurumunuNormalizeEt(eskiSnap.exists() ? eskiSnap.data().durum : "");
+    guncelVeri.durum = ogrenciDurumunuNormalizeEt(eski?.durum || "");
   }
-  await updateDoc(ref, {
-    ...guncelVeri
-  });
+  return guncelVeri;
+}
+
+function atomikYazmaEkle(batch, apply, sayac) {
+  if (sayac.deger >= MAX_ATOMIK_YAZMA) {
+    throw new Error(`Tek işlemde güvenli yazma sınırı aşıldı (${MAX_ATOMIK_YAZMA}). İşlemi daha küçük parçalara bölün.`);
+  }
+  apply(batch);
+  sayac.deger++;
+}
+
+/** Öğrenci ekle (belge ID = öğrenci numarası) */
+export async function ogrenciEkle(ogrenciNo, veri) {
+  await setDoc(doc(db, KOLEKSIYON, String(ogrenciNo)), ogrenciEklemeVerisi(veri));
+  tumCacheleriTemizle();
+}
+
+/** Öğrenci güncelle */
+export async function ogrenciGuncelle(ogrenciNo, veri) {
+  const ref = doc(db, KOLEKSIYON, String(ogrenciNo));
+  const eskiSnap = await getDoc(ref);
+  const eski = eskiSnap.exists() ? eskiSnap.data() : {};
+  await updateDoc(ref, ogrenciGuncellemeVerisi(veri, eski));
+  tumCacheleriTemizle();
+}
+
+export async function ogrenciVeVelileriKaydet({
+  ogrenciNo,
+  duzenlemeId = "",
+  ogrenciVeri = {},
+  kaydedilecekVeliler = [],
+  silinecekVeliler = []
+} = {}) {
+  const id = String(duzenlemeId || ogrenciNo || "");
+  if (!id) throw new Error("Öğrenci numarası bulunamadı.");
+
+  const batch = writeBatch(db);
+  const sayac = { deger: 0 };
+  const ogrRef = doc(db, KOLEKSIYON, id);
+
+  if (duzenlemeId) {
+    const eskiSnap = await getDoc(ogrRef);
+    const eski = eskiSnap.exists() ? eskiSnap.data() : {};
+    atomikYazmaEkle(batch, b => b.update(ogrRef, ogrenciGuncellemeVerisi(ogrenciVeri, eski)), sayac);
+  } else {
+    atomikYazmaEkle(batch, b => b.set(ogrRef, ogrenciEklemeVerisi(ogrenciVeri)), sayac);
+  }
+
+  for (const veliId of silinecekVeliler) {
+    if (!veliId) continue;
+    atomikYazmaEkle(batch, b => b.delete(doc(db, VELI_KOLEKSIYON, String(veliId))), sayac);
+  }
+
+  for (const item of kaydedilecekVeliler) {
+    const veliId = item?.id ? String(item.id) : "";
+    let eski = {};
+    if (veliId) {
+      const eskiSnap = await getDoc(doc(db, VELI_KOLEKSIYON, veliId));
+      eski = eskiSnap.exists() ? eskiSnap.data() : {};
+    }
+    const { id: _id, ...kayit } = veliKaydiniNormalizeEt(id, { ...item.veri, ogrenciId: id }, eski);
+    kayit.guncelleme_tarihi = bugun();
+    if (!veliId) kayit.olusturma_tarihi = bugun();
+
+    const veliRef = veliId
+      ? doc(db, VELI_KOLEKSIYON, veliId)
+      : doc(collection(db, VELI_KOLEKSIYON));
+    if (veliId) {
+      atomikYazmaEkle(batch, b => b.set(veliRef, kayit, { merge: true }), sayac);
+    } else {
+      atomikYazmaEkle(batch, b => b.set(veliRef, kayit), sayac);
+    }
+  }
+
+  await batch.commit();
   tumCacheleriTemizle();
 }
 
@@ -466,9 +575,7 @@ export async function veliSil(_ogrenciNo, veliId) {
 }
 
 export async function ogrenciVelileriniSil(ogrenciNo) {
-  const id = String(ogrenciNo);
-  const snap = await getDocs(query(collection(db, VELI_KOLEKSIYON), where("ogrenciId", "==", id)));
-  await refleriBatchSil(snap.docs.map(d => d.ref));
+  await refleriBatchSil(await ogrenciIdIleRefleriGetir(VELI_KOLEKSIYON, ogrenciNo));
   veliCacheTemizle();
 }
 
@@ -493,7 +600,10 @@ export async function devamsizlikSil(_ogrenciNo, kayitId) {
 }
 
 export async function devamsizlikGuncelle(_ogrenciNo, kayitId, veri) {
-  await updateDoc(doc(db, "devamsizliklar", String(kayitId)), tarihliVeri(veri));
+  const ref = doc(db, "devamsizliklar", String(kayitId));
+  const eskiSnap = await getDoc(ref);
+  const mevcut = eskiSnap.exists() ? eskiSnap.data() : {};
+  await updateDoc(ref, devamsizlikGuncellemeVerisi(mevcut, veri));
   kayitCacheTemizle("devamsizliklar");
 }
 

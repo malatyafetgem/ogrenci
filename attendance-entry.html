@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260605-93">
+  <link rel="manifest" href="manifest.webmanifest?v=20260605-94">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-93">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-93">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-93">
-  <link rel="shortcut icon" href="favicon.ico?v=20260605-93">
-  <script src="file-redirect.js?v=20260605-93"></script>
-  <script src="pwa.js?v=20260605-93"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-94">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-94">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-94">
+  <link rel="shortcut icon" href="favicon.ico?v=20260605-94">
+  <script src="file-redirect.js?v=20260605-94"></script>
+  <script src="pwa.js?v=20260605-94"></script>
   <title>Devamsızlık Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260605-93">
+  <link rel="stylesheet" href="app.css?v=20260605-94">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -241,17 +241,17 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin } from "./auth.js?v=20260605-93";
-  import { layoutYukle } from "./layout.js?v=20260605-93";
+  import { requireAdmin } from "./auth.js?v=20260605-94";
+  import { layoutYukle } from "./layout.js?v=20260605-94";
   import {
     tumOgrencileriGetir, devamsizlikEkle,
     devamsizliklarGetir, devamsizlikHesapla
-  } from "./students.js?v=20260605-93";
+  } from "./students.js?v=20260605-94";
   import {
     devamsizlikDurum, devamsizlikKapsananTarihler, devamsizlikMiktarEtiketi,
     devamsizlikMiktarSayisi, devamsizlikTarihEtiketi, sayiEtiketiTR,
-    toast, formatTarih, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260605-93";
+    toast, formatTarih, gecerliTarih, escapeHtml, escapeAttr
+  } from "./utils.js?v=20260605-94";
 
   let tumOgrenciler = [];
   let excelSatirlar = [];
@@ -292,7 +292,7 @@
         `<div class="alert alert-danger">
           <i class="bi bi-exclamation-triangle me-2"></i>
           Veriler yüklenemedi. Bağlantınızı kontrol edip tekrar deneyin.
-          <div class="small text-muted mt-1">${err.message}</div>
+          <div class="small text-muted mt-1">${escapeHtml(err.message)}</div>
         </div>`;
       return;
     }
@@ -415,6 +415,12 @@
 
     if (!ogrId || !tarih) {
       hataEl.textContent = "Öğrenci seçin ve tarih girin.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
+
+    if (!gecerliTarih(tarih)) {
+      hataEl.textContent = "Tarih geçerli bir GG.AA.YYYY tarihi olmalıdır.";
       hataEl.classList.remove("d-none");
       return;
     }
@@ -884,19 +890,21 @@
   function excelTarihOku(value) {
     if (value instanceof Date && !Number.isNaN(value.getTime())) return formatTarih(value);
     const formatted = formatTarih(value);
-    if (/^\d{2}\.\d{2}\.\d{4}$/.test(formatted)) return formatted;
+    if (gecerliTarih(formatted)) return formatted;
     const raw = String(value ?? "").trim();
     const slash = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
     if (slash) {
       const [, d, m, y] = slash;
       const yil = y.length === 2 ? `20${y}` : y;
-      return `${d.padStart(2, "0")}.${m.padStart(2, "0")}.${yil}`;
+      const tarih = `${d.padStart(2, "0")}.${m.padStart(2, "0")}.${yil}`;
+      return gecerliTarih(tarih) ? tarih : "";
     }
     const serial = Number(raw.replace(",", "."));
     if (Number.isFinite(serial) && serial > 25000 && serial < 60000) {
       const base = new Date(Date.UTC(1899, 11, 30));
       base.setUTCDate(base.getUTCDate() + Math.floor(serial));
-      return formatTarih(new Date(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate()));
+      const tarih = formatTarih(new Date(base.getUTCFullYear(), base.getUTCMonth(), base.getUTCDate()));
+      return gecerliTarih(tarih) ? tarih : "";
     }
     return "";
   }

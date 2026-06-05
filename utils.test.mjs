@@ -7,6 +7,7 @@ import {
   devamsizlikDurumEtiketi,
   devamsizlikRenk,
   formatTarih,
+  gecerliTarih,
   gecerliTc
 } from "./utils.js";
 
@@ -23,6 +24,13 @@ test("formatTarih farklı girişleri GG.AA.YYYY biçimine çevirir", () => {
   assert.equal(formatTarih("2026-6-3"), "03.06.2026");
   assert.equal(formatTarih(new Date(2026, 5, 3)), "03.06.2026");
   assert.equal(formatTarih("geçersiz"), "geçersiz");
+});
+
+test("gecerliTarih takvimde olmayan tarihleri reddeder", () => {
+  assert.equal(gecerliTarih("29.02.2024"), true);
+  assert.equal(gecerliTarih("31.02.2026"), false);
+  assert.equal(gecerliTarih("2026-13-01"), false);
+  assert.equal(gecerliTarih("geçersiz"), false);
 });
 
 test("compareSinif sınıf seviyesini ve şubeyi Türkçe sıralar", () => {

@@ -1,6 +1,6 @@
-import { auth } from "./firebase-config.js?v=20260605-93";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260605-93";
-import { toast } from "./utils.js?v=20260605-93";
+import { auth } from "./firebase-config.js?v=20260605-94";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260605-94";
+import { toast } from "./utils.js?v=20260605-94";
 
 const adminClaimUids = new Set();
 
@@ -99,13 +99,15 @@ export async function logout() {
 }
 
 function temizleYerelOturumCache() {
-  try {
-    Object.keys(localStorage)
-      .filter(key => key.startsWith("obs-"))
-      .forEach(key => localStorage.removeItem(key));
-  } catch {
-    // localStorage kapalıysa çıkış akışı yine devam eder.
-  }
+  [localStorage, sessionStorage].forEach(storage => {
+    try {
+      Object.keys(storage)
+        .filter(key => key.startsWith("obs-"))
+        .forEach(key => storage.removeItem(key));
+    } catch {
+      // Tarayıcı depolaması kapalıysa çıkış akışı yine devam eder.
+    }
+  });
 }
 
 /**

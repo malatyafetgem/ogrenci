@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260605-93">
+  <link rel="manifest" href="manifest.webmanifest?v=20260605-94">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-93">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-93">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-93">
-  <link rel="shortcut icon" href="favicon.ico?v=20260605-93">
-  <script src="file-redirect.js?v=20260605-93"></script>
-  <script src="pwa.js?v=20260605-93"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-94">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-94">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-94">
+  <link rel="shortcut icon" href="favicon.ico?v=20260605-94">
+  <script src="file-redirect.js?v=20260605-94"></script>
+  <script src="pwa.js?v=20260605-94"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/css/dataTables.bootstrap5.min.css"
           integrity="sha384-xkQqWcEusZ1bIXoKJoItkNbJJ1LG5QwR5InghOwFLsCoEkGcNLYjE0O83wWruaK9"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260605-93">
+  <link rel="stylesheet" href="app.css?v=20260605-94">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -233,22 +233,22 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260605-93"></script>
+<script src="datatable-fallback.js?v=20260605-94"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
         integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260605-93";
-  import { layoutYukle } from "./layout.js?v=20260605-93";
+  import { requireAuth, applyAdminVisibility, adminActionAllowed } from "./auth.js?v=20260605-94";
+  import { layoutYukle } from "./layout.js?v=20260605-94";
   import {
-    ogrenciEkle, ogrenciGuncelle, noMevcutMu,
-    velileriGetir, veliEkleGuncelle, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir
-  } from "./students.js?v=20260605-93";
+    noMevcutMu, ogrenciVeVelileriKaydet,
+    velileriGetir, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir
+  } from "./students.js?v=20260605-94";
   import {
     formatAd, formatSoyad, formatMetin, formatTelefon, formatTarih, toast, bugun,
-    compareOgrenci, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
-  } from "./utils.js?v=20260605-93";
+    compareOgrenci, gecerliTarih, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari
+  } from "./utils.js?v=20260605-94";
   let tumOgrenciler = [];
   let dt = null;
   let filtreZamanlayici = null;
@@ -740,24 +740,28 @@
           continue;
         }
 
-        if (mevcut) {
-          if (Object.keys(coz.ogrVeri).some(key => key !== "numara")) {
-            await ogrenciGuncelle(coz.numara, coz.ogrVeri);
-          }
-          guncellendi++;
-        } else {
-          if (coz.yeniKayitEksikleri.length) {
-            atlandi++;
-            hatalar.push({ satir: i + 2, numara: coz.numara, neden: `Yeni öğrenci için eksik alan: ${coz.yeniKayitEksikleri.join(", ")}`, durum: "Atlandı" });
-            continue;
-          }
-          await ogrenciEkle(coz.numara, yeniOgrenciVerisi(coz));
-          eklendi++;
+        if (!mevcut && coz.yeniKayitEksikleri.length) {
+          atlandi++;
+          hatalar.push({ satir: i + 2, numara: coz.numara, neden: `Yeni öğrenci için eksik alan: ${coz.yeniKayitEksikleri.join(", ")}`, durum: "Atlandı" });
+          continue;
         }
 
+        const veliPaketleri = [];
         for (const veli of coz.cokluVeliler) {
-          await veliAktar(coz.numara, veli.yakinlik || "Veli", veli);
+          const paket = await veliAktarPaketi(coz.numara, veli.yakinlik || "Veli", veli);
+          if (paket) veliPaketleri.push(paket);
         }
+
+        await ogrenciVeVelileriKaydet({
+          ogrenciNo: coz.numara,
+          duzenlemeId: mevcut ? coz.numara : "",
+          ogrenciVeri: mevcut ? coz.ogrVeri : yeniOgrenciVerisi(coz),
+          kaydedilecekVeliler: veliPaketleri,
+          silinecekVeliler: []
+        });
+
+        if (mevcut) guncellendi++;
+        else eklendi++;
       } catch (err) {
         hatali++;
         hatalar.push({ satir: i + 2, numara: coz.numara || "—", neden: err.message, durum: "Hata" });
@@ -841,7 +845,12 @@
     alanEkle(ogrVeri, "maddi_durum", temiz(raw.maddi_durum));
     alanEkle(ogrVeri, "geldigi_okul", formatMetin(raw.geldigi_okul));
     alanEkle(ogrVeri, "tc_kimlik", sadeceRakam(raw.tc_kimlik));
-    alanEkle(ogrVeri, "dogum_tarihi", temiz(raw.dogum_tarihi));
+    const dogumTarihi = temiz(raw.dogum_tarihi);
+    if (importEslesme.dogum_tarihi && dogumTarihi && !gecerliTarih(dogumTarihi)) {
+      hatalar.push("Doğum tarihi geçersiz");
+    } else {
+      alanEkle(ogrVeri, "dogum_tarihi", dogumTarihi);
+    }
     alanEkle(ogrVeri, "dogum_yeri", formatMetin(raw.dogum_yeri));
     alanEkle(ogrVeri, "hastalik", formatMetin(raw.hastalik));
     alanEkle(ogrVeri, "engel", formatMetin(raw.engel));
@@ -1004,8 +1013,8 @@
   // Tekil sayılabilecek yakınlıklar: bu türde aynı öğrenciye ait en fazla 1 kişi olması beklenir.
   const TEKIL_YAKINLIKLAR = new Set(["Anne", "Baba", "Vasi", "Üvey Anne", "Üvey Baba"]);
 
-  async function veliAktar(ogrenciNo, varsayilanYakinlik, veri) {
-    if (!veliDoluMu(veri)) return;
+  async function veliAktarPaketi(ogrenciNo, varsayilanYakinlik, veri) {
+    if (!veliDoluMu(veri)) return null;
     const yakinlik = temiz(veri.yakinlik) || varsayilanYakinlik;
     const mevcutVeliler = await velileriGetir(ogrenciNo);
 
@@ -1040,7 +1049,7 @@
 
     // D) Hiçbir eşleşme yoksa yeni veli oluştur
     const mevcutId = mevcut?.id || null;
-    await veliEkleGuncelle(ogrenciNo, mevcutId, { ...veri, yakinlik });
+    return { id: mevcutId, veri: { ...veri, yakinlik } };
   }
 
   function importSifirla() {

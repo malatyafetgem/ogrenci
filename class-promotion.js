@@ -4,14 +4,15 @@
 // taşındı. Tüm ID'ler "cp-" önekiyle scoped tutulur ki sayfa ID'leriyle
 // çakışmasın. Tek kullanım: classPromotionAc(rootEl).
 
-import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260605-93";
-import { db } from "./firebase-config.js?v=20260605-93";
+import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260605-94";
+import { db } from "./firebase-config.js?v=20260605-94";
 import {
   collection, getDocs, doc, writeBatch, query, where
-} from "./firebase-imports.js?v=20260605-93";
-import { toast, onayIste, sinifParcala, compareSinif, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260605-93";
+} from "./firebase-imports.js?v=20260605-94";
+import { toast, onayIste, sinifParcala, compareSinif, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260605-94";
 
 const BAGLI_KOLEKSIYONLAR = ["veliler", "devamsizliklar", "davranislar", "veligorusmeleri"];
+const MAX_ATOMIK_YAZMA = 450;
 
 const ISKELET_HTML = `
   <div class="alert alert-warning d-flex align-items-start gap-2 mb-3">
@@ -211,6 +212,60 @@ export async function classPromotionAc(root) {
     return grupIslemleri[key] || grupVarsayilanIslem(grup || { seviye: null });
   }
 
+  function ogrenciIdSorguDegerleri(ogrenciNo) {
+    const id = String(ogrenciNo);
+    const degerler = [id];
+    const sayisal = Number(id);
+    if (/^\d+$/.test(id) && String(sayisal) === id && Number.isSafeInteger(sayisal)) degerler.push(sayisal);
+    return degerler;
+  }
+
+  async function ogrenciIdIleBelgeleriGetir(koleksiyon, ogrenciNo) {
+    const sonuc = new Map();
+    for (const deger of ogrenciIdSorguDegerleri(ogrenciNo)) {
+      const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", deger)));
+      snap.docs.forEach(d => sonuc.set(d.id, d));
+    }
+    return [...sonuc.values()];
+  }
+
+  async function bagliKayitSayisi(ogrenciId) {
+    let toplam = 0;
+    for (const koleksiyon of BAGLI_KOLEKSIYONLAR) {
+      toplam += (await ogrenciIdIleBelgeleriGetir(koleksiyon, ogrenciId)).length;
+    }
+    return toplam;
+  }
+
+  async function aktarimYazmaSayisiniHesapla() {
+    let toplam = 0;
+    for (const o of ogrenciler) {
+      const islem = ogrenciIslemi(o);
+      if (islem === "gecis") {
+        toplam += 1;
+      } else if (islem === "mezun") {
+        toplam += 2 + await bagliKayitSayisi(o.id);
+      } else if (islem === "sil") {
+        toplam += 1 + await bagliKayitSayisi(o.id);
+      }
+      if (toplam > MAX_ATOMIK_YAZMA) return toplam;
+    }
+    return toplam;
+  }
+
+  async function geriAlmaYazmaSayisiniHesapla() {
+    let toplam = 0;
+    for (const islem of sonGeriAlma?.islemler || []) {
+      if (islem.tur === "gecis") {
+        toplam += 1;
+      } else if (islem.tur === "mezun") {
+        toplam += 2 + await bagliKayitSayisi(islem.yeniId);
+      }
+      if (toplam > MAX_ATOMIK_YAZMA) return toplam;
+    }
+    return toplam;
+  }
+
   function grupAnahtari(ogrenci) {
     const seviye = sinifSeviyesi(ogrenci.sinif);
     return seviye >= 9 && seviye <= 12 ? `seviye-${seviye}` : "diger";
@@ -270,11 +325,11 @@ export async function classPromotionAc(root) {
         const ogrenciOzetleri = [];
         for (const o of silinecekler) {
           for (const kol of BAGLI_KOLEKSIYONLAR) {
-            const snap = await getDocs(query(collection(db, kol), where("ogrenciId", "==", o.id)));
-            if (kol === "veliler")           toplamVeli += snap.size;
-            else if (kol === "devamsizliklar") toplamDevamsizlik += snap.size;
-            else if (kol === "davranislar")   toplamDavranis += snap.size;
-            else if (kol === "veligorusmeleri") toplamGorusme += snap.size;
+            const belgeler = await ogrenciIdIleBelgeleriGetir(kol, o.id);
+            if (kol === "veliler")           toplamVeli += belgeler.length;
+            else if (kol === "devamsizliklar") toplamDevamsizlik += belgeler.length;
+            else if (kol === "davranislar")   toplamDavranis += belgeler.length;
+            else if (kol === "veligorusmeleri") toplamGorusme += belgeler.length;
           }
           ogrenciOzetleri.push(`• ${o.ad} ${o.soyad} (${o.sinif})`);
         }
@@ -337,19 +392,32 @@ export async function classPromotionAc(root) {
       toast("Mezun ID planı hazırlanamadı: " + err.message, "danger");
       return;
     }
+    let planlananYazmaSayisi = 0;
+    try {
+      planlananYazmaSayisi = await aktarimYazmaSayisiniHesapla();
+      if (planlananYazmaSayisi > MAX_ATOMIK_YAZMA) {
+        throw new Error(`Bu aktarım ${planlananYazmaSayisi} yazma gerektiriyor. Güvenli tek işlem sınırı ${MAX_ATOMIK_YAZMA}.`);
+      }
+    } catch (err) {
+      onaylaBtn.disabled = false;
+      onaylaBtn.innerHTML = onaylaBtnOrijinal;
+      toast("Aktarım başlatılmadı: " + err.message, "danger");
+      return;
+    }
     let batch = writeBatch(db);
     let yazmaSayisi = 0;
+    let batchCommitBasarili = false;
 
-    async function yaz(apply) {
-      if (yazmaSayisi >= 450) await batchiGonder();
+    function yaz(apply) {
+      if (yazmaSayisi >= MAX_ATOMIK_YAZMA) {
+        throw new Error(`Tek işlemde güvenli yazma sınırı aşıldı (${MAX_ATOMIK_YAZMA}). İşlemi daha küçük parçalara bölün.`);
+      }
       apply(batch);
       yazmaSayisi++;
     }
     async function batchiGonder() {
       if (yazmaSayisi === 0) return;
       await batch.commit();
-      batch = writeBatch(db);
-      yazmaSayisi = 0;
     }
 
     for (const o of ogrenciler) {
@@ -379,17 +447,21 @@ export async function classPromotionAc(root) {
       } catch (err) {
         hatali++;
         hataMesajlari.push(`${o.id}: ${err.message}`);
+        break;
       }
     }
 
-    try {
-      await batchiGonder();
-    } catch (err) {
-      hatali++;
-      hataMesajlari.push(`Toplu yazma: ${err.message}`);
+    if (!hatali) {
+      try {
+        await batchiGonder();
+        batchCommitBasarili = true;
+      } catch (err) {
+        hatali++;
+        hataMesajlari.push(`Toplu yazma: ${err.message}`);
+      }
     }
 
-    sonGeriAlma = geriAlmaDestekli && hatali === 0 && geriAlmaIslemleri.length
+    sonGeriAlma = batchCommitBasarili && geriAlmaDestekli && geriAlmaIslemleri.length
       ? { islemler: geriAlmaIslemleri, zaman: Date.now() }
       : null;
     const geriAlButonu = sonGeriAlma
@@ -402,23 +474,28 @@ export async function classPromotionAc(root) {
       : "";
 
     $("#cp-sonuc-kap").classList.remove("d-none");
-    $("#cp-sonuc-mesaj").innerHTML =
-      `Aktarım tamamlandı: <strong>${basarili}</strong> öğrenci bir üst sınıfa geçirildi,
-       <strong>${mezun}</strong> öğrenci M serisi ID ile Mezun olarak etiketlendi,
-       <strong>${kalir}</strong> öğrenci aynı sınıfta bırakıldı,
-       <strong>${silindi}</strong> öğrenci silindi${hatali ? `, <strong>${hatali}</strong> işlem hata verdi` : ""}.
-       ${hataMesajlari.length ? `<div class="small mt-2">${escapeHtml(hataMesajlari.slice(0, 5).join(" | "))}</div>` : ""}
-       ${silindi ? `<div class="small mt-2 text-muted">Silme içeren aktarımlar geri alınamaz.</div>` : ""}
-       ${geriAlButonu}`;
+    $("#cp-sonuc-mesaj").innerHTML = batchCommitBasarili
+      ? `Aktarım tamamlandı: <strong>${basarili}</strong> öğrenci bir üst sınıfa geçirildi,
+         <strong>${mezun}</strong> öğrenci M serisi ID ile Mezun olarak etiketlendi,
+         <strong>${kalir}</strong> öğrenci aynı sınıfta bırakıldı,
+         <strong>${silindi}</strong> öğrenci silindi.
+         ${silindi ? `<div class="small mt-2 text-muted">Silme içeren aktarımlar geri alınamaz.</div>` : ""}
+         ${geriAlButonu}`
+      : `<strong>Aktarım uygulanmadı.</strong> Toplu işlem güvenli şekilde iptal edildi.
+         ${hataMesajlari.length ? `<div class="small mt-2">${escapeHtml(hataMesajlari.slice(0, 5).join(" | "))}</div>` : ""}`;
     $("#cp-geri-al-btn")?.addEventListener("click", geriAlmaUygula);
 
     onaylaBtn.disabled = false;
     onaylaBtn.innerHTML = `<i class="bi bi-check-circle me-1"></i>Aktarımı Uygula`;
 
-    toast("Sınıf atlatma tamamlandı.", "success");
-    veriCacheleriniTemizle();
-    grupIslemleriniTemizle();
-    await yukle();
+    if (batchCommitBasarili) {
+      toast("Sınıf atlatma tamamlandı.", "success");
+      veriCacheleriniTemizle();
+      grupIslemleriniTemizle();
+      await yukle();
+    } else {
+      toast("Sınıf atlatma uygulanmadı.", "danger");
+    }
   }
 
   async function mezunIdPlaniHazirla(mezunlar) {
@@ -469,18 +546,32 @@ export async function classPromotionAc(root) {
       btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Geri alınıyor...`;
     }
 
+    try {
+      const yazmaSayisi = await geriAlmaYazmaSayisiniHesapla();
+      if (yazmaSayisi > MAX_ATOMIK_YAZMA) {
+        throw new Error(`Geri alma ${yazmaSayisi} yazma gerektiriyor. Güvenli tek işlem sınırı ${MAX_ATOMIK_YAZMA}.`);
+      }
+    } catch (err) {
+      toast("Geri alma başlatılmadı: " + err.message, "danger");
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-arrow-counterclockwise me-1"></i>Son işlemi geri al`;
+      }
+      return;
+    }
+
     let batch = writeBatch(db);
     let yazmaSayisi = 0;
-    async function yaz(apply) {
-      if (yazmaSayisi >= 450) await batchiGonder();
+    function yaz(apply) {
+      if (yazmaSayisi >= MAX_ATOMIK_YAZMA) {
+        throw new Error(`Tek işlemde güvenli yazma sınırı aşıldı (${MAX_ATOMIK_YAZMA}). İşlemi daha küçük parçalara bölün.`);
+      }
       apply(batch);
       yazmaSayisi++;
     }
     async function batchiGonder() {
       if (yazmaSayisi === 0) return;
       await batch.commit();
-      batch = writeBatch(db);
-      yazmaSayisi = 0;
     }
 
     try {
@@ -498,8 +589,8 @@ export async function classPromotionAc(root) {
             guncelleme_tarihi: bugun()
           }));
           for (const koleksiyon of BAGLI_KOLEKSIYONLAR) {
-            const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", islem.yeniId)));
-            for (const d of snap.docs) {
+            const belgeler = await ogrenciIdIleBelgeleriGetir(koleksiyon, islem.yeniId);
+            for (const d of belgeler) {
               await yaz(b => b.update(d.ref, { ogrenciId: islem.eskiId, guncelleme_tarihi: bugun() }));
             }
           }
@@ -537,8 +628,8 @@ export async function classPromotionAc(root) {
 
     await yaz(b => b.set(doc(db, "students", mezunId), mezunVerisi));
     for (const koleksiyon of BAGLI_KOLEKSIYONLAR) {
-      const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", eskiId)));
-      for (const d of snap.docs) {
+      const belgeler = await ogrenciIdIleBelgeleriGetir(koleksiyon, eskiId);
+      for (const d of belgeler) {
         await yaz(b => b.update(d.ref, { ogrenciId: mezunId, guncelleme_tarihi: bugun() }));
       }
     }
@@ -547,8 +638,8 @@ export async function classPromotionAc(root) {
 
   async function ogrenciyiSistemdenCikar(ogrenciId, yaz) {
     for (const koleksiyon of BAGLI_KOLEKSIYONLAR) {
-      const snap = await getDocs(query(collection(db, koleksiyon), where("ogrenciId", "==", ogrenciId)));
-      for (const d of snap.docs) {
+      const belgeler = await ogrenciIdIleBelgeleriGetir(koleksiyon, ogrenciId);
+      for (const d of belgeler) {
         await yaz(b => b.delete(d.ref));
       }
     }

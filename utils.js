@@ -152,6 +152,20 @@ export function formatTarih(tarihStr) {
   return raw;
 }
 
+export function gecerliTarih(tarihStr) {
+  const tarih = formatTarih(tarihStr);
+  const m = tarih.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!m) return false;
+  const [, gunStr, ayStr, yilStr] = m;
+  const g = Number(gunStr);
+  const a = Number(ayStr);
+  const y = Number(yilStr);
+  const date = new Date(y, a - 1, g);
+  return date.getFullYear() === y
+    && date.getMonth() === a - 1
+    && date.getDate() === g;
+}
+
 export function sayiOkuTR(value) {
   const raw = String(value ?? "").trim().replace(",", ".");
   const eslesen = raw.match(/\d+(\.\d+)?/);
@@ -204,7 +218,7 @@ export function bugun() {
 export function tarihtenDate(str) {
   if (!str) return null;
   const tarih = formatTarih(str);
-  if (!/^\d{2}\.\d{2}\.\d{4}$/.test(tarih)) return null;
+  if (!gecerliTarih(tarih)) return null;
   const [g, a, y] = tarih.split(".").map(Number);
   return new Date(y, a - 1, g);
 }

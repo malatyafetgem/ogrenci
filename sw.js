@@ -1,5 +1,5 @@
 // sw.js — Öğrenci Bilgileri Service Worker
-const CACHE_VERSION = "obs-cache-v1.0.93";
+const CACHE_VERSION = "obs-cache-v1.0.94";
 const CACHE_NAME = CACHE_VERSION;
 
 const SHELL_URLS = [

@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260605-93">
+  <link rel="manifest" href="manifest.webmanifest?v=20260605-94">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-93">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-93">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-93">
-  <link rel="shortcut icon" href="favicon.ico?v=20260605-93">
-  <script src="file-redirect.js?v=20260605-93"></script>
-  <script src="pwa.js?v=20260605-93"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-94">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-94">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-94">
+  <link rel="shortcut icon" href="favicon.ico?v=20260605-94">
+  <script src="file-redirect.js?v=20260605-94"></script>
+  <script src="pwa.js?v=20260605-94"></script>
   <title>Ayarlar ve Yönetim</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260605-93">
+  <link rel="stylesheet" href="app.css?v=20260605-94">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -297,21 +297,21 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260605-93";
-  import { layoutYukle } from "./layout.js?v=20260605-93";
-  import { db } from "./firebase-config.js?v=20260605-93";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260605-94";
+  import { layoutYukle } from "./layout.js?v=20260605-94";
+  import { db } from "./firebase-config.js?v=20260605-94";
   import {
     EmailAuthProvider, reauthenticateWithCredential,
     collection, doc, getDocs, writeBatch
-  } from "./firebase-imports.js?v=20260605-93";
-  import { toast, bugun } from "./utils.js?v=20260605-93";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260605-93";
+  } from "./firebase-imports.js?v=20260605-94";
+  import { toast, bugun, escapeHtml } from "./utils.js?v=20260605-94";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260605-94";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260605-93";
-  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260605-93";
+  } from "./school-settings.js?v=20260605-94";
+  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260605-94";
 
   const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {
@@ -331,6 +331,7 @@
   ];
   const ISTEMCI_CACHE_PREFIX = "obs-data-cache-v1:";
   const ISTEMCI_EKRAN_CACHE_PREFIXLERI = ["obs-dashboard-cache-"];
+  const MAX_ATOMIK_YAZMA = 450;
   const SILME_ISLEMLERI = {
     students: {
       baslik: "Öğrenci Toplu Sil",
@@ -423,14 +424,14 @@
       if (yukleniyor) return;
       yukleniyor = true;
       try {
-        const mod = await import("./class-promotion.js?v=20260605-93");
+        const mod = await import("./class-promotion.js?v=20260605-94");
         await mod.classPromotionAc(root);
       } catch (err) {
         root.innerHTML =
           `<div class="alert alert-danger">
             <i class="bi bi-exclamation-triangle me-2"></i>
             Sınıf Atlatma modülü yüklenemedi.
-            <div class="small text-muted mt-1">${(err && err.message) || err}</div>
+            <div class="small text-muted mt-1">${escapeHtml((err && err.message) || err)}</div>
           </div>`;
       } finally {
         yukleniyor = false;
@@ -574,21 +575,17 @@
 
   function batchYonetici() {
     let batch = writeBatch(db);
-    let adet = 0;
     let toplam = 0;
     return {
       async ekle(fn) {
-        fn(batch);
-        adet++;
-        toplam++;
-        if (adet >= 450) {
-          await batch.commit();
-          batch = writeBatch(db);
-          adet = 0;
+        if (toplam >= MAX_ATOMIK_YAZMA) {
+          throw new Error(`Tek işlemde güvenli yazma sınırı aşıldı (${MAX_ATOMIK_YAZMA}). İşlemi daha küçük parçalara bölün.`);
         }
+        fn(batch);
+        toplam++;
       },
       async bitir() {
-        if (adet > 0) await batch.commit();
+        if (toplam > 0) await batch.commit();
         return toplam;
       }
     };
@@ -604,36 +601,27 @@
 
   async function silTumOgrenciler() {
     durumYaz("Öğrenciler ve bağlı kayıtlar siliniyor...");
-    const manager = batchYonetici();
-    const veliSnap = await getDocs(collection(db, "veliler"));
-    durumYaz(`Merkezi veli kayıtları siliniyor... (${veliSnap.size})`);
-    for (const belge of veliSnap.docs) {
-      await manager.ekle(batch => batch.delete(belge.ref));
-    }
-
-    for (const koleksiyon of KAYIT_KOLEKSIYONLARI) {
-      const snap = await getDocs(collection(db, koleksiyon));
-      durumYaz(`${KAYIT_ETIKETLER[koleksiyon]} kayıtları siliniyor... (${snap.size})`);
-      for (const belge of snap.docs) {
-        await manager.ekle(batch => batch.delete(belge.ref));
-      }
-    }
-
-    const ogrSnap = await getDocs(collection(db, "students"));
-    durumYaz(`Öğrenciler siliniyor... (${ogrSnap.size})`);
-    for (const ogrDoc of ogrSnap.docs) {
-      await manager.ekle(batch => batch.delete(ogrDoc.ref));
-    }
-    const toplam = await manager.bitir();
+    const toplam = await silKoleksiyonlariTekBatch([
+      { koleksiyon: "veliler", etiket: "Merkezi veli" },
+      ...KAYIT_KOLEKSIYONLARI.map(koleksiyon => ({ koleksiyon, etiket: KAYIT_ETIKETLER[koleksiyon] })),
+      { koleksiyon: "students", etiket: "Öğrenci" }
+    ]);
     istemciCacheTemizle();
     durumYaz(`${toplam} öğrenci ve bağlı kayıt silindi.`, "success");
   }
 
   async function silKoleksiyon(koleksiyon) {
+    return silKoleksiyonlariTekBatch([{ koleksiyon, etiket: KAYIT_ETIKETLER[koleksiyon] || koleksiyon }]);
+  }
+
+  async function silKoleksiyonlariTekBatch(koleksiyonlar) {
     const manager = batchYonetici();
-    const snap = await getDocs(collection(db, koleksiyon));
-    for (const belge of snap.docs) {
-      await manager.ekle(batch => batch.delete(belge.ref));
+    for (const { koleksiyon, etiket } of koleksiyonlar) {
+      const snap = await getDocs(collection(db, koleksiyon));
+      durumYaz(`${etiket} kayıtları siliniyor... (${snap.size})`);
+      for (const belge of snap.docs) {
+        await manager.ekle(batch => batch.delete(belge.ref));
+      }
     }
     return manager.bitir();
   }
@@ -647,11 +635,15 @@
 
   async function silTumSistem() {
     durumYaz("Tüm sistem siliniyor...");
-    await silTumOgrenciler();
-    const autocomplete = await silKoleksiyon("_autocomplete");
-    const settings = await silKoleksiyon("_settings");
+    const toplam = await silKoleksiyonlariTekBatch([
+      { koleksiyon: "veliler", etiket: "Merkezi veli" },
+      ...KAYIT_KOLEKSIYONLARI.map(koleksiyon => ({ koleksiyon, etiket: KAYIT_ETIKETLER[koleksiyon] })),
+      { koleksiyon: "students", etiket: "Öğrenci" },
+      { koleksiyon: "_autocomplete", etiket: "Otomatik tamamlama" },
+      { koleksiyon: "_settings", etiket: "Sistem ayarı" }
+    ]);
     istemciCacheTemizle();
-    durumYaz(`Tüm sistem silindi. Otomatik tamamlama: ${autocomplete}, ayar: ${settings}.`, "success");
+    durumYaz(`Tüm sistem silindi. Toplam ${toplam} kayıt silindi.`, "success");
   }
 
   async function yedekDisariAktar() {
@@ -751,14 +743,16 @@
   }
 
   function istemciCacheTemizle() {
-    try {
-      Object.keys(localStorage)
-        .filter(key => key.startsWith(ISTEMCI_CACHE_PREFIX))
-        .forEach(key => localStorage.removeItem(key));
-      Object.keys(localStorage)
-        .filter(key => ISTEMCI_EKRAN_CACHE_PREFIXLERI.some(prefix => key.startsWith(prefix)))
-        .forEach(key => localStorage.removeItem(key));
-    } catch {}
+    [localStorage, sessionStorage].forEach(storage => {
+      try {
+        Object.keys(storage)
+          .filter(key => key.startsWith(ISTEMCI_CACHE_PREFIX))
+          .forEach(key => storage.removeItem(key));
+        Object.keys(storage)
+          .filter(key => ISTEMCI_EKRAN_CACHE_PREFIXLERI.some(prefix => key.startsWith(prefix)))
+          .forEach(key => storage.removeItem(key));
+      } catch {}
+    });
   }
 
   function kayitVerisi(kayit) {
