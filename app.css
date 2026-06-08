@@ -686,58 +686,78 @@ body.sidebar-collapsed .app-footer {
 
 .dashboard-attendance-table {
   table-layout: fixed;
+  min-width: 560px;
+}
+
+.dashboard-attendance-responsive {
+  overflow-x: auto;
 }
 
 .dashboard-attendance-table th:nth-child(1),
 .dashboard-attendance-table td:nth-child(1) {
-  width: 40%;
+  width: 34%;
 }
 
 .dashboard-attendance-table th:nth-child(2),
 .dashboard-attendance-table td:nth-child(2) {
-  width: 12%;
+  width: 11%;
 }
 
 .dashboard-attendance-table th:nth-child(3),
 .dashboard-attendance-table td:nth-child(3),
 .dashboard-attendance-table th:nth-child(4),
 .dashboard-attendance-table td:nth-child(4) {
-  width: 14%;
+  width: 16%;
 }
 
 .dashboard-attendance-table th:nth-child(5),
 .dashboard-attendance-table td:nth-child(5) {
-  width: 20%;
+  width: 23%;
+}
+
+.table.dashboard-attendance-table > thead > tr > th {
+  padding-inline: .55rem;
+  letter-spacing: 0;
+}
+
+.table.dashboard-attendance-table > tbody > tr > td {
+  padding-inline: .55rem;
+}
+
+.dashboard-attendance-table td:first-child a {
+  display: inline-block;
+  max-width: 100%;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 575.98px) {
   .dashboard-attendance-responsive {
-    overflow-x: visible;
+    margin-inline: -.25rem;
+    overflow-x: auto;
+    padding-inline: .25rem;
   }
 
   .dashboard-attendance-table {
-    min-width: 0;
-    font-size: .72rem;
+    min-width: 520px;
+    font-size: .78rem;
   }
 
-  .dashboard-attendance-table th,
-  .dashboard-attendance-table td {
-    padding: .28rem .2rem;
-    line-height: 1.1;
+  .table.dashboard-attendance-table > thead > tr > th,
+  .table.dashboard-attendance-table > tbody > tr > td {
+    padding: .38rem .45rem;
+    line-height: 1.18;
     vertical-align: middle;
   }
 
   .dashboard-attendance-table td:first-child a {
-    display: inline-block;
-    max-width: 100%;
-    line-height: 1.12;
-    white-space: normal;
-    overflow-wrap: anywhere;
+    line-height: 1.18;
   }
 
   .dashboard-attendance-table .badge {
-    font-size: .62rem;
-    padding: .24em .42em;
+    font-size: .68rem;
+    padding: .3em .5em;
   }
 }
 
@@ -1330,6 +1350,19 @@ body.sidebar-collapsed .app-footer {
   height: 28px;
   width: 60%;
   margin: 0 auto;
+}
+.settings-security-dialog .modal-body {
+  overflow-wrap: anywhere;
+}
+.settings-security-dialog #guvenlik-aciklama {
+  max-height: min(42vh, 22rem);
+  overflow-y: auto;
+}
+.settings-security-dialog #guvenlik-aciklama ul {
+  padding-left: 1.1rem;
+}
+.settings-security-dialog #guvenlik-aciklama li + li {
+  margin-top: .25rem;
 }
 .tur-buton { font-size: 1.1rem; padding: 1rem 2rem; border-width: 2px; }
 .tur-buton.secili-olumlu { background: #198754; color: #fff; border-color: #198754; }

@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260605-95";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260605-95";
-import { escapeHtml, toast } from "./utils.js?v=20260605-95";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260608-101";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260608-101";
+import { escapeHtml, toast } from "./utils.js?v=20260608-101";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -26,21 +26,21 @@ const MENU_GRUPLARI = [
   {
     baslik: "Devamsızlık",
     ogeler: [
-      { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık Gir", adminOnly: true },
+      { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık Gir" },
       { href: "attendance-report.html", ikon: "bi-calendar-check", etiket: "Devamsızlık Raporu" }
     ]
   },
   {
     baslik: "Davranış",
     ogeler: [
-      { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış Gir", adminOnly: true },
+      { href: "behavior-entry.html", ikon: "bi-star-half", etiket: "Davranış Gir" },
       { href: "behavior-report.html", ikon: "bi-bar-chart", etiket: "Davranış Raporu" }
     ]
   },
   {
     baslik: "Veli Görüşmeleri",
     ogeler: [
-      { href: "meetings-entry.html", ikon: "bi-chat-dots", etiket: "Görüşme Gir", adminOnly: true },
+      { href: "meetings-entry.html", ikon: "bi-chat-dots", etiket: "Görüşme Gir" },
       { href: "meetings-list.html", ikon: "bi-chat-square-text", etiket: "Görüşme Listesi" }
     ]
   },
@@ -48,10 +48,9 @@ const MENU_GRUPLARI = [
     baslik: "Sistem",
     ogeler: [
       { href: "settings.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true },
-      { href: "excel-export.html", ikon: "bi-file-earmark-excel", etiket: "Excel Aktarım", adminOnly: true },
+      { href: "excel-export.html", ikon: "bi-file-earmark-excel", etiket: "Excel Aktarım" },
       { href: "settings.html#sinif-atlat", ikon: "bi-arrow-up-circle", etiket: "Sınıf Atlatma", adminOnly: true }
-    ],
-    adminOnly: true
+    ]
   }
 ];
 
@@ -64,7 +63,7 @@ const MOBIL_ALT_MENU_GRUPLARI = [
   { key: "devamsizlik", baslik: "Devamsızlık", ikon: "bi-calendar-check", ogeler: menuGrubuBul("Devamsızlık").ogeler },
   { key: "davranis", baslik: "Davranış", ikon: "bi-bar-chart", ogeler: menuGrubuBul("Davranış").ogeler },
   { key: "gorusmeler", baslik: "Görüşmeler", ikon: "bi-chat-dots", ogeler: menuGrubuBul("Veli Görüşmeleri").ogeler },
-  { key: "sistem", baslik: "Sistem", ikon: "bi-gear", ogeler: menuGrubuBul("Sistem").ogeler, adminOnly: true }
+  { key: "sistem", baslik: "Sistem", ikon: "bi-gear", ogeler: menuGrubuBul("Sistem").ogeler }
 ];
 
 // Aktif menü öğesini belirle
@@ -563,7 +562,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260605-95" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260608-101" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
@@ -587,7 +586,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260605-95");
+    const { logout } = await import("./auth.js?v=20260608-101");
     logout();
   });
 
@@ -616,7 +615,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260605-95");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260608-101");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -706,9 +705,9 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260605-95");
+    const { db } = await import("./firebase-config.js?v=20260608-101");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260605-95");
+      await import("./firebase-imports.js?v=20260608-101");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),

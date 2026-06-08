@@ -4,7 +4,7 @@ import {
   initializeApp,
   initializeFirestore,
   memoryLocalCache
-} from "./firebase-imports.js?v=20260605-95";
+} from "./firebase-imports.js?v=20260608-101";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCy1ny9QfkRnV3KcMRwBubPCOQyScLylQU",

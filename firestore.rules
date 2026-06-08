@@ -227,25 +227,28 @@ service cloud.firestore {
 
     match /devamsizliklar/{kayitId} {
       allow read: if canReadPersonalData();
-      allow create, update: if isAdmin() && validAttendance();
+      allow create: if signedIn() && validAttendance();
+      allow update: if isAdmin() && validAttendance();
       allow delete: if isAdmin();
     }
 
     match /davranislar/{kayitId} {
       allow read: if canReadPersonalData();
-      allow create, update: if isAdmin() && validBehavior();
+      allow create: if signedIn() && validBehavior();
+      allow update: if isAdmin() && validBehavior();
       allow delete: if isAdmin();
     }
 
     match /veligorusmeleri/{kayitId} {
       allow read: if canReadPersonalData();
-      allow create, update: if isAdmin() && validMeeting();
+      allow create: if signedIn() && validMeeting();
+      allow update: if isAdmin() && validMeeting();
       allow delete: if isAdmin();
     }
 
     match /_autocomplete/{listeId} {
       allow read: if canReadPersonalData();
-      allow create, update: if isAdmin() && validAutocomplete();
+      allow create, update: if signedIn() && validAutocomplete();
       allow delete: if isAdmin();
     }
 

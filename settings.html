@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260605-95">
+  <link rel="manifest" href="manifest.webmanifest?v=20260608-101">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260605-95">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260605-95">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260605-95">
-  <link rel="shortcut icon" href="favicon.ico?v=20260605-95">
-  <script src="file-redirect.js?v=20260605-95"></script>
-  <script src="pwa.js?v=20260605-95"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260608-101">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260608-101">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260608-101">
+  <link rel="shortcut icon" href="favicon.ico?v=20260608-101">
+  <script src="file-redirect.js?v=20260608-101"></script>
+  <script src="pwa.js?v=20260608-101"></script>
   <title>Ayarlar ve Yönetim</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260605-95">
+  <link rel="stylesheet" href="app.css?v=20260608-101">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -230,7 +230,7 @@
 <div id="bottom-nav-kap"></div>
 
 <div class="modal fade" id="guvenlik-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="guvenlik-baslik">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-sm-down settings-security-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="guvenlik-baslik">İşlemi Onayla</h5>
@@ -297,21 +297,21 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260605-95";
-  import { layoutYukle } from "./layout.js?v=20260605-95";
-  import { db } from "./firebase-config.js?v=20260605-95";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260608-101";
+  import { layoutYukle } from "./layout.js?v=20260608-101";
+  import { db } from "./firebase-config.js?v=20260608-101";
   import {
     EmailAuthProvider, reauthenticateWithCredential,
     collection, doc, getDocs, writeBatch
-  } from "./firebase-imports.js?v=20260605-95";
-  import { toast, bugun, escapeHtml } from "./utils.js?v=20260605-95";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260605-95";
+  } from "./firebase-imports.js?v=20260608-101";
+  import { toast, bugun, escapeHtml } from "./utils.js?v=20260608-101";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260608-101";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260605-95";
-  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260605-95";
+  } from "./school-settings.js?v=20260608-101";
+  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260608-101";
 
   const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {
@@ -329,6 +329,64 @@
     { key: "autocomplete", koleksiyon: "_autocomplete", etiket: "Otomatik tamamlama" },
     { key: "settings", koleksiyon: "_settings", etiket: "Sistem ayarı" }
   ];
+  const YEDEK_UST_ALANLARI = [
+    "tur", "sema", "surum", "tarih", "olusturulma_zamani", "ozet",
+    ...YEDEK_KOLEKSIYONLARI.map(item => item.key)
+  ];
+  const YEDEK_KOLEKSIYON_ALANLARI = {
+    students: {
+      izinli: [
+        "numara", "ad", "soyad", "telefon", "sinif", "cinsiyet",
+        "yatililik", "maddi_durum", "geldigi_okul", "fotograf_url",
+        "tc_kimlik", "dogum_tarihi", "dogum_yeri", "hastalik",
+        "engel", "ilac", "yetenekler", "aile_durumu", "durum",
+        "olusturma_tarihi", "guncelleme_tarihi"
+      ],
+      zorunlu: ["numara", "ad", "soyad", "sinif"]
+    },
+    veliler: {
+      izinli: [
+        "ogrenciId", "yakinlik", "ad", "soyad", "durum", "birincil",
+        "acil_kisi", "iletisim_sirasi", "telefon", "e_posta", "il",
+        "ilce", "adres", "calisma_durumu", "meslek_grubu", "meslek",
+        "gorev_unvan", "kurum", "notlar", "olusturma_tarihi",
+        "guncelleme_tarihi"
+      ],
+      zorunlu: ["ogrenciId"]
+    },
+    devamsizliklar: {
+      izinli: [
+        "ogrenciId", "tarih", "tarih_sira", "tarih_bitis", "tur",
+        "miktar", "gun_degeri", "kapsanan_tarihler", "aciklama",
+        "olusturma_tarihi", "guncelleme_tarihi"
+      ],
+      zorunlu: ["ogrenciId", "tarih", "tur", "gun_degeri"]
+    },
+    davranislar: {
+      izinli: [
+        "ogrenciId", "tarih", "tarih_sira", "tur", "kategori",
+        "aciklama", "veli_gorusmesi", "olusturma_tarihi",
+        "guncelleme_tarihi"
+      ],
+      zorunlu: ["ogrenciId", "tarih", "tur", "kategori"]
+    },
+    veligorusmeleri: {
+      izinli: [
+        "ogrenciId", "tarih", "tarih_sira", "veli_id", "veli_yakinlik",
+        "veli_adi", "konu", "aciklama", "olusturma_tarihi",
+        "guncelleme_tarihi"
+      ],
+      zorunlu: ["ogrenciId", "tarih", "veli_yakinlik", "konu"]
+    },
+    autocomplete: {
+      izinli: ["degerler"],
+      zorunlu: []
+    },
+    settings: {
+      izinli: ["egitim_ogretim_yili", "donem", "guncelleme_tarihi"],
+      zorunlu: []
+    }
+  };
   const ISTEMCI_CACHE_PREFIX = "obs-data-cache-v1:";
   const ISTEMCI_EKRAN_CACHE_PREFIXLERI = ["obs-dashboard-cache-"];
   const MAX_ATOMIK_YAZMA = 450;
@@ -424,7 +482,7 @@
       if (yukleniyor) return;
       yukleniyor = true;
       try {
-        const mod = await import("./class-promotion.js?v=20260605-95");
+        const mod = await import("./class-promotion.js?v=20260608-101");
         await mod.classPromotionAc(root);
       } catch (err) {
         root.innerHTML =
@@ -515,8 +573,14 @@
 
   function guvenlikIste(islem) {
     bekleyenIslem = islem;
+    const aciklamaEl = document.getElementById("guvenlik-aciklama");
     document.getElementById("guvenlik-baslik").textContent = islem.baslik;
-    document.getElementById("guvenlik-aciklama").textContent = islem.aciklama;
+    aciklamaEl.className = `alert alert-${islem.aciklamaTip || "danger"} small`;
+    if (islem.aciklamaHtml) {
+      aciklamaEl.innerHTML = islem.aciklama;
+    } else {
+      aciklamaEl.textContent = islem.aciklama;
+    }
     document.getElementById("guvenlik-onay-metin").textContent = islem.onayMetni;
     document.getElementById("guvenlik-sifre").value = "";
     document.getElementById("guvenlik-onay").value = "";
@@ -569,6 +633,16 @@
     el.textContent = mesaj;
   }
 
+  function durumHtmlYaz(html, tip = "info") {
+    const el = document.getElementById("islem-durum");
+    el.className = `alert alert-${tip}`;
+    el.innerHTML = html;
+  }
+
+  function sayiBicimle(deger) {
+    return Number(deger || 0).toLocaleString("tr-TR");
+  }
+
   function durumGizle() {
     document.getElementById("islem-durum").className = "alert d-none";
   }
@@ -601,20 +675,20 @@
   async function silTumKayitKoleksiyon(koleksiyon) {
     const etiket = KAYIT_ETIKETLER[koleksiyon] || "Kayıt";
     durumYaz(`${etiket} kayıtları siliniyor...`);
-    const toplam = await silKoleksiyon(koleksiyon);
+    const rapor = await silKoleksiyon(koleksiyon);
     istemciCacheTemizle();
-    durumYaz(`${toplam} kayıt silindi.`, "success");
+    silmeRaporuYaz(`${etiket} toplu silme tamamlandı.`, rapor);
   }
 
   async function silTumOgrenciler() {
     durumYaz("Öğrenciler ve bağlı kayıtlar siliniyor...");
-    const toplam = await silKoleksiyonlariTekBatch([
+    const rapor = await silKoleksiyonlariTekBatch([
       { koleksiyon: "veliler", etiket: "Merkezi veli" },
       ...KAYIT_KOLEKSIYONLARI.map(koleksiyon => ({ koleksiyon, etiket: KAYIT_ETIKETLER[koleksiyon] })),
       { koleksiyon: "students", etiket: "Öğrenci" }
     ]);
     istemciCacheTemizle();
-    durumYaz(`${toplam} öğrenci ve bağlı kayıt silindi.`, "success");
+    silmeRaporuYaz("Öğrenci ve bağlı kayıt toplu silme tamamlandı.", rapor);
   }
 
   async function silKoleksiyon(koleksiyon) {
@@ -623,26 +697,62 @@
 
   async function silKoleksiyonlariTekBatch(koleksiyonlar) {
     const manager = batchYonetici({ otomatikBol: true });
-    for (const { koleksiyon, etiket } of koleksiyonlar) {
-      const snap = await getDocs(collection(db, koleksiyon));
-      durumYaz(`${etiket} kayıtları siliniyor... (${snap.size})`);
-      for (const belge of snap.docs) {
-        await manager.ekle(batch => batch.delete(belge.ref));
+    const detaylar = [];
+    let aktifAdim = "";
+
+    try {
+      for (const { koleksiyon, etiket } of koleksiyonlar) {
+        aktifAdim = etiket;
+        const snap = await getDocs(collection(db, koleksiyon));
+        detaylar.push({
+          koleksiyon,
+          etiket,
+          once: snap.size,
+          silinen: snap.size,
+          kalan: null,
+          dogrulamaHatasi: ""
+        });
+        durumYaz(`${etiket} kayıtları siliniyor... (${sayiBicimle(snap.size)})`);
+        for (const belge of snap.docs) {
+          await manager.ekle(batch => batch.delete(belge.ref));
+        }
       }
+
+      const toplam = await manager.bitir();
+
+      for (const detay of detaylar) {
+        durumYaz(`${detay.etiket} silme sonrası kontrol ediliyor...`);
+        try {
+          const kalanSnap = await getDocs(collection(db, detay.koleksiyon));
+          detay.kalan = kalanSnap.size;
+        } catch (err) {
+          detay.dogrulamaHatasi = err.message;
+        }
+      }
+
+      return {
+        toplam,
+        detaylar,
+        dogrulamaHatalari: detaylar.filter(detay => detay.dogrulamaHatasi)
+      };
+    } catch (err) {
+      const adim = aktifAdim ? `${aktifAdim} adımında` : "toplu silme sırasında";
+      const mesaj = `${adim} işlem tamamlanamadı: ${err.message}`;
+      durumYaz(`${mesaj} Daha önce işlenen parçalarda kayıt silinmiş olabilir; yedekten kontrol edin.`, "danger");
+      throw new Error(mesaj);
     }
-    return manager.bitir();
   }
 
   async function silTumAnaKoleksiyon(koleksiyon, etiket) {
     durumYaz(`${etiket} kayıtları siliniyor...`);
-    const toplam = await silKoleksiyon(koleksiyon);
+    const rapor = await silKoleksiyon(koleksiyon);
     istemciCacheTemizle();
-    durumYaz(`${toplam} ${etiket.toLocaleLowerCase("tr-TR")} kaydı silindi.`, "success");
+    silmeRaporuYaz(`${etiket} toplu silme tamamlandı.`, rapor);
   }
 
   async function silTumSistem() {
     durumYaz("Tüm sistem siliniyor...");
-    const toplam = await silKoleksiyonlariTekBatch([
+    const rapor = await silKoleksiyonlariTekBatch([
       { koleksiyon: "veliler", etiket: "Merkezi veli" },
       ...KAYIT_KOLEKSIYONLARI.map(koleksiyon => ({ koleksiyon, etiket: KAYIT_ETIKETLER[koleksiyon] })),
       { koleksiyon: "students", etiket: "Öğrenci" },
@@ -650,7 +760,32 @@
       { koleksiyon: "_settings", etiket: "Sistem ayarı" }
     ]);
     istemciCacheTemizle();
-    durumYaz(`Tüm sistem silindi. Toplam ${toplam} kayıt silindi.`, "success");
+    silmeRaporuYaz("Tüm sistem toplu silme tamamlandı.", rapor);
+  }
+
+  function silmeRaporuYaz(baslik, rapor) {
+    const satirlar = rapor.detaylar.map(detay => {
+      const kalanMetin = detay.kalan === null
+        ? "kontrol edilemedi"
+        : sayiBicimle(detay.kalan);
+      const kalanClass = detay.dogrulamaHatasi
+        ? "text-warning-emphasis"
+        : detay.kalan > 0
+          ? "text-danger fw-bold"
+          : "text-success";
+      const hata = detay.dogrulamaHatasi
+        ? ` <span class="text-warning-emphasis">(kontrol hatası: ${escapeHtml(detay.dogrulamaHatasi)})</span>`
+        : "";
+      return `<li><strong>${escapeHtml(detay.etiket)}:</strong> işlem öncesi ${sayiBicimle(detay.once)}, silinen ${sayiBicimle(detay.silinen)}, kalan <span class="${kalanClass}">${escapeHtml(kalanMetin)}</span>${hata}</li>`;
+    }).join("");
+    const uyari = rapor.dogrulamaHatalari.length
+      ? `<div class="mt-2 text-warning-emphasis">Bazı koleksiyonlarda işlem sonrası kontrol yapılamadı. Firebase bağlantısı ve yetki durumu ayrıca doğrulanmalı.</div>`
+      : "";
+    const tip = rapor.dogrulamaHatalari.length ? "warning" : "success";
+    durumHtmlYaz(
+      `<div><strong>${escapeHtml(baslik)}</strong> Toplam ${sayiBicimle(rapor.toplam)} kayıt işlendi.</div><ul class="mb-0 mt-2 ps-3">${satirlar}</ul>${uyari}`,
+      tip
+    );
   }
 
   async function yedekDisariAktar() {
@@ -705,15 +840,19 @@
     e.target.value = "";
     if (!dosya) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const veri = JSON.parse(reader.result);
-        yedekDogrula(veri);
+        const onizleme = await yedekOnizlemeHazirla(veri);
+        const tip = onizleme.uyarilar.length ? "warning" : "info";
+        durumYaz(`Yedek dosyası kontrol edildi. ${sayiBicimle(onizleme.toplamGecerli)} kayıt içe aktarılmaya hazır.`, tip);
         guvenlikIste({
           baslik: "Verileri İçe Aktar",
-          aciklama: "Yedek dosyasındaki veriler sisteme yazılacak. Aynı ID'ye sahip kayıtlar güncellenir.",
+          aciklama: yedekOnayHtml(onizleme),
+          aciklamaHtml: true,
+          aciklamaTip: onizleme.uyarilar.length ? "warning" : "info",
           onayMetni: "İÇE AKTAR",
-          calistir: () => yedekIceAktar(veri)
+          calistir: () => yedekIceAktar(veri, onizleme)
         });
       } catch (err) {
         durumYaz("Dosya okunamadı: " + err.message, "danger");
@@ -722,31 +861,236 @@
     reader.readAsText(dosya, "utf-8");
   }
 
-  async function yedekIceAktar(veri) {
+  async function yedekIceAktar(veri, onizleme = null) {
+    const rapor = onizleme || await yedekOnizlemeHazirla(veri);
     durumYaz("Yedek içe aktarılıyor...");
     const manager = batchYonetici();
     for (const item of YEDEK_KOLEKSIYONLARI) {
-      const kayitlar = veri[item.key] || [];
+      const kayitlar = gecerliYedekKayitlari(veri, item);
       durumYaz(`${item.etiket} kayıtları içe aktarılıyor... (${kayitlar.length})`);
       for (const kayit of kayitlar) {
-        if (!kayit.id) continue;
         await manager.ekle(batch => batch.set(doc(db, item.koleksiyon, String(kayit.id)), kayitVerisi(kayit)));
       }
     }
     const toplam = await manager.bitir();
     istemciCacheTemizle();
-    durumYaz(`${toplam} kayıt içe aktarıldı.`, "success");
+    durumHtmlYaz(yedekSonucHtml(toplam, rapor), "success");
   }
 
   function yedekDogrula(veri) {
     if (!veri || veri.tur !== "ogrenci-bilgileri-yedek") {
       throw new Error("Bu dosya Öğrenci Bilgileri yedeği gibi görünmüyor.");
     }
+    const uyarilar = [];
+    const sema = Number(veri.sema || 0);
+    if (sema > YEDEK_SEMA_SURUMU) {
+      throw new Error(`Yedek şema sürümü (${sema}) bu sistemin desteklediği sürümden (${YEDEK_SEMA_SURUMU}) yeni.`);
+    }
+    if (!sema) {
+      uyarilar.push("Yedek dosyasında şema sürümü yok; eski biçim olabilir.");
+    } else if (sema < YEDEK_SEMA_SURUMU) {
+      uyarilar.push(`Yedek şema sürümü eski (${sema}); içe aktarım öncesi kayıt alanları ayrıca kontrol edildi.`);
+    }
+    const bilinmeyenUstAlanlar = Object.keys(veri).filter(key => !YEDEK_UST_ALANLARI.includes(key));
+    if (bilinmeyenUstAlanlar.length) {
+      uyarilar.push(`Yedek dosyasında tanınmayan üst alan var: ${bilinmeyenUstAlanlar.join(", ")}.`);
+    }
     for (const item of YEDEK_KOLEKSIYONLARI) {
       if (veri[item.key] !== undefined && !Array.isArray(veri[item.key])) {
         throw new Error(`${item.etiket} bölümü geçerli bir liste değil.`);
       }
+      if (veri[item.key] === undefined) {
+        uyarilar.push(`${item.etiket} bölümü yedekte yok; bu koleksiyona kayıt yazılmayacak.`);
+      }
     }
+    return { uyarilar, bilinmeyenUstAlanlar, sema };
+  }
+
+  async function yedekOnizlemeHazirla(veri) {
+    const temel = yedekDogrula(veri);
+    const detaylar = [];
+    const kritikSorunlar = [];
+    const yedekOgrenciIdleri = new Set(
+      (Array.isArray(veri.students) ? veri.students : [])
+        .filter(yedekKaydiGecerliMi)
+        .map(kayit => String(kayit.id))
+    );
+
+    durumYaz("Yedek uyumluluğu kontrol ediliyor...");
+    const mevcutOgrenciSnap = await getDocs(collection(db, "students"));
+    const tumOgrenciIdleri = new Set([
+      ...mevcutOgrenciSnap.docs.map(belge => belge.id),
+      ...yedekOgrenciIdleri
+    ]);
+
+    for (const item of YEDEK_KOLEKSIYONLARI) {
+      const kayitlar = Array.isArray(veri[item.key]) ? veri[item.key] : [];
+      const mevcutSnap = item.koleksiyon === "students"
+        ? mevcutOgrenciSnap
+        : await getDocs(collection(db, item.koleksiyon));
+      const mevcutIdler = new Set(mevcutSnap.docs.map(belge => belge.id));
+      const analiz = yedekKayitlariniAnalizEt(item, kayitlar, mevcutIdler, tumOgrenciIdleri);
+      detaylar.push(analiz);
+
+      if (analiz.gecersiz > 0) {
+        kritikSorunlar.push(`${analiz.etiket}: ${analiz.gecersiz} kayıtta geçerli ID veya veri yok.`);
+      }
+      if (analiz.kimlikUyumsuz > 0) {
+        kritikSorunlar.push(`${analiz.etiket}: ${analiz.kimlikUyumsuz} öğrenci kaydında belge ID ile öğrenci numarası uyumsuz.`);
+      }
+      if (analiz.bilinmeyenAlanli > 0) {
+        kritikSorunlar.push(`${analiz.etiket}: ${analiz.bilinmeyenAlanli} kayıtta Firestore kurallarında olmayan alan var.`);
+      }
+      if (analiz.eksikZorunluAlanli > 0) {
+        kritikSorunlar.push(`${analiz.etiket}: ${analiz.eksikZorunluAlanli} kayıtta zorunlu alan eksik.`);
+      }
+      if (analiz.baglantisizOgrenciIdli > 0) {
+        kritikSorunlar.push(`${analiz.etiket}: ${analiz.baglantisizOgrenciIdli} kayıtta sistemde veya yedekte olmayan öğrenci bağlantısı var.`);
+      }
+    }
+
+    const toplamGecerli = detaylar.reduce((toplam, detay) => toplam + detay.gecerli, 0);
+    if (toplamGecerli > MAX_ATOMIK_YAZMA) {
+      kritikSorunlar.push(`Yedekte ${sayiBicimle(toplamGecerli)} geçerli kayıt var; güvenli tek işlem sınırı ${MAX_ATOMIK_YAZMA}. İçe aktarma başlatılmadı.`);
+    }
+
+    if (kritikSorunlar.length) {
+      throw new Error(`Yedek uyumluluk kontrolü geçemedi. ${kritikSorunlar.slice(0, 3).join(" ")}`);
+    }
+
+    return {
+      ...temel,
+      detaylar,
+      kritikSorunlar,
+      toplamGecerli,
+      toplamGuncellenecek: detaylar.reduce((toplam, detay) => toplam + detay.guncellenecek, 0),
+      toplamEklenecek: detaylar.reduce((toplam, detay) => toplam + detay.eklenecek, 0)
+    };
+  }
+
+  function yedekKayitlariniAnalizEt(item, kayitlar, mevcutIdler, tumOgrenciIdleri = new Set()) {
+    const alanTanimi = YEDEK_KOLEKSIYON_ALANLARI[item.key] || { izinli: [], zorunlu: [] };
+    const izinliAlanlar = new Set(alanTanimi.izinli);
+    const bilinmeyenAlanlar = new Set();
+    let gecerli = 0;
+    let gecersiz = 0;
+    let guncellenecek = 0;
+    let eklenecek = 0;
+    let kimlikUyumsuz = 0;
+    let bilinmeyenAlanli = 0;
+    let eksikZorunluAlanli = 0;
+    let baglantisizOgrenciIdli = 0;
+
+    for (const kayit of kayitlar) {
+      if (!yedekKaydiGecerliMi(kayit)) {
+        gecersiz++;
+        continue;
+      }
+
+      gecerli++;
+      const id = String(kayit.id);
+      if (mevcutIdler.has(id)) guncellenecek++;
+      else eklenecek++;
+
+      const veri = yedekKayitVerisi(kayit);
+      if (item.key === "students" && !ogrenciYedekKimligiUyumluMu(id, veri)) {
+        kimlikUyumsuz++;
+      }
+
+      const bilinmeyenler = Object.keys(veri).filter(alan => !izinliAlanlar.has(alan));
+      if (bilinmeyenler.length) {
+        bilinmeyenAlanli++;
+        bilinmeyenler.forEach(alan => bilinmeyenAlanlar.add(alan));
+      }
+
+      const eksikler = alanTanimi.zorunlu.filter(alan => {
+        const deger = veri[alan];
+        return deger === undefined || deger === null || String(deger).trim() === "";
+      });
+      if (eksikler.length) eksikZorunluAlanli++;
+
+      if (item.key !== "students" && "ogrenciId" in veri && !tumOgrenciIdleri.has(String(veri.ogrenciId))) {
+        baglantisizOgrenciIdli++;
+      }
+    }
+
+    return {
+      key: item.key,
+      koleksiyon: item.koleksiyon,
+      etiket: item.etiket,
+      dosyada: kayitlar.length,
+      mevcut: mevcutIdler.size,
+      gecerli,
+      gecersiz,
+      guncellenecek,
+      eklenecek,
+      kimlikUyumsuz,
+      bilinmeyenAlanli,
+      eksikZorunluAlanli,
+      baglantisizOgrenciIdli,
+      bilinmeyenAlanlar: [...bilinmeyenAlanlar].sort()
+    };
+  }
+
+  function ogrenciYedekKimligiUyumluMu(id, veri) {
+    return String(veri.numara || "") === id
+      || (veri.durum === "Mezun" && /^M[0-9]+$/.test(id));
+  }
+
+  function yedekOnayHtml(onizleme) {
+    const satirlar = onizleme.detaylar.map(detay => {
+      const sorun = [
+        detay.gecersiz ? `${sayiBicimle(detay.gecersiz)} geçersiz` : "",
+        detay.kimlikUyumsuz ? `${sayiBicimle(detay.kimlikUyumsuz)} kimlik uyumsuz` : "",
+        detay.bilinmeyenAlanli ? `${sayiBicimle(detay.bilinmeyenAlanli)} bilinmeyen alanlı` : "",
+        detay.eksikZorunluAlanli ? `${sayiBicimle(detay.eksikZorunluAlanli)} eksik zorunlu alanlı` : "",
+        detay.baglantisizOgrenciIdli ? `${sayiBicimle(detay.baglantisizOgrenciIdli)} öğrenci bağlantısı yok` : ""
+      ].filter(Boolean).join(", ");
+      const sorunMetni = sorun ? ` <span class="text-warning-emphasis">(${escapeHtml(sorun)})</span>` : "";
+      return `<li><strong>${escapeHtml(detay.etiket)}:</strong> dosyada ${sayiBicimle(detay.dosyada)}, eklenecek ${sayiBicimle(detay.eklenecek)}, güncellenecek ${sayiBicimle(detay.guncellenecek)}${sorunMetni}</li>`;
+    }).join("");
+    const uyariHtml = onizleme.uyarilar.length
+      ? `<div class="mt-2"><strong>Uyarılar:</strong><ul class="mb-0 ps-3">${onizleme.uyarilar.map(uyari => `<li>${escapeHtml(uyari)}</li>`).join("")}</ul></div>`
+      : "";
+    return `
+      <div class="mb-2">
+        Yedek dosyasındaki veriler sisteme yazılacak. Mevcut kayıtlar silinmez; aynı ID'ye sahip kayıtlar güncellenir.
+      </div>
+      <div class="mb-2">
+        Toplam ${sayiBicimle(onizleme.toplamEklenecek)} yeni kayıt eklenecek, ${sayiBicimle(onizleme.toplamGuncellenecek)} kayıt güncellenecek.
+      </div>
+      <ul class="mb-0 ps-3">${satirlar}</ul>
+      ${uyariHtml}
+    `;
+  }
+
+  function yedekSonucHtml(toplam, rapor) {
+    const satirlar = rapor.detaylar
+      .filter(detay => detay.gecerli > 0)
+      .map(detay => `<li><strong>${escapeHtml(detay.etiket)}:</strong> ${sayiBicimle(detay.gecerli)} kayıt işlendi (${sayiBicimle(detay.eklenecek)} yeni, ${sayiBicimle(detay.guncellenecek)} güncelleme).</li>`)
+      .join("");
+    return `<div><strong>${sayiBicimle(toplam)} kayıt içe aktarıldı.</strong></div><ul class="mb-0 mt-2 ps-3">${satirlar}</ul>`;
+  }
+
+  function gecerliYedekKayitlari(veri, item) {
+    const kayitlar = Array.isArray(veri[item.key]) ? veri[item.key] : [];
+    return kayitlar.filter(yedekKaydiGecerliMi);
+  }
+
+  function yedekKaydiGecerliMi(kayit) {
+    return !!(kayit
+      && typeof kayit === "object"
+      && !Array.isArray(kayit)
+      && kayit.id !== undefined
+      && String(kayit.id).trim()
+      && yedekKayitVerisi(kayit));
+  }
+
+  function yedekKayitVerisi(kayit) {
+    if (!kayit || typeof kayit !== "object" || Array.isArray(kayit)) return null;
+    if (kayit.data && typeof kayit.data === "object" && !Array.isArray(kayit.data)) return kayit.data;
+    const { id, ...data } = kayit;
+    return data && typeof data === "object" && !Array.isArray(data) ? data : null;
   }
 
   function istemciCacheTemizle() {
@@ -763,9 +1107,7 @@
   }
 
   function kayitVerisi(kayit) {
-    if (kayit.data && typeof kayit.data === "object") return kayit.data;
-    const { id, ...data } = kayit;
-    return data;
+    return yedekKayitVerisi(kayit) || {};
   }
 </script>
 </body>

@@ -191,6 +191,65 @@ test("Mobil alt navbar grup panelleriyle çalışır", () => {
   assert.match(css, /\.mobile-nav-sheet \.offcanvas-body\s*\{[\s\S]*overflow-y:\s*auto/);
 });
 
+test("Excel Aktarım giriş yapmış kullanıcılar tarafından açılabilir", () => {
+  const layout = readFileSync("layout.js", "utf8");
+  const html = readFileSync("excel-export.html", "utf8");
+
+  assert.match(html, /import\s*\{\s*requireAuth\s*\}\s*from\s*"\.\/auth\.js\?v=/);
+  assert.match(html, /requireAuth\(async\s*\(\)\s*=>/);
+  assert.doesNotMatch(html, /requireAdmin/);
+  assert.doesNotMatch(html, /Bu sayfa yalnızca Admin içindir/);
+  assert.match(html, /Giriş yapmış kullanıcılar içindir/);
+
+  assert.match(layout, /\{ href: "excel-export\.html", ikon: "bi-file-earmark-excel", etiket: "Excel Aktarım" \}/);
+  assert.doesNotMatch(layout, /href: "excel-export\.html"[\s\S]{0,120}adminOnly/);
+  assert.doesNotMatch(layout, /baslik:\s*"Sistem"[\s\S]*?\],\s*adminOnly:\s*true/);
+  assert.doesNotMatch(layout, /key:\s*"sistem"[\s\S]*?adminOnly:\s*true/);
+  assert.match(layout, /href: "settings\.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true/);
+  assert.match(layout, /href: "settings\.html#sinif-atlat", ikon: "bi-arrow-up-circle", etiket: "Sınıf Atlatma", adminOnly: true/);
+});
+
+test("Kayıt giriş sayfaları giriş yapmış kullanıcılar tarafından açılabilir", () => {
+  const layout = readFileSync("layout.js", "utf8");
+  const entryPages = [
+    ["attendance-entry.html", "Devamsızlık Gir"],
+    ["behavior-entry.html", "Davranış Gir"],
+    ["meetings-entry.html", "Görüşme Gir"]
+  ];
+
+  for (const [file, label] of entryPages) {
+    const html = readFileSync(file, "utf8");
+    assert.match(html, /import\s*\{\s*requireAuth\s*\}\s*from\s*"\.\/auth\.js\?v=/, `${file} requireAuth kullanmalı`);
+    assert.match(html, /requireAuth\(async\s*\(\)\s*=>/, `${file} requireAuth ile başlamalı`);
+    assert.doesNotMatch(html, /requireAdmin/, `${file} admin kapısına bağlı kalmamalı`);
+    assert.match(layout, new RegExp(`href: "${file}", ikon: "[^"]+", etiket: "${label}" \\}`));
+    assert.doesNotMatch(layout, new RegExp(`href: "${file}"[\\s\\S]{0,120}adminOnly`));
+  }
+
+  assert.match(layout, /href: "students-add-edit\.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true/);
+  assert.match(layout, /href: "settings\.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true/);
+});
+
+test("Öğrenci detayında ekleme kısayolları giriş yapmış kullanıcıya açıktır", () => {
+  const html = readFileSync("students-detail.html", "utf8");
+  const addGroup = html.match(/<div class="detail-action-group detail-action-group-add"[\s\S]*?<\/div>/)?.[0] || "";
+
+  assert.match(addGroup, /id="devamsizlik-ekle-btn"/);
+  assert.match(addGroup, /id="davranis-ekle-btn"/);
+  assert.match(addGroup, /id="gorusme-ekle-btn"/);
+  assert.doesNotMatch(addGroup, /data-admin-only/);
+
+  const gorusmeEkleLink = html.match(/<a\b[^>]*id="gorusme-ekle-link"[^>]*>/)?.[0] || "";
+  assert.match(gorusmeEkleLink, /id="gorusme-ekle-link"/);
+  assert.doesNotMatch(gorusmeEkleLink, /data-admin-only/);
+
+  assert.match(html, /id="duzenle-btn"[^>]*data-admin-only/);
+  assert.match(html, /id="ogrenci-sil-btn"[^>]*data-admin-only/);
+  assert.match(html, /data-detay-islem="devamsizlik-duzenle"[\s\S]{0,120}data-kayit-id/);
+  assert.match(html, /data-detay-islem="davranis-sil"[\s\S]{0,120}data-kayit-id/);
+  assert.match(html, /data-detay-islem="gorusme-sil"[\s\S]{0,120}data-kayit-id/);
+});
+
 test("Öğrenci listesinde Adı Soyadı tek linkli kolondur", () => {
   const html = readFileSync("students-list.html", "utf8");
   const tablo = html.match(/<table id="ogrenci-tablo"[\s\S]*?<\/table>/)?.[0] || "";
