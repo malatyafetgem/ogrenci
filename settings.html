@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260608-101">
+  <link rel="manifest" href="manifest.webmanifest?v=20260608-103">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260608-101">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260608-101">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260608-101">
-  <link rel="shortcut icon" href="favicon.ico?v=20260608-101">
-  <script src="file-redirect.js?v=20260608-101"></script>
-  <script src="pwa.js?v=20260608-101"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260608-103">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260608-103">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260608-103">
+  <link rel="shortcut icon" href="favicon.ico?v=20260608-103">
+  <script src="file-redirect.js?v=20260608-103"></script>
+  <script src="pwa.js?v=20260608-103"></script>
   <title>Ayarlar ve Yönetim</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260608-101">
+  <link rel="stylesheet" href="app.css?v=20260608-103">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -124,6 +124,22 @@
                   <i class="bi bi-arrow-up-circle me-1"></i>Sınıf Atlatmayı Aç
                 </button>
               </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card border-info">
+              <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
+                <div>
+                  <i class="bi bi-clipboard-pulse text-info fs-5 me-2"></i>
+                  <strong>Veri Sağlığı Kontrolü</strong>
+                  <span class="text-muted small ms-2">Bağlantısız kayıtları, boş veya eski tip öğrenci bağlantılarını yalnızca raporlar.</span>
+                </div>
+                <button type="button" class="btn btn-info btn-sm text-white" id="veri-sagligi-kontrol-btn">
+                  <i class="bi bi-search-heart me-1"></i>Kontrol Et
+                </button>
+              </div>
+              <div class="card-body border-top d-none" id="veri-sagligi-sonuc"></div>
             </div>
           </div>
 
@@ -297,21 +313,21 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260608-101";
-  import { layoutYukle } from "./layout.js?v=20260608-101";
-  import { db } from "./firebase-config.js?v=20260608-101";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260608-103";
+  import { layoutYukle } from "./layout.js?v=20260608-103";
+  import { db } from "./firebase-config.js?v=20260608-103";
   import {
     EmailAuthProvider, reauthenticateWithCredential,
     collection, doc, getDocs, writeBatch
-  } from "./firebase-imports.js?v=20260608-101";
-  import { toast, bugun, escapeHtml } from "./utils.js?v=20260608-101";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260608-101";
+  } from "./firebase-imports.js?v=20260608-103";
+  import { toast, bugun, escapeHtml } from "./utils.js?v=20260608-103";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260608-103";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260608-101";
-  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260608-101";
+  } from "./school-settings.js?v=20260608-103";
+  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260608-103";
 
   const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {
@@ -390,6 +406,13 @@
   const ISTEMCI_CACHE_PREFIX = "obs-data-cache-v1:";
   const ISTEMCI_EKRAN_CACHE_PREFIXLERI = ["obs-dashboard-cache-"];
   const MAX_ATOMIK_YAZMA = 450;
+  const VERI_SAGLIGI_ORNEK_LIMIT = 5;
+  const VERI_SAGLIGI_BAGLANTILI_KOLEKSIYONLAR = [
+    { koleksiyon: "veliler", etiket: "Veli" },
+    { koleksiyon: "devamsizliklar", etiket: "Devamsızlık" },
+    { koleksiyon: "davranislar", etiket: "Davranış" },
+    { koleksiyon: "veligorusmeleri", etiket: "Görüşme" }
+  ];
   const SILME_ISLEMLERI = {
     students: {
       baslik: "Öğrenci Toplu Sil",
@@ -445,6 +468,7 @@
     document.getElementById("yedek-disari-btn").addEventListener("click", yedekDisariAktar);
     document.getElementById("yedek-ice-btn").addEventListener("click", () => document.getElementById("yedek-dosya").click());
     document.getElementById("yedek-dosya").addEventListener("change", yedekDosyaSecildi);
+    document.getElementById("veri-sagligi-kontrol-btn").addEventListener("click", veriSagligiKontrolEt);
     document.getElementById("guvenlik-onayla-btn").addEventListener("click", guvenlikOnayla);
 
     // Güvenlik modalındaki "Önce yedek al" linki
@@ -482,7 +506,7 @@
       if (yukleniyor) return;
       yukleniyor = true;
       try {
-        const mod = await import("./class-promotion.js?v=20260608-101");
+        const mod = await import("./class-promotion.js?v=20260608-103");
         await mod.classPromotionAc(root);
       } catch (err) {
         root.innerHTML =
@@ -533,6 +557,248 @@
         el.classList.remove("d-none");
       });
     }
+  }
+
+  async function veriSagligiKontrolEt() {
+    const btn = document.getElementById("veri-sagligi-kontrol-btn");
+    const sonucEl = document.getElementById("veri-sagligi-sonuc");
+    const eskiHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Kontrol ediliyor...`;
+    sonucEl.className = "card-body border-top";
+    sonucEl.innerHTML =
+      `<div class="text-muted small">
+        <span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>
+        Öğrenci bağlantıları okunuyor. Bu işlem veri yazmaz veya silmez.
+      </div>`;
+    durumYaz("Veri sağlığı kontrol ediliyor...");
+
+    try {
+      const koleksiyonlar = [
+        "students",
+        ...VERI_SAGLIGI_BAGLANTILI_KOLEKSIYONLAR.map(item => item.koleksiyon)
+      ];
+      const sonuclar = await Promise.all(koleksiyonlar.map(async koleksiyon => {
+        const kayitlar = await veriSagligiKoleksiyonunuOku(koleksiyon);
+        return [koleksiyon, kayitlar];
+      }));
+      const rapor = veriSagligiAnalizEt(Object.fromEntries(sonuclar));
+      sonucEl.innerHTML = veriSagligiSonucHtml(rapor);
+      durumYaz(
+        rapor.sorunToplam
+          ? `Veri sağlığı kontrolü tamamlandı. ${sayiBicimle(rapor.sorunToplam)} dikkat gerektiren bulgu var.`
+          : "Veri sağlığı kontrolü tamamlandı. Dikkat gerektiren bağlantı sorunu bulunmadı.",
+        rapor.sorunToplam ? "warning" : "success"
+      );
+    } catch (err) {
+      sonucEl.innerHTML =
+        `<div class="alert alert-danger mb-0">
+          <strong>Veri sağlığı kontrolü tamamlanamadı.</strong>
+          <div class="small mt-1">${escapeHtml(err.message)}</div>
+        </div>`;
+      durumYaz("Veri sağlığı kontrolü tamamlanamadı: " + err.message, "danger");
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = eskiHtml;
+    }
+  }
+
+  async function veriSagligiKoleksiyonunuOku(koleksiyon) {
+    const snap = await getDocs(collection(db, koleksiyon));
+    return snap.docs.map(belge => ({ id: belge.id, data: belge.data() || {} }));
+  }
+
+  function veriSagligiAnalizEt(veriler) {
+    const ogrenciler = veriler.students || [];
+    const ogrenciIdleri = new Set(ogrenciler.map(kayit => String(kayit.id)));
+    const ogrenciAnalizi = veriSagligiOgrencileriAnalizEt(ogrenciler);
+    const bagliAnalizler = VERI_SAGLIGI_BAGLANTILI_KOLEKSIYONLAR.map(item =>
+      veriSagligiBagliKoleksiyonuAnalizEt(item, veriler[item.koleksiyon] || [], ogrenciIdleri)
+    );
+    const sorunToplam = ogrenciAnalizi.sorunToplam
+      + bagliAnalizler.reduce((toplam, analiz) => toplam + analiz.sorunToplam, 0);
+    return {
+      ogrenciSayisi: ogrenciler.length,
+      ogrenciAnalizi,
+      bagliAnalizler,
+      sorunToplam
+    };
+  }
+
+  function veriSagligiOgrencileriAnalizEt(ogrenciler) {
+    const numaraMap = new Map();
+    const ornekler = [];
+    let eksikZorunlu = 0;
+    let kimlikUyumsuz = 0;
+
+    for (const kayit of ogrenciler) {
+      const veri = kayit.data || {};
+      const eksikAlanlar = ["numara", "ad", "soyad", "sinif"].filter(alan => {
+        const deger = veri[alan];
+        return deger === undefined || deger === null || String(deger).trim() === "";
+      });
+      if (eksikAlanlar.length) {
+        eksikZorunlu++;
+        veriSagligiOrnegeEkle(ornekler, kayit, `eksik alan: ${eksikAlanlar.join(", ")}`);
+      }
+
+      const numara = String(veri.numara || "").trim();
+      if (numara) {
+        if (!numaraMap.has(numara)) numaraMap.set(numara, []);
+        numaraMap.get(numara).push(kayit.id);
+      }
+
+      if (numara && !veriSagligiOgrenciKimligiUyumluMu(kayit.id, veri)) {
+        kimlikUyumsuz++;
+        veriSagligiOrnegeEkle(ornekler, kayit, `belge ID/numara uyumsuz (${kayit.id} / ${numara})`);
+      }
+    }
+
+    const tekrarliNumaralar = [...numaraMap.entries()]
+      .filter(([, idler]) => idler.length > 1)
+      .map(([numara, idler]) => ({ numara, idler }));
+    tekrarliNumaralar.slice(0, VERI_SAGLIGI_ORNEK_LIMIT).forEach(item => {
+      veriSagligiOrnegeEkle(ornekler, { id: item.idler.join(", "), data: {} }, `tekrarlı numara: ${item.numara}`);
+    });
+
+    return {
+      etiket: "Öğrenci",
+      toplam: ogrenciler.length,
+      eksikZorunlu,
+      kimlikUyumsuz,
+      tekrarliNumara: tekrarliNumaralar.length,
+      sorunToplam: eksikZorunlu + kimlikUyumsuz + tekrarliNumaralar.length,
+      ornekler
+    };
+  }
+
+  function veriSagligiOgrenciKimligiUyumluMu(id, veri) {
+    const numara = String(veri.numara || "").trim();
+    if (!numara) return true;
+    return String(id) === numara
+      || (veri.durum === "Mezun" && /^M[0-9]+$/.test(String(id)));
+  }
+
+  function veriSagligiBagliKoleksiyonuAnalizEt(item, kayitlar, ogrenciIdleri) {
+    const ornekler = [];
+    let bosOgrenciId = 0;
+    let stringOlmayanOgrenciId = 0;
+    let boslukluOgrenciId = 0;
+    let baglantisizOgrenciId = 0;
+
+    for (const kayit of kayitlar) {
+      const ogrenciId = kayit.data?.ogrenciId;
+      if (ogrenciId === undefined || ogrenciId === null || String(ogrenciId).trim() === "") {
+        bosOgrenciId++;
+        veriSagligiOrnegeEkle(ornekler, kayit, "boş öğrenci bağlantısı");
+        continue;
+      }
+
+      const metinId = String(ogrenciId);
+      const trimId = metinId.trim();
+      if (typeof ogrenciId !== "string") {
+        stringOlmayanOgrenciId++;
+        veriSagligiOrnegeEkle(ornekler, kayit, `string olmayan ogrenciId (${typeof ogrenciId})`);
+      } else if (trimId !== metinId) {
+        boslukluOgrenciId++;
+        veriSagligiOrnegeEkle(ornekler, kayit, "başında/sonunda boşluk olan ogrenciId");
+      }
+
+      if (!ogrenciIdleri.has(trimId)) {
+        baglantisizOgrenciId++;
+        veriSagligiOrnegeEkle(ornekler, kayit, `öğrenci bulunamadı: ${trimId}`);
+      }
+    }
+
+    return {
+      etiket: item.etiket,
+      koleksiyon: item.koleksiyon,
+      toplam: kayitlar.length,
+      bosOgrenciId,
+      stringOlmayanOgrenciId,
+      boslukluOgrenciId,
+      baglantisizOgrenciId,
+      sorunToplam: bosOgrenciId + stringOlmayanOgrenciId + boslukluOgrenciId + baglantisizOgrenciId,
+      ornekler
+    };
+  }
+
+  function veriSagligiOrnegeEkle(ornekler, kayit, neden) {
+    if (ornekler.length >= VERI_SAGLIGI_ORNEK_LIMIT) return;
+    ornekler.push({ id: String(kayit.id), neden });
+  }
+
+  function veriSagligiSonucHtml(rapor) {
+    const tip = rapor.sorunToplam ? "warning" : "success";
+    const ozet = rapor.sorunToplam
+      ? `${sayiBicimle(rapor.sorunToplam)} dikkat gerektiren bulgu bulundu.`
+      : "Dikkat gerektiren öğrenci bağlantısı sorunu bulunmadı.";
+    const ogrenciSatiri = veriSagligiOgrenciSatiriHtml(rapor.ogrenciAnalizi);
+    const bagliSatirlar = rapor.bagliAnalizler.map(veriSagligiBagliSatirHtml).join("");
+    const ornekler = [
+      ...veriSagligiOrnekGrubuHtml(rapor.ogrenciAnalizi.etiket, rapor.ogrenciAnalizi.ornekler),
+      ...rapor.bagliAnalizler.flatMap(analiz => veriSagligiOrnekGrubuHtml(analiz.etiket, analiz.ornekler))
+    ].join("");
+    const ornekHtml = ornekler
+      ? `<div class="mt-3"><strong>Örnek bulgular</strong><ul class="mb-0 ps-3">${ornekler}</ul></div>`
+      : "";
+
+    return `
+      <div class="alert alert-${tip} mb-3">
+        <strong>Veri sağlığı kontrolü tamamlandı.</strong>
+        <div class="small mt-1">${escapeHtml(ozet)} Kontrol yalnızca okuma yapar; hiçbir kayıt değiştirilmedi.</div>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Alan</th>
+              <th class="text-end">Toplam</th>
+              <th class="text-end">Boş ID</th>
+              <th class="text-end">String Değil</th>
+              <th class="text-end">Bağlantısız</th>
+              <th class="text-end">Diğer</th>
+            </tr>
+          </thead>
+          <tbody>${ogrenciSatiri}${bagliSatirlar}</tbody>
+        </table>
+      </div>
+      ${ornekHtml}
+    `;
+  }
+
+  function veriSagligiOgrenciSatiriHtml(analiz) {
+    const diger = analiz.eksikZorunlu + analiz.kimlikUyumsuz + analiz.tekrarliNumara;
+    return `
+      <tr>
+        <td>${escapeHtml(analiz.etiket)}</td>
+        <td class="text-end">${sayiBicimle(analiz.toplam)}</td>
+        <td class="text-end">—</td>
+        <td class="text-end">—</td>
+        <td class="text-end">—</td>
+        <td class="text-end ${diger ? "text-warning-emphasis fw-bold" : "text-success"}">${sayiBicimle(diger)}</td>
+      </tr>
+    `;
+  }
+
+  function veriSagligiBagliSatirHtml(analiz) {
+    const diger = analiz.boslukluOgrenciId;
+    return `
+      <tr>
+        <td>${escapeHtml(analiz.etiket)}</td>
+        <td class="text-end">${sayiBicimle(analiz.toplam)}</td>
+        <td class="text-end ${analiz.bosOgrenciId ? "text-warning-emphasis fw-bold" : "text-success"}">${sayiBicimle(analiz.bosOgrenciId)}</td>
+        <td class="text-end ${analiz.stringOlmayanOgrenciId ? "text-warning-emphasis fw-bold" : "text-success"}">${sayiBicimle(analiz.stringOlmayanOgrenciId)}</td>
+        <td class="text-end ${analiz.baglantisizOgrenciId ? "text-warning-emphasis fw-bold" : "text-success"}">${sayiBicimle(analiz.baglantisizOgrenciId)}</td>
+        <td class="text-end ${diger ? "text-warning-emphasis fw-bold" : "text-success"}">${sayiBicimle(diger)}</td>
+      </tr>
+    `;
+  }
+
+  function veriSagligiOrnekGrubuHtml(etiket, ornekler) {
+    return ornekler.map(ornek =>
+      `<li><strong>${escapeHtml(etiket)}:</strong> ${escapeHtml(ornek.id)} - ${escapeHtml(ornek.neden)}</li>`
+    );
   }
 
   async function okulAyarlariYukle() {

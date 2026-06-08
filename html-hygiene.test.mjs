@@ -95,6 +95,21 @@ test("Yerel dosya yönlendirme uyarısı inline stil kullanmaz", () => {
   assert.match(css, /\.file-redirect-warning-note\s*\{/);
 });
 
+test("Manifest maskable ikonları beklenen dosyalara bağlıdır", () => {
+  const manifest = JSON.parse(readFileSync("manifest.webmanifest", "utf8"));
+  const maskableIcons = manifest.icons.filter(icon => icon.purpose === "any maskable");
+
+  assert.equal(maskableIcons.length, 2);
+  assert.deepEqual(maskableIcons.map(icon => icon.src).sort(), ["icon-192.png", "icon-512.png"]);
+  assert.ok(maskableIcons.every(icon => icon.type === "image/png"));
+  assert.ok(maskableIcons.some(icon => icon.sizes === "192x192"));
+  assert.ok(maskableIcons.some(icon => icon.sizes === "512x512"));
+
+  maskableIcons.forEach(icon => {
+    assert.ok(existsSync(icon.src), `${icon.src} dosyasi bulunmali`);
+  });
+});
+
 test("Filtre sayfalarında filtre butonu ve bekleme metni tutarlıdır", () => {
   const sorunlar = [];
   for (const file of filterPages) {
@@ -298,7 +313,12 @@ test("Sınıf atlatma öğrenci satırı yerine sınıf düzeyi gruplarıyla ça
   const html = readFileSync("class-promotion.html", "utf8");
   const settings = readFileSync("settings.html", "utf8");
   const js = readFileSync("class-promotion.js", "utf8");
+  const sw = readFileSync("sw.js", "utf8");
   assert.match(html, /settings\.html#sinif-atlat/);
+  assert.match(html, /location\.replace\("settings\.html#sinif-atlat"\)/);
+  assert.match(sw, /"\.\/class-promotion\.html"/);
+  assert.match(sw, /"\.\/settings\.html"/);
+  assert.match(sw, /"\.\/class-promotion\.js"/);
   assert.match(settings, /id="sinif-atlat-root"/);
   assert.match(settings, /import\("\.\/class-promotion\.js\?v=/);
   assert.match(js, /Sınıf Düzeyi Aktarım Tablosu/);

@@ -31,6 +31,24 @@ test("Yedek içe aktarma riskli durumları işlem başlamadan engeller", () => {
   assert.match(html, /calistir:\s*\(\)\s*=>\s*yedekIceAktar\(veri,\s*onizleme\)/);
 });
 
+test("Veri sağlığı kontrolü sadece okuma yapan bağlantı raporu üretir", () => {
+  assert.match(html, /id="veri-sagligi-kontrol-btn"/);
+  assert.match(html, /id="veri-sagligi-sonuc"/);
+  assert.match(html, /addEventListener\("click",\s*veriSagligiKontrolEt\)/);
+  assert.match(html, /async\s+function\s+veriSagligiKontrolEt/);
+  assert.match(html, /function\s+veriSagligiBagliKoleksiyonuAnalizEt/);
+  assert.match(html, /getDocs\(collection\(db,\s*koleksiyon\)\)/);
+  assert.match(html, /typeof ogrenciId !== "string"/);
+  assert.match(html, /!ogrenciIdleri\.has\(trimId\)/);
+  assert.match(html, /Kontrol yalnızca okuma yapar/);
+
+  const baslangic = html.indexOf("async function veriSagligiKontrolEt");
+  const bitis = html.indexOf("async function okulAyarlariYukle");
+  assert.ok(baslangic > -1 && bitis > baslangic, "veri sağlığı bölümü bulunmalı");
+  const veriSagligiBolumu = html.slice(baslangic, bitis);
+  assert.doesNotMatch(veriSagligiBolumu, /writeBatch|setDoc|addDoc|updateDoc|deleteDoc|batch\.|\.delete\(/);
+});
+
 test("Güvenlik modalı yalnız kontrollü açıklamalarda HTML rapor kullanır", () => {
   assert.match(html, /if\s*\(islem\.aciklamaHtml\)\s*\{\s*aciklamaEl\.innerHTML\s*=\s*islem\.aciklama/);
   assert.match(html, /else\s*\{\s*aciklamaEl\.textContent\s*=\s*islem\.aciklama/);
