@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260608-103">
+  <link rel="manifest" href="manifest.webmanifest?v=20260608-104">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260608-103">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260608-103">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260608-103">
-  <link rel="shortcut icon" href="favicon.ico?v=20260608-103">
-  <script src="file-redirect.js?v=20260608-103"></script>
-  <script src="pwa.js?v=20260608-103"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260608-104">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260608-104">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260608-104">
+  <link rel="shortcut icon" href="favicon.ico?v=20260608-104">
+  <script src="file-redirect.js?v=20260608-104"></script>
+  <script src="pwa.js?v=20260608-104"></script>
   <title>Ayarlar ve Yönetim</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260608-103">
+  <link rel="stylesheet" href="app.css?v=20260608-104">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -98,7 +98,7 @@
 
         <div class="row g-3">
           <div class="col-12">
-            <div class="card border-success">
+            <div class="card border-success settings-action-card">
               <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
                 <div>
                   <i class="bi bi-file-earmark-excel text-success fs-5 me-2"></i>
@@ -113,7 +113,7 @@
           </div>
 
           <div class="col-12">
-            <div class="card border-primary">
+            <div class="card border-primary settings-action-card">
               <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
                 <div>
                   <i class="bi bi-arrow-up-circle text-primary fs-5 me-2"></i>
@@ -128,7 +128,7 @@
           </div>
 
           <div class="col-12">
-            <div class="card border-info">
+            <div class="card border-info settings-action-card">
               <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
                 <div>
                   <i class="bi bi-clipboard-pulse text-info fs-5 me-2"></i>
@@ -179,7 +179,7 @@
                 <p class="text-muted small">
                   Dışa aktarma JSON yedek dosyası indirir. İçe aktarma aynı biçimdeki yedeği sisteme yazar; mevcut kayıtları silmez, aynı ID'leri günceller.
                 </p>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="d-flex flex-wrap gap-2 settings-backup-actions">
                   <button type="button" class="btn btn-success" id="yedek-disari-btn">
                     <i class="bi bi-download me-1"></i>Dışa Aktar
                   </button>
@@ -313,21 +313,21 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260608-103";
-  import { layoutYukle } from "./layout.js?v=20260608-103";
-  import { db } from "./firebase-config.js?v=20260608-103";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260608-104";
+  import { layoutYukle } from "./layout.js?v=20260608-104";
+  import { db } from "./firebase-config.js?v=20260608-104";
   import {
     EmailAuthProvider, reauthenticateWithCredential,
     collection, doc, getDocs, writeBatch
-  } from "./firebase-imports.js?v=20260608-103";
-  import { toast, bugun, escapeHtml } from "./utils.js?v=20260608-103";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260608-103";
+  } from "./firebase-imports.js?v=20260608-104";
+  import { toast, bugun, escapeHtml } from "./utils.js?v=20260608-104";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260608-104";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260608-103";
-  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260608-103";
+  } from "./school-settings.js?v=20260608-104";
+  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260608-104";
 
   const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {
@@ -506,7 +506,7 @@
       if (yukleniyor) return;
       yukleniyor = true;
       try {
-        const mod = await import("./class-promotion.js?v=20260608-103");
+        const mod = await import("./class-promotion.js?v=20260608-104");
         await mod.classPromotionAc(root);
       } catch (err) {
         root.innerHTML =

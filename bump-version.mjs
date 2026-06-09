@@ -56,6 +56,7 @@ function dosyalariTara(dizin) {
       if (
         giris === "node_modules" ||
         giris === ".git" ||
+        giris === "Ek" ||
         giris.startsWith(".")
       ) {
         continue;

@@ -211,10 +211,18 @@ test("Excel Aktarım giriş yapmış kullanıcılar tarafından açılabilir", (
   const html = readFileSync("excel-export.html", "utf8");
 
   assert.match(html, /import\s*\{\s*requireAuth\s*\}\s*from\s*"\.\/auth\.js\?v=/);
+  assert.match(html, /import\s*\{\s*collection,\s*getDocs\s*\}\s*from\s*"\.\/firebase-imports\.js\?v=/);
   assert.match(html, /requireAuth\(async\s*\(\)\s*=>/);
   assert.doesNotMatch(html, /requireAdmin/);
+  assert.doesNotMatch(html, /\b(addDoc|setDoc|updateDoc|deleteDoc|writeBatch)\b/);
   assert.doesNotMatch(html, /Bu sayfa yalnızca Admin içindir/);
   assert.match(html, /Giriş yapmış kullanıcılar içindir/);
+  assert.match(html, /getDocs\(collection\(db,\s*"students"\)\)/);
+  assert.match(html, /getDocs\(collection\(db,\s*"veliler"\)\)/);
+  assert.match(html, /getDocs\(collection\(db,\s*"devamsizliklar"\)\)/);
+  assert.match(html, /getDocs\(collection\(db,\s*"davranislar"\)\)/);
+  assert.match(html, /getDocs\(collection\(db,\s*"veligorusmeleri"\)\)/);
+  assert.match(html, /XLSX\.writeFile/);
 
   assert.match(layout, /\{ href: "excel-export\.html", ikon: "bi-file-earmark-excel", etiket: "Excel Aktarım" \}/);
   assert.doesNotMatch(layout, /href: "excel-export\.html"[\s\S]{0,120}adminOnly/);
@@ -461,6 +469,24 @@ test("Dashboard dinamik bölgeleri aria-live ile işaretlenir", () => {
     const regex = new RegExp(`id="${id}"[^>]*aria-live="polite"`);
     assert.match(html, regex, `${id} aria-live içermeli`);
   });
+});
+
+test("Dashboard devamsızlık tablosu dar kartta okunabilirlik sözleşmesini korur", () => {
+  const html = readFileSync("dashboard.html", "utf8");
+  const css = readFileSync("app.css", "utf8");
+  const tablo = html.match(/<table class="[^"]*dashboard-attendance-table[^"]*"[\s\S]*?<\/table>/)?.[0] || "";
+
+  assert.match(html, /dashboard-attendance-responsive/);
+  assert.match(tablo, /<th>Öğrenci<\/th>[\s\S]*<th>Sınıf<\/th>[\s\S]*<th class="text-center">Özürsüz<\/th>[\s\S]*<th class="text-center">Özürlü<\/th>[\s\S]*<th class="text-center">Durum<\/th>/);
+  assert.match(css, /\.dashboard-attendance-table\s*\{[\s\S]*table-layout:\s*fixed/);
+  assert.match(css, /\.dashboard-attendance-table\s*\{[\s\S]*min-width:\s*560px/);
+  assert.match(css, /\.dashboard-attendance-responsive\s*\{[\s\S]*overflow-x:\s*auto/);
+  assert.match(css, /\.dashboard-attendance-table th:nth-child\(1\),[\s\S]*\.dashboard-attendance-table td:nth-child\(1\)\s*\{[\s\S]*width:\s*34%/);
+  assert.match(css, /\.dashboard-attendance-table th:nth-child\(5\),[\s\S]*\.dashboard-attendance-table td:nth-child\(5\)\s*\{[\s\S]*width:\s*23%/);
+  assert.match(css, /\.dashboard-attendance-table td:first-child a\s*\{[\s\S]*white-space:\s*normal/);
+  assert.match(css, /\.dashboard-attendance-table td:first-child a\s*\{[\s\S]*overflow-wrap:\s*anywhere/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.dashboard-attendance-table\s*\{[\s\S]*min-width:\s*520px/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.dashboard-attendance-table \.badge\s*\{[\s\S]*font-size:\s*\.68rem/);
 });
 
 test("Davranış girişinde boş kategori listesi kullanıcıya bildirilir", () => {

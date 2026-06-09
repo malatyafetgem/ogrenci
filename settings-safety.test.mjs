@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const html = readFileSync("settings.html", "utf8");
+const css = readFileSync("app.css", "utf8");
 
 test("Ayarlar toplu silme işlemi koleksiyon bazlı sonuç raporu üretir", () => {
   assert.match(html, /function\s+silmeRaporuYaz/);
@@ -47,6 +48,22 @@ test("Veri sağlığı kontrolü sadece okuma yapan bağlantı raporu üretir", 
   assert.ok(baslangic > -1 && bitis > baslangic, "veri sağlığı bölümü bulunmalı");
   const veriSagligiBolumu = html.slice(baslangic, bitis);
   assert.doesNotMatch(veriSagligiBolumu, /writeBatch|setDoc|addDoc|updateDoc|deleteDoc|batch\.|\.delete\(/);
+});
+
+test("Ayarlar aksiyonları ve güvenlik modalı mobilde erişilebilir kalır", () => {
+  assert.match(html, /card border-success settings-action-card/);
+  assert.match(html, /card border-primary settings-action-card/);
+  assert.match(html, /card border-info settings-action-card/);
+  assert.match(html, /settings-backup-actions/);
+  assert.match(html, /modal-fullscreen-sm-down settings-security-dialog/);
+  assert.match(html, /modal-fullscreen-md-down/);
+
+  assert.match(css, /\.settings-action-card \.card-body > div:first-child\s*\{[\s\S]*min-width:\s*0/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.settings-action-card \.text-muted\.small\s*\{[\s\S]*display:\s*block/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.settings-action-card \.btn\s*\{[\s\S]*width:\s*100%/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.settings-backup-actions\s*\{[\s\S]*flex-direction:\s*column/);
+  assert.match(css, /\.settings-security-dialog \.modal-body\s*\{[\s\S]*overflow-wrap:\s*anywhere/);
+  assert.match(css, /\.settings-security-dialog #guvenlik-aciklama\s*\{[\s\S]*overflow-y:\s*auto/);
 });
 
 test("Güvenlik modalı yalnız kontrollü açıklamalarda HTML rapor kullanır", () => {

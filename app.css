@@ -1351,6 +1351,37 @@ body.sidebar-collapsed .app-footer {
   width: 60%;
   margin: 0 auto;
 }
+.settings-action-card .card-body > div:first-child {
+  min-width: 0;
+}
+.settings-action-card .text-muted.small {
+  display: inline-block;
+}
+@media (max-width: 575.98px) {
+  .settings-action-card .card-body {
+    align-items: flex-start !important;
+  }
+
+  .settings-action-card .text-muted.small {
+    display: block;
+    margin-left: 0 !important;
+    margin-top: .15rem;
+  }
+
+  .settings-action-card .btn {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .settings-backup-actions {
+    flex-direction: column;
+  }
+
+  .settings-backup-actions .btn {
+    width: 100%;
+    min-height: 42px;
+  }
+}
 .settings-security-dialog .modal-body {
   overflow-wrap: anywhere;
 }
