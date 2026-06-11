@@ -4,7 +4,7 @@ import {
   initializeApp,
   initializeFirestore,
   memoryLocalCache
-} from "./firebase-imports.js?v=20260611-114";
+} from "./firebase-imports.js?v=20260611-115";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCy1ny9QfkRnV3KcMRwBubPCOQyScLylQU",
@@ -22,6 +22,7 @@ export const auth = getAuth(app);
 let firestoreDb;
 try {
   firestoreDb = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
     localCache: memoryLocalCache()
   });
 } catch (_) {

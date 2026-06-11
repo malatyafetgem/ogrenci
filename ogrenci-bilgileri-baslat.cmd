@@ -11,14 +11,14 @@ echo.
 
 where python >nul 2>nul
 if not errorlevel 1 (
-  start "" "http://127.0.0.1:8091/dashboard.html?local=%RANDOM%%RANDOM%"
+  start "" "http://localhost:8091/dashboard.html?local=%RANDOM%%RANDOM%"
   python -m http.server 8091 --bind 127.0.0.1
   exit /b
 )
 
 where py >nul 2>nul
 if not errorlevel 1 (
-  start "" "http://127.0.0.1:8091/dashboard.html?local=%RANDOM%%RANDOM%"
+  start "" "http://localhost:8091/dashboard.html?local=%RANDOM%%RANDOM%"
   py -3 -m http.server 8091 --bind 127.0.0.1
   exit /b
 )

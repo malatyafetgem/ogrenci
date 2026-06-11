@@ -16,3 +16,10 @@ test("Yerel başlatma ve sürüm komut dosyaları kökte kalır", () => {
   assert.ok(existsSync("ogrenci-bilgileri-baslat.cmd"));
   assert.ok(existsSync("surumu-guncelle.cmd"));
 });
+
+test("Yerel başlatma dosyası Firebase yetkili localhost adresini açar", () => {
+  const cmd = readFileSync("ogrenci-bilgileri-baslat.cmd", "utf8");
+
+  assert.match(cmd, /http:\/\/localhost:8091\/dashboard\.html/);
+  assert.doesNotMatch(cmd, /start "" "http:\/\/127\.0\.0\.1:8091\/dashboard\.html/);
+});

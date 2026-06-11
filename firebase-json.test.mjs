@@ -43,3 +43,11 @@ test("firebase.json güvenlik headerlarını ve gerekli CDN kaynaklarını sın�
   assert.equal(byKey["Referrer-Policy"], "strict-origin-when-cross-origin");
   assert.ok(byKey["Permissions-Policy"]?.includes("camera=()"));
 });
+
+test("Firestore yerel Chrome bağlantıları için long polling otomatik algılama kullanır", () => {
+  const config = readFileSync("firebase-config.js", "utf8");
+
+  assert.match(config, /initializeFirestore\(app,\s*\{/);
+  assert.match(config, /experimentalAutoDetectLongPolling:\s*true/);
+  assert.match(config, /localCache:\s*memoryLocalCache\(\)/);
+});
