@@ -182,9 +182,20 @@ test("Öğrenciler menüsü Telefon Listesi ile doğru sıradadır", () => {
   const js = readFileSync("layout.js", "utf8");
   const css = readFileSync("app.css", "utf8");
   assert.doesNotMatch(js, new RegExp(`baslik:\\s*"${kaldirilanListeMenusu}"`));
-  assert.match(js, /baslik:\s*"Öğrenciler"[\s\S]*etiket:\s*"Öğrenci Ara"[\s\S]*etiket:\s*"Yeni Öğrenci Ekle"[\s\S]*etiket:\s*"Öğrenci Listesi"[\s\S]*etiket:\s*"Telefon Listesi"/);
+  assert.doesNotMatch(js, /dashboard\.html#ogrenci-ara/);
+  assert.match(js, /baslik:\s*"Öğrenciler"[\s\S]*etiket:\s*"Yeni Öğrenci Ekle"[\s\S]*etiket:\s*"Öğrenci Listesi"[\s\S]*etiket:\s*"Telefon Listesi"/);
   assert.match(css, /\.top-menu\s*\{[\s\S]*justify-content:\s*center/);
   assert.match(css, /\.top-menu \.nav-link\s*\{[\s\S]*white-space:\s*nowrap/);
+});
+
+test("Dashboard ayrı öğrenci arama kartını tutmaz", () => {
+  const html = readFileSync("dashboard.html", "utf8");
+  const css = readFileSync("app.css", "utf8");
+
+  assert.doesNotMatch(html, /id="ogrenci-ara"/);
+  assert.doesNotMatch(html, /id="hizli-ogr-ara"/);
+  assert.doesNotMatch(html, /hizliArama|aramaSonuclariGoster|ogrenciAramayaOdaklan/);
+  assert.doesNotMatch(css, /dashboard-search-shell|dashboard-arama-kutu|dashboard-arama-sonuc/);
 });
 
 test("Mobil alt navbar grup panelleriyle çalışır", () => {
@@ -206,11 +217,23 @@ test("Mobil alt navbar grup panelleriyle çalışır", () => {
   assert.match(css, /\.mobile-nav-sheet \.offcanvas-body\s*\{[\s\S]*overflow-y:\s*auto/);
 });
 
+test("Mobil üst bar aksiyonları dar ekranda taşmadan sığar", () => {
+  const css = readFileSync("app.css", "utf8");
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.app-header\s*\{[\s\S]*max-width:\s*100vw/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.app-header\s*\{[\s\S]*overflow:\s*hidden/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.app-header > \.container-fluid\s*\{[\s\S]*overflow:\s*hidden/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.app-header \.navbar-brand\.brand-link\s*\{[\s\S]*max-width:\s*calc\(100vw - 112px\)/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.app-header \.brand-text\s*\{[\s\S]*text-overflow:\s*ellipsis/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.header-actions\s*\{[\s\S]*flex:\s*0 0 auto/);
+});
+
 test("Excel Aktarım giriş yapmış kullanıcılar tarafından açılabilir", () => {
   const layout = readFileSync("layout.js", "utf8");
   const html = readFileSync("excel-export.html", "utf8");
 
-  assert.match(html, /import\s*\{\s*requireAuth\s*\}\s*from\s*"\.\/auth\.js\?v=/);
+  assert.match(html, /import\s*\{[^}]*requireAuth[^}]*isAdminUser[^}]*\}\s*from\s*"\.\/auth\.js\?v=/);
+  assert.match(html, /tcKimlikMaskele/);
+  assert.match(html, /if\s*\(key\s*===\s*"s\.tc_kimlik"\)\s*return\s+tcKimlikMaskele/);
   assert.match(html, /import\s*\{\s*collection,\s*getDocs\s*\}\s*from\s*"\.\/firebase-imports\.js\?v=/);
   assert.match(html, /requireAuth\(async\s*\(\)\s*=>/);
   assert.doesNotMatch(html, /requireAdmin/);
@@ -230,6 +253,92 @@ test("Excel Aktarım giriş yapmış kullanıcılar tarafından açılabilir", (
   assert.doesNotMatch(layout, /key:\s*"sistem"[\s\S]*?adminOnly:\s*true/);
   assert.match(layout, /href: "settings\.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true/);
   assert.match(layout, /href: "settings\.html#sinif-atlat", ikon: "bi-arrow-up-circle", etiket: "Sınıf Atlatma", adminOnly: true/);
+});
+
+test("Üst bar global arama her sayfaya enjekte edilir ve odakta veri yüklemez", () => {
+  const layout = readFileSync("layout.js", "utf8");
+  const css = readFileSync("app.css", "utf8");
+
+  assert.match(layout, /id="global-arama-kap"/);
+  assert.match(layout, /id="global-arama"/);
+  assert.match(layout, /id="global-arama-sonuc"/);
+  assert.match(layout, /placeholder="Öğrenci ara\.\.\."/);
+  assert.match(layout, /q\.length < 2/);
+  assert.doesNotMatch(layout, /input\.addEventListener\("focus"[\s\S]*globalAramaYukle/);
+  assert.match(css, /\.topbar-global-search\s*\{/);
+  assert.match(css, /@media \(max-width:\s*767\.98px\)[\s\S]*\.topbar-global-search\s*\{[\s\S]*flex:\s*1 0 100%/);
+});
+
+test("TC Kimlik alanları admin dışı ekranda ve dışa aktarımda maskelenir", () => {
+  const liste = readFileSync("students-list.html", "utf8");
+  const detay = readFileSync("students-detail.html", "utf8");
+  const excel = readFileSync("excel-export.html", "utf8");
+
+  assert.match(liste, /isAdminUser/);
+  assert.match(liste, /tcKimlikMaskele\(o\.tc_kimlik,\s*tcTamGoster\)/);
+  assert.match(detay, /isAdminUser/);
+  assert.match(detay, /tcKimlikMaskele\(o\.tc_kimlik,\s*isAdminUser\(\)\)/);
+  assert.match(excel, /tcKimlikMaskele\(ogrenci\.tc_kimlik,\s*isAdminUser\(\)\)/);
+});
+
+test("Auth admin claim kontrolü sayfa açılışında zorunlu token yenilemez", () => {
+  const js = readFileSync("auth.js", "utf8");
+
+  assert.match(js, /getIdTokenResult\(\)/);
+  assert.doesNotMatch(js, /getIdTokenResult\(true\)/);
+});
+
+test("Liste ve rapor filtreleri standart Filtrele ve Temizle düzenini kullanır", () => {
+  const css = readFileSync("app.css", "utf8");
+  const sayfalar = [
+    "students-list.html",
+    "attendance-report.html",
+    "behavior-report.html",
+    "meetings-list.html",
+    "phone-list.html"
+  ];
+
+  for (const file of sayfalar) {
+    const html = readFileSync(file, "utf8");
+    assert.match(html, /report-filter-row/, `${file} ortak filtre satırı kullanmalı`);
+    assert.match(html, /class="[^"]*filter-actions[^"]*"/, `${file} filter-actions kullanmalı`);
+    assert.match(html, /id="filtre-uygula"[\s\S]*Filtrele/, `${file} Filtrele butonu içermeli`);
+    assert.match(html, /id="filtre-temizle"[\s\S]*Temizle/, `${file} Temizle butonu içermeli`);
+  }
+
+  assert.match(css, /\.report-filter-row\s*\{/);
+  assert.match(css, /\.filter-actions\s*\{/);
+});
+
+test("Davranış raporu grafiği masaüstünde tablo yüksekliğine göre ortalanmaz", () => {
+  const html = readFileSync("behavior-report.html", "utf8");
+  const css = readFileSync("app.css", "utf8");
+
+  assert.match(html, /behavior-chart-card/);
+  assert.match(html, /behavior-chart-body/);
+  assert.doesNotMatch(html, /behavior-chart-card[^>]*h-100/);
+  assert.match(css, /\.behavior-chart-card\s*\{[\s\S]*align-self:\s*flex-start/);
+  assert.match(css, /\.behavior-chart-body\s*\{[\s\S]*justify-content:\s*flex-start/);
+});
+
+test("Telefon listesi masaüstünde daha geniş ve sıkı tablo düzeni kullanır", () => {
+  const html = readFileSync("phone-list.html", "utf8");
+  const css = readFileSync("app.css", "utf8");
+
+  assert.match(html, /phone-list-page/);
+  assert.match(html, /phone-list-table/);
+  assert.match(css, /\.phone-list-page \.app-content > \.container-fluid/);
+  assert.match(css, /\.phone-list-table\s*\{[\s\S]*table-layout:\s*fixed/);
+});
+
+test("Ayarlar admin uyarı ikonu hizalı özel sınıf kullanır", () => {
+  const html = readFileSync("settings.html", "utf8");
+  const css = readFileSync("app.css", "utf8");
+
+  assert.match(html, /settings-admin-alert/);
+  assert.match(html, /settings-admin-alert-icon/);
+  assert.match(css, /\.settings-admin-alert\s*\{[\s\S]*align-items:\s*center/);
+  assert.match(css, /\.settings-admin-alert-icon\s*\{[\s\S]*align-items:\s*center[\s\S]*justify-content:\s*center/);
 });
 
 test("Kayıt giriş sayfaları giriş yapmış kullanıcılar tarafından açılabilir", () => {
@@ -444,16 +553,22 @@ test("Dashboard dağılım kartı geniş sınıf grafiği ve yatılılık halkas
   assert.match(html, /id="cinsiyet-donut"[\s\S]*id="sinif-barlar"[\s\S]*id="yatililik-donut"/);
   assert.match(html, /id="yatililik-toplam"/);
   assert.match(html, /function\s+donutGradient/);
-  assert.match(html, /var\(--obs-primary\)/);
   assert.match(html, /var\(--obs-secondary\)/);
   assert.match(html, /var\(--obs-success\)/);
+  assert.match(html, /const\s+toplamYatililik\s*=\s*parali\s*\+\s*parasiz/);
+  assert.doesNotMatch(html, /\{\s*ad:\s*"Gündüzlü"/);
   assert.match(css, /\.dashboard-distribution-grid\s*\{/);
+  assert.match(css, /\.dashboard-donut-panel \.grafik-donut\s*\{[\s\S]*width:\s*150px;[\s\S]*height:\s*150px;[\s\S]*flex:\s*0 0 150px/);
   assert.match(css, /grid-template-columns:\s*minmax\(180px,\s*220px\)\s*minmax\(680px,\s*1fr\)\s*minmax\(170px,\s*210px\)/);
   assert.match(css, /\.sinif-barlar-kap\s*\{[\s\S]*display:\s*grid/);
   assert.match(css, /grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(38px,\s*1fr\)\)/);
   assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.sinif-barlar-kap\s*\{[\s\S]*display:\s*flex/);
   assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.sinif-barlar-kap\s*\{[\s\S]*overflow-x:\s*auto/);
-  assert.match(html, /Gündüzlü[\s\S]*Parasız Yatılı[\s\S]*Paralı Yatılı/);
+  assert.match(html, /ad:\s*"Parasız"[\s\S]*ad:\s*"Paralı"/);
+  assert.doesNotMatch(html, /ad:\s*"Parasız Yatılı"|ad:\s*"Paralı Yatılı"/);
+  assert.match(html, /href="attendance-report\.html\?durum=\$\{encodeURIComponent\(k\.key\)\}"/);
+  assert.match(css, /\.dashboard-yatililik-legend\s*\{[\s\S]*flex-direction:\s*row/);
+  assert.match(css, /\.devamsizlik-ozet-link\s*\{/);
 });
 
 test("Dashboard dinamik bölgeleri aria-live ile işaretlenir", () => {

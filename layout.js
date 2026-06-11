@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260608-104";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260608-104";
-import { escapeHtml, toast } from "./utils.js?v=20260608-104";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260611-112";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260611-112";
+import { escapeHtml, toast } from "./utils.js?v=20260611-112";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -17,7 +17,6 @@ const MENU_GRUPLARI = [
   {
     baslik: "Öğrenciler",
     ogeler: [
-      { href: "dashboard.html#ogrenci-ara", ikon: "bi-search", etiket: "Öğrenci Ara" },
       { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true },
       { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
       { href: "phone-list.html", ikon: "bi-telephone-fill", etiket: "Telefon Listesi" }
@@ -562,13 +561,21 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260608-104" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260611-112" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
             ${MENU_GRUPLARI.map(topMenuDropdown).join("")}
           </ul>
+        </div>
+        <div class="global-arama-kutu topbar-global-search" id="global-arama-kap" role="search" aria-label="Öğrenci arama">
+          <i class="bi bi-search arama-ikon"></i>
+          <input id="global-arama" class="form-control form-control-sm" type="search"
+                 placeholder="Öğrenci ara..." autocomplete="off"
+                 aria-label="Öğrenci ara" aria-autocomplete="list"
+                 aria-expanded="false" aria-controls="global-arama-sonuc">
+          <div id="global-arama-sonuc" class="global-arama-sonuc d-none" role="listbox" aria-label="Öğrenci arama sonuçları"></div>
         </div>
         <div class="header-actions d-flex align-items-center gap-2">
           <span class="nav-ikon-btn cevrimici" id="baglanti-durum" title="Bağlantı durumu kontrol ediliyor..." role="status" aria-live="polite" aria-label="Bağlantı durumu kontrol ediliyor" data-testid="connection-status">
@@ -586,7 +593,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260608-104");
+    const { logout } = await import("./auth.js?v=20260611-112");
     logout();
   });
 
@@ -615,7 +622,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260608-104");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260611-112");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -627,8 +634,10 @@ function globalAramaBagla() {
   if (!input || !sonucEl || !kutu) return;
 
   let aktifIndex = -1;
+  let aramaIstegi = 0;
   const norm = s => String(s || "").toLocaleLowerCase("tr-TR");
   const kapat = () => {
+    aramaIstegi++;
     sonucEl.classList.add("d-none");
     input.setAttribute("aria-expanded", "false");
     input.removeAttribute("aria-activedescendant");
@@ -644,13 +653,20 @@ function globalAramaBagla() {
     else input.removeAttribute("aria-activedescendant");
   };
 
-  input.addEventListener("focus", () => { globalAramaYukle().catch(() => {}); });
-
   input.addEventListener("input", async () => {
     const q = norm(input.value.trim());
     if (q.length < 2) { kapat(); return; }
+    const istekNo = ++aramaIstegi;
+    sonucEl.innerHTML = `<div class="ga-bos" role="status">Aranıyor...</div>`;
+    sonucEl.classList.remove("d-none");
+    input.setAttribute("aria-expanded", "true");
     let liste;
-    try { liste = await globalAramaYukle(); } catch { return; }
+    try { liste = await globalAramaYukle(); } catch {
+      if (istekNo !== aramaIstegi) return;
+      sonucEl.innerHTML = `<div class="ga-bos" role="status">Arama yapılamadı</div>`;
+      return;
+    }
+    if (istekNo !== aramaIstegi) return;
     const sonuclar = liste.filter(o =>
       norm(`${o.ad || ""} ${o.soyad || ""}`).includes(q) ||
       norm(o.id).includes(q) ||
@@ -693,11 +709,12 @@ async function baglantiDurumuBaslat() {
   const el = document.getElementById("baglanti-durum");
   if (!el) return;
   const ikon = el.querySelector("i");
-  const guncelle = (cevrimici) => {
+  const guncelle = (cevrimici, detay = "") => {
     el.classList.toggle("cevrimici", cevrimici);
     el.classList.toggle("cevrimdisi", !cevrimici);
     if (ikon) ikon.className = cevrimici ? "bi bi-wifi" : "bi bi-wifi-off";
-    el.title = cevrimici ? "Çevrimiçi — Firestore bağlı" : "Çevrimdışı — önbellekten çalışıyor";
+    const temelBaslik = cevrimici ? "Çevrimiçi — Firestore bağlı" : "Çevrimdışı — önbellekten çalışıyor";
+    el.title = detay ? `${temelBaslik} (${detay})` : temelBaslik;
     el.setAttribute("aria-label", el.title);
   };
   guncelle(navigator.onLine);
@@ -705,13 +722,13 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260608-104");
+    const { db } = await import("./firebase-config.js?v=20260611-112");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260608-104");
+      await import("./firebase-imports.js?v=20260611-112");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),
-      () => {}
+      (err) => guncelle(false, err?.code || err?.message || "Firestore bağlantısı kurulamadı")
     );
   } catch {}
 }

@@ -1,21 +1,23 @@
 ﻿/**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
-import { db } from "./firebase-config.js?v=20260608-104";
+import { db } from "./firebase-config.js?v=20260611-112";
 import {
   collection, doc, getDoc, getDocs, addDoc, setDoc,
   updateDoc, deleteDoc, deleteField, query, where, writeBatch
-} from "./firebase-imports.js?v=20260608-104";
+} from "./firebase-imports.js?v=20260611-112";
 import {
   bugun, compareOgrenci, compareSinif, compareTarihDesc,
   devamsizlikGunDegeri, devamsizlikKapsananTarihler,
   formatTarih, sayiEtiketiTR, tarihSiralamaAnahtari
-} from "./utils.js?v=20260608-104";
+} from "./utils.js?v=20260611-112";
+import { APP_VERSION } from "./version.js?v=20260611-112";
 
 const KOLEKSIYON = "students";
 const VELI_KOLEKSIYON = "veliler";
 const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
-const VERI_CACHE_PREFIX = "obs-data-cache-v1:";
+const VERI_CACHE_PREFIX = `obs-data-cache-v2:${APP_VERSION}:`;
+const ESKI_VERI_CACHE_PREFIXLERI = ["obs-data-cache-v1:"];
 const OGRENCI_CACHE_TTL = 3 * 60 * 1000;
 const KAYIT_CACHE_TTL = 2 * 60 * 1000;
 const TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI = ["obs-dashboard-cache-"];
@@ -91,7 +93,10 @@ function ekranCacheleriniTemizle() {
 function tumYerelCacheleriTemizle() {
   try {
     Object.keys(sessionStorage)
-      .filter(key => key.startsWith(VERI_CACHE_PREFIX))
+      .filter(key =>
+        key.startsWith(VERI_CACHE_PREFIX) ||
+        ESKI_VERI_CACHE_PREFIXLERI.some(prefix => key.startsWith(prefix))
+      )
       .forEach(key => sessionStorage.removeItem(key));
   } catch (err) {
     yerelCacheHatasiLogla("toplu temizleme", VERI_CACHE_PREFIX, err);
@@ -129,10 +134,11 @@ function arkaPlandaYenile(key, loader) {
 async function tumOgrenciBelgeleriGetir() {
   if (!ogrenciCachePromise) {
     const cached = yerelCacheOku("students", OGRENCI_CACHE_TTL);
-    if (cached) {
+    if (cached && cached.length > 0) {
       arkaPlandaYenile("students", ogrenciBelgeleriniFirestoredanGetir);
       return cached;
     }
+    if (cached && cached.length === 0) yerelCacheSil("students");
     ogrenciCachePromise = ogrenciBelgeleriniFirestoredanGetir()
       .then(veri => {
         yerelCacheYaz("students", veri);

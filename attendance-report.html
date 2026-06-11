@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260608-104">
+  <link rel="manifest" href="manifest.webmanifest?v=20260611-112">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260608-104">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260608-104">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260608-104">
-  <link rel="shortcut icon" href="favicon.ico?v=20260608-104">
-  <script src="file-redirect.js?v=20260608-104"></script>
-  <script src="pwa.js?v=20260608-104"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260611-112">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260611-112">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260611-112">
+  <link rel="shortcut icon" href="favicon.ico?v=20260611-112">
+  <script src="file-redirect.js?v=20260611-112"></script>
+  <script src="pwa.js?v=20260611-112"></script>
   <title>Devamsızlık Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260608-104">
+  <link rel="stylesheet" href="app.css?v=20260611-112">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -56,7 +56,7 @@
         <!-- Filtreler -->
         <div class="card mb-3 no-print">
           <div class="card-body py-2">
-            <div class="row g-2 align-items-end">
+            <div class="row g-2 align-items-end report-filter-row">
               <div class="col-6 col-md-3">
                 <label class="form-label small mb-1" for="filtre-sinif">Sınıf</label>
                 <select id="filtre-sinif" class="form-select form-select-sm">
@@ -80,17 +80,21 @@
                 <input type="text" class="form-control form-control-sm" id="filtre-bit" placeholder="GG.AA.YYYY">
               </div>
               <div class="col-6 col-md-2">
-                <label class="form-label small mb-1" for="filtre-uyari">Sadece Uyarılar</label>
+                <label class="form-label small mb-1" for="filtre-uyari">Durum</label>
                 <select id="filtre-uyari" class="form-select form-select-sm">
                   <option value="">Seçiniz</option>
+                  <option value="normal">Normal</option>
                   <option value="uyari">Uyarı</option>
                   <option value="kritik">Kritik</option>
                   <option value="kaldi">Kaldı</option>
                 </select>
               </div>
-              <div class="col-6 col-md-2">
-                <button id="filtre-uygula" class="btn btn-sm btn-primary w-100" type="button" aria-label="Devamsızlık raporu filtrelerini uygula">
+              <div class="col-12 col-md-2 filter-actions">
+                <button id="filtre-uygula" class="btn btn-sm btn-primary" type="button" aria-label="Devamsızlık raporu filtrelerini uygula">
                   <i class="bi bi-search me-1"></i>Filtrele
+                </button>
+                <button id="filtre-temizle" class="btn btn-sm btn-outline-secondary" type="button" aria-label="Devamsızlık raporu filtrelerini temizle">
+                  <i class="bi bi-x me-1"></i>Temizle
                 </button>
               </div>
             </div>
@@ -154,7 +158,7 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260608-104"></script>
+<script src="datatable-fallback.js?v=20260611-112"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"
         integrity="sha384-5JqMv4L/Xa0hfvtF06qboNdhvuYXUku9ZrhZh3bSk8VXF0A/RuSLHpLsSV9Zqhl6"
         crossorigin="anonymous"></script>
@@ -166,14 +170,14 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260608-104";
-  import { layoutYukle } from "./layout.js?v=20260608-104";
-  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDevamsizliklariGetir, devamsizlikHesapla } from "./students.js?v=20260608-104";
+  import { requireAuth } from "./auth.js?v=20260611-112";
+  import { layoutYukle } from "./layout.js?v=20260611-112";
+  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDevamsizliklariGetir, devamsizlikHesapla } from "./students.js?v=20260611-112";
   import {
     devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikRenk, devamsizlikGunDegeriAralik,
     sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari, sayiEtiketiTR,
     escapeHtml, escapeAttr, toast
-  } from "./utils.js?v=20260608-104";
+  } from "./utils.js?v=20260611-112";
 
   let raporVerisi = [];
   let dt = null;
@@ -189,8 +193,10 @@
     flatpickr("#filtre-bit", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
 
     document.getElementById("filtre-uygula").addEventListener("click", yukleRapor);
+    document.getElementById("filtre-temizle").addEventListener("click", filtreleriTemizle);
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
     tabloBekle();
+    urlFiltresiniUygula();
   });
 
   function iskeletGoster() {
@@ -249,7 +255,12 @@
 
       // Tür filtresi
       if (filtTur) kayitlar = kayitlar.filter(k => k.tur === filtTur);
-      if (kayitlar.length === 0) continue;
+      if (kayitlar.length === 0) {
+        if (filtUyari === "normal" && !filtTur && !filtBas && !filtBit) {
+          raporVerisi.push({ ogr, ozurlu: 0, ozursuz: 0, durum: "normal" });
+        }
+        continue;
+      }
 
       const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
       const durum = devamsizlikDurum(ozurlu, ozursuz);
@@ -298,6 +309,22 @@
     filtreUygulandi = true;
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
+  }
+
+  function filtreleriTemizle() {
+    ["filtre-sinif", "filtre-tur", "filtre-bas", "filtre-bit", "filtre-uyari"]
+      .forEach(id => { document.getElementById(id).value = ""; });
+    history.replaceState(null, "", location.pathname);
+    tabloBekle();
+  }
+
+  function urlFiltresiniUygula() {
+    const params = new URLSearchParams(location.search);
+    const durum = params.get("durum") || params.get("uyari");
+    const izinli = new Set(["normal", "uyari", "kritik", "kaldi"]);
+    if (!izinli.has(durum)) return;
+    document.getElementById("filtre-uyari").value = durum;
+    yukleRapor();
   }
 
   function excelExport() {

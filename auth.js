@@ -1,6 +1,6 @@
-import { auth } from "./firebase-config.js?v=20260608-104";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260608-104";
-import { toast } from "./utils.js?v=20260608-104";
+import { auth } from "./firebase-config.js?v=20260611-112";
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260611-112";
+import { toast } from "./utils.js?v=20260611-112";
 
 const adminClaimUids = new Set();
 
@@ -29,7 +29,7 @@ export function isAdminUser(user = getCurrentUser()) {
 async function adminClaiminiHazirla(user) {
   if (!user) return;
   try {
-    const token = await user.getIdTokenResult(true);
+    const token = await user.getIdTokenResult();
     if (token?.claims?.admin === true) {
       adminClaimUids.add(user.uid);
     } else {

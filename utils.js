@@ -389,6 +389,22 @@ export function gecerliTc(tc) {
 }
 
 /**
+ * T.C. Kimlik No görünümünü role göre maskele.
+ * Admin olmayan kullanıcıya yalnız son 4 hane gösterilir.
+ */
+export function tcKimlikMaskele(tc, tamGoster = false) {
+  const raw = String(tc ?? "").trim();
+  if (!raw) return "—";
+  if (tamGoster) return raw;
+
+  const sadeceRakam = raw.replace(/\D/g, "");
+  const kaynak = sadeceRakam.length >= 4 ? sadeceRakam : raw;
+  const son = kaynak.slice(-4);
+  const maskeUzunlugu = Math.max(3, kaynak.length - son.length);
+  return `${"*".repeat(maskeUzunlugu)}${son}`;
+}
+
+/**
  * Devamsızlık eşik durumu döndürür.
  * Dön: "normal" | "uyari" | "kritik" | "kaldi"
  */

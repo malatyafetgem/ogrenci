@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260608-104">
+  <link rel="manifest" href="manifest.webmanifest?v=20260611-112">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260608-104">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260608-104">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260608-104">
-  <link rel="shortcut icon" href="favicon.ico?v=20260608-104">
-  <script src="file-redirect.js?v=20260608-104"></script>
-  <script src="pwa.js?v=20260608-104"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260611-112">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260611-112">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260611-112">
+  <link rel="shortcut icon" href="favicon.ico?v=20260611-112">
+  <script src="file-redirect.js?v=20260611-112"></script>
+  <script src="pwa.js?v=20260611-112"></script>
   <title>Ayarlar ve Yönetim</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260608-104">
+  <link rel="stylesheet" href="app.css?v=20260611-112">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -46,8 +46,8 @@
 
     <div class="app-content">
       <div class="container-fluid">
-        <div class="alert alert-warning d-flex align-items-start gap-2">
-          <i class="bi bi-shield-lock fs-4"></i>
+        <div class="alert alert-warning settings-admin-alert">
+          <i class="bi bi-shield-lock settings-admin-alert-icon"></i>
           <div>
             <strong>Bu sayfa yalnızca Admin içindir.</strong>
             Toplu silme ve içe aktarma işlemleri geri alınamaz. İşlem öncesinde oturum şifresi yeniden istenir.
@@ -183,11 +183,15 @@
                   <button type="button" class="btn btn-success" id="yedek-disari-btn">
                     <i class="bi bi-download me-1"></i>Dışa Aktar
                   </button>
-                  <button type="button" class="btn btn-outline-primary" id="yedek-ice-btn">
+                  <button type="button" class="btn btn-outline-primary" id="yedek-ice-btn" aria-describedby="yedek-ice-yardim">
                     <i class="bi bi-upload me-1"></i>İçe Aktar
                   </button>
                   <input type="file" class="d-none" id="yedek-dosya" accept="application/json,.json">
                 </div>
+                <div class="small text-muted mt-2" id="yedek-ice-yardim">
+                  İçe Aktar önce JSON yedek dosyası seçtirir; dosya seçildikten sonra uyumluluk önizlemesi ve onay ekranı açılır.
+                </div>
+                <div class="alert alert-info d-none mt-3 mb-0" id="yedek-ice-durum" role="status" aria-live="polite"></div>
                 <div class="small text-muted mt-3" id="surum-bilgi">Hazırlanıyor...</div>
               </div>
             </div>
@@ -313,21 +317,21 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260608-104";
-  import { layoutYukle } from "./layout.js?v=20260608-104";
-  import { db } from "./firebase-config.js?v=20260608-104";
+  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260611-112";
+  import { layoutYukle } from "./layout.js?v=20260611-112";
+  import { db } from "./firebase-config.js?v=20260611-112";
   import {
     EmailAuthProvider, reauthenticateWithCredential,
     collection, doc, getDocs, writeBatch
-  } from "./firebase-imports.js?v=20260608-104";
-  import { toast, bugun, escapeHtml } from "./utils.js?v=20260608-104";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260608-104";
+  } from "./firebase-imports.js?v=20260611-112";
+  import { toast, bugun, escapeHtml } from "./utils.js?v=20260611-112";
+  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260611-112";
   import {
     okulAyarlariGetir,
     okulAyarlariKaydet as okulAyarlariKaydetDb,
     okulDonemiEtiketi
-  } from "./school-settings.js?v=20260608-104";
-  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260608-104";
+  } from "./school-settings.js?v=20260611-112";
+  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260611-112";
 
   const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {
@@ -466,7 +470,7 @@
       btn.addEventListener("click", () => silmeOnayiIste(btn.dataset.silTur));
     });
     document.getElementById("yedek-disari-btn").addEventListener("click", yedekDisariAktar);
-    document.getElementById("yedek-ice-btn").addEventListener("click", () => document.getElementById("yedek-dosya").click());
+    document.getElementById("yedek-ice-btn").addEventListener("click", yedekIceAktarDosyasiSec);
     document.getElementById("yedek-dosya").addEventListener("change", yedekDosyaSecildi);
     document.getElementById("veri-sagligi-kontrol-btn").addEventListener("click", veriSagligiKontrolEt);
     document.getElementById("guvenlik-onayla-btn").addEventListener("click", guvenlikOnayla);
@@ -506,7 +510,7 @@
       if (yukleniyor) return;
       yukleniyor = true;
       try {
-        const mod = await import("./class-promotion.js?v=20260608-104");
+        const mod = await import("./class-promotion.js?v=20260611-112");
         await mod.classPromotionAc(root);
       } catch (err) {
         root.innerHTML =
@@ -1101,17 +1105,56 @@
     return snap.docs.map(d => ({ id: d.id, data: d.data() }));
   }
 
+  function yedekIceDurumYaz(mesaj, tip = "info") {
+    const el = document.getElementById("yedek-ice-durum");
+    if (!el) {
+      durumYaz(mesaj, tip);
+      return;
+    }
+    el.className = `alert alert-${tip} mt-3 mb-0`;
+    el.textContent = mesaj;
+    el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  function yedekIceButonDurumu(islemde) {
+    const btn = document.getElementById("yedek-ice-btn");
+    btn.disabled = islemde;
+    btn.innerHTML = islemde
+      ? `<span class="spinner-border spinner-border-sm me-1"></span>Kontrol ediliyor...`
+      : `<i class="bi bi-upload me-1"></i>İçe Aktar`;
+  }
+
+  function yedekIceAktarDosyasiSec() {
+    const input = document.getElementById("yedek-dosya");
+    input.value = "";
+    const mesaj = "İçe aktarılacak JSON yedek dosyasını seçin. Dosya seçildikten sonra uyumluluk önizlemesi bu bölümde görünecek.";
+    yedekIceDurumYaz(mesaj, "info");
+    durumYaz(mesaj, "info");
+    input.click();
+  }
+
   function yedekDosyaSecildi(e) {
     const dosya = e.target.files[0];
     e.target.value = "";
-    if (!dosya) return;
+    if (!dosya) {
+      const mesaj = "Yedek içe aktarma iptal edildi. Dosya seçilmedi.";
+      yedekIceDurumYaz(mesaj, "secondary");
+      durumYaz(mesaj, "secondary");
+      return;
+    }
+    yedekIceButonDurumu(true);
+    yedekIceDurumYaz(`${dosya.name} seçildi. Dosya okunuyor...`);
+    durumYaz(`${dosya.name} okunuyor. Uyumluluk önizlemesi hazırlanıyor...`);
     const reader = new FileReader();
     reader.onload = async () => {
       try {
+        yedekIceDurumYaz(`${dosya.name} okundu. JSON ve Firestore uyumluluğu kontrol ediliyor...`);
         const veri = JSON.parse(reader.result);
         const onizleme = await yedekOnizlemeHazirla(veri);
         const tip = onizleme.uyarilar.length ? "warning" : "info";
-        durumYaz(`Yedek dosyası kontrol edildi. ${sayiBicimle(onizleme.toplamGecerli)} kayıt içe aktarılmaya hazır.`, tip);
+        const mesaj = `Yedek dosyası kontrol edildi. ${sayiBicimle(onizleme.toplamGecerli)} kayıt içe aktarılmaya hazır. Onay ekranını kontrol edin; son onayı vermeden işlem başlamaz.`;
+        yedekIceDurumYaz(mesaj, tip);
+        durumYaz(mesaj, tip);
         guvenlikIste({
           baslik: "Verileri İçe Aktar",
           aciklama: yedekOnayHtml(onizleme),
@@ -1121,8 +1164,18 @@
           calistir: () => yedekIceAktar(veri, onizleme)
         });
       } catch (err) {
-        durumYaz("Dosya okunamadı: " + err.message, "danger");
+        const mesaj = "Dosya kontrol edilemedi: " + err.message;
+        yedekIceDurumYaz(mesaj, "danger");
+        durumYaz(mesaj, "danger");
+      } finally {
+        yedekIceButonDurumu(false);
       }
+    };
+    reader.onerror = () => {
+      const mesaj = "Dosya okunamadı. Lütfen JSON yedek dosyasını yeniden seçin.";
+      yedekIceDurumYaz(mesaj, "danger");
+      durumYaz(mesaj, "danger");
+      yedekIceButonDurumu(false);
     };
     reader.readAsText(dosya, "utf-8");
   }

@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260608-104">
+  <link rel="manifest" href="manifest.webmanifest?v=20260611-112">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260608-104">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260608-104">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260608-104">
-  <link rel="shortcut icon" href="favicon.ico?v=20260608-104">
-  <script src="file-redirect.js?v=20260608-104"></script>
-  <script src="pwa.js?v=20260608-104"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260611-112">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260611-112">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260611-112">
+  <link rel="shortcut icon" href="favicon.ico?v=20260611-112">
+  <script src="file-redirect.js?v=20260611-112"></script>
+  <script src="pwa.js?v=20260611-112"></script>
   <title>Davranış Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260608-104">
+  <link rel="stylesheet" href="app.css?v=20260611-112">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -56,7 +56,7 @@
         <!-- Filtreler -->
         <div class="card mb-3 no-print">
           <div class="card-body py-2">
-            <div class="row g-2 align-items-end">
+            <div class="row g-2 align-items-end report-filter-row">
               <div class="col-6 col-md-3">
                 <label class="form-label small mb-1" for="filtre-sinif">Sınıf</label>
                 <select id="filtre-sinif" class="form-select form-select-sm">
@@ -90,9 +90,12 @@
                 <label class="form-label small mb-1" for="filtre-bit">Tarih Bitiş</label>
                 <input type="text" class="form-control form-control-sm" id="filtre-bit" placeholder="GG.AA.YYYY">
               </div>
-              <div class="col-6 col-md-2">
-                <button id="filtre-uygula" class="btn btn-sm btn-primary w-100" type="button" aria-label="Davranış raporu filtrelerini uygula">
+              <div class="col-12 col-md-2 filter-actions">
+                <button id="filtre-uygula" class="btn btn-sm btn-primary" type="button" aria-label="Davranış raporu filtrelerini uygula">
                   <i class="bi bi-search me-1"></i>Filtrele
+                </button>
+                <button id="filtre-temizle" class="btn btn-sm btn-outline-secondary" type="button" aria-label="Davranış raporu filtrelerini temizle">
+                  <i class="bi bi-x me-1"></i>Temizle
                 </button>
               </div>
             </div>
@@ -138,7 +141,7 @@
         <div class="row g-3">
           <!-- Grafikler -->
           <div class="col-12 col-md-4 no-print">
-            <div class="card h-100">
+            <div class="card behavior-chart-card">
               <div class="card-header d-flex align-items-center justify-content-between">
                 <h6 class="mb-0">Kategori Dağılımı</h6>
                 <div class="btn-group btn-group-sm no-print" id="grafik-mod-grup" role="group">
@@ -147,7 +150,7 @@
                   <button type="button" class="btn btn-outline-danger" data-grafik-mod="olumsuz">Olumsuz</button>
                 </div>
               </div>
-              <div class="card-body d-flex flex-column align-items-center justify-content-center gap-3">
+              <div class="card-body behavior-chart-body d-flex flex-column align-items-center gap-3">
                 <canvas id="kategori-grafik" width="240" height="240"></canvas>
                 <!-- Olumlu/Olumsuz karşılaştırma çubuğu -->
                 <div id="tur-karsilastirma" class="w-100 d-none">
@@ -220,7 +223,7 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260608-104"></script>
+<script src="datatable-fallback.js?v=20260611-112"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"
         integrity="sha384-5JqMv4L/Xa0hfvtF06qboNdhvuYXUku9ZrhZh3bSk8VXF0A/RuSLHpLsSV9Zqhl6"
         crossorigin="anonymous"></script>
@@ -235,10 +238,10 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260608-104";
-  import { layoutYukle } from "./layout.js?v=20260608-104";
-  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir } from "./students.js?v=20260608-104";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast } from "./utils.js?v=20260608-104";
+  import { requireAuth } from "./auth.js?v=20260611-112";
+  import { layoutYukle } from "./layout.js?v=20260611-112";
+  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir } from "./students.js?v=20260611-112";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast } from "./utils.js?v=20260611-112";
 
   let raporVerisi = [];
   let dt = null;
@@ -254,6 +257,7 @@
     flatpickr("#filtre-bas", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
     flatpickr("#filtre-bit", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
     document.getElementById("filtre-uygula").addEventListener("click", yukleRapor);
+    document.getElementById("filtre-temizle").addEventListener("click", filtreleriTemizle);
     document.getElementById("excel-export-btn").addEventListener("click", excelExport);
 
     // Grafik mod butonları
@@ -467,6 +471,12 @@
     } else {
       karsilastirmaEl.classList.add("d-none");
     }
+  }
+
+  function filtreleriTemizle() {
+    ["filtre-sinif", "filtre-tur", "filtre-kategori", "filtre-bas", "filtre-bit"]
+      .forEach(id => { document.getElementById(id).value = ""; });
+    tabloBekle();
   }
 
   function excelExport() {

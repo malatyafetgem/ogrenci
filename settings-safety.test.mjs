@@ -14,6 +14,21 @@ test("Ayarlar toplu silme işlemi koleksiyon bazlı sonuç raporu üretir", () =
 });
 
 test("Yedek içe aktarma başlamadan önce uyumluluk önizlemesi yapılır", () => {
+  assert.match(html, /id="yedek-ice-btn"[^>]*aria-describedby="yedek-ice-yardim"/);
+  assert.match(html, /id="yedek-ice-yardim"[\s\S]*dosya seçildikten sonra uyumluluk önizlemesi ve onay ekranı açılır/);
+  assert.match(html, /id="yedek-ice-durum"[^>]*role="status"[^>]*aria-live="polite"/);
+  assert.match(html, /addEventListener\("click",\s*yedekIceAktarDosyasiSec\)/);
+  assert.match(html, /function\s+yedekIceDurumYaz/);
+  assert.match(html, /function\s+yedekIceButonDurumu/);
+  assert.match(html, /scrollIntoView\(\{\s*block:\s*"nearest",\s*behavior:\s*"smooth"\s*\}\)/);
+  assert.match(html, /function\s+yedekIceAktarDosyasiSec/);
+  assert.match(html, /İçe aktarılacak JSON yedek dosyasını seçin/);
+  assert.match(html, /Dosya seçildikten sonra uyumluluk önizlemesi bu bölümde görünecek/);
+  assert.match(html, /seçildi\. Dosya okunuyor/);
+  assert.match(html, /okundu\. JSON ve Firestore uyumluluğu kontrol ediliyor/);
+  assert.match(html, /Uyumluluk önizlemesi hazırlanıyor/);
+  assert.match(html, /Yedek içe aktarma iptal edildi\. Dosya seçilmedi\./);
+  assert.match(html, /Dosya kontrol edilemedi:/);
   assert.match(html, /const\s+YEDEK_KOLEKSIYON_ALANLARI/);
   assert.match(html, /function\s+yedekDogrula/);
   assert.match(html, /async\s+function\s+yedekOnizlemeHazirla/);

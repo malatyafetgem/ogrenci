@@ -8,7 +8,8 @@ import {
   devamsizlikRenk,
   formatTarih,
   gecerliTarih,
-  gecerliTc
+  gecerliTc,
+  tcKimlikMaskele
 } from "./utils.js";
 
 test("gecerliTc boş değeri kabul eder ve hatalı TC değerlerini reddeder", () => {
@@ -17,6 +18,12 @@ test("gecerliTc boş değeri kabul eder ve hatalı TC değerlerini reddeder", ()
   assert.equal(gecerliTc("00000000000"), false);
   assert.equal(gecerliTc("12345678901"), false);
   assert.equal(gecerliTc("1000000014A"), false);
+});
+
+test("tcKimlikMaskele admin olmayan kullanıcıya yalnız son 4 haneyi gösterir", () => {
+  assert.equal(tcKimlikMaskele("12345678901", false), "*******8901");
+  assert.equal(tcKimlikMaskele("12345678901", true), "12345678901");
+  assert.equal(tcKimlikMaskele("", false), "—");
 });
 
 test("formatTarih farklı girişleri GG.AA.YYYY biçimine çevirir", () => {

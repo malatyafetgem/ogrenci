@@ -23,7 +23,9 @@ test("Veri okuma cache sözleşmesi öğrenci ve kayıt koleksiyonlarını kapsa
   const tumOgrenciBelgeleriGetir = fonksiyonBlogu(js, "tumOgrenciBelgeleriGetir");
   const tumKayitlariGetir = fonksiyonBlogu(js, "tumKayitlariGetir");
 
-  assert.match(js, /const\s+VERI_CACHE_PREFIX\s*=\s*"obs-data-cache-v1:"/);
+  assert.match(js, /import\s*\{\s*APP_VERSION\s*\}/);
+  assert.match(js, /const\s+VERI_CACHE_PREFIX\s*=\s*`obs-data-cache-v2:\$\{APP_VERSION\}:`/);
+  assert.match(js, /const\s+ESKI_VERI_CACHE_PREFIXLERI\s*=\s*\["obs-data-cache-v1:"\]/);
   assert.match(js, /const\s+OGRENCI_CACHE_TTL\s*=\s*3\s*\*\s*60\s*\*\s*1000/);
   assert.match(js, /const\s+KAYIT_CACHE_TTL\s*=\s*2\s*\*\s*60\s*\*\s*1000/);
   assert.match(js, /function\s+yerelCacheOku/);
@@ -31,6 +33,8 @@ test("Veri okuma cache sözleşmesi öğrenci ve kayıt koleksiyonlarını kapsa
   assert.match(js, /function\s+arkaPlandaYenile/);
 
   assert.match(tumOgrenciBelgeleriGetir, /yerelCacheOku\("students",\s*OGRENCI_CACHE_TTL\)/);
+  assert.match(tumOgrenciBelgeleriGetir, /cached\s*&&\s*cached\.length\s*>\s*0/);
+  assert.match(tumOgrenciBelgeleriGetir, /cached\s*&&\s*cached\.length\s*===\s*0[\s\S]*yerelCacheSil\("students"\)/);
   assert.match(tumOgrenciBelgeleriGetir, /arkaPlandaYenile\("students",\s*ogrenciBelgeleriniFirestoredanGetir\)/);
   assert.match(tumOgrenciBelgeleriGetir, /yerelCacheYaz\("students",\s*veri\)/);
 
