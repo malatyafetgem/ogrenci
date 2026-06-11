@@ -2576,6 +2576,7 @@ div.dt-container .dt-input {
     flex: 1 0 100%;
     width: 100%;
     min-width: 0;
+    z-index: 1060;
   }
 
   .topbar-global-search .form-control {
@@ -2585,13 +2586,14 @@ div.dt-container .dt-input {
 
   .global-arama-sonuc {
     max-height: min(52vh, 340px);
+    z-index: 1100;
   }
 }
 
 @media (max-width: 575.98px) {
   .app-header {
     max-width: 100vw;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .app-header > .container-fluid {
@@ -2599,7 +2601,7 @@ div.dt-container .dt-input {
     max-width: 100vw;
     min-height: var(--obs-header-height);
     gap: .25rem;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .app-header .navbar-brand.brand-link {

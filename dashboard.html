@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260611-112">
+  <link rel="manifest" href="manifest.webmanifest?v=20260611-114">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260611-112">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260611-112">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260611-112">
-  <link rel="shortcut icon" href="favicon.ico?v=20260611-112">
-  <script src="file-redirect.js?v=20260611-112"></script>
-  <script src="pwa.js?v=20260611-112"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260611-114">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260611-114">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260611-114">
+  <link rel="shortcut icon" href="favicon.ico?v=20260611-114">
+  <script src="file-redirect.js?v=20260611-114"></script>
+  <script src="pwa.js?v=20260611-114"></script>
   <title>Gösterge Paneli</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260611-112">
+  <link rel="stylesheet" href="app.css?v=20260611-114">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -82,11 +82,11 @@
           <div class="col-12 col-lg-6">
             <div class="card h-100">
               <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-star-half me-1"></i> Son Davranış Kayıtları</h6>
+                <h6 class="mb-0"><i class="bi bi-cake2 me-1"></i> Doğum Günleri</h6>
               </div>
               <div class="card-body p-0">
-                <ul class="list-group list-group-flush" id="davranis-liste" aria-live="polite">
-                  <li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>
+                <ul class="list-group list-group-flush" id="dogumgunu-liste" aria-live="polite">
+                  <li class="list-group-item text-muted text-center py-4">Hazırlanıyor...</li>
                 </ul>
               </div>
             </div>
@@ -94,11 +94,11 @@
           <div class="col-12 col-lg-6">
             <div class="card h-100">
               <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-cake2 me-1"></i> Doğum Günleri</h6>
+                <h6 class="mb-0"><i class="bi bi-star-half me-1"></i> Son Davranış Kayıtları</h6>
               </div>
               <div class="card-body p-0">
-                <ul class="list-group list-group-flush" id="dogumgunu-liste" aria-live="polite">
-                  <li class="list-group-item text-muted text-center py-4">Hazırlanıyor...</li>
+                <ul class="list-group list-group-flush" id="davranis-liste" aria-live="polite">
+                  <li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>
                 </ul>
               </div>
             </div>
@@ -151,18 +151,18 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260611-112";
-  import { layoutYukle } from "./layout.js?v=20260611-112";
+  import { requireAuth } from "./auth.js?v=20260611-114";
+  import { layoutYukle } from "./layout.js?v=20260611-114";
   import {
     tumOgrencileriGetir,
     tumDevamsizliklariGetir, tumDavranislariGetir
-  } from "./students.js?v=20260611-112";
+  } from "./students.js?v=20260611-114";
   import {
     devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikGunDegeri, devamsizlikRenk,
     compareSinif, compareOgrenciNo, compareTarihDesc,
     sayiEtiketiTR, toast, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260611-112";
-  import { APP_VERSION } from "./version.js?v=20260611-112";
+  } from "./utils.js?v=20260611-114";
+  import { APP_VERSION } from "./version.js?v=20260611-114";
 
   let tumOgrenciler = [];
   const DASHBOARD_CACHE_KEY = `obs-dashboard-cache-v4:${APP_VERSION}`;

@@ -2,9 +2,9 @@
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260611-112";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260611-112";
-import { escapeHtml, toast } from "./utils.js?v=20260611-112";
+import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260611-114";
+import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260611-114";
+import { escapeHtml, toast } from "./utils.js?v=20260611-114";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -561,7 +561,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260611-112" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20260611-114" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
@@ -593,7 +593,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260611-112");
+    const { logout } = await import("./auth.js?v=20260611-114");
     logout();
   });
 
@@ -622,7 +622,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260611-112");
+  const { tumOgrencileriGetir } = await import("./students.js?v=20260611-114");
   _gaOgrenciler = await tumOgrencileriGetir();
   return _gaOgrenciler;
 }
@@ -635,7 +635,16 @@ function globalAramaBagla() {
 
   let aktifIndex = -1;
   let aramaIstegi = 0;
-  const norm = s => String(s || "").toLocaleLowerCase("tr-TR");
+  const norm = s => String(s || "")
+    .toLocaleLowerCase("tr-TR")
+    .replace(/ı/g, "i")
+    .replace(/ç/g, "c")
+    .replace(/ğ/g, "g")
+    .replace(/ö/g, "o")
+    .replace(/ş/g, "s")
+    .replace(/ü/g, "u")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
   const kapat = () => {
     aramaIstegi++;
     sonucEl.classList.add("d-none");
@@ -722,9 +731,9 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260611-112");
+    const { db } = await import("./firebase-config.js?v=20260611-114");
     const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260611-112");
+      await import("./firebase-imports.js?v=20260611-114");
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),

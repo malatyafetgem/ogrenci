@@ -264,9 +264,12 @@ test("Üst bar global arama her sayfaya enjekte edilir ve odakta veri yüklemez"
   assert.match(layout, /id="global-arama-sonuc"/);
   assert.match(layout, /placeholder="Öğrenci ara\.\.\."/);
   assert.match(layout, /q\.length < 2/);
+  assert.match(layout, /\.replace\(/);
   assert.doesNotMatch(layout, /input\.addEventListener\("focus"[\s\S]*globalAramaYukle/);
   assert.match(css, /\.topbar-global-search\s*\{/);
   assert.match(css, /@media \(max-width:\s*767\.98px\)[\s\S]*\.topbar-global-search\s*\{[\s\S]*flex:\s*1 0 100%/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.app-header\s*\{[\s\S]*overflow:\s*visible/);
+  assert.match(css, /@media \(max-width:\s*575\.98px\)[\s\S]*\.app-header > \.container-fluid\s*\{[\s\S]*overflow:\s*visible/);
 });
 
 test("TC Kimlik alanları admin dışı ekranda ve dışa aktarımda maskelenir", () => {
@@ -584,6 +587,16 @@ test("Dashboard dinamik bölgeleri aria-live ile işaretlenir", () => {
     const regex = new RegExp(`id="${id}"[^>]*aria-live="polite"`);
     assert.match(html, regex, `${id} aria-live içermeli`);
   });
+});
+
+test("Dashboard doğum günü kartını davranış kayıtlarından önce gösterir", () => {
+  const html = readFileSync("dashboard.html", "utf8");
+  const dogumIndex = html.indexOf("Doğum Günleri");
+  const davranisIndex = html.indexOf("Son Davranış Kayıtları");
+
+  assert.ok(dogumIndex !== -1, "Doğum Günleri kartı bulunmalı");
+  assert.ok(davranisIndex !== -1, "Son Davranış Kayıtları kartı bulunmalı");
+  assert.ok(dogumIndex < davranisIndex, "Doğum Günleri kartı önce gelmeli");
 });
 
 test("Dashboard devamsızlık tablosu dar kartta okunabilirlik sözleşmesini korur", () => {
