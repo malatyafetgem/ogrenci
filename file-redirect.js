@@ -26,8 +26,8 @@
     if (explicit) paths.forEach(path => urls.push(normalizeBase(explicit, path)));
     DEFAULT_PORTS.forEach(port => {
       paths.forEach(path => {
-        urls.push(`http://127.0.0.1:${port}/${path}`);
         urls.push(`http://localhost:${port}/${path}`);
+        urls.push(`http://127.0.0.1:${port}/${path}`);
       });
     });
     return [...new Set(urls.filter(Boolean))];
@@ -59,7 +59,7 @@
         // Bir sonraki aday denenir.
       }
     }
-    showServerWarning(baseUrls[0] || `http://127.0.0.1:${DEFAULT_PORTS[0]}/`);
+    showServerWarning(baseUrls[0] || `http://localhost:${DEFAULT_PORTS[0]}/`);
   }
 
   function showServerWarning(suggestedBase) {

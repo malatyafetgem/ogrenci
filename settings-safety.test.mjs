@@ -39,12 +39,19 @@ test("Yedek içe aktarma başlamadan önce uyumluluk önizlemesi yapılır", () 
 
 test("Yedek içe aktarma riskli durumları işlem başlamadan engeller", () => {
   assert.match(html, /Yedek şema sürümü[\s\S]*desteklediği sürümden/);
-  assert.match(html, /güvenli tek işlem sınırı/);
   assert.match(html, /zorunlu alan eksik/);
   assert.match(html, /geçerli ID veya veri yok/);
   assert.match(html, /belge ID ile öğrenci numarası uyumsuz/);
   assert.match(html, /sistemde veya yedekte olmayan öğrenci bağlantısı/);
   assert.match(html, /calistir:\s*\(\)\s*=>\s*yedekIceAktar\(veri,\s*onizleme\)/);
+});
+
+test("Yedek içe aktarma büyük yedekleri güvenli parçalara böler", () => {
+  assert.match(html, /async\s+function\s+yedekIceAktar[\s\S]*batchYonetici\(\{\s*otomatikBol:\s*true\s*\}\)/);
+  assert.match(html, /const\s+parcaSayisi\s*=\s*toplamGecerli > 0 \? Math\.ceil\(toplamGecerli \/ MAX_ATOMIK_YAZMA\) : 0/);
+  assert.match(html, /Yedekte \$\{sayiBicimle\(toplamGecerli\)\} geçerli kayıt var; içe aktarma \$\{sayiBicimle\(parcaSayisi\)\} güvenli parçaya bölünerek yapılacak\./);
+  assert.match(html, /Büyük yedek \$\{sayiBicimle\(onizleme\.parcaSayisi\)\} güvenli parçaya bölünerek yazılacak\. Ara parçada hata olursa tamamlanan parçalar yedekten kontrol edilmelidir\./);
+  assert.match(html, /İşlem \$\{sayiBicimle\(rapor\.parcaSayisi\)\} güvenli parça halinde tamamlandı\./);
 });
 
 test("Veri sağlığı kontrolü sadece okuma yapan bağlantı raporu üretir", () => {

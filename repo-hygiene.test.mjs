@@ -23,3 +23,13 @@ test("Yerel başlatma dosyası Firebase yetkili localhost adresini açar", () =>
   assert.match(cmd, /http:\/\/localhost:8091\/dashboard\.html/);
   assert.doesNotMatch(cmd, /start "" "http:\/\/127\.0\.0\.1:8091\/dashboard\.html/);
 });
+
+test("Dosyaya çift tıklama yönlendirmesi localhost adresini önce dener", () => {
+  const js = readFileSync("file-redirect.js", "utf8");
+  const localhostIndex = js.indexOf("urls.push(`http://localhost:${port}/${path}`)");
+  const loopbackIndex = js.indexOf("urls.push(`http://127.0.0.1:${port}/${path}`)");
+
+  assert.ok(localhostIndex > -1, "localhost adayi bulunmali");
+  assert.ok(loopbackIndex > localhostIndex, "127.0.0.1 localhost sonrasinda denenmeli");
+  assert.match(js, /showServerWarning\(baseUrls\[0\] \|\| `http:\/\/localhost:\$\{DEFAULT_PORTS\[0\]\}\/`\)/);
+});

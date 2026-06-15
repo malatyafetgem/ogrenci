@@ -385,6 +385,19 @@ test("Öğrenci detayında ekleme kısayolları giriş yapmış kullanıcıya a�
   assert.match(html, /data-detay-islem="gorusme-sil"[\s\S]{0,120}data-kayit-id/);
 });
 
+test("Öğrenci listesi devamsızlık ve davranış kısayolları giriş yapmış kullanıcıya açıktır", () => {
+  const html = readFileSync("students-list.html", "utf8");
+  const devamsizlikLink = html.match(/<a\b[^>]*href="attendance-entry\.html\?id=\$\{escapeAttr\(o\.id\)\}"[^>]*>/)?.[0] || "";
+  const davranisLink = html.match(/<a\b[^>]*href="behavior-entry\.html\?id=\$\{escapeAttr\(o\.id\)\}"[^>]*>/)?.[0] || "";
+  const duzenleLink = html.match(/<a\b[^>]*href="students-add-edit\.html\?id=\$\{escapeAttr\(o\.id\)\}"[^>]*>/)?.[0] || "";
+
+  assert.match(devamsizlikLink, /Devamsızlık Gir/);
+  assert.doesNotMatch(devamsizlikLink, /data-admin-only/);
+  assert.match(davranisLink, /Davranış Gir/);
+  assert.doesNotMatch(davranisLink, /data-admin-only/);
+  assert.match(duzenleLink, /data-admin-only/);
+});
+
 test("Öğrenci listesinde Adı Soyadı tek linkli kolondur", () => {
   const html = readFileSync("students-list.html", "utf8");
   const tablo = html.match(/<table id="ogrenci-tablo"[\s\S]*?<\/table>/)?.[0] || "";
