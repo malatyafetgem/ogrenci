@@ -499,8 +499,9 @@ test("PWA güncelleme bildirimi masaüstünde form eylemlerini örtmez", () => {
   const css = readFileSync("app.css", "utf8");
   const js = readFileSync("pwa.js", "utf8");
   assert.match(js, /classList\.add\("pwa-guncelle-var"\)/);
-  assert.match(css, /#pwa-guncelle-bildirimi\s*\{[\s\S]*right:\s*1rem/);
-  assert.match(css, /#pwa-guncelle-bildirimi\s*\{[\s\S]*width:\s*min\(360px,\s*calc\(100vw - 2rem\)\)/);
+  assert.match(css, /#pwa-guncelle-bildirimi\s*\{[\s\S]*left:\s*max\(1rem,\s*calc\(\(100vw - 1180px\) \/ 2\)\)/);
+  assert.match(css, /#pwa-guncelle-bildirimi\s*\{[\s\S]*right:\s*max\(1rem,\s*calc\(\(100vw - 1180px\) \/ 2\)\)/);
+  assert.match(css, /#pwa-guncelle-bildirimi\s*\{[\s\S]*width:\s*auto/);
   assert.match(css, /body\.pwa-guncelle-var \.app-wrapper/);
   assert.match(css, /@media \(max-width:\s*767\.98px\)[\s\S]*#pwa-guncelle-bildirimi[\s\S]*bottom:\s*calc\(var\(--obs-bottom-nav-height\)/);
 });
@@ -636,6 +637,22 @@ test("Davranış girişinde boş kategori listesi kullanıcıya bildirilir", () 
   assert.match(html, /const\s+kategoriler\s*=\s*KATEGORILER\[tur\]\s*\|\|\s*\[\]/);
   assert.match(html, /katSel\.disabled\s*=\s*!kategoriler\.length/);
   assert.match(html, /Bu davranış türü için kategori tanımlı değil/);
+});
+
+test("Davranış ikonları ve rapor grafiği anlamlı görsel ayrım kullanır", () => {
+  const giris = readFileSync("behavior-entry.html", "utf8");
+  const rapor = readFileSync("behavior-report.html", "utf8");
+  const dashboard = readFileSync("dashboard.html", "utf8");
+  const davranisDosyalari = `${giris}\n${rapor}\n${dashboard}`;
+
+  assert.doesNotMatch(davranisDosyalari, /bi-hand-thumbs-(up|down)(-fill)?/);
+  assert.match(giris, /bi-stars[\s\S]*Olumlu/);
+  assert.match(giris, /bi-exclamation-octagon[\s\S]*Olumsuz/);
+  assert.match(dashboard, /d\.tur === "Olumlu" \? "bi-stars" : "bi-exclamation-octagon"/);
+  assert.match(rapor, /function\s+davranisKategoriRengi/);
+  assert.match(rapor, /"Telefon Kullanımı":\s*"#7C3AED"/);
+  assert.match(rapor, /const\s+anahtar\s*=\s*aktifGrafikMod === "tum" \? `\$\{d\.tur\} · \$\{kategori\}` : kategori/);
+  assert.doesNotMatch(rapor, /const\s+renkler\s*=\s*\["#0d6efd","#198754"/);
 });
 
 test("Davranış raporu baskıda canvas grafiğini gizler ve tabloyu tam genişlik yapar", () => {

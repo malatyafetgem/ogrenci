@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-116">
+  <link rel="manifest" href="manifest.webmanifest?v=20260615-119">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-116">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-116">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-116">
-  <link rel="shortcut icon" href="favicon.ico?v=20260615-116">
-  <script src="file-redirect.js?v=20260615-116"></script>
-  <script src="pwa.js?v=20260615-116"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-119">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-119">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-119">
+  <link rel="shortcut icon" href="favicon.ico?v=20260615-119">
+  <script src="file-redirect.js?v=20260615-119"></script>
+  <script src="pwa.js?v=20260615-119"></script>
   <title>Davranış Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -28,7 +28,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260615-116">
+  <link rel="stylesheet" href="app.css?v=20260615-119">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -115,7 +115,7 @@
           <div class="col-6 col-md-3">
             <div class="card text-center border-0 shadow-sm">
               <div class="card-body py-2">
-                <div class="text-success small"><i class="bi bi-hand-thumbs-up-fill me-1"></i>Olumlu</div>
+                <div class="text-success small"><i class="bi bi-stars me-1"></i>Olumlu</div>
                 <div class="fw-bold fs-4 text-success" id="ozet-olumlu">0</div>
               </div>
             </div>
@@ -123,7 +123,7 @@
           <div class="col-6 col-md-3">
             <div class="card text-center border-0 shadow-sm">
               <div class="card-body py-2">
-                <div class="text-danger small"><i class="bi bi-hand-thumbs-down-fill me-1"></i>Olumsuz</div>
+                <div class="text-danger small"><i class="bi bi-exclamation-octagon me-1"></i>Olumsuz</div>
                 <div class="fw-bold fs-4 text-danger" id="ozet-olumsuz">0</div>
               </div>
             </div>
@@ -155,9 +155,9 @@
                 <!-- Olumlu/Olumsuz karşılaştırma çubuğu -->
                 <div id="tur-karsilastirma" class="w-100 d-none">
                   <div class="d-flex justify-content-between small text-muted mb-1">
-                    <span><i class="bi bi-hand-thumbs-up-fill text-success me-1"></i>Olumlu</span>
+                    <span><i class="bi bi-stars text-success me-1"></i>Olumlu</span>
                     <span id="tur-karsilastirma-yuzdeler"></span>
-                    <span><i class="bi bi-hand-thumbs-down-fill text-danger me-1"></i>Olumsuz</span>
+                    <span><i class="bi bi-exclamation-octagon text-danger me-1"></i>Olumsuz</span>
                   </div>
                   <div class="progress tur-karsilastirma-progress">
                     <div class="progress-bar bg-success tur-bar-baslangic" id="tur-bar-olumlu"></div>
@@ -223,7 +223,7 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260615-116"></script>
+<script src="datatable-fallback.js?v=20260615-119"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"
         integrity="sha384-5JqMv4L/Xa0hfvtF06qboNdhvuYXUku9ZrhZh3bSk8VXF0A/RuSLHpLsSV9Zqhl6"
         crossorigin="anonymous"></script>
@@ -238,10 +238,10 @@
         crossorigin="anonymous"></script>
 
 <script type="module">
-  import { requireAuth } from "./auth.js?v=20260615-116";
-  import { layoutYukle } from "./layout.js?v=20260615-116";
-  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir } from "./students.js?v=20260615-116";
-  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast } from "./utils.js?v=20260615-116";
+  import { requireAuth } from "./auth.js?v=20260615-119";
+  import { layoutYukle } from "./layout.js?v=20260615-119";
+  import { tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir } from "./students.js?v=20260615-119";
+  import { tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast } from "./utils.js?v=20260615-119";
 
   let raporVerisi = [];
   let dt = null;
@@ -419,8 +419,6 @@
   }
 
   function grafikGuncelle() {
-    const renkler = ["#0d6efd","#198754","#dc3545","#ffc107","#6f42c1","#0dcaf0","#fd7e14","#6c757d","#d63384","#20c997"];
-
     // Filtrelenmiş veri
     const filtreliVeri = aktifGrafikMod === "olumlu"
       ? raporVerisi.filter(d => d.tur === "Olumlu")
@@ -429,15 +427,22 @@
         : raporVerisi;
 
     const kategoriSayac = {};
-    filtreliVeri.forEach(d => { kategoriSayac[d.kategori] = (kategoriSayac[d.kategori] || 0) + 1; });
+    const kategoriTurleri = {};
+    filtreliVeri.forEach(d => {
+      const kategori = d.kategori || "—";
+      const anahtar = aktifGrafikMod === "tum" ? `${d.tur} · ${kategori}` : kategori;
+      kategoriSayac[anahtar] = (kategoriSayac[anahtar] || 0) + 1;
+      kategoriTurleri[anahtar] = d.tur;
+    });
     const etiketler = Object.keys(kategoriSayac);
     const veriler = etiketler.map(k => kategoriSayac[k]);
+    const renkler = etiketler.map((etiket, index) => davranisKategoriRengi(etiket, kategoriTurleri[etiket], index));
 
     if (grafik) grafik.destroy();
     if (etiketler.length > 0) {
       grafik = new Chart(document.getElementById("kategori-grafik"), {
         type: "doughnut",
-        data: { labels: etiketler, datasets: [{ data: veriler, backgroundColor: renkler.slice(0, etiketler.length) }] },
+        data: { labels: etiketler, datasets: [{ data: veriler, backgroundColor: renkler }] },
         options: {
           plugins: {
             legend: { position: "bottom", labels: { font: { size: 11 }, boxWidth: 14 } },
@@ -471,6 +476,29 @@
     } else {
       karsilastirmaEl.classList.add("d-none");
     }
+  }
+
+  function davranisKategoriRengi(etiket, tur, index = 0) {
+    const kategori = String(etiket || "").replace(/^(Olumlu|Olumsuz)\s+·\s+/, "");
+    const olumluRenkler = {
+      "Yardımseverlik": "#2E9E64",
+      "Sosyal Katkı": "#2C82C9",
+      "Başarılı Davranış": "#7C3AED",
+      "Diğer": "#64748B"
+    };
+    const olumsuzRenkler = {
+      "Disiplin": "#D64545",
+      "Kıyafet": "#F0A92B",
+      "Telefon Kullanımı": "#7C3AED",
+      "Derse Geç Kalma": "#D97706",
+      "Kavga": "#B91C1C",
+      "Kopya": "#C2410C",
+      "Diğer": "#6D6258"
+    };
+    const yedekRenkler = ["#2C82C9", "#D64545", "#F0A92B", "#7C3AED", "#64748B", "#D97706"];
+    if (tur === "Olumlu" && olumluRenkler[kategori]) return olumluRenkler[kategori];
+    if (tur === "Olumsuz" && olumsuzRenkler[kategori]) return olumsuzRenkler[kategori];
+    return yedekRenkler[index % yedekRenkler.length];
   }
 
   function filtreleriTemizle() {
