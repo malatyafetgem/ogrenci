@@ -1,13 +1,14 @@
-import { db } from "./firebase-config.js?v=20260615-119";
-import { doc, getDoc, setDoc } from "./firebase-imports.js?v=20260615-119";
-import { bugun } from "./utils.js?v=20260615-119";
+(function () {
+"use strict";
+const OBS = window.OBS = window.OBS || {};
+const { db, doc, getDoc, setDoc, bugun } = OBS;
 
 const SETTINGS_COLLECTION = "_settings";
 const SCHOOL_DOC_ID = "school";
 const AYARLAR_KANAL_ADI = "obs-school-settings";
 const AYARLAR_STORAGE_KEY = "obs-school-settings-updated";
 
-export const DEFAULT_SCHOOL_SETTINGS = {
+const DEFAULT_SCHOOL_SETTINGS = {
   egitim_ogretim_yili: "2025-2026",
   donem: "2. Dönem"
 };
@@ -25,10 +26,15 @@ function ayarDinlemeyiBaslat() {
   ayarDinlemeHazir = true;
 
   if ("BroadcastChannel" in window) {
-    ayarKanali = new BroadcastChannel(AYARLAR_KANAL_ADI);
-    ayarKanali.addEventListener("message", event => {
-      if (event.data?.type === "school-settings-updated") okulAyarlariCacheTemizle();
-    });
+    try {
+      ayarKanali = new BroadcastChannel(AYARLAR_KANAL_ADI);
+      ayarKanali.addEventListener("message", event => {
+        if (event.data?.type === "school-settings-updated") okulAyarlariCacheTemizle();
+      });
+    } catch {
+      // file:// altında BroadcastChannel kullanılamazsa storage olayı yeterlidir.
+      ayarKanali = null;
+    }
   }
 
   window.addEventListener("storage", event => {
@@ -49,7 +55,7 @@ function ayarDegisikliginiYayinla() {
 
 ayarDinlemeyiBaslat();
 
-export async function okulAyarlariGetir(force = false) {
+async function okulAyarlariGetir(force = false) {
   if (okulAyarlariCache && !force) return okulAyarlariCache;
   const ref = doc(db, SETTINGS_COLLECTION, SCHOOL_DOC_ID);
   const snap = await getDoc(ref);
@@ -60,7 +66,7 @@ export async function okulAyarlariGetir(force = false) {
   return okulAyarlariCache;
 }
 
-export async function okulAyarlariKaydet(veri) {
+async function okulAyarlariKaydet(veri) {
   const kayit = {
     egitim_ogretim_yili: String(veri.egitim_ogretim_yili || DEFAULT_SCHOOL_SETTINGS.egitim_ogretim_yili).trim(),
     donem: String(veri.donem || DEFAULT_SCHOOL_SETTINGS.donem).trim(),
@@ -72,6 +78,9 @@ export async function okulAyarlariKaydet(veri) {
   return okulAyarlariCache;
 }
 
-export function okulDonemiEtiketi(ayarlar = DEFAULT_SCHOOL_SETTINGS) {
+function okulDonemiEtiketi(ayarlar = DEFAULT_SCHOOL_SETTINGS) {
   return [ayarlar.egitim_ogretim_yili, ayarlar.donem].filter(Boolean).join(" · ");
 }
+
+Object.assign(OBS, { okulAyarlariGetir, okulAyarlariKaydet, okulDonemiEtiketi, DEFAULT_SCHOOL_SETTINGS });
+})();

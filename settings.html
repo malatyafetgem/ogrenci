@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-119">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-119">
-  <link rel="shortcut icon" href="favicon.ico?v=20260615-119">
-  <script src="file-redirect.js?v=20260615-119"></script>
-  <script src="pwa.js?v=20260615-119"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
+  <script src="pwa.js?v=20261008-124"></script>
   <title>Ayarlar ve Yönetim</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +21,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260615-119">
+  <link rel="stylesheet" href="app.css?v=20261008-124">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -58,7 +57,7 @@
 
         <!-- Veri Özeti Kartları -->
         <div class="row g-3 mb-3" id="veri-ozet-kartlar">
-          <div class="col-6 col-md-3">
+          <div class="col-4">
             <div class="card text-center border-0 shadow-sm h-100">
               <div class="card-body py-3">
                 <div class="skeleton skeleton-satir ayar-ozet-skeleton mb-2" id="ozet-ogrenci-skel"></div>
@@ -67,16 +66,7 @@
               </div>
             </div>
           </div>
-          <div class="col-6 col-md-3">
-            <div class="card text-center border-0 shadow-sm h-100">
-              <div class="card-body py-3">
-                <div class="skeleton skeleton-satir ayar-ozet-skeleton mb-2" id="ozet-veli-skel"></div>
-                <div class="fw-bold fs-3 text-success d-none" id="ozet-veli-sayi">—</div>
-                <div class="text-muted small mt-1"><i class="bi bi-person-heart me-1"></i>Veli</div>
-              </div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
+          <div class="col-4">
             <div class="card text-center border-0 shadow-sm h-100">
               <div class="card-body py-3">
                 <div class="skeleton skeleton-satir ayar-ozet-skeleton mb-2" id="ozet-davranis-skel"></div>
@@ -85,7 +75,7 @@
               </div>
             </div>
           </div>
-          <div class="col-6 col-md-3">
+          <div class="col-4">
             <div class="card text-center border-0 shadow-sm h-100">
               <div class="card-body py-3">
                 <div class="skeleton skeleton-satir ayar-ozet-skeleton mb-2" id="ozet-gorusme-skel"></div>
@@ -140,6 +130,21 @@
                 </button>
               </div>
               <div class="card-body border-top d-none" id="veri-sagligi-sonuc"></div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="card border-warning settings-action-card">
+              <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
+                <div>
+                  <i class="bi bi-eraser text-warning fs-5 me-2"></i>
+                  <strong>Eski Verileri Temizle</strong>
+                  <span class="text-muted small ms-2">Kaldırılan alanları (telefon, TC, sağlık vb.) öğrenci kayıtlarından siler; veli ve devamsızlık kayıtlarını tamamen kaldırır. Yeni Firestore kuralları yayınlanmadan önce bir kez çalıştırın.</span>
+                </div>
+                <button type="button" class="btn btn-outline-warning btn-sm toplu-sil-btn" data-sil-tur="eski-veri-temizle">
+                  <i class="bi bi-eraser me-1"></i>Temizle
+                </button>
+              </div>
             </div>
           </div>
 
@@ -210,16 +215,6 @@
                     </button>
                   </div>
                   <div class="col-md-6">
-                    <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="veliler">
-                      <i class="bi bi-person-lines-fill me-2"></i>Veli Toplu Sil
-                    </button>
-                  </div>
-                  <div class="col-md-6">
-                    <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="devamsizliklar">
-                      <i class="bi bi-calendar-x me-2"></i>Devamsızlık Toplu Sil
-                    </button>
-                  </div>
-                  <div class="col-md-6">
                     <button type="button" class="btn btn-outline-danger w-100 text-start toplu-sil-btn" data-sil-tur="davranislar">
                       <i class="bi bi-star-half me-2"></i>Davranış Toplu Sil
                     </button>
@@ -236,7 +231,7 @@
                   </div>
                 </div>
                 <p class="text-muted small mt-3 mb-0">
-                  Öğrenci toplu silme, merkezi veli kayıtlarını ve öğrencilere bağlı devamsızlık, davranış, görüşme kayıtlarını da siler.
+                  Öğrenci toplu silme, öğrencilere bağlı davranış ve görüşme kayıtlarını da siler.
                 </p>
               </div>
             </div>
@@ -316,34 +311,45 @@
         integrity="sha384-+4p7LDsv7qv4DpdBj3wITizBeFFK5pEwCMHKkmWRepY1L4SzbJD1DKvVWOlFvqMQ"
         crossorigin="anonymous"></script>
 
-<script type="module">
-  import { requireAdmin, getCurrentUser } from "./auth.js?v=20260615-119";
-  import { layoutYukle } from "./layout.js?v=20260615-119";
-  import { db } from "./firebase-config.js?v=20260615-119";
-  import {
-    EmailAuthProvider, reauthenticateWithCredential,
-    collection, doc, getDocs, writeBatch
-  } from "./firebase-imports.js?v=20260615-119";
-  import { toast, bugun, escapeHtml } from "./utils.js?v=20260615-119";
-  import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260615-119";
-  import {
-    okulAyarlariGetir,
-    okulAyarlariKaydet as okulAyarlariKaydetDb,
-    okulDonemiEtiketi
-  } from "./school-settings.js?v=20260615-119";
-  import { tumOgrencileriDurumlariylaGetir, tumVelileriGetir, tumDavranislariGetir, tumGorusmeleriGetir } from "./students.js?v=20260615-119";
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
+window.__yuklenemeyenler = [];
+window.OBSHazir = (function () {
+  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "school-settings.js?v=20261008-124", "students.js?v=20261008-124", "auth.js?v=20261008-124", "layout.js?v=20261008-124", "class-promotion.js?v=20261008-124"];
+  var bekleyen = [], bitti = false;
+  function yukle(i, deneme) {
+    if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
+    var s = document.createElement("script");
+    s.src = liste[i] + (deneme ? "&r=" + deneme : "");
+    s.onload = function () { yukle(i + 1, 0); };
+    s.onerror = function () {
+      if (s.parentNode) s.parentNode.removeChild(s);
+      if (deneme < 4) { setTimeout(function () { yukle(i, deneme + 1); }, 250 * (deneme + 1)); }
+      else { window.__yuklenemeyenler.push(liste[i]); yukle(i + 1, 0); }
+    };
+    document.head.appendChild(s);
+  }
+  yukle(0, 0);
+  return function (fn) { if (bitti) { fn(); } else { bekleyen.push(fn); } };
+})();
+</script>
+<script>
+OBSHazir(async () => {
+"use strict";
+const { requireAdmin, getCurrentUser, layoutYukle, db, EmailAuthProvider, reauthenticateWithCredential, collection, doc, getDocs, writeBatch, deleteField, toast, bugun, escapeHtml, APP_VERSION, APP_UPDATED_AT, okulAyarlariGetir, okulDonemiEtiketi, tumOgrencileriDurumlariylaGetir, tumDavranislariGetir, tumGorusmeleriGetir, IZINLI_OGRENCI_ALANLARI } = window.OBS;
+  const okulAyarlariKaydetDb = window.OBS.okulAyarlariKaydet;
 
-  const KAYIT_KOLEKSIYONLARI = ["devamsizliklar", "davranislar", "veligorusmeleri"];
+  const KAYIT_KOLEKSIYONLARI = ["davranislar", "veligorusmeleri"];
   const KAYIT_ETIKETLER = {
-    devamsizliklar: "Devamsızlık",
     davranislar: "Davranış",
     veligorusmeleri: "Görüşme"
   };
-  const YEDEK_SEMA_SURUMU = 2;
+  const YEDEK_SEMA_SURUMU = 3;
   const YEDEK_KOLEKSIYONLARI = [
     { key: "students", koleksiyon: "students", etiket: "Öğrenci" },
-    { key: "veliler", koleksiyon: "veliler", etiket: "Veli" },
-    { key: "devamsizliklar", koleksiyon: "devamsizliklar", etiket: "Devamsızlık" },
     { key: "davranislar", koleksiyon: "davranislar", etiket: "Davranış" },
     { key: "veligorusmeleri", koleksiyon: "veligorusmeleri", etiket: "Görüşme" },
     { key: "autocomplete", koleksiyon: "_autocomplete", etiket: "Otomatik tamamlama" },
@@ -355,32 +361,8 @@
   ];
   const YEDEK_KOLEKSIYON_ALANLARI = {
     students: {
-      izinli: [
-        "numara", "ad", "soyad", "telefon", "sinif", "cinsiyet",
-        "yatililik", "maddi_durum", "geldigi_okul", "fotograf_url",
-        "tc_kimlik", "dogum_tarihi", "dogum_yeri", "hastalik",
-        "engel", "ilac", "yetenekler", "aile_durumu", "durum",
-        "olusturma_tarihi", "guncelleme_tarihi"
-      ],
+      izinli: IZINLI_OGRENCI_ALANLARI,
       zorunlu: ["numara", "ad", "soyad", "sinif"]
-    },
-    veliler: {
-      izinli: [
-        "ogrenciId", "yakinlik", "ad", "soyad", "durum", "birincil",
-        "acil_kisi", "iletisim_sirasi", "telefon", "e_posta", "il",
-        "ilce", "adres", "calisma_durumu", "meslek_grubu", "meslek",
-        "gorev_unvan", "kurum", "notlar", "olusturma_tarihi",
-        "guncelleme_tarihi"
-      ],
-      zorunlu: ["ogrenciId"]
-    },
-    devamsizliklar: {
-      izinli: [
-        "ogrenciId", "tarih", "tarih_sira", "tarih_bitis", "tur",
-        "miktar", "gun_degeri", "kapsanan_tarihler", "aciklama",
-        "olusturma_tarihi", "guncelleme_tarihi"
-      ],
-      zorunlu: ["ogrenciId", "tarih", "tur", "gun_degeri"]
     },
     davranislar: {
       izinli: [
@@ -392,7 +374,7 @@
     },
     veligorusmeleri: {
       izinli: [
-        "ogrenciId", "tarih", "tarih_sira", "veli_id", "veli_yakinlik",
+        "ogrenciId", "tarih", "tarih_sira", "veli_yakinlik",
         "veli_adi", "konu", "aciklama", "olusturma_tarihi",
         "guncelleme_tarihi"
       ],
@@ -412,26 +394,14 @@
   const MAX_ATOMIK_YAZMA = 450;
   const VERI_SAGLIGI_ORNEK_LIMIT = 5;
   const VERI_SAGLIGI_BAGLANTILI_KOLEKSIYONLAR = [
-    { koleksiyon: "veliler", etiket: "Veli" },
-    { koleksiyon: "devamsizliklar", etiket: "Devamsızlık" },
     { koleksiyon: "davranislar", etiket: "Davranış" },
     { koleksiyon: "veligorusmeleri", etiket: "Görüşme" }
   ];
   const SILME_ISLEMLERI = {
     students: {
       baslik: "Öğrenci Toplu Sil",
-      aciklama: "Tüm öğrenciler, merkezi veli kayıtları ve öğrencilere bağlı devamsızlık, davranış, görüşme kayıtları silinecek.",
+      aciklama: "Tüm öğrenciler ve öğrencilere bağlı davranış, görüşme kayıtları silinecek.",
       calistir: silTumOgrenciler
-    },
-    veliler: {
-      baslik: "Veli Toplu Sil",
-      aciklama: "Merkezi veli kayıtlarının tamamı silinecek. Öğrenci kayıtları etkilenmez.",
-      calistir: () => silTumAnaKoleksiyon("veliler", "Veli")
-    },
-    devamsizliklar: {
-      baslik: "Devamsızlık Toplu Sil",
-      aciklama: "Tüm öğrencilerin devamsızlık kayıtları silinecek.",
-      calistir: () => silTumKayitKoleksiyon("devamsizliklar")
     },
     davranislar: {
       baslik: "Davranış Toplu Sil",
@@ -445,8 +415,14 @@
     },
     "tum-sistem": {
       baslik: "Tüm Sistemi Sil",
-      aciklama: "Öğrenciler, merkezi veliler, bağlı kayıtlar ve otomatik tamamlama listeleri silinecek.",
+      aciklama: "Öğrenciler, bağlı kayıtlar ve otomatik tamamlama listeleri silinecek.",
       calistir: silTumSistem
+    },
+    "eski-veri-temizle": {
+      baslik: "Eski Verileri Temizle",
+      aciklama: "Öğrenci kayıtlarındaki kaldırılmış alanlar silinecek; veli ve devamsızlık kayıtları (veliler, devamsizliklar koleksiyonları) tamamen silinecek; görüşmelerdeki eski veli_id alanı temizlenecek. Bu işlem geri alınamaz, önce yedek almanız önerilir.",
+      aciklamaTip: "warning",
+      calistir: eskiVerileriTemizle
     }
   };
 
@@ -510,8 +486,7 @@
       if (yukleniyor) return;
       yukleniyor = true;
       try {
-        const mod = await import("./class-promotion.js?v=20260615-119");
-        await mod.classPromotionAc(root);
+        await window.OBS.classPromotionAc(root);
       } catch (err) {
         root.innerHTML =
           `<div class="alert alert-danger">
@@ -535,11 +510,10 @@
 
   async function yukleVeriOzetleri() {
     try {
-      const [ogrenciler, veliler, davranislar, gorusmeler] = await Promise.all([
+      const [ogrenciler, davranislar, gorusmeler] = await Promise.all([
         tumOgrencileriDurumlariylaGetir(),
-        tumVelileriGetir(),
         tumDavranislariGetir(),
-        tumGorusmeleriGetir ? tumGorusmeleriGetir() : Promise.resolve([])
+        tumGorusmeleriGetir()
       ]);
       const goster = (skelId, sayiId, deger) => {
         document.getElementById(skelId).classList.add("d-none");
@@ -548,14 +522,13 @@
         el.classList.remove("d-none");
       };
       goster("ozet-ogrenci-skel", "ozet-ogrenci-sayi", ogrenciler.length);
-      goster("ozet-veli-skel", "ozet-veli-sayi", veliler.length);
       goster("ozet-davranis-skel", "ozet-davranis-sayi", davranislar.length);
       goster("ozet-gorusme-skel", "ozet-gorusme-sayi", gorusmeler.length);
     } catch (err) {
-      ["ozet-ogrenci-skel","ozet-veli-skel","ozet-davranis-skel","ozet-gorusme-skel"].forEach(id => {
+      ["ozet-ogrenci-skel","ozet-davranis-skel","ozet-gorusme-skel"].forEach(id => {
         document.getElementById(id).classList.add("d-none");
       });
-      ["ozet-ogrenci-sayi","ozet-veli-sayi","ozet-davranis-sayi","ozet-gorusme-sayi"].forEach(id => {
+      ["ozet-ogrenci-sayi","ozet-davranis-sayi","ozet-gorusme-sayi"].forEach(id => {
         const el = document.getElementById(id);
         el.textContent = "—";
         el.classList.remove("d-none");
@@ -837,7 +810,7 @@
     if (!islem) return;
     guvenlikIste({
       ...islem,
-      onayMetni: tur === "tum-sistem" ? "TÜMÜNÜ SİL" : "SİL"
+      onayMetni: tur === "tum-sistem" ? "TÜMÜNÜ SİL" : (tur === "eski-veri-temizle" ? "TEMİZLE" : "SİL")
     });
   }
 
@@ -953,7 +926,6 @@
   async function silTumOgrenciler() {
     durumYaz("Öğrenciler ve bağlı kayıtlar siliniyor...");
     const rapor = await silKoleksiyonlariTekBatch([
-      { koleksiyon: "veliler", etiket: "Merkezi veli" },
       ...KAYIT_KOLEKSIYONLARI.map(koleksiyon => ({ koleksiyon, etiket: KAYIT_ETIKETLER[koleksiyon] })),
       { koleksiyon: "students", etiket: "Öğrenci" }
     ]);
@@ -1013,17 +985,9 @@
     }
   }
 
-  async function silTumAnaKoleksiyon(koleksiyon, etiket) {
-    durumYaz(`${etiket} kayıtları siliniyor...`);
-    const rapor = await silKoleksiyon(koleksiyon);
-    istemciCacheTemizle();
-    silmeRaporuYaz(`${etiket} toplu silme tamamlandı.`, rapor);
-  }
-
   async function silTumSistem() {
     durumYaz("Tüm sistem siliniyor...");
     const rapor = await silKoleksiyonlariTekBatch([
-      { koleksiyon: "veliler", etiket: "Merkezi veli" },
       ...KAYIT_KOLEKSIYONLARI.map(koleksiyon => ({ koleksiyon, etiket: KAYIT_ETIKETLER[koleksiyon] })),
       { koleksiyon: "students", etiket: "Öğrenci" },
       { koleksiyon: "_autocomplete", etiket: "Otomatik tamamlama" },
@@ -1031,6 +995,72 @@
     ]);
     istemciCacheTemizle();
     silmeRaporuYaz("Tüm sistem toplu silme tamamlandı.", rapor);
+  }
+
+  async function eskiVerileriTemizle() {
+    durumYaz("Eski veriler taranıyor...");
+    const manager = batchYonetici({ otomatikBol: true });
+    let temizlenenOgrenci = 0;
+    let temizlenenGorusme = 0;
+
+    const ogrenciSnap = await getDocs(collection(db, "students"));
+    for (const belge of ogrenciSnap.docs) {
+      const fazlalar = Object.keys(belge.data() || {}).filter(alan => !IZINLI_OGRENCI_ALANLARI.includes(alan));
+      if (!fazlalar.length) continue;
+      const guncelleme = {};
+      fazlalar.forEach(alan => { guncelleme[alan] = deleteField(); });
+      await manager.ekle(batch => batch.update(belge.ref, guncelleme));
+      temizlenenOgrenci++;
+    }
+
+    const gorusmeSnap = await getDocs(collection(db, "veligorusmeleri"));
+    for (const belge of gorusmeSnap.docs) {
+      if (!("veli_id" in (belge.data() || {}))) continue;
+      await manager.ekle(batch => batch.update(belge.ref, { veli_id: deleteField() }));
+      temizlenenGorusme++;
+    }
+    await manager.bitir();
+
+    durumYaz("Veli ve devamsızlık kayıtları siliniyor...");
+    const rapor = await silKoleksiyonlariTekBatch([
+      { koleksiyon: "veliler", etiket: "Veli" },
+      { koleksiyon: "devamsizliklar", etiket: "Devamsızlık" }
+    ]);
+    istemciCacheTemizle();
+    silmeRaporuYaz(
+      `Eski veri temizliği tamamlandı. Alanları temizlenen öğrenci: ${sayiBicimle(temizlenenOgrenci)}, görüşme: ${sayiBicimle(temizlenenGorusme)}.`,
+      rapor
+    );
+  }
+
+  let yedekUyarlamaNotlari = [];
+
+  // Eski sürüm yedeklerindeki veli/devamsızlık bölümlerini ve kaldırılmış alanları yok sayar.
+  function yedekEskiVeriyiUyarla(veri) {
+    yedekUyarlamaNotlari = [];
+    if (!veri || typeof veri !== "object" || Array.isArray(veri)) return;
+    [["veliler", "Veli"], ["devamsizliklar", "Devamsızlık"]].forEach(([anahtar, etiket]) => {
+      if (veri[anahtar] === undefined) return;
+      const adet = Array.isArray(veri[anahtar]) ? veri[anahtar].length : 0;
+      delete veri[anahtar];
+      yedekUyarlamaNotlari.push(`Yedekteki ${etiket} bölümü (${sayiBicimle(adet)} kayıt) artık kullanılmadığı için yok sayıldı.`);
+    });
+    [["students", "Öğrenci"], ["veligorusmeleri", "Görüşme"]].forEach(([anahtar, etiket]) => {
+      if (!Array.isArray(veri[anahtar])) return;
+      const izinli = YEDEK_KOLEKSIYON_ALANLARI[anahtar].izinli;
+      let temizlenen = 0;
+      veri[anahtar].forEach(kayit => {
+        if (!kayit || typeof kayit !== "object" || Array.isArray(kayit)) return;
+        const hedef = (kayit.data && typeof kayit.data === "object" && !Array.isArray(kayit.data)) ? kayit.data : kayit;
+        let degisti = false;
+        Object.keys(hedef).forEach(alan => {
+          if (hedef === kayit && alan === "id") return;
+          if (!izinli.includes(alan)) { delete hedef[alan]; degisti = true; }
+        });
+        if (degisti) temizlenen++;
+      });
+      if (temizlenen) yedekUyarlamaNotlari.push(`${etiket}: ${sayiBicimle(temizlenen)} kayıttaki kaldırılmış alanlar yok sayıldı.`);
+    });
   }
 
   function silmeRaporuYaz(baslik, rapor) {
@@ -1090,7 +1120,7 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      durumYaz(`Yedek dosyası indirildi. Öğrenci: ${ozet.students || 0}, veli: ${ozet.veliler || 0}.`, "success");
+      durumYaz(`Yedek dosyası indirildi. Öğrenci: ${ozet.students || 0}, davranış: ${ozet.davranislar || 0}, görüşme: ${ozet.veligorusmeleri || 0}.`, "success");
     } catch (err) {
       durumYaz("Yedek alınamadı: " + err.message, "danger");
     } finally {
@@ -1150,6 +1180,7 @@
       try {
         yedekIceDurumYaz(`${dosya.name} okundu. JSON ve Firestore uyumluluğu kontrol ediliyor...`);
         const veri = JSON.parse(reader.result);
+        yedekEskiVeriyiUyarla(veri);
         const onizleme = await yedekOnizlemeHazirla(veri);
         const tip = onizleme.uyarilar.length ? "warning" : "info";
         const mesaj = `Yedek dosyası kontrol edildi. ${sayiBicimle(onizleme.toplamGecerli)} kayıt içe aktarılmaya hazır. Onay ekranını kontrol edin; son onayı vermeden işlem başlamaz.`;
@@ -1210,6 +1241,7 @@
     } else if (sema < YEDEK_SEMA_SURUMU) {
       uyarilar.push(`Yedek şema sürümü eski (${sema}); içe aktarım öncesi kayıt alanları ayrıca kontrol edildi.`);
     }
+    uyarilar.push(...yedekUyarlamaNotlari);
     const bilinmeyenUstAlanlar = Object.keys(veri).filter(key => !YEDEK_UST_ALANLARI.includes(key));
     if (bilinmeyenUstAlanlar.length) {
       uyarilar.push(`Yedek dosyasında tanınmayan üst alan var: ${bilinmeyenUstAlanlar.join(", ")}.`);
@@ -1437,6 +1469,7 @@
   function kayitVerisi(kayit) {
     return yedekKayitVerisi(kayit) || {};
   }
+});
 </script>
 </body>
 </html>

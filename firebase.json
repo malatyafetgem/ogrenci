@@ -8,12 +8,8 @@
       "firebase.json",
       ".firebaserc",
       "firestore.rules",
-      "package.json",
-      "*.test.mjs",
       "bump-version.mjs",
       "check-encoding.mjs",
-      "ogrenci-bilgileri-baslat.cmd",
-      "surumu-guncelle.cmd",
       "**/.*",
       "**/node_modules/**"
     ],

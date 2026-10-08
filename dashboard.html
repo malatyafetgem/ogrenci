@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-119">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-119">
-  <link rel="shortcut icon" href="favicon.ico?v=20260615-119">
-  <script src="file-redirect.js?v=20260615-119"></script>
-  <script src="pwa.js?v=20260615-119"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
+  <script src="pwa.js?v=20261008-124"></script>
   <title>Gösterge Paneli</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +21,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260615-119">
+  <link rel="stylesheet" href="app.css?v=20261008-124">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 
@@ -39,7 +38,7 @@
           <div class="card-header">
             <h6 class="mb-0"><i class="bi bi-pie-chart me-1"></i> Genel Dağılım</h6>
           </div>
-          <div class="card-body">
+          <div class="card-body" id="dagilim-govde">
             <div class="dashboard-distribution-grid">
               <div class="dashboard-distribution-panel dashboard-donut-panel">
                 <div class="small text-muted fw-bold text-uppercase dashboard-grafik-baslik">Cinsiyet</div>
@@ -105,37 +104,6 @@
           </div>
         </div>
 
-        <div class="row g-3 mb-4">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-clipboard2-pulse me-1"></i> Devamsızlık Durumu</h6>
-              </div>
-              <div class="card-body">
-                <div class="row g-2" id="devamsizlik-durum-ozet" aria-live="polite">
-                  <div class="col-12 text-muted small">Hazırlanıyor...</div>
-                </div>
-                <div class="table-responsive dashboard-attendance-responsive mt-3">
-                  <table class="table table-sm table-hover mb-0 dashboard-attendance-table">
-                    <thead class="table-light">
-                      <tr>
-                        <th>Öğrenci</th>
-                        <th>Sınıf</th>
-                        <th class="text-center">Özürsüz</th>
-                        <th class="text-center">Özürlü</th>
-                        <th class="text-center">Durum</th>
-                      </tr>
-                    </thead>
-                    <tbody id="devamsizlik-tablo" aria-live="polite">
-                      <tr><td colspan="5" class="text-center text-muted py-3">Veriler hazırlanıyor...</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
     </div>
   </main>
@@ -150,22 +118,37 @@
         integrity="sha384-+4p7LDsv7qv4DpdBj3wITizBeFFK5pEwCMHKkmWRepY1L4SzbJD1DKvVWOlFvqMQ"
         crossorigin="anonymous"></script>
 
-<script type="module">
-  import { requireAuth } from "./auth.js?v=20260615-119";
-  import { layoutYukle } from "./layout.js?v=20260615-119";
-  import {
-    tumOgrencileriGetir,
-    tumDevamsizliklariGetir, tumDavranislariGetir
-  } from "./students.js?v=20260615-119";
-  import {
-    devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikGunDegeri, devamsizlikRenk,
-    compareSinif, compareOgrenciNo, compareTarihDesc,
-    sayiEtiketiTR, toast, escapeHtml, escapeAttr
-  } from "./utils.js?v=20260615-119";
-  import { APP_VERSION } from "./version.js?v=20260615-119";
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
+window.__yuklenemeyenler = [];
+window.OBSHazir = (function () {
+  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "school-settings.js?v=20261008-124", "students.js?v=20261008-124", "auth.js?v=20261008-124", "layout.js?v=20261008-124"];
+  var bekleyen = [], bitti = false;
+  function yukle(i, deneme) {
+    if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
+    var s = document.createElement("script");
+    s.src = liste[i] + (deneme ? "&r=" + deneme : "");
+    s.onload = function () { yukle(i + 1, 0); };
+    s.onerror = function () {
+      if (s.parentNode) s.parentNode.removeChild(s);
+      if (deneme < 4) { setTimeout(function () { yukle(i, deneme + 1); }, 250 * (deneme + 1)); }
+      else { window.__yuklenemeyenler.push(liste[i]); yukle(i + 1, 0); }
+    };
+    document.head.appendChild(s);
+  }
+  yukle(0, 0);
+  return function (fn) { if (bitti) { fn(); } else { bekleyen.push(fn); } };
+})();
+</script>
+<script>
+OBSHazir(async () => {
+"use strict";
+const { requireAuth, layoutYukle, tumOgrencileriGetir, tumDavranislariGetir, compareSinif, compareOgrenciNo, compareTarihDesc, toast, escapeHtml, escapeAttr, APP_VERSION } = window.OBS;
 
-  let tumOgrenciler = [];
-  const DASHBOARD_CACHE_KEY = `obs-dashboard-cache-v4:${APP_VERSION}`;
+  const DASHBOARD_CACHE_KEY = `obs-dashboard-cache-v6:${APP_VERSION}`;
   const DASHBOARD_CACHE_TTL = 5 * 60 * 1000;
 
   requireAuth(async () => {
@@ -179,18 +162,12 @@
     try {
       const ogrenciler = await tumOgrencileriGetir();
       const ozet = ogrenciOzetHazirla(ogrenciler);
-      tumOgrencileriAyarla(ozet.ogrenciler);
       dagilimGoster(ozet, ozet.ogrenciler);
       dogumGunleriGoster(ozet.ogrenciler);
-      if (!cacheUygulandi) kayitPanelleriniHazirla();
 
-      const [devamsizliklar, davranislar] = await Promise.all([
-        tumDevamsizliklariGetir(),
-        tumDavranislariGetir()
-      ]);
-      yukleDevamsizlikUyarilari(ozet.ogrenciler, devamsizliklar);
+      const davranislar = await tumDavranislariGetir();
       yukleSonDavranislar(ozet.ogrenciler, davranislar);
-      dashboardCacheYaz(ozet);
+      dashboardCacheYaz();
     } catch (err) {
       if (!cacheUygulandi) dashboardBosDurum(err.message);
       else toast("Güncel veriler alınamadı, son kaydedilen görünüm gösteriliyor.", "warning");
@@ -213,10 +190,6 @@
     });
     ogrenciler.sort((a, b) => compareSinif(a.sinif, b.sinif) || compareOgrenciNo(a, b));
     return { toplam, kiz, erkek, gunduzlu, parali, parasiz, ogrenciler };
-  }
-
-  function tumOgrencileriAyarla(ogrenciler) {
-    tumOgrenciler = ogrenciler;
   }
 
   function setText(id, v) {
@@ -311,32 +284,6 @@
     return `conic-gradient(${parcalar.join(", ")})`;
   }
 
-  function devamsizlikDurumOzetiGoster(ogrenciler, toplamlar) {
-    const sayac = { normal: 0, uyari: 0, kritik: 0, kaldi: 0 };
-    ogrenciler.forEach(o => {
-      const t = toplamlar.get(o.id);
-      const durum = t ? devamsizlikDurum(t.ozurlu, t.ozursuz) : "normal";
-      sayac[durum] = (sayac[durum] || 0) + 1;
-    });
-    const kartlar = [
-      { key: "normal", ad: "Normal", sayi: sayac.normal, renk: "success", ikon: "bi-check-circle" },
-      { key: "uyari", ad: "Uyarı", sayi: sayac.uyari, renk: "warning", ikon: "bi-exclamation-circle" },
-      { key: "kritik", ad: "Kritik", sayi: sayac.kritik, renk: "danger", ikon: "bi-exclamation-triangle" },
-      { key: "kaldi", ad: "Kaldı", sayi: sayac.kaldi, renk: "dark", ikon: "bi-x-octagon" }
-    ];
-    const el = document.getElementById("devamsizlik-durum-ozet");
-    if (el) el.innerHTML = kartlar.map(k => `
-      <div class="col-6 col-xl-3">
-        <a class="devamsizlik-ozet-link border rounded-3 p-2 text-center h-100"
-           href="attendance-report.html?durum=${encodeURIComponent(k.key)}"
-           aria-label="${escapeAttr(k.ad)} devamsızlık raporunu aç">
-          <i class="bi ${k.ikon} text-${k.renk} fs-5"></i>
-          <div class="fs-4 fw-bold lh-1 mt-1">${k.sayi}</div>
-          <div class="small text-muted">${k.ad}</div>
-        </a>
-      </div>`).join("");
-  }
-
   function dogumGunleriGoster(ogrenciler) {
     const liste = document.getElementById("dogumgunu-liste");
     if (!liste) return;
@@ -373,13 +320,6 @@
       : `<li class="list-group-item text-muted text-center py-4"><i class="bi bi-cake2 d-block fs-3 mb-2 obs-icon-secondary"></i>Bugün doğum günü yok</li>`;
   }
 
-  function kayitPanelleriniHazirla() {
-    document.getElementById("devamsizlik-tablo").innerHTML =
-      `<tr><td colspan="5" class="text-center text-muted py-3">Veriler hazırlanıyor...</td></tr>`;
-    document.getElementById("davranis-liste").innerHTML =
-      `<li class="list-group-item text-muted text-center">Veriler hazırlanıyor...</li>`;
-  }
-
   function dashboardCacheOku() {
     try {
       const raw = sessionStorage.getItem(DASHBOARD_CACHE_KEY);
@@ -394,22 +334,18 @@
 
   function dashboardCacheUygula(cache) {
     if (!cache) return false;
-    if (Array.isArray(cache.ogrenciler)) tumOgrencileriAyarla(cache.ogrenciler);
-    if (cache.ozet) dagilimGoster(cache.ozet, tumOgrenciler);
-    dogumGunleriGoster(tumOgrenciler);
-    if (cache.devamsizlikHtml) document.getElementById("devamsizlik-tablo").innerHTML = cache.devamsizlikHtml;
+    if (cache.dagilimHtml) document.getElementById("dagilim-govde").innerHTML = cache.dagilimHtml;
+    if (cache.dogumGunuHtml) document.getElementById("dogumgunu-liste").innerHTML = cache.dogumGunuHtml;
     if (cache.davranisHtml) document.getElementById("davranis-liste").innerHTML = cache.davranisHtml;
     return true;
   }
 
-  function dashboardCacheYaz(ozet) {
+  function dashboardCacheYaz() {
     try {
-      const { ogrenciler: cacheDisi, ...ozetSayilar } = ozet;
       sessionStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify({
         zaman: Date.now(),
-        ozet: ozetSayilar,
-        ogrenciler: tumOgrenciler.map(ogrenciCacheOzet),
-        devamsizlikHtml: document.getElementById("devamsizlik-tablo").innerHTML,
+        dagilimHtml: document.getElementById("dagilim-govde").innerHTML,
+        dogumGunuHtml: document.getElementById("dogumgunu-liste").innerHTML,
         davranisHtml: document.getElementById("davranis-liste").innerHTML
       }));
     } catch {
@@ -417,95 +353,24 @@
     }
   }
 
-  function ogrenciCacheOzet(o) {
-    return {
-      id: o.id,
-      ad: o.ad || "",
-      soyad: o.soyad || "",
-      sinif: o.sinif || "",
-      numara: o.numara || o.id || "",
-      cinsiyet: o.cinsiyet || "",
-      yatililik: o.yatililik || "",
-      dogum_tarihi: o.dogum_tarihi || ""
-    };
-  }
-
   function dashboardBosDurum(mesaj) {
-    tumOgrenciler = [];
-    document.getElementById("devamsizlik-tablo").innerHTML =
-      `<tr><td colspan="5" class="text-center text-muted py-3">${escapeHtml(mesaj || "Veri bulunamadı.")}</td></tr>`;
+    document.getElementById("dogumgunu-liste").innerHTML =
+      `<li class="list-group-item text-muted text-center py-4">${escapeHtml(mesaj || "Veri bulunamadı.")}</li>`;
     document.getElementById("davranis-liste").innerHTML =
       `<li class="list-group-item text-muted text-center">Kayıt yok</li>`;
-  }
-
-  function yukleDevamsizlikUyarilari(ogrenciler, devamsizliklar) {
-    const tablo = document.getElementById("devamsizlik-tablo");
-    const ogrById = new Map(ogrenciler.map(ogr => [ogr.id, ogr]));
-    const toplamlar = new Map();
-
-    devamsizliklar.forEach(k => {
-      if (!ogrById.has(k.ogrenciId)) return;
-      const mevcut = toplamlar.get(k.ogrenciId) || { ozurlu: 0, ozursuz: 0 };
-      const gun = devamsizlikGunDegeri(k);
-      if (k.tur === "Özürlü") mevcut.ozurlu += gun;
-      else mevcut.ozursuz += gun;
-      toplamlar.set(k.ogrenciId, mevcut);
-    });
-
-    devamsizlikDurumOzetiGoster(ogrenciler, toplamlar);
-
-    const uyarilar = [];
-    for (const [ogrenciId, { ozurlu, ozursuz }] of toplamlar) {
-      const ogr = ogrById.get(ogrenciId);
-      const durum = devamsizlikDurum(ozurlu, ozursuz);
-      if (durum !== "normal") uyarilar.push({ ogr, ozurlu, ozursuz, durum });
-    }
-
-    if (uyarilar.length === 0) {
-      tablo.innerHTML = `<tr><td colspan="5" class="text-center text-success py-3">
-        <i class="bi bi-check-circle me-1"></i> Uyarı yok</td></tr>`;
-      return;
-    }
-
-    uyarilar.sort((a, b) =>
-      riskPuani(b) - riskPuani(a)
-      || compareSinif(a.ogr.sinif, b.ogr.sinif)
-      || compareOgrenciNo(a.ogr, b.ogr)
-    );
-
-    tablo.innerHTML = uyarilar.slice(0, 5).map(({ ogr, ozurlu, ozursuz, durum }) => {
-      const renk = devamsizlikRenk(durum);
-      const tam = `${ogr.ad || ""} ${ogr.soyad || ""}`.trim();
-      return `<tr>
-        <td><a href="students-detail.html?id=${escapeAttr(ogr.id)}" class="text-decoration-none">${escapeHtml(tam)}</a></td>
-        <td>${escapeHtml(ogr.sinif || "—")}</td>
-        <td class="text-center">${sayiEtiketiTR(ozursuz)}</td>
-        <td class="text-center">${sayiEtiketiTR(ozurlu)}</td>
-        <td class="text-center"><span class="badge bg-${renk}">${devamsizlikDurumEtiketi(durum)}</span></td>
-      </tr>`;
-    }).join("");
-  }
-
-  function riskPuani(kayit) {
-    const durumKatsayi = kayit.durum === "kaldi" ? 2000 : kayit.durum === "kritik" ? 1000 : 0;
-    return durumKatsayi + Math.max(
-      kayit.ozursuz / 10,
-      (kayit.ozurlu + kayit.ozursuz) / 30,
-      kayit.ozurlu / 20
-    ) * 100;
   }
 
   function yukleSonDavranislar(ogrenciler, davranislar) {
     const liste = document.getElementById("davranis-liste");
     const ogrById = new Map(ogrenciler.map(ogr => [ogr.id, ogr]));
-    const tümDavranislar = davranislar
+    const tumDavranislar = davranislar
       .filter(d => ogrById.has(d.ogrenciId))
       .map(d => {
         const ogr = ogrById.get(d.ogrenciId);
         return { ...d, ogrAd: `${ogr.ad || ""} ${ogr.soyad || ""}`.trim(), ogrId: ogr.id };
       })
       .sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
-    const son5 = tümDavranislar.slice(0, 5);
+    const son5 = tumDavranislar.slice(0, 5);
 
     if (son5.length === 0) {
       liste.innerHTML = `<li class="list-group-item text-muted text-center">Kayıt yok</li>`;
@@ -527,7 +392,7 @@
       </li>`;
     }).join("");
   }
-
+});
 </script>
 </body>
 </html>

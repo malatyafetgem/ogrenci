@@ -1,10 +1,11 @@
-﻿/**
+(function () {
+"use strict";
+const OBS = window.OBS = window.OBS || {};
+const { APP_VERSION, APP_UPDATED_AT, okulAyarlariGetir, okulDonemiEtiketi, escapeHtml, toast } = OBS;
+/**
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
  */
-import { APP_VERSION, APP_UPDATED_AT } from "./version.js?v=20260615-119";
-import { okulAyarlariGetir, okulDonemiEtiketi } from "./school-settings.js?v=20260615-119";
-import { escapeHtml, toast } from "./utils.js?v=20260615-119";
 
 let layoutYuklendi = false;
 let yazdirmaBaglandi = false;
@@ -18,15 +19,7 @@ const MENU_GRUPLARI = [
     baslik: "Öğrenciler",
     ogeler: [
       { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true },
-      { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" },
-      { href: "phone-list.html", ikon: "bi-telephone-fill", etiket: "Telefon Listesi" }
-    ]
-  },
-  {
-    baslik: "Devamsızlık",
-    ogeler: [
-      { href: "attendance-entry.html", ikon: "bi-calendar-x", etiket: "Devamsızlık Gir" },
-      { href: "attendance-report.html", ikon: "bi-calendar-check", etiket: "Devamsızlık Raporu" }
+      { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" }
     ]
   },
   {
@@ -59,7 +52,6 @@ function menuGrubuBul(baslik) {
 
 const MOBIL_ALT_MENU_GRUPLARI = [
   { key: "ogrenciler", baslik: "Öğrenciler", ikon: "bi-people", ogeler: menuGrubuBul("Öğrenciler").ogeler },
-  { key: "devamsizlik", baslik: "Devamsızlık", ikon: "bi-calendar-check", ogeler: menuGrubuBul("Devamsızlık").ogeler },
   { key: "davranis", baslik: "Davranış", ikon: "bi-bar-chart", ogeler: menuGrubuBul("Davranış").ogeler },
   { key: "gorusmeler", baslik: "Görüşmeler", ikon: "bi-chat-dots", ogeler: menuGrubuBul("Veli Görüşmeleri").ogeler },
   { key: "sistem", baslik: "Sistem", ikon: "bi-gear", ogeler: menuGrubuBul("Sistem").ogeler }
@@ -75,7 +67,7 @@ function aktifMi(href) {
   return "active";
 }
 
-export function layoutYukle() {
+function layoutYukle() {
   if (layoutYuklendi) return;
   layoutYuklendi = true;
   yukleTopbar();
@@ -408,7 +400,6 @@ function listeYazdirmaKolonAgirligi(baslik) {
   if (temiz === "no" || temiz.endsWith(" no")) return 6;
   if (temiz === "sinif" || temiz === "sinifi") return 6;
   if (temiz.includes("tarih")) return 9;
-  if (temiz.includes("tc kimlik")) return 11;
   if (temiz.includes("telefon") || temiz.includes(" tel")) return 13;
   if (temiz.includes("e posta") || temiz.includes("eposta")) return 16;
   if (temiz.includes("ad soyad")) return 24;
@@ -421,7 +412,6 @@ function listeYazdirmaKolonAgirligi(baslik) {
   if (temiz.includes("universite") || temiz.includes("bolum")) return 20;
   if (temiz.includes("yatili")) return 14;
   if (temiz.includes("cinsiyet")) return 7;
-  if (temiz.includes("devamsizlik")) return 18;
   if (temiz.includes("ozur") || temiz.includes("toplam")) return 10;
   if (temiz.includes("durum")) return 12;
   if (temiz === "tur") return 8;
@@ -440,20 +430,7 @@ function listeYazdirmaSarilabilirMi(baslik) {
 
 function listeYazdirmaHucreMetni(table, baslik, cell) {
   const metin = (cell?.textContent || "").replace(/\s+/g, " ").trim() || "—";
-  if (table.id === "ogrenci-tablo" && normalizeYazdirmaBaslik(baslik).includes("devamsizlik")) {
-    return listeYazdirmaDevamsizlikMetni(metin);
-  }
   return metin;
-}
-
-function listeYazdirmaDevamsizlikMetni(value) {
-  const temiz = (value || "").replace(/\s+/g, " ").trim();
-  if (!temiz || temiz === "—" || temiz === "-") return "—";
-  const eslesme = temiz.replace(/\s+/g, "").match(/^(\d+(?:[.,]\d+)?)\/(\d+(?:[.,]\d+)?)$/);
-  if (!eslesme) return temiz;
-  const ozursuz = eslesme[1].replace(".", ",");
-  const ozurlu = eslesme[2].replace(".", ",");
-  return `${ozursuz} Ö.süz / ${ozurlu} Ö.lü`;
 }
 
 function normalizeYazdirmaBaslik(value) {
@@ -561,7 +538,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20260615-119" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20261008-124" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
@@ -593,8 +570,7 @@ function yukleTopbar() {
 
   document.getElementById("cikis-btn")?.addEventListener("click", async (e) => {
     e.preventDefault();
-    const { logout } = await import("./auth.js?v=20260615-119");
-    logout();
+    OBS.logout();
   });
 
   topbarAraclariBagla();
@@ -622,8 +598,7 @@ function topbarAraclariBagla() {
 
 async function globalAramaYukle() {
   if (_gaOgrenciler) return _gaOgrenciler;
-  const { tumOgrencileriGetir } = await import("./students.js?v=20260615-119");
-  _gaOgrenciler = await tumOgrencileriGetir();
+  _gaOgrenciler = await OBS.tumOgrencileriGetir();
   return _gaOgrenciler;
 }
 
@@ -731,9 +706,7 @@ async function baglantiDurumuBaslat() {
   window.addEventListener("offline", () => guncelle(false));
 
   try {
-    const { db } = await import("./firebase-config.js?v=20260615-119");
-    const { collection, query, limit, onSnapshot } =
-      await import("./firebase-imports.js?v=20260615-119");
+    const { db, collection, query, limit, onSnapshot } = OBS;
     const q = query(collection(db, "_settings"), limit(1));
     onSnapshot(q, { includeMetadataChanges: true },
       (snap) => guncelle(!snap.metadata.fromCache && navigator.onLine),
@@ -916,3 +889,6 @@ if (document.readyState === "loading") {
 } else {
   layoutYukle();
 }
+
+Object.assign(OBS, { layoutYukle });
+})();

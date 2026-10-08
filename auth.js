@@ -1,6 +1,7 @@
-import { auth } from "./firebase-config.js?v=20260615-119";
-import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "./firebase-imports.js?v=20260615-119";
-import { toast } from "./utils.js?v=20260615-119";
+(function () {
+"use strict";
+const OBS = window.OBS = window.OBS || {};
+const { auth, signInWithEmailAndPassword, signOut, onAuthStateChanged, toast } = OBS;
 
 const adminClaimUids = new Set();
 
@@ -8,7 +9,7 @@ const adminClaimUids = new Set();
  * Oturum gerektiren sayfalarda çağrılır.
  * Giriş yoksa login sayfasına yönlendirir.
  */
-export function requireAuth(callback) {
+function requireAuth(callback) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = "index.html";
@@ -21,7 +22,7 @@ export function requireAuth(callback) {
   });
 }
 
-export function isAdminUser(user = getCurrentUser()) {
+function isAdminUser(user = getCurrentUser()) {
   if (!user) return false;
   return adminClaimUids.has(user.uid);
 }
@@ -41,7 +42,7 @@ async function adminClaiminiHazirla(user) {
   }
 }
 
-export function requireAdmin(callback) {
+function requireAdmin(callback) {
   requireAuth((user) => {
     if (!isAdminUser(user)) {
       document.body.innerHTML = `
@@ -58,12 +59,12 @@ export function requireAdmin(callback) {
   });
 }
 
-export function applyAdminVisibility(root = document) {
+function applyAdminVisibility(root = document) {
   if (isAdminUser()) return;
   root.querySelectorAll("[data-admin-only]").forEach(el => el.classList.add("d-none"));
 }
 
-export function adminActionAllowed() {
+function adminActionAllowed() {
   if (isAdminUser()) return true;
   toast("Bu işlem sadece Admin yetkisiyle yapılabilir.", "warning");
   return false;
@@ -73,7 +74,7 @@ export function adminActionAllowed() {
  * Login sayfasında çağrılır.
  * Zaten giriş yapılmışsa dashboard'a yönlendirir.
  */
-export function redirectIfLoggedIn() {
+function redirectIfLoggedIn() {
   onAuthStateChanged(auth, (user) => {
     if (user) {
       window.location.href = "dashboard.html";
@@ -84,14 +85,21 @@ export function redirectIfLoggedIn() {
 /**
  * E-posta ve şifre ile giriş yap.
  */
-export async function login(email, password) {
-  return signInWithEmailAndPassword(auth, email, password);
+async function login(email, password) {
+  try {
+    return await signInWithEmailAndPassword(auth, email, password);
+  } catch (err) {
+    // file:// gibi ortamlarda kalıcı depolama desteklenmezse oturum sekme belleğine (sessionStorage) alınır.
+    if (err?.code !== "auth/operation-not-supported-in-this-environment") throw err;
+    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+    return signInWithEmailAndPassword(auth, email, password);
+  }
 }
 
 /**
  * Çıkış yap ve login sayfasına yönlendir.
  */
-export async function logout() {
+async function logout() {
   await signOut(auth);
   adminClaimUids.clear();
   temizleYerelOturumCache();
@@ -113,6 +121,9 @@ function temizleYerelOturumCache() {
 /**
  * Aktif kullanıcıyı döndürür.
  */
-export function getCurrentUser() {
+function getCurrentUser() {
   return auth.currentUser;
 }
+
+Object.assign(OBS, { requireAuth, isAdminUser, requireAdmin, applyAdminVisibility, adminActionAllowed, redirectIfLoggedIn, login, logout, getCurrentUser });
+})();

@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-119">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-119">
-  <link rel="shortcut icon" href="favicon.ico?v=20260615-119">
-  <script src="file-redirect.js?v=20260615-119"></script>
-  <script src="pwa.js?v=20260615-119"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
+  <script src="pwa.js?v=20261008-124"></script>
   <title>Giriş</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,14 +21,14 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260615-119">
+  <link rel="stylesheet" onerror="this.onerror=null;this.href=this.href+'&r='+Date.now()" href="app.css?v=20261008-124">
 </head>
 <body class="login-page">
 
 <div class="container">
   <div class="login-kart">
     <div class="login-logo">
-      <span class="login-logo-mark"><img src="icon-192.png?v=20260615-119" alt="Öğrenci Bilgileri"></span>
+      <span class="login-logo-mark"><img src="icon-192.png?v=20261008-124" alt="Öğrenci Bilgileri"></span>
       <span class="baslik">Öğrenci Bilgileri</span>
       <span class="alt-baslik">Malatya FETGEM</span>
     </div>
@@ -75,10 +74,35 @@
 </div>
 
 <!-- Giriş akışı -->
-<script type="module">
-  import { login, redirectIfLoggedIn } from "./auth.js?v=20260615-119";
-
-  redirectIfLoggedIn();
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
+window.__yuklenemeyenler = [];
+window.OBSHazir = (function () {
+  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "auth.js?v=20261008-124"];
+  var bekleyen = [], bitti = false;
+  function yukle(i, deneme) {
+    if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
+    var s = document.createElement("script");
+    s.src = liste[i] + (deneme ? "&r=" + deneme : "");
+    s.onload = function () { yukle(i + 1, 0); };
+    s.onerror = function () {
+      if (s.parentNode) s.parentNode.removeChild(s);
+      if (deneme < 4) { setTimeout(function () { yukle(i, deneme + 1); }, 250 * (deneme + 1)); }
+      else { window.__yuklenemeyenler.push(liste[i]); yukle(i + 1, 0); }
+    };
+    document.head.appendChild(s);
+  }
+  yukle(0, 0);
+  return function (fn) { if (bitti) { fn(); } else { bekleyen.push(fn); } };
+})();
+</script>
+<script>
+OBSHazir(async () => {
+"use strict";
+const OBS = window.OBS || {};
 
   const emailEl   = document.getElementById("email");
   const sifreEl   = document.getElementById("sifre");
@@ -88,6 +112,7 @@
   const btnYuklen = document.getElementById("btn-yuklen");
   const gozIkon   = document.getElementById("goz-ikon");
 
+  // Arayüz olayları, Firebase durumundan bağımsız olarak önce bağlanır.
   document.getElementById("sifre-goster").addEventListener("click", () => {
     const gizli = sifreEl.type === "password";
     sifreEl.type = gizli ? "text" : "password";
@@ -96,8 +121,41 @@
 
   sifreEl.addEventListener("keydown", e => { if (e.key === "Enter") gir(); });
   emailEl.addEventListener("keydown", e => { if (e.key === "Enter") sifreEl.focus(); });
-
   girisBtn.addEventListener("click", gir);
+
+  function hataGoster(mesaj) {
+    hataEl.textContent = mesaj;
+    hataEl.classList.remove("d-none");
+  }
+
+  function sistemHazirMi() {
+    return typeof window.firebase !== "undefined" && !!OBS.auth && typeof OBS.login === "function";
+  }
+
+  function yuklemeHatasiMesaji() {
+    const liste = (window.__yuklenemeyenler || [])
+      .map(u => u.split("?")[0].split("/").slice(-2).join("/"))
+      .filter((v, i, d) => d.indexOf(v) === i)
+      .join(", ");
+    const eksik = [];
+    if (typeof window.firebase === "undefined") eksik.push("Firebase kütüphanesi");
+    if (!OBS.auth) eksik.push("Firebase bağlantısı");
+    if (typeof OBS.login !== "function") eksik.push("giriş modülü");
+    return "Sistem dosyaları yüklenemedi (" + eksik.join(", ") + ")." +
+      (liste ? " Yüklenemeyen: " + liste + "." : "") +
+      (OBS.baslatmaHatasi ? " Firebase hatası: " + OBS.baslatmaHatasi + "." : "") +
+      " İnternet bağlantınızı ve sunucunun tüm dosyaları sunduğunu kontrol edip sayfayı yenileyin.";
+  }
+
+  if (sistemHazirMi()) {
+    try {
+      OBS.redirectIfLoggedIn();
+    } catch (err) {
+      console.error("Oturum kontrolü başlatılamadı:", err);
+    }
+  } else {
+    hataGoster(yuklemeHatasiMesaji());
+  }
 
   async function gir() {
     const email = emailEl.value.trim();
@@ -106,8 +164,12 @@
     hataEl.classList.add("d-none");
 
     if (!email || !sifre) {
-      hataEl.textContent = "E-posta ve şifre boş bırakılamaz.";
-      hataEl.classList.remove("d-none");
+      hataGoster("E-posta ve şifre boş bırakılamaz.");
+      return;
+    }
+
+    if (!sistemHazirMi()) {
+      hataGoster(yuklemeHatasiMesaji());
       return;
     }
 
@@ -116,23 +178,25 @@
     girisBtn.disabled = true;
 
     try {
-      await login(email, sifre);
+      await OBS.login(email, sifre);
     } catch (err) {
-      let mesaj = "Giriş başarısız. Bilgileri kontrol edin.";
+      let mesaj = "Giriş başarısız" + (err?.code ? " (" + err.code + ")" : "") + ". Bilgileri kontrol edin.";
       if (["auth/invalid-credential","auth/wrong-password","auth/user-not-found"].includes(err.code)) {
         mesaj = "E-posta veya şifre hatalı.";
       } else if (err.code === "auth/invalid-email") {
         mesaj = "Geçersiz e-posta adresi.";
       } else if (err.code === "auth/too-many-requests") {
         mesaj = "Çok fazla başarısız deneme. Lütfen bekleyin.";
+      } else if (err.code === "auth/network-request-failed") {
+        mesaj = "Ağ hatası: Firebase'e ulaşılamadı. İnternet bağlantınızı kontrol edin.";
       }
-      hataEl.textContent = mesaj;
-      hataEl.classList.remove("d-none");
+      hataGoster(mesaj);
       btnMetin.classList.remove("d-none");
       btnYuklen.classList.add("d-none");
       girisBtn.disabled = false;
     }
   }
+});
 </script>
 </body>
 </html>

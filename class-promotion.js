@@ -1,17 +1,15 @@
+(function () {
+"use strict";
+const OBS = window.OBS = window.OBS || {};
+const { tumOgrencileriGetir, veriCacheleriniTemizle, IZINLI_OGRENCI_ALANLARI, db, collection, getDocs, doc, writeBatch, query, where, toast, onayIste, sinifParcala, compareSinif, escapeHtml, escapeAttr, bugun } = OBS;
 // Sınıf Atlatma modülü.
 // Eskiden class-promotion.html sayfasında bağımsız çalışan mantık, artık
 // ayarlar sayfasındaki modalın içine monte edilecek şekilde küçük bir modüle
 // taşındı. Tüm ID'ler "cp-" önekiyle scoped tutulur ki sayfa ID'leriyle
 // çakışmasın. Tek kullanım: classPromotionAc(rootEl).
 
-import { tumOgrencileriGetir, veriCacheleriniTemizle } from "./students.js?v=20260615-119";
-import { db } from "./firebase-config.js?v=20260615-119";
-import {
-  collection, getDocs, doc, writeBatch, query, where
-} from "./firebase-imports.js?v=20260615-119";
-import { toast, onayIste, sinifParcala, compareSinif, escapeHtml, escapeAttr, bugun } from "./utils.js?v=20260615-119";
 
-const BAGLI_KOLEKSIYONLAR = ["veliler", "devamsizliklar", "davranislar", "veligorusmeleri"];
+const BAGLI_KOLEKSIYONLAR = ["davranislar", "veligorusmeleri"];
 const MAX_ATOMIK_YAZMA = 450;
 
 const ISKELET_HTML = `
@@ -70,7 +68,7 @@ const ISKELET_HTML = `
  * Her açılışta DOM ve state baştan kurulur, böylece tekrar tekrar
  * açılıp kapanmak güvenlidir.
  */
-export async function classPromotionAc(root) {
+async function classPromotionAc(root) {
   if (!root) throw new Error("classPromotionAc: kök eleman gerekli");
   root.innerHTML = ISKELET_HTML;
   const $ = (sel) => root.querySelector(sel);
@@ -321,14 +319,12 @@ export async function classPromotionAc(root) {
       onaylaBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span>Kayıtlar hesaplanıyor...`;
 
       try {
-        let toplamVeli = 0, toplamDevamsizlik = 0, toplamDavranis = 0, toplamGorusme = 0;
+        let toplamDavranis = 0, toplamGorusme = 0;
         const ogrenciOzetleri = [];
         for (const o of silinecekler) {
           for (const kol of BAGLI_KOLEKSIYONLAR) {
             const belgeler = await ogrenciIdIleBelgeleriGetir(kol, o.id);
-            if (kol === "veliler")           toplamVeli += belgeler.length;
-            else if (kol === "devamsizliklar") toplamDevamsizlik += belgeler.length;
-            else if (kol === "davranislar")   toplamDavranis += belgeler.length;
+            if (kol === "davranislar")        toplamDavranis += belgeler.length;
             else if (kol === "veligorusmeleri") toplamGorusme += belgeler.length;
           }
           ogrenciOzetleri.push(`• ${o.ad} ${o.soyad} (${o.sinif})`);
@@ -338,8 +334,6 @@ export async function classPromotionAc(root) {
                `Sınıf düzeyi seçimleri:\n${grupOzeti()}\n\n` +
                `Kalıcı olarak silinecekler:\n` +
                `• ${silinecekler.length} öğrenci\n` +
-               `• ${toplamVeli} veli kaydı\n` +
-               `• ${toplamDevamsizlik} devamsızlık kaydı\n` +
                `• ${toplamDavranis} davranış kaydı\n` +
                `• ${toplamGorusme} veli görüşmesi\n\n` +
                (ogrenciOzetleri.length <= 10
@@ -583,9 +577,9 @@ export async function classPromotionAc(root) {
             guncelleme_tarihi: bugun()
           }));
         } else if (islem.tur === "mezun") {
-          const { id: _id, ...ogrenciVerisi } = islem.ogrenci;
+          const { id: _id, ...tamOgrenciVerisi } = islem.ogrenci;
           await yaz(b => b.set(doc(db, "students", islem.eskiId), {
-            ...ogrenciVerisi,
+            ...izinliAlanlar(tamOgrenciVerisi),
             guncelleme_tarihi: bugun()
           }));
           for (const koleksiyon of BAGLI_KOLEKSIYONLAR) {
@@ -615,10 +609,16 @@ export async function classPromotionAc(root) {
     }
   }
 
+  // Eski sürümden kalan alanlar (telefon, TC vb.) yeni belgeye taşınmaz.
+  function izinliAlanlar(veri = {}) {
+    return Object.fromEntries(Object.entries(veri).filter(([alan]) => IZINLI_OGRENCI_ALANLARI.includes(alan)));
+  }
+
   async function ogrenciyiMezunEt(ogrenci, mezunId, yaz) {
     if (!mezunId) throw new Error("Mezun ID oluşturulamadı");
     const eskiId = String(ogrenci.id);
-    const { id: _id, ...ogrenciVerisi } = ogrenci;
+    const { id: _id, ...tamOgrenciVerisi } = ogrenci;
+    const ogrenciVerisi = izinliAlanlar(tamOgrenciVerisi);
     const mezunVerisi = {
       ...ogrenciVerisi,
       numara: String(ogrenci.numara || eskiId),
@@ -646,3 +646,6 @@ export async function classPromotionAc(root) {
     await yaz(b => b.delete(doc(db, "students", ogrenciId)));
   }
 }
+
+Object.assign(OBS, { classPromotionAc });
+})();

@@ -1,4 +1,7 @@
-﻿function avatarKind(cinsiyet) {
+(function () {
+"use strict";
+const OBS = window.OBS = window.OBS || {};
+function avatarKind(cinsiyet) {
   const value = String(cinsiyet || "").trim().toLocaleLowerCase("tr-TR");
   if (value === "kız" || value === "kiz") return "girl";
   if (value === "erkek") return "boy";
@@ -51,7 +54,7 @@ function svgToDataUri(svg) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-export function avatarSrc(cinsiyet) {
+function avatarSrc(cinsiyet) {
   const kind = avatarKind(cinsiyet);
   const renk = PALETTES[kind];
 
@@ -90,3 +93,6 @@ export function avatarSrc(cinsiyet) {
 
   return svgToDataUri(svg);
 }
+
+Object.assign(OBS, { avatarSrc });
+})();

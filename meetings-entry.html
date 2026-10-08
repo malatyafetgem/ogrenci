@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-119">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-119">
-  <link rel="shortcut icon" href="favicon.ico?v=20260615-119">
-  <script src="file-redirect.js?v=20260615-119"></script>
-  <script src="pwa.js?v=20260615-119"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
+  <script src="pwa.js?v=20261008-124"></script>
   <title>Veli Görüşmesi Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260615-119">
+  <link rel="stylesheet" href="app.css?v=20261008-124">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -62,7 +61,7 @@
                 <div>
                   <div class="fw-semibold">Görüşme kaydı için kısa not</div>
                   <div class="small text-muted">
-                    Önce öğrenciyi seçin; sistem kayıtlı aktif velileri listeler.
+                    Önce öğrenciyi seçin, görüşülen veliyi belirtin.
                     Konuya raporda kolay bulunacak kısa bir başlık, açıklamaya görüşmenin sonucu
                     ve takip edilecek notları yazın.
                   </div>
@@ -96,6 +95,10 @@
                 <label class="form-label" for="g-veli-tur">Veli <span class="text-danger">*</span></label>
                 <select class="form-select" id="g-veli-tur">
                   <option value="">Seçin</option>
+                  <option>Anne</option>
+                  <option>Baba</option>
+                  <option>Vasi</option>
+                  <option>Diğer</option>
                 </select>
               </div>
 
@@ -103,7 +106,7 @@
               <div class="col-md-4">
                 <label class="form-label" for="g-veli-adi">Veli Adı</label>
                 <input type="text" class="form-control" id="g-veli-adi"
-                       placeholder="Otomatik dolabilir">
+                       placeholder="İsteğe bağlı">
               </div>
 
               <!-- Konu -->
@@ -153,15 +156,37 @@
         integrity="sha384-Y7O43PM3w1lzpD9Tbq06VLD7WvMJZsaVsjXBZ4rAzAPqUdizcCJYmImbIXN6f2+r"
         crossorigin="anonymous"></script>
 
-<script type="module">
-  import { requireAuth } from "./auth.js?v=20260615-119";
-  import { layoutYukle } from "./layout.js?v=20260615-119";
-  import { tumOgrencileriGetir, velileriGetir, gorusmeEkle } from "./students.js?v=20260615-119";
-  import { formatMetin, formatAd, gecerliTarih, escapeHtml, escapeAttr } from "./utils.js?v=20260615-119";
-  import { autocompleteYukle, autocompleteGuncelle } from "./autocomplete.js?v=20260615-119";
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
+window.__yuklenemeyenler = [];
+window.OBSHazir = (function () {
+  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "school-settings.js?v=20261008-124", "autocomplete.js?v=20261008-124", "students.js?v=20261008-124", "auth.js?v=20261008-124", "layout.js?v=20261008-124"];
+  var bekleyen = [], bitti = false;
+  function yukle(i, deneme) {
+    if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
+    var s = document.createElement("script");
+    s.src = liste[i] + (deneme ? "&r=" + deneme : "");
+    s.onload = function () { yukle(i + 1, 0); };
+    s.onerror = function () {
+      if (s.parentNode) s.parentNode.removeChild(s);
+      if (deneme < 4) { setTimeout(function () { yukle(i, deneme + 1); }, 250 * (deneme + 1)); }
+      else { window.__yuklenemeyenler.push(liste[i]); yukle(i + 1, 0); }
+    };
+    document.head.appendChild(s);
+  }
+  yukle(0, 0);
+  return function (fn) { if (bitti) { fn(); } else { bekleyen.push(fn); } };
+})();
+</script>
+<script>
+OBSHazir(async () => {
+"use strict";
+const { requireAuth, layoutYukle, tumOgrencileriGetir, gorusmeEkle, formatMetin, formatAd, gecerliTarih, escapeHtml, escapeAttr, autocompleteYukle, autocompleteGuncelle } = window.OBS;
 
   let tumOgrenciler = [];
-  let seciliOgrVeliler = [];
 
   requireAuth(async () => {
     layoutYukle();
@@ -200,31 +225,6 @@
     document.getElementById("secili-ogr-ad").textContent = `${ogr.ad} ${ogr.soyad} · ${ogr.sinif}`;
     document.getElementById("secili-ogr-bilgi").classList.remove("d-none");
     document.getElementById("ara-sonuclar").classList.add("d-none");
-    seciliOgrVeliler = (await velileriGetir(ogr.id)).filter(aktifVeliMi);
-    veliSecenekleriniDoldur();
-  }
-
-  function aktifVeliMi(v) {
-    const durum = v.durum || "Aktif";
-    return durum === "Aktif";
-  }
-
-  function veliSecenekleriniDoldur() {
-    const select = document.getElementById("g-veli-tur");
-    select.innerHTML = `<option value="">Seçin</option>`;
-    if (seciliOgrVeliler.length) {
-      select.innerHTML += seciliOgrVeliler.map(v => {
-        const yakinlik = v.yakinlik || "Veli";
-        const ad = `${v.ad || ""} ${v.soyad || ""}`.trim();
-        const ek = [v.birincil ? "Birincil" : "", v.acil_kisi ? "Acil" : ""].filter(Boolean).join(" / ");
-        const metin = [yakinlik, ad, ek].filter(Boolean).join(" - ");
-        return `<option value="${escapeAttr(v.id)}">${escapeHtml(metin)}</option>`;
-      }).join("");
-    } else {
-      select.innerHTML += ["Anne", "Baba", "Vasi", "Diğer"]
-        .map(tur => `<option value="tur:${escapeAttr(tur)}">${escapeHtml(tur)}</option>`)
-        .join("");
-    }
   }
 
   function baglayici() {
@@ -252,23 +252,13 @@
     });
     document.addEventListener("click", e => { if (!araEl.contains(e.target)) sonucEl.classList.add("d-none"); });
 
-    document.getElementById("g-veli-tur").addEventListener("change", () => {
-      const secim = document.getElementById("g-veli-tur").value;
-      const veli = seciliOgrVeliler.find(v => v.id === secim);
-      document.getElementById("g-veli-adi").value = veli
-        ? `${veli.ad || ""} ${veli.soyad || ""}`.trim()
-        : "";
-    });
-
     document.getElementById("kaydet-btn").addEventListener("click", kaydet);
   }
 
   async function kaydet() {
     const ogrId   = document.getElementById("secili-ogr-id").value;
     const tarih   = document.getElementById("g-tarih").value.trim();
-    const veliSecim = document.getElementById("g-veli-tur").value;
-    const seciliVeli = seciliOgrVeliler.find(v => v.id === veliSecim);
-    const veliYakinlik = seciliVeli ? (seciliVeli.yakinlik || "Veli") : veliSecim.replace(/^tur:/, "");
+    const veliYakinlik = document.getElementById("g-veli-tur").value;
     const veliAdi = document.getElementById("g-veli-adi").value.trim();
     const konu    = document.getElementById("g-konu").value.trim();
     const aciklama= document.getElementById("g-aciklama").value.trim();
@@ -297,9 +287,8 @@
     try {
       await gorusmeEkle(ogrId, {
         tarih,
-        veli_id: seciliVeli?.id || "",
         veli_yakinlik: veliYakinlik,
-        veli_adi: formatAd(veliAdi || `${seciliVeli?.ad || ""} ${seciliVeli?.soyad || ""}`.trim()),
+        veli_adi: formatAd(veliAdi),
         konu: formatMetin(konu),
         aciklama
       });
@@ -319,6 +308,7 @@
       document.getElementById("kaydet-btn").disabled = false;
     }
   }
+});
 </script>
 </body>
 </html>

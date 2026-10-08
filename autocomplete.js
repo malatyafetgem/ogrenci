@@ -1,8 +1,10 @@
-﻿/**
+(function () {
+"use strict";
+const OBS = window.OBS = window.OBS || {};
+const { db, doc, getDoc, setDoc } = OBS;
+/**
  * autocomplete.js — Firestore'daki _autocomplete koleksiyonunu okur/yazar.
  */
-import { db } from "./firebase-config.js?v=20260615-119";
-import { doc, getDoc, setDoc } from "./firebase-imports.js?v=20260615-119";
 
 // Bellek içi önbellek (aynı oturumda tekrar Firestore'a gitmesin)
 const onbellek = {};
@@ -10,7 +12,7 @@ const onbellek = {};
 /**
  * Bir autocomplete listesi çeker. Bulunamazsa boş dizi döner.
  */
-export async function autocompleteYukle(alan) {
+async function autocompleteYukle(alan) {
   if (onbellek[alan]) return onbellek[alan];
   try {
     const snap = await getDoc(doc(db, "_autocomplete", alan));
@@ -25,7 +27,7 @@ export async function autocompleteYukle(alan) {
 /**
  * Yeni bir değer ekler (tekrar etmiyorsa). Firestore'u günceller.
  */
-export async function autocompleteGuncelle(alan, yeniDeger) {
+async function autocompleteGuncelle(alan, yeniDeger) {
   if (!yeniDeger || !yeniDeger.trim()) return;
   const temiz = yeniDeger.trim();
   const mevcut = await autocompleteYukle(alan);
@@ -39,20 +41,5 @@ export async function autocompleteGuncelle(alan, yeniDeger) {
   }
 }
 
-/**
- * Türkiye il listesini döndürür (sabit, Firestore'dan bağımsız fallback).
- */
-export function illerListesi() {
-  return [
-    "Adana","Adıyaman","Afyonkarahisar","Ağrı","Aksaray","Amasya","Ankara","Antalya",
-    "Ardahan","Artvin","Aydın","Balıkesir","Bartın","Batman","Bayburt","Bilecik",
-    "Bingöl","Bitlis","Bolu","Burdur","Bursa","Çanakkale","Çankırı","Çorum",
-    "Denizli","Diyarbakır","Düzce","Edirne","Elazığ","Erzincan","Erzurum","Eskişehir",
-    "Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay","Iğdır","Isparta","İstanbul",
-    "İzmir","Kahramanmaraş","Karabük","Karaman","Kars","Kastamonu","Kayseri","Kilis",
-    "Kırıkkale","Kırklareli","Kırşehir","Kocaeli","Konya","Kütahya","Malatya","Manisa",
-    "Mardin","Mersin","Muğla","Muş","Nevşehir","Niğde","Ordu","Osmaniye","Rize",
-    "Sakarya","Samsun","Şanlıurfa","Siirt","Sinop","Şırnak","Sivas","Tekirdağ",
-    "Tokat","Trabzon","Tunceli","Uşak","Van","Yalova","Yozgat","Zonguldak"
-  ];
-}
+Object.assign(OBS, { autocompleteYukle, autocompleteGuncelle });
+})();

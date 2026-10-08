@@ -1,5 +1,5 @@
 // sw.js — Öğrenci Bilgileri Service Worker
-const CACHE_VERSION = "obs-cache-v1.0.119";
+const CACHE_VERSION = "obs-cache-v1.0.124";
 const CACHE_NAME = CACHE_VERSION;
 
 const SHELL_URLS = [
@@ -9,14 +9,10 @@ const SHELL_URLS = [
   "./students-list.html",
   "./students-detail.html",
   "./students-add-edit.html",
-  "./attendance-entry.html",
-  "./attendance-report.html",
   "./behavior-entry.html",
   "./behavior-report.html",
   "./meetings-entry.html",
   "./meetings-list.html",
-  "./phone-list.html",
-  "./class-promotion.html",
   "./settings.html",
   "./excel-export.html",
 
@@ -29,7 +25,6 @@ const SHELL_URLS = [
   "./autocomplete.js",
   "./avatar.js",
   "./version.js",
-  "./file-redirect.js",
   "./firebase-config.js",
   "./firebase-imports.js",
   "./class-promotion.js",
@@ -63,9 +58,16 @@ const CDN_HOSTS = [
 
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache =>
-      Promise.allSettled(SHELL_URLS.map(url => cache.add(url)))
-    )
+    caches.open(CACHE_NAME).then(async cache => {
+      // Zayıf yerel sunucuları boğmamak için dosyalar sırayla alınır.
+      for (const url of SHELL_URLS) {
+        try {
+          await cache.add(url);
+        } catch (_) {
+          // Alınamayan dosya yüklemeyi engellemez.
+        }
+      }
+    })
   );
 });
 

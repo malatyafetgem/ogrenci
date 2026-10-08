@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-119">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-119">
-  <link rel="shortcut icon" href="favicon.ico?v=20260615-119">
-  <script src="file-redirect.js?v=20260615-119"></script>
-  <script src="pwa.js?v=20260615-119"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
+  <script src="pwa.js?v=20261008-124"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -25,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/css/dataTables.bootstrap5.min.css"
           integrity="sha384-xkQqWcEusZ1bIXoKJoItkNbJJ1LG5QwR5InghOwFLsCoEkGcNLYjE0O83wWruaK9"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260615-119">
+  <link rel="stylesheet" href="app.css?v=20261008-124">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -133,14 +132,13 @@
                     <th>Adı Soyadı</th>
                     <th>Sınıf</th>
                     <th>Cinsiyet</th>
-                    <th>TC Kimlik</th>
+                    <th>Yatılılık</th>
                     <th>Doğum Tarihi</th>
-                    <th>Öğrenci Telefonu</th>
                     <th class="no-print">İşlem</th>
                   </tr>
                 </thead>
                 <tbody id="ogrenci-tbody">
-                  <tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
+                  <tr><td colspan="7" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -159,7 +157,7 @@
                 <div id="import-adim-1">
                   <p class="text-muted small mb-3">
                     Excel dosyanızı seçin, sonra sistem alanlarını Excel sütunlarıyla eşleştirin.
-                    Öğrenci No her aktarımda eşleştirilmelidir. Öğrenci ve veli adları
+                    Öğrenci No her aktarımda eşleştirilmelidir. Öğrenci adı
                     ister tek parça "Adı Soyadı", ister ayrı "Ad" ve "Soyad" alanlarıyla aktarılabilir.
                   </p>
                   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
@@ -233,22 +231,40 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20260615-119"></script>
+<script src="datatable-fallback.js?v=20261008-124"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
         integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"
         crossorigin="anonymous"></script>
 
-<script type="module">
-  import { requireAuth, applyAdminVisibility, adminActionAllowed, isAdminUser } from "./auth.js?v=20260615-119";
-  import { layoutYukle } from "./layout.js?v=20260615-119";
-  import {
-    noMevcutMu, ogrenciVeVelileriKaydet,
-    velileriGetir, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir
-  } from "./students.js?v=20260615-119";
-  import {
-    formatAd, formatSoyad, formatMetin, formatTelefon, formatTarih, toast, bugun,
-    compareOgrenci, gecerliTarih, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari, tcKimlikMaskele
-  } from "./utils.js?v=20260615-119";
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
+window.__yuklenemeyenler = [];
+window.OBSHazir = (function () {
+  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "school-settings.js?v=20261008-124", "students.js?v=20261008-124", "auth.js?v=20261008-124", "layout.js?v=20261008-124"];
+  var bekleyen = [], bitti = false;
+  function yukle(i, deneme) {
+    if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
+    var s = document.createElement("script");
+    s.src = liste[i] + (deneme ? "&r=" + deneme : "");
+    s.onload = function () { yukle(i + 1, 0); };
+    s.onerror = function () {
+      if (s.parentNode) s.parentNode.removeChild(s);
+      if (deneme < 4) { setTimeout(function () { yukle(i, deneme + 1); }, 250 * (deneme + 1)); }
+      else { window.__yuklenemeyenler.push(liste[i]); yukle(i + 1, 0); }
+    };
+    document.head.appendChild(s);
+  }
+  yukle(0, 0);
+  return function (fn) { if (bitti) { fn(); } else { bekleyen.push(fn); } };
+})();
+</script>
+<script>
+OBSHazir(async () => {
+"use strict";
+const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMevcutMu, ogrenciEkle, ogrenciGuncelle, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir, formatAd, formatSoyad, formatTarih, toast, bugun, escapeHtml, escapeAttr, compareOgrenci, gecerliTarih, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari, dataTableOlustur } = window.OBS;
   let tumOgrenciler = [];
   let dt = null;
   let filtreZamanlayici = null;
@@ -260,49 +276,10 @@
     { key: "ad",             label: "Ad",                  requiredForNew: true, aliases: ["ad", "adı", "adi", "öğrenci adı", "ogrenci adi"] },
     { key: "soyad",          label: "Soyad",               requiredForNew: true, aliases: ["soyad", "soyadı", "soyadi"] },
     { key: "sinif",          label: "Sınıf",               requiredForNew: true, aliases: ["sınıf", "sinif", "sınıfı", "sinifi"] },
-    { key: "tc_kimlik",      label: "TC Kimlik",                                aliases: ["tc", "tc kimlik", "t.c. kimlik no", "t c kimlik no"] },
-    { key: "dogum_tarihi",   label: "Doğum Tarihi",                             aliases: ["doğum tarihi", "dogum tarihi"] },
-    { key: "dogum_yeri",     label: "Doğum Yeri",                               aliases: ["doğum yeri", "dogum yeri"] },
     { key: "cinsiyet",       label: "Cinsiyet",                                 aliases: ["cinsiyet", "cinsiyeti"] },
-    { key: "telefon",        label: "Öğrenci Telefonu",                         aliases: ["öğrenci telefonu", "ogrenci telefonu", "öğrenci tel", "ogrenci tel", "cep telefonu", "cep tel", "telefon öğrenci", "telefon ogrenci"] },
     { key: "yatililik",      label: "Yatılılık",                                aliases: ["yatılılık", "yatililik"] },
-    { key: "geldigi_okul",   label: "Geldiği Okulun Adı",                       aliases: ["geldiği okulun adı", "geldigi okulun adi", "geldiği okul", "geldigi okul", "geldiği okul adı", "geldigi okul adi", "okul adı", "okul adi"] },
-    { key: "hastalik",       label: "Hastalık",                                 aliases: ["hastalık", "hastalik"] },
-    { key: "engel",          label: "Engel",                                    aliases: ["engel"] },
-    { key: "ilac",           label: "İlaç",                                     aliases: ["ilaç", "ilac"] },
-    { key: "maddi_durum",    label: "Maddi Durum",                              aliases: ["maddi durum", "maddi_durum"] },
-    { key: "aile_durumu",    label: "Aile Durumu",                              aliases: ["aile durumu", "yaşam", "yasam", "ebeveyn durumu"] },
-    { key: "yetenek_1_tur",       label: "Yetenek 1 Türü",      aliases: ["yetenek 1 türü", "yetenek 1 turu", "yetenek1 tür", "yetenek1 tur"] },
-    { key: "yetenek_1_aciklama",  label: "Yetenek 1 Açıklama",  aliases: ["yetenek 1 açıklama", "yetenek 1 aciklama", "yetenek1 açıklama"] },
-    { key: "yetenek_2_tur",       label: "Yetenek 2 Türü",      aliases: ["yetenek 2 türü", "yetenek 2 turu", "yetenek2 tür", "yetenek2 tur"] },
-    { key: "yetenek_2_aciklama",  label: "Yetenek 2 Açıklama",  aliases: ["yetenek 2 açıklama", "yetenek 2 aciklama", "yetenek2 açıklama"] },
-    { key: "yetenek_3_tur",       label: "Yetenek 3 Türü",      aliases: ["yetenek 3 türü", "yetenek 3 turu", "yetenek3 tür", "yetenek3 tur"] },
-    { key: "yetenek_3_aciklama",  label: "Yetenek 3 Açıklama",  aliases: ["yetenek 3 açıklama", "yetenek 3 aciklama", "yetenek3 açıklama"] },
+    { key: "dogum_tarihi",   label: "Doğum Tarihi",                             aliases: ["doğum tarihi", "dogum tarihi"] }
   ];
-
-  [1, 2, 3].forEach(no => {
-    IMPORT_ALANLARI.push(
-      { key: `veli_${no}_yakinlik`,        label: `Veli ${no} Yakınlık`,        aliases: [`veli ${no} yakınlık`, `veli ${no} yakinlik`, `veli${no} yakınlık`, `veli${no} yakinlik`] },
-      { key: `veli_${no}_durum`,           label: `Veli ${no} Durum`,           aliases: [`veli ${no} durum`] },
-      { key: `veli_${no}_ad_soyad`,        label: `Veli ${no} Ad Soyad`,        aliases: [`veli ${no} ad soyad`, `veli ${no} adı soyadı`, `veli ${no} adi soyadi`] },
-      { key: `veli_${no}_ad`,              label: `Veli ${no} Ad`,              aliases: [`veli ${no} ad`, `veli ${no} adı`, `veli ${no} adi`] },
-      { key: `veli_${no}_soyad`,           label: `Veli ${no} Soyad`,           aliases: [`veli ${no} soyad`, `veli ${no} soyadı`, `veli ${no} soyadi`] },
-      { key: `veli_${no}_telefon`,         label: `Veli ${no} Telefon`,         aliases: [`veli ${no} telefon`, `veli ${no} tel`] },
-      { key: `veli_${no}_e_posta`,         label: `Veli ${no} E-Posta`,         aliases: [`veli ${no} e-posta`, `veli ${no} eposta`] },
-      { key: `veli_${no}_il`,              label: `Veli ${no} İl`,              aliases: [`veli ${no} il`, `veli ${no} şehir`, `veli ${no} sehir`] },
-      { key: `veli_${no}_ilce`,            label: `Veli ${no} İlçe`,            aliases: [`veli ${no} ilçe`, `veli ${no} ilce`] },
-      { key: `veli_${no}_adres`,           label: `Veli ${no} Adres`,           aliases: [`veli ${no} adres`, `veli ${no} ev adresi`] },
-      { key: `veli_${no}_calisma_durumu`,  label: `Veli ${no} Çalışma Durumu`,  aliases: [`veli ${no} çalışma durumu`, `veli ${no} calisma durumu`] },
-      { key: `veli_${no}_meslek`,          label: `Veli ${no} Meslek`,          aliases: [`veli ${no} meslek`, `veli ${no} mesleği`, `veli ${no} meslegi`] },
-      { key: `veli_${no}_meslek_grubu`,    label: `Veli ${no} Meslek Grubu`,    aliases: [`veli ${no} meslek grubu`, `veli ${no} sektör`, `veli ${no} sektor`, `veli ${no} alan`] },
-      { key: `veli_${no}_gorev_unvan`,     label: `Veli ${no} Görev / Unvan`,   aliases: [`veli ${no} görev`, `veli ${no} gorev`, `veli ${no} unvan`] },
-      { key: `veli_${no}_kurum`,           label: `Veli ${no} Kurum / İş Yeri`, aliases: [`veli ${no} kurum`, `veli ${no} iş yeri`, `veli ${no} is yeri`] },
-      { key: `veli_${no}_birincil`,        label: `Veli ${no} Birincil`,        aliases: [`veli ${no} birincil`, `veli ${no} birincil veli`] },
-      { key: `veli_${no}_acil_kisi`,       label: `Veli ${no} Acil Durum`,      aliases: [`veli ${no} acil`, `veli ${no} acil durum`, `veli ${no} acil kişi`, `veli ${no} acil kisi`] },
-      { key: `veli_${no}_iletisim_sirasi`, label: `Veli ${no} İletişim Sırası`, aliases: [`veli ${no} iletişim sırası`, `veli ${no} iletisim sirasi`] },
-      { key: `veli_${no}_notlar`,          label: `Veli ${no} Notlar`,          aliases: [`veli ${no} not`, `veli ${no} notlar`] }
-    );
-  });
 
   requireAuth(async () => {
     layoutYukle();
@@ -326,7 +303,7 @@
     document.getElementById("kayit-sayisi").textContent = "0";
     document.getElementById("ozet-cipler").innerHTML = "";
     document.getElementById("ogrenci-tbody").innerHTML =
-      '<tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele\'ye basın.</td></tr>';
+      '<tr><td colspan="7" class="text-center text-muted py-3">Filtreleri seçip Filtrele\'ye basın.</td></tr>';
   }
 
   async function yukleOgrenciler(filtreler = {}) {
@@ -359,7 +336,7 @@
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
     const tbody = document.getElementById("ogrenci-tbody");
-    const satir = `<tr>${Array.from({ length: 8 }).map(() => `<td><div class="skeleton skeleton-satir"></div></td>`).join("")}</tr>`;
+    const satir = `<tr>${Array.from({ length: 7 }).map(() => `<td><div class="skeleton skeleton-satir"></div></td>`).join("")}</tr>`;
     tbody.innerHTML = satir.repeat(8);
   }
 
@@ -385,10 +362,9 @@
     document.getElementById("kayit-sayisi").textContent = veri.length;
     ozetCiplerGuncelle(veri);
     const tbody = document.getElementById("ogrenci-tbody");
-    const tcTamGoster = isAdminUser();
 
     tbody.innerHTML = veri.length === 0
-      ? `<tr><td colspan="8">
+      ? `<tr><td colspan="7">
            <div class="bos-durum">
              <i class="bi bi-inbox"></i>
              <div class="baslik">${escapeHtml(bosMesaj)}</div>
@@ -401,7 +377,6 @@
           const kayitIdEtiketi = o.id !== okulNo
             ? `<div class="text-muted small">ID: ${escapeHtml(o.id)}</div>`
             : "";
-          const tcKimlik = tcKimlikMaskele(o.tc_kimlik, tcTamGoster);
           return `<tr>
             <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(o))}">${escapeHtml(okulNo)}${kayitIdEtiketi}</td>
             <td>
@@ -410,9 +385,8 @@
             </td>
             <td data-order="${escapeAttr(sinifSiralamaAnahtari(o.sinif))}">${escapeHtml(o.sinif || "—")}</td>
             <td>${escapeHtml(o.cinsiyet || "—")}</td>
-            <td>${escapeHtml(tcKimlik)}</td>
+            <td>${escapeHtml(o.yatililik || "—")}</td>
             <td>${escapeHtml(formatTarih(o.dogum_tarihi) || "—")}</td>
-            <td>${escapeHtml(formatTelefon(o.telefon || "") || "—")}</td>
             <td class="no-print">
               <div class="d-inline-flex gap-1">
                 <a href="students-detail.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-info" title="Detay" aria-label="Öğrenci detayını aç">
@@ -421,8 +395,8 @@
                 <a href="students-add-edit.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-primary" title="Düzenle" aria-label="Öğrenciyi düzenle" data-admin-only>
                   <i class="bi bi-pencil"></i>
                 </a>
-                <a href="attendance-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-warning" title="Devamsızlık Gir" aria-label="Devamsızlık gir">
-                  <i class="bi bi-calendar-check"></i>
+                <a href="meetings-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-warning" title="Veli Görüşmesi Gir" aria-label="Veli görüşmesi gir">
+                  <i class="bi bi-chat-square-text"></i>
                 </a>
                 <a href="behavior-entry.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-success" title="Davranış Gir" aria-label="Davranış gir">
                   <i class="bi bi-star"></i>
@@ -437,7 +411,7 @@
     document.getElementById("tablo-kap").classList.remove("d-none");
 
     if (veri.length > 0) {
-      dt = new DataTable("#ogrenci-tablo", {
+      dt = dataTableOlustur("#ogrenci-tablo", {
         language: {
           search: "Ara:", info: "_TOTAL_ kayıt içinden _START_–_END_",
           zeroRecords: "Bulunamadı",
@@ -449,7 +423,7 @@
         pageLength: 25,
         order: [[2, "asc"], [0, "asc"]],
         columnDefs: [
-          { orderable: false, targets: [7] }
+          { orderable: false, targets: [6] }
         ]
       });
     }
@@ -506,15 +480,13 @@
       toast("Excel'e aktarılacak kayıt yok.", "warning");
       return;
     }
-    const tcTamGoster = isAdminUser();
     const satirlar = tumOgrenciler.map(o => ({
       "No": o.numara || o.id,
       "Adı Soyadı": ogrenciAdSoyad(o),
       "Sınıf": o.sinif,
       "Cinsiyet": o.cinsiyet,
-      "TC Kimlik": tcKimlikMaskele(o.tc_kimlik, tcTamGoster),
-      "Doğum Tarihi": formatTarih(o.dogum_tarihi),
-      "Öğrenci Telefonu": formatTelefon(o.telefon || "")
+      "Yatılılık": o.yatililik,
+      "Doğum Tarihi": formatTarih(o.dogum_tarihi)
     }));
     const ws = XLSX.utils.json_to_sheet(satirlar);
     const wb = XLSX.utils.book_new();
@@ -541,15 +513,9 @@
       "Ad": "Ada",
       "Soyad": "Yılmaz",
       "Sınıf": "9-A",
-      "Doğum Tarihi": "01.09.2011",
       "Cinsiyet": "Kız",
-      "Öğrenci Telefonu": "05xx xxx xx xx",
       "Yatılılık": "Gündüzlü",
-      "Veli 1 Yakınlık": "Anne",
-      "Veli 1 Ad": "Ayşe",
-      "Veli 1 Soyad": "Yılmaz",
-      "Veli 1 Telefon": "05xx xxx xx xx",
-      "Veli 1 Birincil": "Evet"
+      "Doğum Tarihi": "01.09.2011"
     };
     return ornekler[baslik] || "";
   }
@@ -678,9 +644,8 @@
         <td>${escapeHtml(coz.ogrVeri.ad)}</td>
         <td>${escapeHtml(coz.ogrVeri.soyad)}</td>
         <td>${escapeHtml(coz.ogrVeri.sinif)}</td>
-        <td>${escapeHtml(coz.ogrVeri.telefon)}</td>
         <td>${escapeHtml(coz.ogrVeri.cinsiyet)}</td>
-        <td>${escapeHtml(veliOzetEtiketi(coz))}</td>
+        <td>${escapeHtml(coz.ogrVeri.yatililik)}</td>
       </tr>`;
     }).join("");
 
@@ -689,15 +654,11 @@
         <thead class="table-light">
           <tr>
             <th>#</th><th>Durum</th><th>No</th><th>Ad</th><th>Soyad</th>
-            <th>Sınıf</th><th>Öğrenci Tel</th><th>Cinsiyet</th><th>Veliler</th>
+            <th>Sınıf</th><th>Cinsiyet</th><th>Yatılılık</th>
           </tr>
         </thead>
-        <tbody>${previewRows || `<tr><td colspan="9" class="text-muted text-center">Önizlenecek satır yok.</td></tr>`}</tbody>
+        <tbody>${previewRows || `<tr><td colspan="8" class="text-muted text-center">Önizlenecek satır yok.</td></tr>`}</tbody>
       </table>`;
-  }
-
-  function veliOzetEtiketi(coz) {
-    return coz.cokluVeliler.filter(veliDoluMu).map(v => v.yakinlik || "Veli").join(", ");
   }
 
   async function importBaslat() {
@@ -749,19 +710,8 @@
           continue;
         }
 
-        const veliPaketleri = [];
-        for (const veli of coz.cokluVeliler) {
-          const paket = await veliAktarPaketi(coz.numara, veli.yakinlik || "Veli", veli);
-          if (paket) veliPaketleri.push(paket);
-        }
-
-        await ogrenciVeVelileriKaydet({
-          ogrenciNo: coz.numara,
-          duzenlemeId: mevcut ? coz.numara : "",
-          ogrenciVeri: mevcut ? coz.ogrVeri : yeniOgrenciVerisi(coz),
-          kaydedilecekVeliler: veliPaketleri,
-          silinecekVeliler: []
-        });
+        if (mevcut) await ogrenciGuncelle(coz.numara, coz.ogrVeri);
+        else await ogrenciEkle(coz.numara, coz.ogrVeri);
 
         if (mevcut) guncellendi++;
         else eklendi++;
@@ -842,76 +792,21 @@
     alanEkle(ogrVeri, "ad", formatAd(raw.ad));
     alanEkle(ogrVeri, "soyad", formatSoyad(raw.soyad));
     alanEkle(ogrVeri, "sinif", temiz(raw.sinif));
-    alanEkle(ogrVeri, "telefon", formatTelefon(raw.telefon));
     alanEkle(ogrVeri, "cinsiyet", normalizeCinsiyet(raw.cinsiyet));
     alanEkle(ogrVeri, "yatililik", temiz(raw.yatililik));
-    alanEkle(ogrVeri, "maddi_durum", temiz(raw.maddi_durum));
-    alanEkle(ogrVeri, "geldigi_okul", formatMetin(raw.geldigi_okul));
-    alanEkle(ogrVeri, "tc_kimlik", sadeceRakam(raw.tc_kimlik));
     const dogumTarihi = temiz(raw.dogum_tarihi);
     if (importEslesme.dogum_tarihi && dogumTarihi && !gecerliTarih(dogumTarihi)) {
       hatalar.push("Doğum tarihi geçersiz");
     } else {
       alanEkle(ogrVeri, "dogum_tarihi", dogumTarihi);
     }
-    alanEkle(ogrVeri, "dogum_yeri", formatMetin(raw.dogum_yeri));
-    alanEkle(ogrVeri, "hastalik", formatMetin(raw.hastalik));
-    alanEkle(ogrVeri, "engel", formatMetin(raw.engel));
-    alanEkle(ogrVeri, "ilac", formatMetin(raw.ilac));
-    const aileDurumu = aileDurumuNormalize(raw.aile_durumu);
-    alanEkle(ogrVeri, "aile_durumu", aileDurumu);
-
-    // Yetenekler
-    const yetenekler = [];
-    [1, 2, 3].forEach(no => {
-      const turKey  = `yetenek_${no}_tur`;
-      const aclKey  = `yetenek_${no}_aciklama`;
-      const turVal  = importEslesme[turKey]  ? temiz(raw[turKey])  : "";
-      const aclVal  = importEslesme[aclKey]  ? temiz(raw[aclKey])  : "";
-      if (turVal || aclVal) {
-        yetenekler.push({ tur: turVal, aciklama: aclVal });
-      }
-    });
-    if (yetenekler.length) ogrVeri.yetenekler = yetenekler;
 
     const yeniKayitEksikleri = [];
     if (!ogrVeri.ad) yeniKayitEksikleri.push("Ad");
     if (!ogrVeri.soyad) yeniKayitEksikleri.push("Soyad");
     if (!ogrVeri.sinif) yeniKayitEksikleri.push("Sınıf");
 
-    const cokluVeliler = [1, 2, 3]
-      .map(no => veliBlokVerisi(no, raw))
-      .filter(veliDoluMu);
-
-    return { raw, numara, ogrVeri, cokluVeliler, hatalar, yeniKayitEksikleri };
-  }
-
-  function veliBlokVerisi(no, raw) {
-    const prefix = `veli_${no}`;
-    const yakinlik = formatMetin(raw[`${prefix}_yakinlik`]) || "Diğer";
-    const veri = { yakinlik };
-    const parca = adSoyadAyir(raw[`${prefix}_ad_soyad`]);
-    alanEkle(veri, `${prefix}_yakinlik`, yakinlik, "yakinlik");
-    alanEkle(veri, `${prefix}_ad_soyad`, parca.ad, "ad");
-    alanEkle(veri, `${prefix}_ad_soyad`, parca.soyad, "soyad");
-    alanEkle(veri, `${prefix}_ad`, formatAd(raw[`${prefix}_ad`]), "ad");
-    alanEkle(veri, `${prefix}_soyad`, formatSoyad(raw[`${prefix}_soyad`]), "soyad");
-    alanEkle(veri, `${prefix}_telefon`, formatTelefon(raw[`${prefix}_telefon`]), "telefon");
-    alanEkle(veri, `${prefix}_durum`, formatMetin(raw[`${prefix}_durum`]), "durum");
-    alanEkle(veri, `${prefix}_calisma_durumu`, formatMetin(raw[`${prefix}_calisma_durumu`]), "calisma_durumu");
-    alanEkle(veri, `${prefix}_meslek`, formatMetin(raw[`${prefix}_meslek`]), "meslek");
-    alanEkle(veri, `${prefix}_meslek_grubu`, formatMetin(raw[`${prefix}_meslek_grubu`]), "meslek_grubu");
-    alanEkle(veri, `${prefix}_gorev_unvan`, formatMetin(raw[`${prefix}_gorev_unvan`]), "gorev_unvan");
-    alanEkle(veri, `${prefix}_kurum`, formatMetin(raw[`${prefix}_kurum`]), "kurum");
-    alanEkle(veri, `${prefix}_birincil`, temiz(raw[`${prefix}_birincil`]), "birincil");
-    alanEkle(veri, `${prefix}_acil_kisi`, temiz(raw[`${prefix}_acil_kisi`]), "acil_kisi");
-    alanEkle(veri, `${prefix}_iletisim_sirasi`, temiz(raw[`${prefix}_iletisim_sirasi`]), "iletisim_sirasi");
-    alanEkle(veri, `${prefix}_e_posta`, temiz(raw[`${prefix}_e_posta`]), "e_posta");
-    alanEkle(veri, `${prefix}_il`, formatMetin(raw[`${prefix}_il`]), "il");
-    alanEkle(veri, `${prefix}_ilce`, formatMetin(raw[`${prefix}_ilce`]), "ilce");
-    alanEkle(veri, `${prefix}_adres`, formatMetin(raw[`${prefix}_adres`]), "adres");
-    alanEkle(veri, `${prefix}_notlar`, formatMetin(raw[`${prefix}_notlar`]), "notlar");
-    return veri;
+    return { raw, numara, ogrVeri, hatalar, yeniKayitEksikleri };
   }
 
   function adSoyadAyir(value) {
@@ -931,25 +826,6 @@
     const temizDeger = temiz(value);
     if (!temizDeger) return;
     veri[targetKey] = temizDeger;
-  }
-
-  function aileDurumuNormalize(value) {
-    const durum = temiz(value);
-    if (durum === "İkisi de Hayatta" || durum === "İkisi De Hayatta") return "Anne-baba birlikte";
-    if (durum === "İkisi de Vefat" || durum === "İkisi De Vefat") return "Anne ve baba vefat";
-    if (durum === "Anne Vefat") return "Anne vefat";
-    if (durum === "Baba Vefat") return "Baba vefat";
-    return durum.startsWith("İkisi ") ? durum.replace(/\sDe\s/, " de ") : durum;
-  }
-
-  function yeniOgrenciVerisi(coz) {
-    return {
-      fotograf_url: "",
-      yetenekler: [],
-      aile_durumu: "Anne-baba birlikte",
-      durum: "Aktif",
-      ...coz.ogrVeri
-    };
   }
 
   function hucreDegeri(satir, alanKey) {
@@ -1006,54 +882,8 @@
     return temiz(value);
   }
 
-  function veliDoluMu(veri) {
-    const temelVar = ["ad", "soyad", "telefon"].some(key => temiz(veri[key]));
-    const yakinlik = temiz(veri.yakinlik);
-    const yakinlikVar = !!yakinlik && yakinlik !== "Diğer";
-    return temelVar || yakinlikVar;
-  }
-
   // Tekil sayılabilecek yakınlıklar: bu türde aynı öğrenciye ait en fazla 1 kişi olması beklenir.
   const TEKIL_YAKINLIKLAR = new Set(["Anne", "Baba", "Vasi", "Üvey Anne", "Üvey Baba"]);
-
-  async function veliAktarPaketi(ogrenciNo, varsayilanYakinlik, veri) {
-    if (!veliDoluMu(veri)) return null;
-    const yakinlik = temiz(veri.yakinlik) || varsayilanYakinlik;
-    const mevcutVeliler = await velileriGetir(ogrenciNo);
-
-    let mevcut = null;
-
-    // A) Yakınlık + Ad + Soyad
-    const adTmz  = temiz(veri.ad).toLocaleLowerCase("tr-TR");
-    const soyadTmz = temiz(veri.soyad).toLocaleLowerCase("tr-TR");
-    if (adTmz && soyadTmz) {
-      mevcut = mevcutVeliler.find(v =>
-        v.yakinlik === yakinlik &&
-        temiz(v.ad).toLocaleLowerCase("tr-TR")    === adTmz &&
-        temiz(v.soyad).toLocaleLowerCase("tr-TR") === soyadTmz
-      ) || null;
-    }
-
-    // B) Yakınlık + Telefon
-    if (!mevcut) {
-      const telTmz = temiz(veri.telefon);
-      if (telTmz) {
-        mevcut = mevcutVeliler.find(v =>
-          v.yakinlik === yakinlik && temiz(v.telefon) === telTmz
-        ) || null;
-      }
-    }
-
-    // C) Tekil yakınlıklarda: aynı yakınlıktan tek kayıt varsa onu güncelle
-    if (!mevcut && TEKIL_YAKINLIKLAR.has(yakinlik)) {
-      const ayni = mevcutVeliler.filter(v => v.yakinlik === yakinlik);
-      if (ayni.length === 1) mevcut = ayni[0];
-    }
-
-    // D) Hiçbir eşleşme yoksa yeni veli oluştur
-    const mevcutId = mevcut?.id || null;
-    return { id: mevcutId, veri: { ...veri, yakinlik } };
-  }
 
   function importSifirla() {
     importVerisi = [];
@@ -1082,19 +912,7 @@
   function importUyariGizle() {
     document.getElementById("import-hata").classList.add("d-none");
   }
-
-  function escapeHtml(value) {
-    return String(value ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-  function escapeAttr(value) {
-    return escapeHtml(value);
-  }
+});
 </script>
 </body>
 </html>

@@ -39,7 +39,15 @@
     });
   }
 
-  navigator.serviceWorker.register("./sw.js").then(function (reg) {
+  function kayitOl() {
+    return navigator.serviceWorker.register("./sw.js");
+  }
+
+  // Kayıt, sayfanın kendi dosyaları yüklendikten sonra yapılır; böylece yerel sunucu aynı anda boğulmaz.
+  new Promise(function (coz) {
+    if (document.readyState === "complete") setTimeout(coz, 1500);
+    else window.addEventListener("load", function () { setTimeout(coz, 1500); }, { once: true });
+  }).then(kayitOl).then(function (reg) {
     setInterval(function () {
       reg.update();
     }, 30 * 60 * 1000);

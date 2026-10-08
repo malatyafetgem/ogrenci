@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-119">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-119">
-  <link rel="shortcut icon" href="favicon.ico?v=20260615-119">
-  <script src="file-redirect.js?v=20260615-119"></script>
-  <script src="pwa.js?v=20260615-119"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
+  <script src="pwa.js?v=20261008-124"></script>
   <title>Excel Aktarım</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +21,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260615-119">
+  <link rel="stylesheet" href="app.css?v=20261008-124">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -163,12 +162,35 @@
         integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"
         crossorigin="anonymous"></script>
 
-<script type="module">
-  import { requireAuth, isAdminUser } from "./auth.js?v=20260615-119";
-  import { layoutYukle } from "./layout.js?v=20260615-119";
-  import { db } from "./firebase-config.js?v=20260615-119";
-  import { collection, getDocs } from "./firebase-imports.js?v=20260615-119";
-  import { compareOgrenci, compareTarihDesc, devamsizlikGunDegeri, onayIste, toast, tcKimlikMaskele } from "./utils.js?v=20260615-119";
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
+window.__yuklenemeyenler = [];
+window.OBSHazir = (function () {
+  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "school-settings.js?v=20261008-124", "students.js?v=20261008-124", "auth.js?v=20261008-124", "layout.js?v=20261008-124"];
+  var bekleyen = [], bitti = false;
+  function yukle(i, deneme) {
+    if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
+    var s = document.createElement("script");
+    s.src = liste[i] + (deneme ? "&r=" + deneme : "");
+    s.onload = function () { yukle(i + 1, 0); };
+    s.onerror = function () {
+      if (s.parentNode) s.parentNode.removeChild(s);
+      if (deneme < 4) { setTimeout(function () { yukle(i, deneme + 1); }, 250 * (deneme + 1)); }
+      else { window.__yuklenemeyenler.push(liste[i]); yukle(i + 1, 0); }
+    };
+    document.head.appendChild(s);
+  }
+  yukle(0, 0);
+  return function (fn) { if (bitti) { fn(); } else { bekleyen.push(fn); } };
+})();
+</script>
+<script>
+OBSHazir(async () => {
+"use strict";
+const { requireAuth, layoutYukle, db, collection, getDocs, compareOgrenci, compareTarihDesc, onayIste, toast } = window.OBS;
 
   // ═══════════════════════════════════════════════════════════════
   // ALAN TANIMI
@@ -183,110 +205,20 @@
   //   }
   // ═══════════════════════════════════════════════════════════════
   const TUM_ALANLAR = [
-    // ── Öğrenci - Temel ─────────────────────────────────────────
-    { grup:"Öğrenci - Temel", label:"Öğrenci No",   key:"s.numara" },
-    { grup:"Öğrenci - Temel", label:"Ad",            key:"s.ad" },
-    { grup:"Öğrenci - Temel", label:"Soyad",         key:"s.soyad" },
-    { grup:"Öğrenci - Temel", label:"Ad Soyad",      key:"s.ad_soyad" },
-    { grup:"Öğrenci - Temel", label:"Sınıf",         key:"s.sinif",
+    // ── Öğrenci ─────────────────────────────────────────────────
+    { grup:"Öğrenci", label:"Öğrenci No",   key:"s.numara" },
+    { grup:"Öğrenci", label:"Ad",            key:"s.ad" },
+    { grup:"Öğrenci", label:"Soyad",         key:"s.soyad" },
+    { grup:"Öğrenci", label:"Ad Soyad",      key:"s.ad_soyad" },
+    { grup:"Öğrenci", label:"Sınıf",         key:"s.sinif",
       filtre:{ baslik:"Sınıf", dinamik:true, kaynak:"ogrenci" } },
-    { grup:"Öğrenci - Temel", label:"Cinsiyet",      key:"s.cinsiyet",
+    { grup:"Öğrenci", label:"Cinsiyet",      key:"s.cinsiyet",
       filtre:{ baslik:"Cinsiyet", secenekler:["Erkek","Kız"], kaynak:"ogrenci" } },
-    { grup:"Öğrenci - Temel", label:"Telefon",       key:"s.telefon" },
-    { grup:"Öğrenci - Temel", label:"Yatılılık",     key:"s.yatililik",
+    { grup:"Öğrenci", label:"Yatılılık",     key:"s.yatililik",
       filtre:{ baslik:"Yatılılık", secenekler:["Gündüzlü","Paralı Yatılı","Parasız Yatılı"], kaynak:"ogrenci" } },
-    { grup:"Öğrenci - Temel", label:"Maddi Durum",   key:"s.maddi_durum",
-      filtre:{ baslik:"Maddi Durum", secenekler:["Düşük","Orta","İyi","Çok İyi"], kaynak:"ogrenci" } },
-    { grup:"Öğrenci - Temel", label:"Geldiği Okul",  key:"s.geldigi_okul",
-      filtre:{ baslik:"Geldiği Okul", dinamik:true, kaynak:"ogrenci" } },
-    { grup:"Öğrenci - Temel", label:"Durum",         key:"s.durum",
+    { grup:"Öğrenci", label:"Doğum Tarihi",  key:"s.dogum_tarihi" },
+    { grup:"Öğrenci", label:"Durum",         key:"s.durum",
       filtre:{ baslik:"Durum", secenekler:["Aktif","Mezun"], kaynak:"ogrenci" } },
-    // ── Öğrenci - Kimlik ────────────────────────────────────────
-    { grup:"Öğrenci - Kimlik", label:"TC Kimlik No", key:"s.tc_kimlik" },
-    { grup:"Öğrenci - Kimlik", label:"Doğum Tarihi", key:"s.dogum_tarihi" },
-    { grup:"Öğrenci - Kimlik", label:"Doğum Yeri",   key:"s.dogum_yeri",
-      filtre:{ baslik:"Doğum Yeri", dinamik:true, kaynak:"ogrenci" } },
-    // ── Öğrenci - Sağlık ────────────────────────────────────────
-    { grup:"Öğrenci - Sağlık", label:"Hastalık",     key:"s.hastalik",
-      filtre:{ baslik:"Hastalık", dinamik:true, kaynak:"ogrenci" } },
-    { grup:"Öğrenci - Sağlık", label:"Engel",        key:"s.engel",
-      filtre:{ baslik:"Engel", dinamik:true, kaynak:"ogrenci" } },
-    { grup:"Öğrenci - Sağlık", label:"İlaç",         key:"s.ilac",
-      filtre:{ baslik:"İlaç Kullanımı", secenekler:["Evet","Hayır"], kaynak:"ogrenci" } },
-    // ── Öğrenci - Aile ──────────────────────────────────────────
-    { grup:"Öğrenci - Aile", label:"Aile Durumu",    key:"s.aile_durumu",
-      filtre:{ baslik:"Aile Durumu", secenekler:[
-        "Anne-baba birlikte","Anne-baba ayrı","Anne vefat",
-        "Baba vefat","Anne ve baba vefat","Vasi yanında",
-        "Koruyucu aile yanında","Diğer"
-      ], kaynak:"ogrenci" } },
-    // ── Veli - Birincil ─────────────────────────────────────────
-    { grup:"Veli - Birincil", label:"Birincil Veli Adı",      key:"v1.ad" },
-    { grup:"Veli - Birincil", label:"Birincil Veli Soyadı",   key:"v1.soyad" },
-    { grup:"Veli - Birincil", label:"Birincil Veli Ad Soyad", key:"v1.ad_soyad" },
-    { grup:"Veli - Birincil", label:"Birincil Veli Yakınlık", key:"v1.yakinlik",
-      filtre:{ baslik:"Birincil Veli Yakınlık", secenekler:["Anne","Baba","Dede","Nine","Dayı","Amca","Hala","Teyze","Abi","Abla","Vasi","Diğer"], kaynak:"veli", vNo:0 } },
-    { grup:"Veli - Birincil", label:"Birincil Veli Telefon",  key:"v1.telefon" },
-    { grup:"Veli - Birincil", label:"Birincil Veli E-Posta",  key:"v1.e_posta" },
-    { grup:"Veli - Birincil", label:"Birincil Veli Meslek",   key:"v1.meslek",
-      filtre:{ baslik:"Birincil Veli Meslek", dinamik:true, kaynak:"veli", vNo:0 } },
-    { grup:"Veli - Birincil", label:"Birincil Veli Meslek Gr.", key:"v1.meslek_grubu",
-      filtre:{ baslik:"Birincil Veli Meslek Grubu", dinamik:true, kaynak:"veli", vNo:0 } },
-    { grup:"Veli - Birincil", label:"Birincil Veli Görev",    key:"v1.gorev_unvan" },
-    { grup:"Veli - Birincil", label:"Birincil Veli Kurum",    key:"v1.kurum",
-      filtre:{ baslik:"Birincil Veli Kurum", dinamik:true, kaynak:"veli", vNo:0 } },
-    { grup:"Veli - Birincil", label:"Birincil Veli Çalışma",  key:"v1.calisma_durumu",
-      filtre:{ baslik:"Birincil Veli Çalışma", secenekler:["Çalışıyor","Çalışmıyor","Emekli","Vefat"], kaynak:"veli", vNo:0 } },
-    { grup:"Veli - Birincil", label:"Birincil Veli İl",       key:"v1.il",
-      filtre:{ baslik:"Birincil Veli İl", dinamik:true, kaynak:"veli", vNo:0 } },
-    { grup:"Veli - Birincil", label:"Birincil Veli İlçe",     key:"v1.ilce",
-      filtre:{ baslik:"Birincil Veli İlçe", dinamik:true, kaynak:"veli", vNo:0 } },
-    { grup:"Veli - Birincil", label:"Birincil Veli Adres",    key:"v1.adres" },
-    { grup:"Veli - Birincil", label:"Birincil Veli Notlar",   key:"v1.notlar" },
-    // ── Veli - 2. Veli ──────────────────────────────────────────
-    { grup:"Veli - 2. Veli", label:"2. Veli Adı",       key:"v2.ad" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Soyadı",    key:"v2.soyad" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Ad Soyad",  key:"v2.ad_soyad" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Yakınlık",  key:"v2.yakinlik",
-      filtre:{ baslik:"2. Veli Yakınlık", secenekler:["Anne","Baba","Dede","Nine","Dayı","Amca","Hala","Teyze","Abi","Abla","Vasi","Diğer"], kaynak:"veli", vNo:1 } },
-    { grup:"Veli - 2. Veli", label:"2. Veli Telefon",   key:"v2.telefon" },
-    { grup:"Veli - 2. Veli", label:"2. Veli E-Posta",   key:"v2.e_posta" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Meslek",    key:"v2.meslek",
-      filtre:{ baslik:"2. Veli Meslek", dinamik:true, kaynak:"veli", vNo:1 } },
-    { grup:"Veli - 2. Veli", label:"2. Veli Meslek Gr.", key:"v2.meslek_grubu" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Görev",     key:"v2.gorev_unvan" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Kurum",     key:"v2.kurum" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Çalışma",   key:"v2.calisma_durumu" },
-    { grup:"Veli - 2. Veli", label:"2. Veli İl",        key:"v2.il",
-      filtre:{ baslik:"2. Veli İl", dinamik:true, kaynak:"veli", vNo:1 } },
-    { grup:"Veli - 2. Veli", label:"2. Veli İlçe",      key:"v2.ilce" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Adres",     key:"v2.adres" },
-    { grup:"Veli - 2. Veli", label:"2. Veli Notlar",    key:"v2.notlar" },
-    // ── Veli - 3. Veli ──────────────────────────────────────────
-    { grup:"Veli - 3. Veli", label:"3. Veli Adı",       key:"v3.ad" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Soyadı",    key:"v3.soyad" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Ad Soyad",  key:"v3.ad_soyad" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Yakınlık",  key:"v3.yakinlik",
-      filtre:{ baslik:"3. Veli Yakınlık", secenekler:["Anne","Baba","Dede","Nine","Dayı","Amca","Hala","Teyze","Abi","Abla","Vasi","Diğer"], kaynak:"veli", vNo:2 } },
-    { grup:"Veli - 3. Veli", label:"3. Veli Telefon",   key:"v3.telefon" },
-    { grup:"Veli - 3. Veli", label:"3. Veli E-Posta",   key:"v3.e_posta" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Meslek",    key:"v3.meslek" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Meslek Gr.", key:"v3.meslek_grubu" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Görev",     key:"v3.gorev_unvan" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Kurum",     key:"v3.kurum" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Çalışma",   key:"v3.calisma_durumu" },
-    { grup:"Veli - 3. Veli", label:"3. Veli İl",        key:"v3.il" },
-    { grup:"Veli - 3. Veli", label:"3. Veli İlçe",      key:"v3.ilce" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Adres",     key:"v3.adres" },
-    { grup:"Veli - 3. Veli", label:"3. Veli Notlar",    key:"v3.notlar" },
-    // ── Devamsızlık ─────────────────────────────────────────────
-    { grup:"Devamsızlık", label:"Devamsızlık Kayıt Sayısı", key:"dev.kayit_sayisi" },
-    { grup:"Devamsızlık", label:"Özürlü Gün",              key:"dev.ozurlu_gun" },
-    { grup:"Devamsızlık", label:"Özürsüz Gün",             key:"dev.ozursuz_gun" },
-    { grup:"Devamsızlık", label:"Toplam Devamsızlık Günü", key:"dev.toplam_gun" },
-    { grup:"Devamsızlık", label:"Son Devamsızlık Tarihi",  key:"dev.son_tarih" },
-    { grup:"Devamsızlık", label:"Son Devamsızlık Türü",    key:"dev.son_tur" },
-    { grup:"Devamsızlık", label:"Son Devamsızlık Açıklama", key:"dev.son_aciklama" },
     // ── Davranış ────────────────────────────────────────────────
     { grup:"Davranış", label:"Davranış Kayıt Sayısı",       key:"dav.kayit_sayisi" },
     { grup:"Davranış", label:"Olumlu Davranış Sayısı",      key:"dav.olumlu_sayisi" },
@@ -309,13 +241,15 @@
     { key:"s.numara" },
     { key:"s.ad_soyad" },
     { key:"s.sinif" },
-    { key:"s.telefon" },
   ];
 
   let sutunlar = [];
   try {
     const k = localStorage.getItem("excel-export-sutunlar");
     sutunlar = k ? JSON.parse(k) : VARSAYILAN_SUTUNLAR.map(s=>({...s}));
+    // Kaldırılan alanlara ait eski sütun seçimleri (telefon, veli, devamsızlık vb.) atılır.
+    sutunlar = sutunlar.filter(s => s.key === "__sira__" || !s.key || TUM_ALANLAR.some(a => a.key === s.key));
+    if (!sutunlar.length) sutunlar = VARSAYILAN_SUTUNLAR.map(s=>({...s}));
   } catch { sutunlar = VARSAYILAN_SUTUNLAR.map(s=>({...s})); }
 
   // filtreler: Map<key, Set<seçili değer>>
@@ -323,8 +257,6 @@
   const filtreler = new Map();
 
   let tumOgrenciler = [];
-  let velilerMap    = {};
-  let devamsizlikMap = {};
   let davranisMap    = {};
   let gorusmeMap     = {};
   let veriYuklendi  = false;
@@ -442,33 +374,17 @@
   async function veriYukle() {
     if (veriYuklendi) return;
     try {
-      const [ogrSnap, veliSnap, devSnap, davSnap, gorSnap] = await Promise.all([
+      const [ogrSnap, davSnap, gorSnap] = await Promise.all([
         getDocs(collection(db, "students")),
-        getDocs(collection(db, "veliler")),
-        getDocs(collection(db, "devamsizliklar")),
         getDocs(collection(db, "davranislar")),
         getDocs(collection(db, "veligorusmeleri"))
       ]);
-      const tumVeliler = veliSnap.docs.map(d => ({ id:d.id, ...d.data() }));
-      velilerMap = {};
-      tumVeliler.forEach(v => {
-        const oid = String(v.ogrenciId || "");
-        if (!velilerMap[oid]) velilerMap[oid] = [];
-        velilerMap[oid].push(v);
-      });
-      Object.keys(velilerMap).forEach(oid => {
-        velilerMap[oid].sort((a,b) => {
-          if (!!b.birincil !== !!a.birincil) return b.birincil ? 1 : -1;
-          return (Number(a.iletisim_sirasi)||0) - (Number(b.iletisim_sirasi)||0);
-        });
-      });
       tumOgrenciler = ogrSnap.docs
         .map(d => {
           const veri = { id:d.id, ...d.data() };
           return { ...veri, durum: ogrenciDurumu(veri.durum) };
         })
         .sort(compareOgrenci);
-      devamsizlikMap = devamsizlikOzetMap(devSnap.docs.map(d => ({ id:d.id, ...d.data() })));
       davranisMap = davranisOzetMap(davSnap.docs.map(d => ({ id:d.id, ...d.data() })));
       gorusmeMap = gorusmeOzetMap(gorSnap.docs.map(d => ({ id:d.id, ...d.data() })));
       veriYuklendi = true;
@@ -497,26 +413,6 @@
       map[oid].push(kayit);
     });
     Object.values(map).forEach(liste => liste.sort((a, b) => compareTarihDesc(a.tarih, b.tarih)));
-    return map;
-  }
-
-  function devamsizlikOzetMap(kayitlar) {
-    const map = kayitlariOgrenciyeGrupla(kayitlar);
-    Object.keys(map).forEach(oid => {
-      const liste = map[oid];
-      const ozet = { kayit_sayisi: liste.length, ozurlu_gun: 0, ozursuz_gun: 0 };
-      liste.forEach(kayit => {
-        const gun = devamsizlikGunDegeri(kayit);
-        if (kayit.tur === "Özürlü") ozet.ozurlu_gun += gun;
-        else ozet.ozursuz_gun += gun;
-      });
-      const son = liste[0] || {};
-      ozet.toplam_gun = ozet.ozurlu_gun + ozet.ozursuz_gun;
-      ozet.son_tarih = son.tarih || "";
-      ozet.son_tur = son.tur || "";
-      ozet.son_aciklama = son.aciklama || "";
-      map[oid] = ozet;
-    });
     return map;
   }
 
@@ -597,20 +493,8 @@
       let secenekler = tanim.secenekler || [];
       if (tanim.dinamik) {
         const set = new Set();
-        if (tanim.kaynak === "veli") {
-          // İlgili veli sırasından (vNo) değerleri topla
-          Object.values(velilerMap).forEach(vArr => {
-            const v = vArr[tanim.vNo];
-            if (v) {
-              const field = tanim.key.slice(3); // "v1.meslek" → "meslek"
-              const val = v[field];
-              if (val) set.add(String(val));
-            }
-          });
-        } else {
-          const field = tanim.key.slice(2); // "s.sinif" → "sinif"
-          tumOgrenciler.forEach(o => { if (o[field]) set.add(String(o[field])); });
-        }
+        const field = tanim.key.slice(2); // "s.sinif" → "sinif"
+        tumOgrenciler.forEach(o => { if (o[field]) set.add(String(o[field])); });
         secenekler = [...set].sort((a,b) => a.localeCompare(b,"tr"));
       }
       if (!secenekler.length) return;
@@ -692,21 +576,11 @@
   function filtreliOgrenciler() {
     const tanimlar = aktifFiltreTanimlari();
     return tumOgrenciler.filter(o => {
-      const ogrId  = String(o.id || "");
-      const veliler = velilerMap[ogrId] || [];
       return tanimlar.every(tanim => {
         const set = filtreler.get(tanim.key);
         if (!set || !set.size) return true;
-        let deger;
-        if (tanim.kaynak === "veli") {
-          const v = veliler[tanim.vNo] || {};
-          const field = tanim.key.slice(3);
-          deger = String(v[field] || "");
-        } else {
-          const field = tanim.key.slice(2);
-          deger = String(o[field] || "");
-        }
-        return set.has(deger);
+        const field = tanim.key.slice(2);
+        return set.has(String(o[field] || ""));
       });
     });
   }
@@ -718,19 +592,10 @@
     if (key === "__sira__") return siraNo;
     if (!key) return "";
     const ogrId   = String(ogrenci.id || ogrenci.numara || "");
-    const veliler = velilerMap[ogrId] || [];
-    const v1 = veliler[0] || {};
-    const v2 = veliler[1] || {};
-    const v3 = veliler[2] || {};
     const adSoyad = v => [v.ad||"", v.soyad||""].filter(Boolean).join(" ");
 
     if (key === "s.ad_soyad") return adSoyad(ogrenci);
-    if (key === "s.tc_kimlik") return tcKimlikMaskele(ogrenci.tc_kimlik, isAdminUser());
     if (key.startsWith("s."))  return String(ogrenci[key.slice(2)] ?? "");
-    if (key.startsWith("v1.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v1):String(v1[f]??""); }
-    if (key.startsWith("v2.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v2):String(v2[f]??""); }
-    if (key.startsWith("v3.")) { const f=key.slice(3); return f==="ad_soyad"?adSoyad(v3):String(v3[f]??""); }
-    if (key.startsWith("dev.")) return String(devamsizlikMap[ogrId]?.[key.slice(4)] ?? "");
     if (key.startsWith("dav.")) return String(davranisMap[ogrId]?.[key.slice(4)] ?? "");
     if (key.startsWith("gor.")) return String(gorusmeMap[ogrId]?.[key.slice(4)] ?? "");
     return "";
@@ -851,6 +716,7 @@
   function yukleniyorGizle() {
     document.getElementById("yukleniyor-overlay").classList.remove("aktif");
   }
+});
 </script>
 </body>
 </html>

@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20260615-119">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20260615-119">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20260615-119">
-  <link rel="shortcut icon" href="favicon.ico?v=20260615-119">
-  <script src="file-redirect.js?v=20260615-119"></script>
-  <script src="pwa.js?v=20260615-119"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
+  <script src="pwa.js?v=20261008-124"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -22,7 +21,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20260615-119">
+  <link rel="stylesheet" href="app.css?v=20261008-124">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -73,9 +72,6 @@
                     </button>
                   </div>
                   <div class="detail-action-group detail-action-group-add">
-                    <a href="#" id="devamsizlik-ekle-btn" class="btn btn-sm detail-action-btn detail-action-attendance">
-                      <i class="bi bi-calendar-plus"></i>Devamsızlık Ekle
-                    </a>
                     <a href="#" id="davranis-ekle-btn" class="btn btn-sm detail-action-btn detail-action-behavior">
                       <i class="bi bi-star"></i>Davranış Ekle
                     </a>
@@ -84,9 +80,6 @@
                     </a>
                   </div>
                   <div class="detail-action-group detail-action-group-print">
-                    <button type="button" class="btn btn-sm detail-action-btn detail-action-card" id="kart-yazdir-btn">
-                      <i class="bi bi-card-heading"></i>Kart Yazdır
-                    </button>
                     <button type="button" class="btn btn-sm detail-action-btn detail-action-print" data-obs-print>
                       <i class="bi bi-printer"></i>Yazdır
                     </button>
@@ -102,19 +95,6 @@
               <a class="nav-link active" id="tab-kisisel" data-bs-toggle="tab" href="#sekme-kisisel"
                  role="tab" aria-controls="sekme-kisisel" aria-selected="true">
                 <i class="bi bi-person me-1"></i>Kişisel
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="tab-veli" data-bs-toggle="tab" href="#sekme-veli"
-                 role="tab" aria-controls="sekme-veli" aria-selected="false">
-                <i class="bi bi-people me-1"></i>Veliler
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="tab-devamsizlik" data-bs-toggle="tab" href="#sekme-devamsizlik"
-                 role="tab" aria-controls="sekme-devamsizlik" aria-selected="false">
-                <i class="bi bi-calendar-x me-1"></i>Devamsızlık
-                <span class="badge bg-secondary ms-1" id="dev-sayac">—</span>
               </a>
             </li>
             <li class="nav-item">
@@ -138,104 +118,8 @@
               <div class="row g-3">
                 <div class="col-md-6">
                   <div class="card h-100">
-                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-id-card me-1"></i>Kimlik & Doğum</h6></div>
+                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-id-card me-1"></i>Öğrenci Bilgileri</h6></div>
                     <div class="card-body" id="blok-kimlik"></div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card h-100">
-                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-heart-pulse me-1"></i>Sağlık Bilgileri</h6></div>
-                    <div class="card-body" id="blok-saglik"></div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card h-100">
-                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-house me-1"></i>Aile Durumu</h6></div>
-                    <div class="card-body" id="blok-aile"></div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="card h-100">
-                    <div class="card-header"><h6 class="mb-0"><i class="bi bi-trophy me-1"></i>Yetenek & Hobiler</h6></div>
-                    <div class="card-body" id="blok-yetenek"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- VELİ BİLGİLERİ -->
-            <div class="tab-pane fade" id="sekme-veli" role="tabpanel" aria-labelledby="tab-veli" tabindex="0">
-              <div class="row g-3" id="veli-kartlar">
-                <div class="col-12 text-center text-muted py-3">Hazırlanıyor...</div>
-              </div>
-            </div>
-
-            <!-- DEVAMSIZLIK -->
-            <div class="tab-pane fade" id="sekme-devamsizlik" role="tabpanel" aria-labelledby="tab-devamsizlik" tabindex="0">
-              <div class="row g-3 mb-3">
-                <div class="col-6 col-md-3">
-                  <div class="card text-center">
-                    <div class="card-body py-2">
-                      <div class="small text-muted">Özürsüz</div>
-                      <div class="fs-4 fw-bold text-danger" id="dev-ozursuz">—</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="card text-center">
-                    <div class="card-body py-2">
-                      <div class="small text-muted">Özürlü</div>
-                      <div class="fs-4 fw-bold text-warning" id="dev-ozurlu">—</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="card text-center">
-                    <div class="card-body py-2">
-                      <div class="small text-muted">Toplam</div>
-                      <div class="fs-4 fw-bold" id="dev-toplam">—</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="card text-center">
-                    <div class="card-body py-2">
-                      <div class="small text-muted">Durum</div>
-                      <div id="dev-durum-rozet">—</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="card mb-3">
-                <div class="card-header">
-                  <h6 class="mb-0"><i class="bi bi-bar-chart-line me-1"></i>Aylık Devamsızlık Trendi</h6>
-                </div>
-                <div class="card-body">
-                  <div id="dev-trend"><div class="text-muted small">—</div></div>
-                  <div class="grafik-legend mt-2 justify-content-start">
-                    <span><i class="grafik-nokta grafik-nokta-danger"></i> Özürsüz</span>
-                    <span><i class="grafik-nokta grafik-nokta-warning"></i> Özürlü</span>
-                  </div>
-                </div>
-              </div>
-              <div class="card">
-                <div class="card-header">
-                  <h6 class="mb-0"><i class="bi bi-list-ul me-1"></i>Kayıtlar</h6>
-                </div>
-                <div class="card-body p-0">
-                  <div class="table-responsive">
-                    <table class="table table-sm table-hover mb-0 detay-kayit-tablo">
-                      <thead class="table-light">
-                        <tr>
-                          <th>Tarih</th>
-                          <th>Tür</th>
-                          <th>Miktar</th>
-                          <th>Açıklama</th>
-                          <th class="no-print">İşlem</th>
-                        </tr>
-                      </thead>
-                      <tbody id="dev-tablo"></tbody>
-                    </table>
                   </div>
                 </div>
               </div>
@@ -329,50 +213,6 @@
     </div>
   </main>
 </div>
-<!-- Devamsızlık Düzenleme Modali -->
-<div class="modal fade" id="dev-duzenle-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="dev-duzenle-modal-baslik">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="dev-duzenle-modal-baslik"><i class="bi bi-pencil me-2"></i>Devamsızlık Düzenle</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="dev-duzenle-id">
-        <div class="row g-3">
-          <div class="col-6">
-            <label class="form-label" for="dev-duzenle-tarih">Tarih <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="dev-duzenle-tarih" placeholder="GG.AA.YYYY">
-          </div>
-          <div class="col-6">
-            <label class="form-label" for="dev-duzenle-tur">Tür <span class="text-danger">*</span></label>
-            <select class="form-select" id="dev-duzenle-tur">
-              <option value="Özürsüz">Özürsüz</option>
-              <option value="Özürlü">Özürlü</option>
-            </select>
-          </div>
-          <div class="col-6">
-            <label class="form-label" for="dev-duzenle-miktar">Miktar (gün)</label>
-            <input type="number" class="form-control" id="dev-duzenle-miktar" min="0.5" step="0.5" value="1">
-          </div>
-          <div class="col-12">
-            <label class="form-label" for="dev-duzenle-aciklama">Açıklama</label>
-            <input type="text" class="form-control" id="dev-duzenle-aciklama">
-          </div>
-        </div>
-        <div class="alert alert-danger d-none mt-3" id="dev-duzenle-hata"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-        <button type="button" class="btn btn-primary" id="dev-duzenle-kaydet-btn">
-          <span id="dev-duzenle-kaydet-metin"><i class="bi bi-check-circle me-1"></i>Kaydet</span>
-          <span id="dev-duzenle-kaydet-yuklen" class="d-none"><span class="spinner-border spinner-border-sm me-1"></span>Kaydediliyor...</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Davranış Düzenleme Modali -->
 <div class="modal fade" id="davranis-duzenle-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="davranis-duzenle-modal-baslik">
   <div class="modal-dialog modal-dialog-scrollable">
@@ -470,7 +310,6 @@
 
 <div id="footer-kap"></div>
 <div id="bottom-nav-kap"></div>
-<div id="ogrenci-kart" aria-hidden="true"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
@@ -479,30 +318,39 @@
         integrity="sha384-+4p7LDsv7qv4DpdBj3wITizBeFFK5pEwCMHKkmWRepY1L4SzbJD1DKvVWOlFvqMQ"
         crossorigin="anonymous"></script>
 
-<script type="module">
-  import { requireAuth, adminActionAllowed, applyAdminVisibility, isAdminUser } from "./auth.js?v=20260615-119";
-  import { layoutYukle } from "./layout.js?v=20260615-119";
-  import {
-    ogrenciGetir, velileriGetir,
-    ogrenciSil,
-    devamsizliklarGetir, devamsizlikHesapla, devamsizlikSil, devamsizlikGuncelle,
-    davranislarGetir, davranisSil, davranisGuncelle,
-    gorusmeleriGetir, gorusmeSil, gorusmeGuncelle
-  } from "./students.js?v=20260615-119";
-  import {
-    devamsizlikDurum, devamsizlikDurumEtiketi, devamsizlikRenk, devamsizlikMiktarEtiketi,
-    devamsizlikTarihEtiketi, devamsizlikGunDagilimi, devamsizlikKapsananTarihler,
-    formatTelefon, sayiEtiketiTR, toast, onayIste, gecerliTarih, escapeHtml, escapeAttr, tcKimlikMaskele
-  } from "./utils.js?v=20260615-119";
-  import { avatarSrc } from "./avatar.js?v=20260615-119";
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
+window.__yuklenemeyenler = [];
+window.OBSHazir = (function () {
+  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "school-settings.js?v=20261008-124", "avatar.js?v=20261008-124", "students.js?v=20261008-124", "auth.js?v=20261008-124", "layout.js?v=20261008-124"];
+  var bekleyen = [], bitti = false;
+  function yukle(i, deneme) {
+    if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
+    var s = document.createElement("script");
+    s.src = liste[i] + (deneme ? "&r=" + deneme : "");
+    s.onload = function () { yukle(i + 1, 0); };
+    s.onerror = function () {
+      if (s.parentNode) s.parentNode.removeChild(s);
+      if (deneme < 4) { setTimeout(function () { yukle(i, deneme + 1); }, 250 * (deneme + 1)); }
+      else { window.__yuklenemeyenler.push(liste[i]); yukle(i + 1, 0); }
+    };
+    document.head.appendChild(s);
+  }
+  yukle(0, 0);
+  return function (fn) { if (bitti) { fn(); } else { bekleyen.push(fn); } };
+})();
+</script>
+<script>
+OBSHazir(async () => {
+"use strict";
+const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogrenciGetir, ogrenciSil, davranislarGetir, davranisSil, davranisGuncelle, gorusmeleriGetir, gorusmeSil, gorusmeGuncelle, toast, onayIste, gecerliTarih, escapeHtml, escapeAttr, avatarSrc } = window.OBS;
 
   let ogrenciId = null;
   let tumDavranislar = [];
-  let tumDevamsizlikKayitlar = [];
   let tumGorusmeler = [];
-  let sonVeliler = [];
-  let sonDevOzet = null;
-  let sonDavOzet = null;
 
   requireAuth(async () => {
     layoutYukle();
@@ -510,25 +358,8 @@
     ogrenciId = params.get("id");
     if (!ogrenciId) { location.href = "students-list.html"; return; }
     await yukle();
-    document.getElementById("kart-yazdir-btn")?.addEventListener("click", kartYazdir);
     document.getElementById("ogrenci-sil-btn")?.addEventListener("click", ogrenciSilOnayla);
-    window.addEventListener("afterprint", () => document.body.classList.remove("kart-print"));
   });
-
-  function kartYazdir() {
-    document.body.classList.add("kart-print");
-    if (typeof window.obsYazdir === "function") {
-      window.obsYazdir();
-      return;
-    }
-    setTimeout(() => {
-      try {
-        window.print();
-      } catch {
-        document.body.classList.remove("kart-print");
-      }
-    }, 180);
-  }
 
   async function ogrenciSilOnayla() {
     if (!adminActionAllowed()) return;
@@ -536,7 +367,7 @@
     const onay = await onayIste({
       baslik: "Öğrenciyi sil",
       mesaj: `${ad} ve öğrenciye bağlı tüm kayıtlar kalıcı olarak silinecek.`,
-      detay: "Veli, devamsızlık, davranış ve veli görüşmesi kayıtları da silinir. Bu işlem geri alınamaz.",
+      detay: "Davranış ve veli görüşmesi kayıtları da silinir. Bu işlem geri alınamaz.",
       onayMetni: "SİL",
       onayButonu: "Sil",
       tip: "danger"
@@ -566,7 +397,6 @@
       const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
       const okulNo = o.numara || o.id;
       const kayitIdFarkli = o.id !== okulNo;
-      const tcKimlik = tcKimlikMaskele(o.tc_kimlik, isAdminUser());
       document.title = tamAd || "Öğrenci Detayı";
       document.getElementById("sayfa-baslik").textContent = tamAd;
       document.getElementById("breadcrumb-ad").textContent = tamAd;
@@ -584,8 +414,6 @@
 
       document.getElementById("duzenle-btn").href =
         `students-add-edit.html?id=${ogrenciId}`;
-      document.getElementById("devamsizlik-ekle-btn").href =
-        `attendance-entry.html?id=${ogrenciId}`;
       document.getElementById("davranis-ekle-btn").href =
         `behavior-entry.html?id=${ogrenciId}`;
       document.getElementById("gorusme-ekle-btn").href =
@@ -594,112 +422,27 @@
         `meetings-entry.html?id=${ogrenciId}`;
 
       // Bloklar
-      blokDoldurTelefon("blok-kimlik", [
-        ["Öğrenci No", okulNo, false],
-        ...(kayitIdFarkli ? [["Kayıt ID", o.id, false]] : []),
-        ["Öğrenci Telefonu", o.telefon || "", true],
-        ["TC Kimlik", tcKimlik, false],
-        ["Doğum Tarihi", o.dogum_tarihi, false],
-        ["Doğum Yeri", o.dogum_yeri, false],
-        ["Geldiği Okulun Adı", o.geldigi_okul, false],
+      blokDoldur("blok-kimlik", [
+        ["Öğrenci No", okulNo],
+        ...(kayitIdFarkli ? [["Kayıt ID", o.id]] : []),
+        ["Sınıf", o.sinif],
+        ["Cinsiyet", o.cinsiyet],
+        ["Yatılılık", o.yatililik],
+        ["Doğum Tarihi", o.dogum_tarihi],
+        ["Durum", o.durum]
       ]);
-
-      blokDoldur("blok-saglik", [
-        ["Hastalık", o.hastalik],
-        ["Engel", o.engel],
-        ["İlaç", o.ilac],
-      ]);
-
-      blokDoldur("blok-aile", [
-        ["Aile Durumu", o.aile_durumu],
-        ["Maddi Durum", o.maddi_durum],
-      ]);
-
-      const yetEl = document.getElementById("blok-yetenek");
-      if (o.yetenekler && o.yetenekler.length > 0) {
-        yetEl.innerHTML = o.yetenekler.map(y =>
-          `<div class="d-flex align-items-center gap-2 mb-1">
-            <i class="bi bi-star-fill text-warning small"></i>
-            <span class="small"><strong>${escapeHtml(y.tur)}</strong> — ${escapeHtml(y.aciklama)}</span>
-          </div>`
-        ).join("");
-      } else {
-        yetEl.innerHTML = `<span class="text-muted small">Kayıt yok</span>`;
-      }
 
       await Promise.all([
-        yukleVeliler(),
-        yukleDevamsizlik(),
         yukleDavranis(),
         yukleGorusmeler()
       ]);
 
       document.getElementById("yukleniyor").classList.add("d-none");
       document.getElementById("icerik").classList.remove("d-none");
-      ogrenciKartiDoldur(o);
 
     } catch (err) {
       toast("Veriler yüklenemedi: " + err.message, "danger");
     }
-  }
-
-  function ogrenciKartiDoldur(o) {
-    const el = document.getElementById("ogrenci-kart");
-    if (!el) return;
-    const tamAd = `${o.ad || ""} ${o.soyad || ""}`.trim();
-    const okulNo = o.numara || o.id;
-    const kayitIdFarkli = o.id !== okulNo;
-    const tcKimlik = tcKimlikMaskele(o.tc_kimlik, isAdminUser());
-    const satir = (et, dg) => `<div class="satir"><span class="et">${escapeHtml(et)}</span><span>${dg ? escapeHtml(dg) : "—"}</span></div>`;
-    const dev = sonDevOzet || { ozurlu: 0, ozursuz: 0, toplam: 0 };
-    const dav = sonDavOzet || { olumlu: 0, olumsuz: 0 };
-    const veliSat = (sonVeliler || []).slice(0, 3).map(v =>
-      satir(`${v.yakinlik || "Veli"} · ${formatTelefon(v.telefon || "") || "—"}`, `${v.ad || ""} ${v.soyad || ""}`.trim())
-    ).join("") || satir("Veli", "—");
-    el.innerHTML = `<div class="ogrkart">
-      <div class="ogrkart-baslik">
-        <img class="ogrkart-logo" src="icon-192.png?v=20260615-119" alt="">
-        <div><h1>${escapeHtml(tamAd)}</h1><div class="alt">Öğrenci Kartı · No: ${escapeHtml(okulNo)} · ${escapeHtml(o.sinif || "—")}</div></div>
-      </div>
-      <div class="ogrkart-bolum-baslik">Kimlik Bilgileri</div>
-      <div class="ogrkart-grid">
-        ${satir("Öğrenci No", okulNo)}
-        ${kayitIdFarkli ? satir("Kayıt ID", o.id) : ""}
-        ${satir("Sınıf", o.sinif)}
-        ${satir("Cinsiyet", o.cinsiyet)}
-        ${satir("Yatılılık", o.yatililik)}
-        ${satir("Telefon", formatTelefon(o.telefon || ""))}
-        ${satir("TC Kimlik", tcKimlik)}
-        ${satir("Doğum Tarihi", o.dogum_tarihi)}
-        ${satir("Doğum Yeri", o.dogum_yeri)}
-      </div>
-      <div class="ogrkart-bolum-baslik">Veliler</div>
-      <div class="ogrkart-grid">${veliSat}</div>
-      <div class="ogrkart-bolum-baslik">Özet</div>
-      <div class="ogrkart-grid">
-        ${satir("Devamsızlık (Özürsüz / Özürlü)", `${dev.ozursuz} / ${dev.ozurlu}`)}
-        ${satir("Toplam Devamsızlık", String(dev.toplam))}
-        ${satir("Olumlu Davranış", String(dav.olumlu))}
-        ${satir("Olumsuz Davranış", String(dav.olumsuz))}
-      </div>
-      <div class="alt print-alt-bosluk">Malatya FETGEM · Yazdırma tarihi: ${new Date().toLocaleDateString("tr-TR")}</div>
-    </div>`;
-  }
-
-  function telLinkleri(tel) {
-    const ham = String(tel || "").replace(/\D/g, "");
-    if (!ham) return "";
-    let ulusal = ham;
-    if (ham.length === 11 && ham.startsWith("0")) ulusal = ham.slice(1);
-    else if (ham.length === 10) ulusal = ham;
-    else ulusal = ham.replace(/^0/, "");
-    const wa = "90" + ulusal;
-    const telHref = "tel:+90" + ulusal;
-    return `<span class="tel-hucre">
-      <span class="tel-no">${escapeHtml(formatTelefon(tel))}</span>
-      <a href="${telHref}" class="tel-ikon no-print" title="Ara" aria-label="Telefonla ara"><i class="bi bi-telephone-fill"></i></a>
-      <a href="https://wa.me/${wa}" target="_blank" rel="noopener" class="tel-ikon wa no-print" title="WhatsApp" aria-label="WhatsApp ile yaz"><i class="bi bi-whatsapp"></i></a>
-    </span>`;
   }
 
   function blokDoldur(elId, alanlar) {
@@ -711,208 +454,9 @@
       </div>`).join("");
   }
 
-  function blokDoldurTelefon(elId, alanlar) {
-    // alanlar: [etiket, deger, isTel?]
-    const el = document.getElementById(elId);
-    el.innerHTML = alanlar.map(([et, dg, isTel]) => {
-      let icerik;
-      if (isTel && dg) {
-        const link = telLinkleri(dg);
-        icerik = link || `<span class="text-muted">—</span>`;
-      } else {
-        icerik = dg ? escapeHtml(dg) : '<span class="text-muted">—</span>';
-      }
-      return `
-        <div class="detay-bilgi-satir d-flex justify-content-between align-items-center mb-2 small border-bottom pb-1">
-          <span class="text-muted">${escapeHtml(et)}</span>
-          <span class="fw-semibold text-end">${icerik}</span>
-        </div>`;
-    }).join("");
-  }
-
-  async function yukleVeliler() {
-    const veliler = await velileriGetir(ogrenciId);
-    sonVeliler = veliler;
-    const kap = document.getElementById("veli-kartlar");
-    if (!veliler.length) {
-      kap.innerHTML = `<div class="col-12 text-muted text-center py-3">Veli kaydı yok.</div>`;
-      return;
-    }
-    kap.innerHTML = veliler.map(v => {
-      const yakinlik = v.yakinlik || "Veli";
-      const durum = v.durum || "Aktif";
-      const turRenk = yakinlik === "Baba" ? "primary" : yakinlik === "Anne" ? "danger" : "secondary";
-      const durumRenk = veliDurumRenk(durum);
-      const meslek = [v.calisma_durumu, v.meslek_grubu, v.meslek, v.gorev_unvan, v.kurum]
-        .filter(Boolean).join(" / ");
-      const adres = [v.il, v.ilce].filter(Boolean).join(" / ");
-      const telLink = v.telefon ? telLinkleri(v.telefon) : "";
-      const telSatir = v.telefon ? `
-        <div class="veli-bilgi-satir d-flex justify-content-between align-items-center mb-1 small border-bottom pb-1">
-          <span class="text-muted">Telefon</span>
-          <span class="fw-semibold text-end">${telLink}</span>
-        </div>` : "";
-      return `<div class="col-md-6">
-        <div class="card h-100">
-          <div class="card-header">
-            <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
-              <h6 class="mb-0">
-                <span class="badge bg-${turRenk} me-1">${escapeHtml(yakinlik)}</span>
-                ${escapeHtml(`${v.ad || ""} ${v.soyad || ""}`.trim() || "Ad soyad yok")}
-              </h6>
-              <span class="badge bg-${durumRenk}">${escapeHtml(durum)}</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="d-flex gap-2 flex-wrap mb-2">
-              ${v.birincil ? '<span class="badge text-bg-success">Birincil</span>' : ""}
-              ${v.acil_kisi ? '<span class="badge text-bg-info">Acil</span>' : ""}
-              ${v.iletisim_sirasi ? `<span class="badge text-bg-light">Sıra ${escapeHtml(String(v.iletisim_sirasi))}</span>` : ""}
-            </div>
-            ${veliSatir("Meslek", meslek)}
-            ${telSatir}
-            ${veliSatir("E-Posta", v.e_posta)}
-            ${veliSatir("Adres", v.adres)}
-            ${veliSatir("Şehir / İlçe", adres)}
-            ${veliSatir("Notlar", v.notlar)}
-          </div>
-        </div>
-      </div>`;
-    }).join("");
-  }
-
-  function veliDurumRenk(durum) {
-    return {
-      "Aktif": "success",
-      "Vefat": "dark",
-      "Ulaşılamıyor": "warning text-dark",
-      "Velayeti Yok": "warning text-dark",
-      "Aranmasın": "danger"
-    }[durum] || "secondary";
-  }
-
-  function veliSatir(et, dg) {
-    if (!dg) return "";
-    return `<div class="veli-bilgi-satir d-flex justify-content-between mb-1 small border-bottom pb-1">
-      <span class="text-muted">${escapeHtml(et)}</span>
-      <span class="fw-semibold text-end veli-bilgi-deger">${escapeHtml(dg)}</span>
-    </div>`;
-  }
-
-  async function yukleDevamsizlik() {
-    const kayitlar = await devamsizliklarGetir(ogrenciId);
-    tumDevamsizlikKayitlar = kayitlar;
-    const { ozurlu, ozursuz } = devamsizlikHesapla(kayitlar);
-    const toplam = ozurlu + ozursuz;
-    const durum = devamsizlikDurum(ozurlu, ozursuz);
-    const renk = devamsizlikRenk(durum);
-    sonDevOzet = { ozurlu, ozursuz, toplam };
-
-    document.getElementById("dev-ozursuz").textContent = sayiEtiketiTR(ozursuz);
-    document.getElementById("dev-ozurlu").textContent = sayiEtiketiTR(ozurlu);
-    document.getElementById("dev-toplam").textContent = sayiEtiketiTR(toplam);
-    document.getElementById("dev-sayac").textContent = sayiEtiketiTR(toplam);
-    document.getElementById("dev-durum-rozet").innerHTML =
-      `<span class="badge bg-${renk} fs-6">${devamsizlikDurumEtiketi(durum)}</span>`;
-
-    const tbody = document.getElementById("dev-tablo");
-    const satirlar = kayitlar.flatMap(devamsizlikKaydiniGunlereAyir);
-    devamsizlikTrendGoster(satirlar);
-    tbody.innerHTML = satirlar.length === 0
-      ? `<tr><td colspan="5" class="text-center text-muted py-3">Devamsızlık kaydı yok.</td></tr>`
-      : satirlar.map(k => `<tr>
-          <td data-label="Tarih">${escapeHtml(k.gorunenTarih || "—")}</td>
-          <td data-label="Tür"><span class="badge ${k.tur === "Özürsüz" ? "bg-danger" : "bg-warning text-dark"}">${escapeHtml(k.tur)}</span></td>
-          <td data-label="Miktar">${escapeHtml(k.gorunenMiktar || "—")}</td>
-          <td data-label="Açıklama">${escapeHtml(k.aciklama || "—")}</td>
-          <td data-label="İşlem" class="no-print">
-            <div class="d-flex gap-1">
-              <button class="btn btn-xs btn-outline-primary" data-admin-only
-                      aria-label="Devamsızlık kaydını düzenle"
-                      data-detay-islem="devamsizlik-duzenle"
-                      data-kayit-id="${escapeAttr(k.id)}">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-xs btn-outline-danger" data-admin-only
-                      aria-label="Devamsızlık kaydını sil"
-                      data-detay-islem="devamsizlik-sil"
-                      data-kayit-id="${escapeAttr(k.id)}">
-                <i class="bi bi-trash"></i>
-              </button>
-              <button class="btn btn-xs ${k.tur === "Özürsüz" ? "btn-outline-warning" : "btn-outline-danger"}" data-admin-only
-                      title="${k.tur === "Özürsüz" ? "Özürlüye çevir" : "Özürsüze çevir"}"
-                      aria-label="${k.tur === "Özürsüz" ? "Devamsızlığı özürlüye çevir" : "Devamsızlığı özürsüze çevir"}"
-                      data-detay-islem="devamsizlik-tur-degistir"
-                      data-kayit-id="${escapeAttr(k.id)}">
-                <i class="bi bi-arrow-left-right"></i>
-              </button>
-            </div>
-          </td>
-        </tr>`).join("");
-    applyAdminVisibility(tbody);
-  }
-
-  function devamsizlikKaydiniGunlereAyir(kayit) {
-    const dagilim = devamsizlikGunDagilimi(kayit);
-    const tarihler = devamsizlikKapsananTarihler(kayit);
-    if (tarihler.length > 1) {
-      return tarihler.map((tarih, index) => ({
-        ...kayit,
-        gorunenTarih: tarih,
-        gorunenMiktar: sayiEtiketiTR(dagilim[index]?.gun || 1)
-      }));
-    }
-    if (!dagilim.length) {
-      return [{
-        ...kayit,
-        gorunenTarih: devamsizlikTarihEtiketi(kayit),
-        gorunenMiktar: devamsizlikMiktarEtiketi(kayit)
-      }];
-    }
-    return dagilim.map(parca => ({
-      ...kayit,
-      gorunenTarih: parca.tarih,
-      gorunenMiktar: sayiEtiketiTR(parca.gun)
-    }));
-  }
-
-  function devamsizlikTrendGoster(satirlar) {
-    const el = document.getElementById("dev-trend");
-    if (!el) return;
-    const ayAd = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
-    const aylar = new Map();
-    (satirlar || []).forEach(s => {
-      const m = String(s.gorunenTarih || "").match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-      if (!m) return;
-      const ay = Number(m[2]), yil = Number(m[3]);
-      const key = `${yil}-${String(ay).padStart(2, "0")}`;
-      if (!aylar.has(key)) aylar.set(key, { ozurlu: 0, ozursuz: 0, etiket: `${ayAd[ay - 1]} ${String(yil).slice(2)}` });
-      const o = aylar.get(key);
-      if (s.tur === "Özürsüz") o.ozursuz++; else o.ozurlu++;
-    });
-    const sirali = [...aylar.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-8);
-    const enYuksek = Math.max(1, ...sirali.map(([, v]) => v.ozurlu + v.ozursuz));
-    el.innerHTML = sirali.length
-      ? sirali.map(([, v]) => `
-        <div class="grafik-bar-satir">
-          <span class="ad">${v.etiket}</span>
-          <div class="grafik-bar-iz grafik-bar-cift">
-            <div class="grafik-bar-ozursuz" data-width="${(v.ozursuz / enYuksek) * 100}"></div>
-            <div class="grafik-bar-ozurlu" data-width="${(v.ozurlu / enYuksek) * 100}"></div>
-          </div>
-          <span class="deg">${v.ozurlu + v.ozursuz}</span>
-        </div>`).join("")
-      : `<div class="text-muted small">Trend için yeterli veri yok.</div>`;
-    el.querySelectorAll("[data-width]").forEach(bar => {
-      const width = Math.max(0, Math.min(100, Number(bar.dataset.width) || 0));
-      bar.style.width = `${width}%`;
-    });
-  }
-
   function davranisDonutGoster() {
     const olumlu = tumDavranislar.filter(d => d.tur === "Olumlu").length;
     const olumsuz = tumDavranislar.filter(d => d.tur === "Olumsuz").length;
-    sonDavOzet = { olumlu, olumsuz };
     const toplam = olumlu + olumsuz;
     const yuzde = toplam ? Math.round((olumlu / toplam) * 100) : 0;
     const donut = document.getElementById("davranis-donut");
@@ -1003,41 +547,6 @@
     applyAdminVisibility(tbody);
   }
 
-  // Satır işlem fonksiyonları
-  window.silDevamsizlik = async (kayitId) => {
-    if (!adminActionAllowed()) return;
-    const onay = await onayIste({
-      baslik: "Devamsızlık kaydını sil",
-      mesaj: "Bu devamsızlık kaydı kalıcı olarak silinecek.",
-      detay: "Silme tamamlandığında devamsızlık listesi yenilenir ve bilgi mesajı gösterilir.",
-      onayButonu: "Sil",
-      tip: "danger"
-    });
-    if (!onay) return;
-    try {
-      await devamsizlikSil(ogrenciId, kayitId);
-      toast("Devamsızlık kaydı silindi.", "success");
-      await yukleDevamsizlik();
-    } catch (err) { toast("Hata: " + err.message, "danger"); }
-  };
-
-  window.turDegistirDevamsizlik = async (kayitId) => {
-    if (!adminActionAllowed()) return;
-    const kayit = tumDevamsizlikKayitlar.find(k => k.id === kayitId);
-    if (!kayit) return;
-    const yeniTur = kayit.tur === "Özürsüz" ? "Özürlü" : "Özürsüz";
-    try {
-      await devamsizlikGuncelle(ogrenciId, kayitId, {
-        tarih: kayit.tarih,
-        tur: yeniTur,
-        gun_degeri: kayit.gun_degeri ?? kayit.miktar ?? 1,
-        aciklama: kayit.aciklama || ""
-      });
-      toast(`Devamsızlık türü "${yeniTur}" olarak güncellendi.`, "success");
-      await yukleDevamsizlik();
-    } catch (err) { toast("Hata: " + err.message, "danger"); }
-  };
-
   window.silDavranis = async (kayitId) => {
     if (!adminActionAllowed()) return;
     const onay = await onayIste({
@@ -1075,50 +584,8 @@
 
   // ── Düzenleme modal fonksiyonları ─────────────────────────────────────────
 
-  const devDuzenleModal = new bootstrap.Modal(document.getElementById("dev-duzenle-modal"));
   const davDuzenleModal = new bootstrap.Modal(document.getElementById("davranis-duzenle-modal"));
   const gorDuzenleModal = new bootstrap.Modal(document.getElementById("gorusme-duzenle-modal"));
-
-  window.duzenleDevamsizlik = (kayitId) => {
-    if (!adminActionAllowed()) return;
-    const kayit = tumDevamsizlikKayitlar.find(k => k.id === kayitId);
-    if (!kayit) return;
-    document.getElementById("dev-duzenle-id").value = kayitId;
-    document.getElementById("dev-duzenle-tarih").value = kayit.tarih || "";
-    document.getElementById("dev-duzenle-tur").value = kayit.tur || "Özürsüz";
-    document.getElementById("dev-duzenle-miktar").value = kayit.gun_degeri ?? kayit.miktar ?? 1;
-    document.getElementById("dev-duzenle-aciklama").value = kayit.aciklama || "";
-    document.getElementById("dev-duzenle-hata").classList.add("d-none");
-    devDuzenleModal.show();
-  };
-
-  document.getElementById("dev-duzenle-kaydet-btn").addEventListener("click", async () => {
-    const kayitId = document.getElementById("dev-duzenle-id").value;
-    const tarih = document.getElementById("dev-duzenle-tarih").value.trim();
-    const tur   = document.getElementById("dev-duzenle-tur").value;
-    const miktar = Number(String(document.getElementById("dev-duzenle-miktar").value).replace(",", "."));
-    const aciklama = document.getElementById("dev-duzenle-aciklama").value.trim();
-    const hataEl = document.getElementById("dev-duzenle-hata");
-    if (!tarih) { hataEl.textContent = "Tarih zorunludur."; hataEl.classList.remove("d-none"); return; }
-    if (!gecerliTarih(tarih)) { hataEl.textContent = "Tarih geçerli bir GG.AA.YYYY tarihi olmalıdır."; hataEl.classList.remove("d-none"); return; }
-    if (!Number.isFinite(miktar) || miktar <= 0) { hataEl.textContent = "Miktar 0'dan büyük bir sayı olmalıdır."; hataEl.classList.remove("d-none"); return; }
-    const metin  = document.getElementById("dev-duzenle-kaydet-metin");
-    const yuklen = document.getElementById("dev-duzenle-kaydet-yuklen");
-    metin.classList.add("d-none"); yuklen.classList.remove("d-none");
-    document.getElementById("dev-duzenle-kaydet-btn").disabled = true;
-    try {
-      await devamsizlikGuncelle(ogrenciId, kayitId, { tarih, tur, gun_degeri: miktar, aciklama });
-      toast("Devamsızlık kaydı güncellendi.", "success");
-      devDuzenleModal.hide();
-      await yukleDevamsizlik();
-    } catch (err) {
-      hataEl.textContent = "Hata: " + err.message;
-      hataEl.classList.remove("d-none");
-    } finally {
-      metin.classList.remove("d-none"); yuklen.classList.add("d-none");
-      document.getElementById("dev-duzenle-kaydet-btn").disabled = false;
-    }
-  });
 
   window.duzenleDavranis = (kayitId) => {
     if (!adminActionAllowed()) return;
@@ -1222,9 +689,6 @@
     if (!kayitId || !islem) return;
 
     const islemler = {
-      "devamsizlik-duzenle": window.duzenleDevamsizlik,
-      "devamsizlik-sil": window.silDevamsizlik,
-      "devamsizlik-tur-degistir": window.turDegistirDevamsizlik,
       "davranis-duzenle": window.duzenleDavranis,
       "davranis-sil": window.silDavranis,
       "gorusme-duzenle": window.duzenleGorusme,
@@ -1234,6 +698,7 @@
     const calistir = islemler[islem];
     if (typeof calistir === "function") calistir(kayitId);
   });
+});
 </script>
 </body>
 </html>
