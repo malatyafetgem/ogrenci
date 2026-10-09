@@ -13,7 +13,6 @@ const ESKI_VERI_CACHE_PREFIXLERI = ["obs-data-cache-v1:"];
 const OGRENCI_CACHE_TTL = 3 * 60 * 1000;
 const KAYIT_CACHE_TTL = 2 * 60 * 1000;
 const TEMIZLENECEK_EKRAN_CACHE_PREFIXLERI = ["obs-dashboard-cache-"];
-const OGRENCI_DURUMLARI = ["Aktif", "Mezun"];
 // Öğrenci belgesinde tutulan tek alanlar (firestore.rules ile aynı olmalı).
 const IZINLI_OGRENCI_ALANLARI = [
   "numara", "ad", "soyad", "sinif", "cinsiyet", "yatililik",
@@ -462,5 +461,5 @@ async function tumSiniflariGetir() {
   return [...set].sort(compareSinif);
 }
 
-Object.assign(OBS, { veriCacheleriniTemizle, ogrenciDurumunuNormalizeEt, ogrenciAktifMi, tumOgrencileriDurumlariylaGetir, tumOgrencileriGetir, ogrenciGetir, noMevcutMu, ogrenciEkle, ogrenciGuncelle, ogrenciSil, davranislarGetir, davranisEkle, davranisGuncelle, davranisSil, tumDavranislariGetir, sinifaGoreDavranislariGetir, gorusmeleriGetir, gorusmeEkle, gorusmeSil, gorusmeGuncelle, tumGorusmeleriGetir, sinifaGoreGorusmeleriGetir, siniflarGetir, tumSiniflariGetir, OGRENCI_DURUMLARI, IZINLI_OGRENCI_ALANLARI });
+Object.assign(OBS, { veriCacheleriniTemizle, ogrenciDurumunuNormalizeEt, ogrenciAktifMi, tumOgrencileriDurumlariylaGetir, tumOgrencileriGetir, ogrenciGetir, noMevcutMu, ogrenciEkle, ogrenciGuncelle, ogrenciSil, davranislarGetir, davranisEkle, davranisGuncelle, davranisSil, tumDavranislariGetir, sinifaGoreDavranislariGetir, gorusmeleriGetir, gorusmeEkle, gorusmeSil, gorusmeGuncelle, tumGorusmeleriGetir, sinifaGoreGorusmeleriGetir, siniflarGetir, tumSiniflariGetir, IZINLI_OGRENCI_ALANLARI });
 })();

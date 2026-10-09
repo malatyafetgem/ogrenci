@@ -1,7 +1,7 @@
 (function () {
 "use strict";
 const OBS = window.OBS = window.OBS || {};
-const { tumOgrencileriGetir, veriCacheleriniTemizle, IZINLI_OGRENCI_ALANLARI, db, collection, getDocs, doc, writeBatch, query, where, toast, onayIste, sinifParcala, compareSinif, escapeHtml, escapeAttr, bugun } = OBS;
+const { tumOgrencileriGetir, veriCacheleriniTemizle, IZINLI_OGRENCI_ALANLARI, deleteField, db, collection, getDocs, doc, writeBatch, query, where, toast, onayIste, sinifParcala, compareSinif, escapeHtml, escapeAttr, bugun } = OBS;
 // Sınıf Atlatma modülü.
 // Eskiden class-promotion.html sayfasında bağımsız çalışan mantık, artık
 // ayarlar sayfasındaki modalın içine monte edilecek şekilde küçük bir modüle
@@ -420,7 +420,7 @@ async function classPromotionAc(root) {
         if (islem === "gecis") {
           const yeni = sinifHesapla(o.sinif);
           if (!yeni || yeni === "MEZUN") throw new Error("Sınıf hesaplanamadı");
-          await yaz(b => b.update(doc(db, "students", o.id), { sinif: yeni, durum: "Aktif", guncelleme_tarihi: bugun() }));
+          await yaz(b => b.update(doc(db, "students", o.id), { ...eskiAlanTemizligi(o), sinif: yeni, durum: "Aktif", guncelleme_tarihi: bugun() }));
           if (geriAlmaDestekli) {
             geriAlmaIslemleri.push({ tur: "gecis", id: o.id, sinif: o.sinif || "", durum: o.durum || "Aktif" });
           }
@@ -607,6 +607,15 @@ async function classPromotionAc(root) {
         btn.innerHTML = `<i class="bi bi-arrow-counterclockwise me-1"></i>Son işlemi geri al`;
       }
     }
+  }
+
+  // Güncellenen öğrenci belgesinde kalmış eski alanları (telefon, TC vb.) temizlemek için silme komutları.
+  function eskiAlanTemizligi(ogrenci = {}) {
+    const temizlik = {};
+    Object.keys(ogrenci).forEach(alan => {
+      if (alan !== "id" && !IZINLI_OGRENCI_ALANLARI.includes(alan)) temizlik[alan] = deleteField();
+    });
+    return temizlik;
   }
 
   // Eski sürümden kalan alanlar (telefon, TC vb.) yeni belgeye taşınmaz.

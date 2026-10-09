@@ -36,14 +36,7 @@ const MENU_GRUPLARI = [
       { href: "meetings-list.html", ikon: "bi-chat-square-text", etiket: "Görüşme Listesi" }
     ]
   },
-  {
-    baslik: "Sistem",
-    ogeler: [
-      { href: "settings.html", ikon: "bi-gear", etiket: "Ayarlar", adminOnly: true },
-      { href: "excel-export.html", ikon: "bi-file-earmark-excel", etiket: "Excel Aktarım" },
-      { href: "settings.html#sinif-atlat", ikon: "bi-arrow-up-circle", etiket: "Sınıf Atlatma", adminOnly: true }
-    ]
-  }
+  { baslik: "Ayarlar", href: "settings.html", ikon: "bi-gear", adminOnly: true }
 ];
 
 function menuGrubuBul(baslik) {
@@ -54,7 +47,7 @@ const MOBIL_ALT_MENU_GRUPLARI = [
   { key: "ogrenciler", baslik: "Öğrenciler", ikon: "bi-people", ogeler: menuGrubuBul("Öğrenciler").ogeler },
   { key: "davranis", baslik: "Davranış", ikon: "bi-bar-chart", ogeler: menuGrubuBul("Davranış").ogeler },
   { key: "gorusmeler", baslik: "Görüşmeler", ikon: "bi-chat-dots", ogeler: menuGrubuBul("Veli Görüşmeleri").ogeler },
-  { key: "sistem", baslik: "Sistem", ikon: "bi-gear", ogeler: menuGrubuBul("Sistem").ogeler }
+  { key: "ayarlar", baslik: "Ayarlar", ikon: "bi-gear", href: "settings.html", adminOnly: true }
 ];
 
 // Aktif menü öğesini belirle
@@ -538,7 +531,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20261008-124" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20261008-125" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
@@ -752,7 +745,8 @@ function yukleBottomNav() {
   const kap = document.getElementById("bottom-nav-kap");
   if (!kap) return;
 
-  const aktifGrup = MOBIL_ALT_MENU_GRUPLARI.find(mobilAltMenuGrubuAktifMi) || MOBIL_ALT_MENU_GRUPLARI[0];
+  const panelGruplari = MOBIL_ALT_MENU_GRUPLARI.filter(grup => !grup.href);
+  const aktifGrup = panelGruplari.find(mobilAltMenuGrubuAktifMi) || panelGruplari[0];
 
   let html = `
     <nav class="bottom-navbar d-flex d-md-none" aria-label="Mobil bölüm menüsü">
@@ -766,7 +760,7 @@ function yukleBottomNav() {
       </div>
       <div class="offcanvas-body">
         <div class="mobile-nav-sheet-menu">
-          ${MOBIL_ALT_MENU_GRUPLARI.map(grup => mobilAltMenuGrup(grup, grup.key === aktifGrup.key)).join("")}
+          ${panelGruplari.map(grup => mobilAltMenuGrup(grup, grup.key === aktifGrup.key)).join("")}
         </div>
       </div>
     </div>`;
@@ -797,6 +791,14 @@ let mobilAltMenuGecmisAktif = false;
 
 function mobilAltNavButonu(grup) {
   const aktif = mobilAltMenuGrubuAktifMi(grup) ? "aktif" : "";
+  if (grup.href) {
+    // Tek sayfalık bölüm (Ayarlar): alt menü açmadan doğrudan sayfaya gider.
+    return `
+      <a href="${grup.href}" class="bottom-nav-item ${aktif}" aria-label="${grup.baslik}" ${grup.adminOnly ? "data-admin-only" : ""}>
+        <i class="bi ${grup.ikon}"></i>
+        <span>${grup.baslik}</span>
+      </a>`;
+  }
   return `
       <button type="button" class="bottom-nav-item ${aktif}" data-mobile-menu-key="${grup.key}"
               data-bs-toggle="offcanvas" data-bs-target="#mobil-alt-menu" aria-controls="mobil-alt-menu"
@@ -807,6 +809,7 @@ function mobilAltNavButonu(grup) {
 }
 
 function mobilAltMenuGrubuAktifMi(grup) {
+  if (grup.href) return aktifMi(grup.href) === "active";
   return grup.ogeler.some(oge => aktifMi(oge.href));
 }
 
@@ -845,7 +848,7 @@ function mobilAltMenuBagla(varsayilanKey) {
 }
 
 function mobilAltMenuSec(key, acik = false) {
-  const grup = MOBIL_ALT_MENU_GRUPLARI.find(item => item.key === key) || MOBIL_ALT_MENU_GRUPLARI[0];
+  const grup = MOBIL_ALT_MENU_GRUPLARI.find(item => item.key === key && !item.href) || MOBIL_ALT_MENU_GRUPLARI[0];
   const modalEl = document.getElementById("mobil-alt-menu");
   const baslikEl = document.getElementById("mobil-alt-menu-baslik");
   if (!modalEl || !baslikEl) return;

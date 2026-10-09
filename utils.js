@@ -52,14 +52,6 @@ function formatMetin(str) {
 }
 
 /**
- * Soyadı büyük, adı normal biçimlendir.
- * Örn: "ahmet yılmaz" → "Ahmet YILMAZ" (ayrı alanlarsa dışarıda çağrılır)
- */
-function formatTamAd(ad, soyad) {
-  return `${formatAd(ad)} ${formatSoyad(soyad)}`;
-}
-
-/**
  * Türkçe karakterleri destekleyen büyük harf dönüşümü.
  */
 function turkceBuyuk(str) {
@@ -185,10 +177,6 @@ function tarihSiralamaAnahtari(str) {
 
 function compareTarihDesc(a, b) {
   return tarihSiralamaAnahtari(b).localeCompare(tarihSiralamaAnahtari(a));
-}
-
-function compareTarihAsc(a, b) {
-  return tarihSiralamaAnahtari(a).localeCompare(tarihSiralamaAnahtari(b));
 }
 
 const TR_SIRALAYICI = new Intl.Collator("tr", { numeric: true, sensitivity: "base" });
@@ -415,5 +403,5 @@ function dataTableOlustur(secici, secenekler) {
 }
 
 
-Object.assign(OBS, { dataTableOlustur, formatAd, formatSoyad, formatMetin, formatTamAd, turkceBuyuk, turkcekucuk, escapeHtml, escapeAttr, formatTarih, gecerliTarih, bugun, tarihtenDate, tarihSiralamaAnahtari, compareTarihDesc, compareTarihAsc, sinifParcala, sinifSiralamaAnahtari, compareSinif, ogrenciNoSiralamaAnahtari, compareOgrenciNo, compareOgrenci, baglaFormat, gecerliOgrenciNo, toast, onayIste });
+Object.assign(OBS, { dataTableOlustur, formatAd, formatSoyad, formatMetin, turkceBuyuk, turkcekucuk, escapeHtml, escapeAttr, formatTarih, gecerliTarih, bugun, tarihtenDate, tarihSiralamaAnahtari, compareTarihDesc, sinifParcala, sinifSiralamaAnahtari, compareSinif, ogrenciNoSiralamaAnahtari, compareOgrenciNo, compareOgrenci, baglaFormat, gecerliOgrenciNo, toast, onayIste });
 })();

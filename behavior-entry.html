@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-125">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
-  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
-  <script src="pwa.js?v=20261008-124"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-125">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-125">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-125">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-125">
+  <script src="pwa.js?v=20261008-125"></script>
   <title>Davranış Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261008-124">
+  <link rel="stylesheet" href="app.css?v=20261008-125">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -72,10 +72,10 @@
 
             <!-- Tür seçimi -->
             <div class="d-flex gap-3 justify-content-center mb-4">
-              <button type="button" class="btn btn-outline-success tur-buton" id="btn-olumlu">
+              <button type="button" class="btn btn-outline-success tur-buton" id="btn-olumlu" disabled>
                 <i class="bi bi-stars me-2"></i>Olumlu
               </button>
-              <button type="button" class="btn btn-outline-danger tur-buton" id="btn-olumsuz">
+              <button type="button" class="btn btn-outline-danger tur-buton" id="btn-olumsuz" disabled>
                 <i class="bi bi-exclamation-octagon me-2"></i>Olumsuz
               </button>
             </div>
@@ -157,7 +157,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "school-settings.js?v=20261008-124", "students.js?v=20261008-124", "auth.js?v=20261008-124", "layout.js?v=20261008-124"];
+  var liste = ["version.js?v=20261008-125", "firebase-imports.js?v=20261008-125", "firebase-config.js?v=20261008-125", "utils.js?v=20261008-125", "school-settings.js?v=20261008-125", "students.js?v=20261008-125", "auth.js?v=20261008-125", "layout.js?v=20261008-125"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -187,11 +187,23 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, davranisEkle, gecerliTari
 
   let tumOgrenciler = [];
   let secilenTur = "";
+  let ogrenciListesiHazir = false;
 
   requireAuth(async () => {
     layoutYukle();
+    // Tür düğmeleri ve form olayları, öğrenci listesi yüklenmeden ÖNCE bağlanır;
+    // yavaş bağlantıda ilk dokunuşun boşa gitmesi böylece önlenir.
+    baglayici();
+    flatpickr("#d-tarih", { locale: "tr", dateFormat: "d.m.Y", defaultDate: "today" });
+
+    const params = new URLSearchParams(location.search);
+    const ogrId = params.get("id");
+    const tur = params.get("tur");
+    if (tur === "Olumlu" || tur === "Olumsuz") turSec(tur);
+
     try {
       tumOgrenciler = await tumOgrencileriGetir();
+      ogrenciListesiHazir = true;
     } catch (err) {
       document.querySelector(".app-content .container-fluid").innerHTML =
         `<div class="alert alert-danger">
@@ -201,14 +213,8 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, davranisEkle, gecerliTari
         </div>`;
       return;
     }
-    baglayici();
-    flatpickr("#d-tarih", { locale: "tr", dateFormat: "d.m.Y", defaultDate: "today" });
 
-    // URL'den öğrenci ve tür gelebilir
-    const params = new URLSearchParams(location.search);
-    const ogrId = params.get("id");
-    const tur = params.get("tur");
-    if (tur === "Olumlu" || tur === "Olumsuz") turSec(tur);
+    // URL'den öğrenci gelebilir
     if (ogrId) {
       const ogr = tumOgrenciler.find(o => o.id === ogrId);
       if (ogr) ogrenciSec(ogr);
@@ -250,14 +256,23 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, davranisEkle, gecerliTari
   }
 
   function baglayici() {
-    document.getElementById("btn-olumlu").addEventListener("click", () => turSec("Olumlu"));
-    document.getElementById("btn-olumsuz").addEventListener("click", () => turSec("Olumsuz"));
+    const btnOlumlu = document.getElementById("btn-olumlu");
+    const btnOlumsuz = document.getElementById("btn-olumsuz");
+    btnOlumlu.addEventListener("click", () => turSec("Olumlu"));
+    btnOlumsuz.addEventListener("click", () => turSec("Olumsuz"));
+    btnOlumlu.disabled = false;
+    btnOlumsuz.disabled = false;
 
     const araEl = document.getElementById("ogr-ara");
     const sonucEl = document.getElementById("ara-sonuclar");
     araEl.addEventListener("input", () => {
       const q = araEl.value.trim().toLowerCase();
       if (q.length < 2) { sonucEl.classList.add("d-none"); return; }
+      if (!ogrenciListesiHazir) {
+        sonucEl.innerHTML = `<div class="ac-item text-muted small">Öğrenci listesi yükleniyor...</div>`;
+        sonucEl.classList.remove("d-none");
+        return;
+      }
       const eslesen = tumOgrenciler.filter(o =>
         `${o.ad} ${o.soyad} ${o.numara}`.toLowerCase().includes(q)
       ).slice(0, 8);

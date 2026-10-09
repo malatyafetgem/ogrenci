@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261008-124">
+  <link rel="manifest" href="manifest.webmanifest?v=20261008-125">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-124">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-124">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-124">
-  <link rel="shortcut icon" href="favicon.ico?v=20261008-124">
-  <script src="pwa.js?v=20261008-124"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-125">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-125">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-125">
+  <link rel="shortcut icon" href="favicon.ico?v=20261008-125">
+  <script src="pwa.js?v=20261008-125"></script>
   <title>Veli Görüşmesi Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261008-124">
+  <link rel="stylesheet" href="app.css?v=20261008-125">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -126,7 +126,7 @@
               </div>
 
               <div class="col-12 gorusme-form-actions">
-                <button type="button" class="btn btn-primary gorusme-kaydet-btn" id="kaydet-btn">
+                <button type="button" class="btn btn-primary gorusme-kaydet-btn" id="kaydet-btn" disabled>
                   <span id="kaydet-metin"><i class="bi bi-save me-1"></i>Kaydet</span>
                   <span id="kaydet-yuklen" class="d-none">
                     <span class="spinner-border spinner-border-sm me-1"></span>Kaydediliyor...
@@ -163,7 +163,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261008-124", "firebase-imports.js?v=20261008-124", "firebase-config.js?v=20261008-124", "utils.js?v=20261008-124", "school-settings.js?v=20261008-124", "autocomplete.js?v=20261008-124", "students.js?v=20261008-124", "auth.js?v=20261008-124", "layout.js?v=20261008-124"];
+  var liste = ["version.js?v=20261008-125", "firebase-imports.js?v=20261008-125", "firebase-config.js?v=20261008-125", "utils.js?v=20261008-125", "school-settings.js?v=20261008-125", "autocomplete.js?v=20261008-125", "students.js?v=20261008-125", "auth.js?v=20261008-125", "layout.js?v=20261008-125"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -188,10 +188,17 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, gorusmeEkle, formatMetin,
 
   let tumOgrenciler = [];
 
+  let ogrenciListesiHazir = false;
+
   requireAuth(async () => {
     layoutYukle();
+    // Form olayları, öğrenci listesi yüklenmeden ÖNCE bağlanır; yavaş bağlantıda ilk dokunuş kaybolmasın.
+    flatpickr("#g-tarih", { locale: "tr", dateFormat: "d.m.Y", defaultDate: "today" });
+    baglayici();
+
     try {
       tumOgrenciler = await tumOgrencileriGetir();
+      ogrenciListesiHazir = true;
 
       // Konu autocomplete
       const konular = await autocompleteYukle("gorusme_konular");
@@ -206,9 +213,6 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, gorusmeEkle, formatMetin,
         </div>`;
       return;
     }
-
-    flatpickr("#g-tarih", { locale: "tr", dateFormat: "d.m.Y", defaultDate: "today" });
-    baglayici();
 
     // URL'den öğrenci gelebilir
     const params = new URLSearchParams(location.search);
@@ -234,6 +238,11 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, gorusmeEkle, formatMetin,
     araEl.addEventListener("input", () => {
       const q = araEl.value.trim().toLowerCase();
       if (q.length < 2) { sonucEl.classList.add("d-none"); return; }
+      if (!ogrenciListesiHazir) {
+        sonucEl.innerHTML = `<div class="ac-item text-muted small">Öğrenci listesi yükleniyor...</div>`;
+        sonucEl.classList.remove("d-none");
+        return;
+      }
       const eslesen = tumOgrenciler.filter(o =>
         `${o.ad} ${o.soyad} ${o.numara}`.toLowerCase().includes(q)).slice(0, 8);
       if (!eslesen.length) { sonucEl.classList.add("d-none"); return; }
@@ -253,6 +262,7 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, gorusmeEkle, formatMetin,
     document.addEventListener("click", e => { if (!araEl.contains(e.target)) sonucEl.classList.add("d-none"); });
 
     document.getElementById("kaydet-btn").addEventListener("click", kaydet);
+    document.getElementById("kaydet-btn").disabled = false;
   }
 
   async function kaydet() {
