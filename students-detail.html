@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261008-125">
+  <link rel="manifest" href="manifest.webmanifest?v=20261009-126">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-125">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-125">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-125">
-  <link rel="shortcut icon" href="favicon.ico?v=20261008-125">
-  <script src="pwa.js?v=20261008-125"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261009-126">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261009-126">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261009-126">
+  <link rel="shortcut icon" href="favicon.ico?v=20261009-126">
+  <script src="pwa.js?v=20261009-126"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261008-125">
+  <link rel="stylesheet" href="app.css?v=20261009-126">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -169,6 +169,7 @@
                           <th>Kategori</th>
                           <th>Açıklama</th>
                           <th>Veli Görüşmesi</th>
+                          <th>Girişi Yapan</th>
                           <th class="no-print">İşlem</th>
                         </tr>
                       </thead>
@@ -197,6 +198,7 @@
                           <th>Veli</th>
                           <th>Konu</th>
                           <th>Açıklama</th>
+                          <th>Görüşmeyi Yapan</th>
                           <th class="no-print">İşlem</th>
                         </tr>
                       </thead>
@@ -242,6 +244,10 @@
           <div class="col-12">
             <label class="form-label" for="davranis-duzenle-aciklama">Açıklama</label>
             <input type="text" class="form-control" id="davranis-duzenle-aciklama">
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="davranis-duzenle-giren">Girişi Yapan</label>
+            <input type="text" class="form-control" id="davranis-duzenle-giren" maxlength="80" placeholder="İsteğe bağlı">
           </div>
           <div class="col-12">
             <div class="form-check form-switch">
@@ -294,6 +300,10 @@
             <label class="form-label" for="gorusme-duzenle-aciklama">Açıklama</label>
             <textarea class="form-control" id="gorusme-duzenle-aciklama" rows="3"></textarea>
           </div>
+          <div class="col-12">
+            <label class="form-label" for="gorusme-duzenle-yapan">Görüşmeyi Yapan</label>
+            <input type="text" class="form-control" id="gorusme-duzenle-yapan" maxlength="80" placeholder="İsteğe bağlı">
+          </div>
         </div>
         <div class="alert alert-danger d-none mt-3" id="gorusme-duzenle-hata"></div>
       </div>
@@ -325,7 +335,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261008-125", "firebase-imports.js?v=20261008-125", "firebase-config.js?v=20261008-125", "utils.js?v=20261008-125", "school-settings.js?v=20261008-125", "avatar.js?v=20261008-125", "students.js?v=20261008-125", "auth.js?v=20261008-125", "layout.js?v=20261008-125"];
+  var liste = ["version.js?v=20261009-126", "firebase-imports.js?v=20261009-126", "firebase-config.js?v=20261009-126", "utils.js?v=20261009-126", "school-settings.js?v=20261009-126", "avatar.js?v=20261009-126", "students.js?v=20261009-126", "auth.js?v=20261009-126", "layout.js?v=20261009-126"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -483,7 +493,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
   function davranisTabloGoster(liste) {
     const tbody = document.getElementById("davranis-tablo");
     tbody.innerHTML = liste.length === 0
-      ? `<tr><td colspan="6" class="text-center text-muted py-3">Kayıt yok.</td></tr>`
+      ? `<tr><td colspan="7" class="text-center text-muted py-3">Kayıt yok.</td></tr>`
       : liste.map(d => {
           const renk = d.tur === "Olumlu" ? "success" : "danger";
           return `<tr>
@@ -492,6 +502,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
             <td data-label="Kategori">${escapeHtml(d.kategori || "—")}</td>
             <td data-label="Açıklama">${escapeHtml(d.aciklama || "—")}</td>
             <td data-label="Veli Görüşmesi">${d.veli_gorusmesi ? '<i class="bi bi-check-circle text-success"></i>' : "—"}</td>
+            <td data-label="Girişi Yapan">${escapeHtml(d.girisi_yapan || "—")}</td>
             <td data-label="İşlem" class="no-print">
               <div class="d-flex gap-1">
                 <button class="btn btn-xs btn-outline-primary" data-admin-only
@@ -518,7 +529,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     tumGorusmeler = gorusmeler;
     const tbody = document.getElementById("gorusme-tablo");
     tbody.innerHTML = gorusmeler.length === 0
-      ? `<tr><td colspan="5" class="text-center text-muted py-3">Görüşme kaydı yok.</td></tr>`
+      ? `<tr><td colspan="6" class="text-center text-muted py-3">Görüşme kaydı yok.</td></tr>`
       : gorusmeler.map(g => {
         const veliEtiketi = [g.veli_yakinlik, g.veli_adi].filter(Boolean).join(" - ") || "—";
         return `<tr>
@@ -526,6 +537,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
           <td data-label="Veli">${escapeHtml(veliEtiketi)}</td>
           <td data-label="Konu">${escapeHtml(g.konu || "—")}</td>
           <td data-label="Açıklama">${escapeHtml(g.aciklama || "—")}</td>
+          <td data-label="Görüşmeyi Yapan">${escapeHtml(g.gorusmeyi_yapan || "—")}</td>
           <td data-label="İşlem" class="no-print">
             <div class="d-flex gap-1">
               <button class="btn btn-xs btn-outline-primary" data-admin-only
@@ -596,6 +608,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     document.getElementById("davranis-duzenle-tur").value = kayit.tur || "Olumlu";
     document.getElementById("davranis-duzenle-kategori").value = kayit.kategori || "";
     document.getElementById("davranis-duzenle-aciklama").value = kayit.aciklama || "";
+    document.getElementById("davranis-duzenle-giren").value = kayit.girisi_yapan || "";
     document.getElementById("davranis-duzenle-veli-gorusmesi").checked = !!kayit.veli_gorusmesi;
     document.getElementById("davranis-duzenle-hata").classList.add("d-none");
     davDuzenleModal.show();
@@ -607,6 +620,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     const tur      = document.getElementById("davranis-duzenle-tur").value;
     const kategori = document.getElementById("davranis-duzenle-kategori").value.trim();
     const aciklama = document.getElementById("davranis-duzenle-aciklama").value.trim();
+    const giren    = document.getElementById("davranis-duzenle-giren").value.trim().replace(/\s+/g, " ");
     const veliGor  = document.getElementById("davranis-duzenle-veli-gorusmesi").checked;
     const hataEl   = document.getElementById("davranis-duzenle-hata");
     if (!tarih) { hataEl.textContent = "Tarih zorunludur."; hataEl.classList.remove("d-none"); return; }
@@ -617,7 +631,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     metin.classList.add("d-none"); yuklen.classList.remove("d-none");
     document.getElementById("davranis-duzenle-kaydet-btn").disabled = true;
     try {
-      await davranisGuncelle(ogrenciId, kayitId, { tarih, tur, kategori, aciklama, veli_gorusmesi: veliGor });
+      await davranisGuncelle(ogrenciId, kayitId, { tarih, tur, kategori, aciklama, veli_gorusmesi: veliGor, girisi_yapan: giren });
       toast("Davranış kaydı güncellendi.", "success");
       davDuzenleModal.hide();
       tumDavranislar = await davranislarGetir(ogrenciId);
@@ -646,6 +660,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     document.getElementById("gorusme-duzenle-veli-adi").value = kayit.veli_adi || "";
     document.getElementById("gorusme-duzenle-konu").value = kayit.konu || "";
     document.getElementById("gorusme-duzenle-aciklama").value = kayit.aciklama || "";
+    document.getElementById("gorusme-duzenle-yapan").value = kayit.gorusmeyi_yapan || "";
     document.getElementById("gorusme-duzenle-hata").classList.add("d-none");
     gorDuzenleModal.show();
   };
@@ -657,6 +672,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     const veliAdi      = document.getElementById("gorusme-duzenle-veli-adi").value.trim();
     const konu         = document.getElementById("gorusme-duzenle-konu").value.trim();
     const aciklama     = document.getElementById("gorusme-duzenle-aciklama").value.trim();
+    const yapan        = document.getElementById("gorusme-duzenle-yapan").value.trim().replace(/\s+/g, " ");
     const hataEl       = document.getElementById("gorusme-duzenle-hata");
     if (!tarih) { hataEl.textContent = "Tarih zorunludur."; hataEl.classList.remove("d-none"); return; }
     if (!gecerliTarih(tarih)) { hataEl.textContent = "Tarih geçerli bir GG.AA.YYYY tarihi olmalıdır."; hataEl.classList.remove("d-none"); return; }
@@ -666,7 +682,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     metin.classList.add("d-none"); yuklen.classList.remove("d-none");
     document.getElementById("gorusme-duzenle-kaydet-btn").disabled = true;
     try {
-      await gorusmeGuncelle(ogrenciId, kayitId, { tarih, veli_yakinlik: veliYakinlik, veli_adi: veliAdi, konu, aciklama });
+      await gorusmeGuncelle(ogrenciId, kayitId, { tarih, veli_yakinlik: veliYakinlik, veli_adi: veliAdi, konu, aciklama, gorusmeyi_yapan: yapan });
       toast("Görüşme kaydı güncellendi.", "success");
       gorDuzenleModal.hide();
       await yukleGorusmeler(); // tumGorusmeler da burada güncellenir

@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261008-125">
+  <link rel="manifest" href="manifest.webmanifest?v=20261009-126">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261008-125">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261008-125">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261008-125">
-  <link rel="shortcut icon" href="favicon.ico?v=20261008-125">
-  <script src="pwa.js?v=20261008-125"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261009-126">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261009-126">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261009-126">
+  <link rel="shortcut icon" href="favicon.ico?v=20261009-126">
+  <script src="pwa.js?v=20261009-126"></script>
   <title>Davranış Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261008-125">
+  <link rel="stylesheet" href="app.css?v=20261009-126">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -190,11 +190,11 @@
                     <thead class="table-light">
                       <tr>
                         <th>Tarih</th><th>Öğrenci</th><th>Sınıf</th>
-                        <th>Tür</th><th>Kategori</th><th>Açıklama</th>
+                        <th>Tür</th><th>Kategori</th><th>Açıklama</th><th>Girişi Yapan</th>
                       </tr>
                     </thead>
                     <tbody id="davranis-tbody">
-                      <tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
+                      <tr><td colspan="7" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -222,7 +222,7 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20261008-125"></script>
+<script src="datatable-fallback.js?v=20261009-126"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13"
         integrity="sha384-5JqMv4L/Xa0hfvtF06qboNdhvuYXUku9ZrhZh3bSk8VXF0A/RuSLHpLsSV9Zqhl6"
         crossorigin="anonymous"></script>
@@ -243,7 +243,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261008-125", "firebase-imports.js?v=20261008-125", "firebase-config.js?v=20261008-125", "utils.js?v=20261008-125", "school-settings.js?v=20261008-125", "students.js?v=20261008-125", "auth.js?v=20261008-125", "layout.js?v=20261008-125"];
+  var liste = ["version.js?v=20261009-126", "firebase-imports.js?v=20261009-126", "firebase-config.js?v=20261009-126", "utils.js?v=20261009-126", "school-settings.js?v=20261009-126", "students.js?v=20261009-126", "auth.js?v=20261009-126", "layout.js?v=20261009-126"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -264,7 +264,7 @@ window.OBSHazir = (function () {
 <script>
 OBSHazir(async () => {
 "use strict";
-const { requireAuth, layoutYukle, tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir, tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast, dataTableOlustur } = window.OBS;
+const { requireAdmin, layoutYukle, tumOgrencileriGetir, siniflarGetir, sinifaGoreDavranislariGetir, tarihtenDate, tarihSiralamaAnahtari, sinifSiralamaAnahtari, compareTarihDesc, escapeHtml, escapeAttr, toast, dataTableOlustur } = window.OBS;
 
   let raporVerisi = [];
   let dt = null;
@@ -272,7 +272,7 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, siniflarGetir, sinifaGore
   let aktifGrafikMod = "tum"; // "tum" | "olumlu" | "olumsuz"
   let filtreUygulandi = false;
 
-  requireAuth(async () => {
+  requireAdmin(async () => {
     layoutYukle();
 
     // Olay dinleyicilerini ve flatpickr'ı, sınıf listesi yüklenmeden ÖNCE bağla
@@ -328,7 +328,7 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, siniflarGetir, sinifaGore
     document.getElementById("ozet-kartlar").classList.add("d-none");
     document.getElementById("tur-karsilastirma").classList.add("d-none");
     document.getElementById("davranis-tbody").innerHTML =
-      `<tr><td colspan="6" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>`;
+      `<tr><td colspan="7" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>`;
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
   }
@@ -385,7 +385,7 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, siniflarGetir, sinifaGore
 
       const tbody = document.getElementById("davranis-tbody");
       if (raporVerisi.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6">
+        tbody.innerHTML = `<tr><td colspan="7">
           <div class="bos-durum">
             <i class="bi bi-search"></i>
             <div class="baslik">Kayıt bulunamadı</div>
@@ -402,6 +402,7 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, siniflarGetir, sinifaGore
             <td><span class="badge ${olumlu ? "bg-success" : "bg-danger"}">${escapeHtml(d.tur)}</span></td>
             <td>${escapeHtml(d.kategori || "—")}</td>
             <td class="small text-muted">${escapeHtml(d.aciklama || "—")}</td>
+            <td class="small">${escapeHtml(d.girisi_yapan || "—")}</td>
           </tr>`;
         }).join("");
 
@@ -423,7 +424,7 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, siniflarGetir, sinifaGore
       console.error("[DavranışRaporu] Veri yüklenirken hata:", err);
       const tbody = document.getElementById("davranis-tbody");
       const detay = err?.code ? `(${err.code})` : err?.message ? `(${err.message})` : "";
-      tbody.innerHTML = `<tr><td colspan="6">
+      tbody.innerHTML = `<tr><td colspan="7">
         <div class="bos-durum">
           <i class="bi bi-exclamation-triangle text-danger"></i>
           <div class="baslik">Veri yüklenemedi</div>
@@ -541,7 +542,7 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, siniflarGetir, sinifaGore
     }
     const satirlar = raporVerisi.map(d => ({
       "Tarih": d.tarih, "Ad": d.ogr.ad, "Soyad": d.ogr.soyad, "Sınıf": d.ogr.sinif,
-      "Tür": d.tur, "Kategori": d.kategori, "Açıklama": d.aciklama
+      "Tür": d.tur, "Kategori": d.kategori, "Açıklama": d.aciklama, "Girişi Yapan": d.girisi_yapan
     }));
     const ws = XLSX.utils.json_to_sheet(satirlar);
     const wb = XLSX.utils.book_new();

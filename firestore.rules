@@ -74,7 +74,7 @@ service cloud.firestore {
     function validBehavior() {
       return request.resource.data.keys().hasOnly([
           "ogrenciId", "tarih", "tarih_sira", "tur", "kategori",
-          "aciklama", "veli_gorusmesi", "olusturma_tarihi",
+          "aciklama", "veli_gorusmesi", "girisi_yapan", "olusturma_tarihi",
           "guncelleme_tarihi"
         ])
         && request.resource.data.keys().hasAll(["ogrenciId", "tarih", "tur", "kategori"])
@@ -86,6 +86,7 @@ service cloud.firestore {
         && requiredString("kategori")
         && optionalString("tarih_sira")
         && optionalString("aciklama")
+        && optionalString("girisi_yapan")
         && optionalString("olusturma_tarihi")
         && optionalString("guncelleme_tarihi")
         && request.resource.data.tur in ["Olumlu", "Olumsuz"]
@@ -95,7 +96,7 @@ service cloud.firestore {
     function validMeeting() {
       return request.resource.data.keys().hasOnly([
           "ogrenciId", "tarih", "tarih_sira", "veli_yakinlik",
-          "veli_adi", "konu", "aciklama", "olusturma_tarihi",
+          "veli_adi", "konu", "aciklama", "gorusmeyi_yapan", "olusturma_tarihi",
           "guncelleme_tarihi"
         ])
         && request.resource.data.keys().hasAll(["ogrenciId", "tarih", "veli_yakinlik", "konu"])
@@ -108,6 +109,7 @@ service cloud.firestore {
         && optionalString("tarih_sira")
         && optionalString("veli_adi")
         && optionalString("aciklama")
+        && optionalString("gorusmeyi_yapan")
         && optionalString("olusturma_tarihi")
         && optionalString("guncelleme_tarihi");
     }

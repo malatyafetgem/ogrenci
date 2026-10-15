@@ -1,7 +1,7 @@
 (function () {
 "use strict";
 const OBS = window.OBS = window.OBS || {};
-const { APP_VERSION, APP_UPDATED_AT, okulAyarlariGetir, okulDonemiEtiketi, escapeHtml, toast } = OBS;
+const { APP_VERSION, APP_UPDATED_AT, okulAyarlariGetir, okulDonemiEtiketi, escapeHtml, toast, isAdminUser } = OBS;
 /**
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
@@ -49,6 +49,29 @@ const MOBIL_ALT_MENU_GRUPLARI = [
   { key: "gorusmeler", baslik: "Görüşmeler", ikon: "bi-chat-dots", ogeler: menuGrubuBul("Veli Görüşmeleri").ogeler },
   { key: "ayarlar", baslik: "Ayarlar", ikon: "bi-gear", href: "settings.html", adminOnly: true }
 ];
+
+// Yönetici olmayan kullanıcılar yalnızca bu dört bağlantıyı görür.
+const SADE_MENU_GRUPLARI = [
+  { baslik: "Ana Sayfa", href: "dashboard.html" },
+  { baslik: "Öğrenci Listesi", href: "students-list.html" },
+  { baslik: "Davranış Gir", href: "behavior-entry.html" },
+  { baslik: "Görüşme Gir", href: "meetings-entry.html" }
+];
+
+const SADE_MOBIL_ALT_MENU = [
+  { key: "ana-sayfa", baslik: "Ana Sayfa", ikon: "bi-house", href: "dashboard.html" },
+  { key: "ogrenciler", baslik: "Öğrenciler", ikon: "bi-people", href: "students-list.html" },
+  { key: "davranis", baslik: "Davranış", ikon: "bi-star-half", href: "behavior-entry.html" },
+  { key: "gorusme", baslik: "Görüşme", ikon: "bi-chat-dots", href: "meetings-entry.html" }
+];
+
+function aktifMenuGruplari() {
+  return isAdminUser() ? MENU_GRUPLARI : SADE_MENU_GRUPLARI;
+}
+
+function aktifMobilMenu() {
+  return isAdminUser() ? MOBIL_ALT_MENU_GRUPLARI : SADE_MOBIL_ALT_MENU;
+}
 
 // Aktif menü öğesini belirle
 function aktifMi(href) {
@@ -531,12 +554,12 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20261008-125" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20261009-126" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
           <ul class="navbar-nav top-menu">
-            ${MENU_GRUPLARI.map(topMenuDropdown).join("")}
+            ${aktifMenuGruplari().map(topMenuDropdown).join("")}
           </ul>
         </div>
         <div class="global-arama-kutu topbar-global-search" id="global-arama-kap" role="search" aria-label="Öğrenci arama">
@@ -745,13 +768,17 @@ function yukleBottomNav() {
   const kap = document.getElementById("bottom-nav-kap");
   if (!kap) return;
 
-  const panelGruplari = MOBIL_ALT_MENU_GRUPLARI.filter(grup => !grup.href);
+  const mobilMenu = aktifMobilMenu();
+  const panelGruplari = mobilMenu.filter(grup => !grup.href);
   const aktifGrup = panelGruplari.find(mobilAltMenuGrubuAktifMi) || panelGruplari[0];
 
   let html = `
     <nav class="bottom-navbar d-flex d-md-none" aria-label="Mobil bölüm menüsü">
-      ${MOBIL_ALT_MENU_GRUPLARI.map(grup => mobilAltNavButonu(grup)).join("")}
-    </nav>
+      ${mobilMenu.map(grup => mobilAltNavButonu(grup)).join("")}
+    </nav>`;
+
+  // Açılır panel gerektiren grup yoksa (sade menü) yalnızca doğrudan bağlantılar gösterilir.
+  if (aktifGrup) html += `
 
     <div class="offcanvas offcanvas-bottom rounded-top-4 mobile-nav-sheet" tabindex="-1" id="mobil-alt-menu" role="dialog" aria-modal="true" aria-labelledby="mobil-alt-menu-baslik">
       <div class="offcanvas-header">
@@ -766,7 +793,7 @@ function yukleBottomNav() {
     </div>`;
 
   kap.innerHTML = html;
-  mobilAltMenuBagla(aktifGrup.key);
+  if (aktifGrup) mobilAltMenuBagla(aktifGrup.key);
 
   // Klavye açıkken bottom navbar'ı gizle
   (function klavyeGizlemeBaslat() {
@@ -887,11 +914,8 @@ function mobilAltMenuOge(href, ikon, etiket, adminOnly = false) {
     </a>`;
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", layoutYukle, { once: true });
-} else {
-  layoutYukle();
-}
+// Menü, kullanıcının yetkisine (yönetici / diğer) göre kurulduğu için otomatik çalıştırılmaz;
+// her sayfa oturum doğrulandıktan sonra (requireAuth/requireAdmin içinde) layoutYukle() çağırır.
 
 Object.assign(OBS, { layoutYukle });
 })();

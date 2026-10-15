@@ -357,8 +357,17 @@ async function davranisEkle(ogrenciNo, veri) {
   return ref;
 }
 
+// Güncellemede boş bırakılan isteğe bağlı alanlar belgeden tamamen kaldırılır.
+function bosIsteBagliAlanlariSil(veri, alanlar) {
+  const sonuc = { ...veri };
+  alanlar.forEach(alan => {
+    if (alan in sonuc && !String(sonuc[alan] ?? "").trim()) sonuc[alan] = deleteField();
+  });
+  return sonuc;
+}
+
 async function davranisGuncelle(_ogrenciNo, kayitId, veri) {
-  await updateDoc(doc(db, "davranislar", String(kayitId)), tarihliVeri(veri));
+  await updateDoc(doc(db, "davranislar", String(kayitId)), bosIsteBagliAlanlariSil(tarihliVeri(veri), ["girisi_yapan"]));
   kayitCacheTemizle("davranislar");
 }
 
@@ -413,7 +422,7 @@ async function gorusmeSil(_ogrenciNo, kayitId) {
 
 async function gorusmeGuncelle(_ogrenciNo, kayitId, veri) {
   // Eski sürümden kalan veli_id alanı güncelleme sırasında temizlenir.
-  await updateDoc(doc(db, "veligorusmeleri", String(kayitId)), { ...tarihliVeri(veri), veli_id: deleteField() });
+  await updateDoc(doc(db, "veligorusmeleri", String(kayitId)), { ...bosIsteBagliAlanlariSil(tarihliVeri(veri), ["gorusmeyi_yapan"]), veli_id: deleteField() });
   kayitCacheTemizle("veligorusmeleri");
 }
 
