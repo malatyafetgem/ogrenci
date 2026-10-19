@@ -115,10 +115,11 @@ service cloud.firestore {
     }
 
     function validSettings() {
-      return request.resource.data.keys().hasOnly(["egitim_ogretim_yili", "donem", "guncelleme_tarihi"])
+      return request.resource.data.keys().hasOnly(["egitim_ogretim_yili", "donem", "guncelleme_tarihi", "son_yedek_zamani"])
         && optionalString("egitim_ogretim_yili")
         && optionalString("donem")
         && optionalString("guncelleme_tarihi")
+        && optionalString("son_yedek_zamani")
         && (!("donem" in request.resource.data) || request.resource.data.donem in ["1. Dönem", "2. Dönem"]);
     }
 

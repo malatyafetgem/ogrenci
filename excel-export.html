@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261009-126">
+  <link rel="manifest" href="manifest.webmanifest?v=20261019-127">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261009-126">
-  <link rel="shortcut icon" href="favicon.ico?v=20261009-126">
-  <script src="pwa.js?v=20261009-126"></script>
-  <title>Excel Aktarım</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-127">
+  <link rel="shortcut icon" href="favicon.ico?v=20261019-127">
+  <script src="pwa.js?v=20261019-127"></script>
+  <title>Özel Excel Raporu</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
           crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261009-126">
+  <link rel="stylesheet" href="app.css?v=20261019-127">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -33,12 +33,12 @@
       <div class="container-fluid">
         <div class="row align-items-center">
           <div class="col-sm-6">
-            <h3 class="mb-0"><i class="bi bi-file-earmark-excel me-2 text-success"></i>Excel Aktarım</h3>
+            <h3 class="mb-0"><i class="bi bi-file-earmark-excel me-2 text-success"></i>Özel Excel Raporu</h3>
           </div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
-              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
-              <li class="breadcrumb-item active">Excel Aktarım</li>
+              <li class="breadcrumb-item"><a href="dashboard.html">Ana Sayfa</a></li>
+              <li class="breadcrumb-item active">Özel Excel Raporu</li>
             </ol>
           </div>
         </div>
@@ -169,7 +169,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261009-126", "firebase-imports.js?v=20261009-126", "firebase-config.js?v=20261009-126", "utils.js?v=20261009-126", "school-settings.js?v=20261009-126", "students.js?v=20261009-126", "auth.js?v=20261009-126", "layout.js?v=20261009-126"];
+  var liste = ["version.js?v=20261019-127", "firebase-imports.js?v=20261019-127", "firebase-config.js?v=20261019-127", "utils.js?v=20261019-127", "school-settings.js?v=20261019-127", "students.js?v=20261019-127", "auth.js?v=20261019-127", "layout.js?v=20261019-127"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }

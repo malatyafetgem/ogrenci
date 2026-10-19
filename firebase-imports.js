@@ -64,10 +64,15 @@ function limit(adet) {
   return { tur: "limit", adet };
 }
 
+function orderBy(alan, yon = "asc") {
+  return { tur: "orderBy", alan, yon };
+}
+
 function query(koleksiyonRef, ...kosullar) {
   let q = koleksiyonRef;
   for (const k of kosullar) {
     if (k.tur === "where") q = q.where(k.alan, k.islem, k.deger);
+    else if (k.tur === "orderBy") q = q.orderBy(k.alan, k.yon);
     else if (k.tur === "limit") q = q.limit(k.adet);
   }
   return q;
@@ -104,7 +109,7 @@ function reauthenticateWithCredential(kullanici, kimlik) {
 
 Object.assign(OBS, {
   doc, collection, getDoc, getDocs, setDoc, addDoc, updateDoc, deleteDoc, deleteField,
-  where, limit, query, writeBatch, onSnapshot,
+  where, limit, orderBy, query, writeBatch, onSnapshot,
   signInWithEmailAndPassword, signOut, onAuthStateChanged,
   EmailAuthProvider, reauthenticateWithCredential
 });

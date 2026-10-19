@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261009-126">
+  <link rel="manifest" href="manifest.webmanifest?v=20261019-127">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261009-126">
-  <link rel="shortcut icon" href="favicon.ico?v=20261009-126">
-  <script src="pwa.js?v=20261009-126"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-127">
+  <link rel="shortcut icon" href="favicon.ico?v=20261019-127">
+  <script src="pwa.js?v=20261019-127"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/css/dataTables.bootstrap5.min.css"
           integrity="sha384-xkQqWcEusZ1bIXoKJoItkNbJJ1LG5QwR5InghOwFLsCoEkGcNLYjE0O83wWruaK9"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261009-126">
+  <link rel="stylesheet" href="app.css?v=20261019-127">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -38,7 +38,7 @@
           <div class="col-sm-6"><h3 class="mb-0">Öğrenci Listesi</h3></div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
-              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="dashboard.html">Ana Sayfa</a></li>
               <li class="breadcrumb-item active">Öğrenciler</li>
             </ol>
           </div>
@@ -128,6 +128,7 @@
               <table id="ogrenci-tablo" class="table table-sm table-hover mb-0 align-middle table-fit-desktop print-landscape print-nowrap">
                 <thead class="table-light">
                   <tr>
+                    <th class="sira-th">Sıra</th>
                     <th>No</th>
                     <th>Adı Soyadı</th>
                     <th>Sınıf</th>
@@ -138,7 +139,7 @@
                   </tr>
                 </thead>
                 <tbody id="ogrenci-tbody">
-                  <tr><td colspan="7" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
+                  <tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele'ye basın.</td></tr>
                 </tbody>
               </table>
             </div>
@@ -231,7 +232,7 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20261009-126"></script>
+<script src="datatable-fallback.js?v=20261019-127"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
         integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"
         crossorigin="anonymous"></script>
@@ -243,7 +244,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261009-126", "firebase-imports.js?v=20261009-126", "firebase-config.js?v=20261009-126", "utils.js?v=20261009-126", "school-settings.js?v=20261009-126", "students.js?v=20261009-126", "auth.js?v=20261009-126", "layout.js?v=20261009-126"];
+  var liste = ["version.js?v=20261019-127", "firebase-imports.js?v=20261019-127", "firebase-config.js?v=20261019-127", "utils.js?v=20261019-127", "school-settings.js?v=20261019-127", "students.js?v=20261019-127", "auth.js?v=20261019-127", "layout.js?v=20261019-127"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -304,7 +305,7 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
     document.getElementById("kayit-sayisi").textContent = "0";
     document.getElementById("ozet-cipler").innerHTML = "";
     document.getElementById("ogrenci-tbody").innerHTML =
-      '<tr><td colspan="7" class="text-center text-muted py-3">Filtreleri seçip Filtrele\'ye basın.</td></tr>';
+      '<tr><td colspan="8" class="text-center text-muted py-3">Filtreleri seçip Filtrele\'ye basın.</td></tr>';
   }
 
   async function yukleOgrenciler(filtreler = {}) {
@@ -337,7 +338,7 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
     document.getElementById("yukleniyor").classList.add("d-none");
     document.getElementById("tablo-kap").classList.remove("d-none");
     const tbody = document.getElementById("ogrenci-tbody");
-    const satir = `<tr>${Array.from({ length: 7 }).map(() => `<td><div class="skeleton skeleton-satir"></div></td>`).join("")}</tr>`;
+    const satir = `<tr>${Array.from({ length: 8 }).map(() => `<td><div class="skeleton skeleton-satir"></div></td>`).join("")}</tr>`;
     tbody.innerHTML = satir.repeat(8);
   }
 
@@ -365,20 +366,21 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
     const tbody = document.getElementById("ogrenci-tbody");
 
     tbody.innerHTML = veri.length === 0
-      ? `<tr><td colspan="7">
+      ? `<tr><td colspan="8">
            <div class="bos-durum">
              <i class="bi bi-inbox"></i>
              <div class="baslik">${escapeHtml(bosMesaj)}</div>
              <div class="aciklama">Filtreleri değiştirip tekrar deneyebilir veya yeni öğrenci ekleyebilirsiniz.</div>
            </div>
          </td></tr>`
-      : veri.map(o => {
+      : veri.map((o, sira) => {
           const adSoyad = ogrenciAdSoyad(o);
           const okulNo = o.numara || o.id;
           const kayitIdEtiketi = o.id !== okulNo
             ? `<div class="text-muted small">ID: ${escapeHtml(o.id)}</div>`
             : "";
           return `<tr>
+            <td class="sira-hucre text-muted">${sira + 1}</td>
             <td data-order="${escapeAttr(ogrenciNoSiralamaAnahtari(o))}">${escapeHtml(okulNo)}${kayitIdEtiketi}</td>
             <td>
               <a href="students-detail.html?id=${escapeAttr(o.id)}"
@@ -422,12 +424,34 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
           emptyTable: "Kayıt yok"
         },
         pageLength: 25,
-        order: [[2, "asc"], [0, "asc"]],
+        order: [[3, "asc"], [1, "asc"]],
         columnDefs: [
-          { orderable: false, targets: [6] }
+          { orderable: false, targets: [0, 7] }
         ]
       });
+      siraNumaralariniBagla();
     }
+  }
+
+  // Sıra sütunu: gösterilen sıralamaya (sıralama, arama) göre 1'den başlayarak numaralanır.
+  function siraNumaralariniGuncelle() {
+    try {
+      if (dt && typeof dt.cells === "function") {
+        let n = 1;
+        dt.cells(null, 0, { search: "applied", order: "applied" }).every(function () { this.data(n++); });
+        return;
+      }
+    } catch (err) {
+      console.warn("Sıra numaraları DataTable ile güncellenemedi, doğrudan güncelleniyor:", err);
+    }
+    document.querySelectorAll("#ogrenci-tbody td.sira-hucre").forEach((hucre, i) => { hucre.textContent = i + 1; });
+  }
+
+  function siraNumaralariniBagla() {
+    if (dt && typeof dt.on === "function") {
+      try { dt.on("order.dt search.dt", siraNumaralariniGuncelle); } catch (err) { console.warn("Sıra olayı bağlanamadı:", err); }
+    }
+    siraNumaralariniGuncelle();
   }
 
   function filtreleriOku() {

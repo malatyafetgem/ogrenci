@@ -1,7 +1,7 @@
 (function () {
 "use strict";
 const OBS = window.OBS = window.OBS || {};
-const { db, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, writeBatch, bugun, compareOgrenci, compareSinif, compareTarihDesc, formatTarih, tarihSiralamaAnahtari, APP_VERSION } = OBS;
+const { db, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, writeBatch, bugun, compareOgrenci, compareSinif, compareTarihDesc, formatTarih, tarihSiralamaAnahtari, APP_VERSION, orderBy, limit } = OBS;
 /**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
@@ -376,6 +376,17 @@ async function davranisSil(_ogrenciNo, kayitId) {
   kayitCacheTemizle("davranislar");
 }
 
+/**
+ * Ana sayfa için: tüm koleksiyonu okumak yerine tarih_sira'ya göre en yeni kayıtları ister.
+ * tarih_sira alanı olmayan çok eski kayıtlar sorguya girmez; hiç sonuç dönmezse tek seferlik tam okumaya dönülür.
+ */
+async function sonDavranislariGetir(adet = 20) {
+  const snap = await getDocs(query(collection(db, "davranislar"), orderBy("tarih_sira", "desc"), limit(adet)));
+  const kayitlar = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  if (kayitlar.length) return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
+  return (await tumDavranislariGetir()).slice(0, adet);
+}
+
 async function tumDavranislariGetir() {
   const kayitlar = await tumKayitlariGetir("davranislar");
   return kayitlar.sort((a, b) => compareTarihDesc(a.tarih, b.tarih));
@@ -470,5 +481,5 @@ async function tumSiniflariGetir() {
   return [...set].sort(compareSinif);
 }
 
-Object.assign(OBS, { veriCacheleriniTemizle, ogrenciDurumunuNormalizeEt, ogrenciAktifMi, tumOgrencileriDurumlariylaGetir, tumOgrencileriGetir, ogrenciGetir, noMevcutMu, ogrenciEkle, ogrenciGuncelle, ogrenciSil, davranislarGetir, davranisEkle, davranisGuncelle, davranisSil, tumDavranislariGetir, sinifaGoreDavranislariGetir, gorusmeleriGetir, gorusmeEkle, gorusmeSil, gorusmeGuncelle, tumGorusmeleriGetir, sinifaGoreGorusmeleriGetir, siniflarGetir, tumSiniflariGetir, IZINLI_OGRENCI_ALANLARI });
+Object.assign(OBS, { sonDavranislariGetir, veriCacheleriniTemizle, ogrenciDurumunuNormalizeEt, ogrenciAktifMi, tumOgrencileriDurumlariylaGetir, tumOgrencileriGetir, ogrenciGetir, noMevcutMu, ogrenciEkle, ogrenciGuncelle, ogrenciSil, davranislarGetir, davranisEkle, davranisGuncelle, davranisSil, tumDavranislariGetir, sinifaGoreDavranislariGetir, gorusmeleriGetir, gorusmeEkle, gorusmeSil, gorusmeGuncelle, tumGorusmeleriGetir, sinifaGoreGorusmeleriGetir, siniflarGetir, tumSiniflariGetir, IZINLI_OGRENCI_ALANLARI });
 })();

@@ -159,6 +159,15 @@ function bugun() {
 /**
  * GG.AA.YYYY formatındaki tarihi Date nesnesine çevirir.
  */
+/** Verilen GG.AA.YYYY tarihi bugünden sonra mı? Geçersiz tarih için false döner. */
+function gelecekTarihMi(str) {
+  const tarih = tarihtenDate(str);
+  if (!tarih) return false;
+  const bugunTarih = new Date();
+  bugunTarih.setHours(0, 0, 0, 0);
+  return tarih.getTime() > bugunTarih.getTime();
+}
+
 function tarihtenDate(str) {
   if (!str) return null;
   const tarih = formatTarih(str);
@@ -403,5 +412,5 @@ function dataTableOlustur(secici, secenekler) {
 }
 
 
-Object.assign(OBS, { dataTableOlustur, formatAd, formatSoyad, formatMetin, turkceBuyuk, turkcekucuk, escapeHtml, escapeAttr, formatTarih, gecerliTarih, bugun, tarihtenDate, tarihSiralamaAnahtari, compareTarihDesc, sinifParcala, sinifSiralamaAnahtari, compareSinif, ogrenciNoSiralamaAnahtari, compareOgrenciNo, compareOgrenci, baglaFormat, gecerliOgrenciNo, toast, onayIste });
+Object.assign(OBS, { dataTableOlustur, gelecekTarihMi, formatAd, formatSoyad, formatMetin, turkceBuyuk, turkcekucuk, escapeHtml, escapeAttr, formatTarih, gecerliTarih, bugun, tarihtenDate, tarihSiralamaAnahtari, compareTarihDesc, sinifParcala, sinifSiralamaAnahtari, compareSinif, ogrenciNoSiralamaAnahtari, compareOgrenciNo, compareOgrenci, baglaFormat, gecerliOgrenciNo, toast, onayIste });
 })();

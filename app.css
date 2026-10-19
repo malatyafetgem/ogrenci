@@ -2936,3 +2936,24 @@ body.pwa-guncelle-var .app-wrapper {
     page-break-after: avoid;
   }
 }
+
+/* Üst çubuk: giriş yapılan hesap bilgisi */
+.hesap-rozet {
+  background: var(--obs-primary);
+  color: #fff;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .02em;
+  padding: .25rem .55rem;
+  border-radius: 999px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.hesap-eposta {
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .78rem;
+  color: var(--obs-muted);
+}

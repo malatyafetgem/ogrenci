@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261009-126">
+  <link rel="manifest" href="manifest.webmanifest?v=20261019-127">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261009-126">
-  <link rel="shortcut icon" href="favicon.ico?v=20261009-126">
-  <script src="pwa.js?v=20261009-126"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-127">
+  <link rel="shortcut icon" href="favicon.ico?v=20261019-127">
+  <script src="pwa.js?v=20261019-127"></script>
   <title>Giriş</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -21,21 +21,21 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" onerror="this.onerror=null;this.href=this.href+'&r='+Date.now()" href="app.css?v=20261009-126">
+  <link rel="stylesheet" onerror="this.onerror=null;this.href=this.href+'&r='+Date.now()" href="app.css?v=20261019-127">
 </head>
 <body class="login-page">
 
 <div class="container">
   <div class="login-kart">
     <div class="login-logo">
-      <span class="login-logo-mark"><img src="icon-192.png?v=20261009-126" alt="Öğrenci Bilgileri"></span>
+      <span class="login-logo-mark"><img src="icon-192.png?v=20261019-127" alt="Öğrenci Bilgileri"></span>
       <span class="baslik">Öğrenci Bilgileri</span>
       <span class="alt-baslik">Malatya FETGEM</span>
     </div>
 
     <div class="card shadow-sm">
       <div class="card-body p-4">
-        <h5 class="card-title mb-4 text-center">Yönetici Girişi</h5>
+        <h5 class="card-title mb-4 text-center">Giriş</h5>
 
         <div id="hata-mesaji" class="alert alert-danger d-none" role="alert"></div>
 
@@ -44,7 +44,7 @@
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-envelope"></i></span>
             <input type="email" class="form-control" id="email"
-                   placeholder="admin@ornek.com" autocomplete="username">
+                   placeholder="E-posta" autocomplete="username">
           </div>
         </div>
 
@@ -54,7 +54,7 @@
             <span class="input-group-text"><i class="bi bi-lock"></i></span>
             <input type="password" class="form-control" id="sifre"
                    placeholder="••••••••" autocomplete="current-password">
-            <button class="btn btn-outline-secondary" type="button" id="sifre-goster">
+            <button class="btn btn-outline-secondary" type="button" id="sifre-goster" aria-label="Şifreyi göster" title="Şifreyi göster" aria-pressed="false">
               <i class="bi bi-eye" id="goz-ikon"></i>
             </button>
           </div>
@@ -81,7 +81,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261009-126", "firebase-imports.js?v=20261009-126", "firebase-config.js?v=20261009-126", "utils.js?v=20261009-126", "auth.js?v=20261009-126"];
+  var liste = ["version.js?v=20261019-127", "firebase-imports.js?v=20261019-127", "firebase-config.js?v=20261019-127", "utils.js?v=20261019-127", "auth.js?v=20261019-127"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -117,6 +117,10 @@ const OBS = window.OBS || {};
     const gizli = sifreEl.type === "password";
     sifreEl.type = gizli ? "text" : "password";
     gozIkon.className = gizli ? "bi bi-eye-slash" : "bi bi-eye";
+    const gozBtn = document.getElementById("sifre-goster");
+    gozBtn.setAttribute("aria-label", gizli ? "Şifreyi gizle" : "Şifreyi göster");
+    gozBtn.setAttribute("title", gizli ? "Şifreyi gizle" : "Şifreyi göster");
+    gozBtn.setAttribute("aria-pressed", gizli ? "true" : "false");
   });
 
   sifreEl.addEventListener("keydown", e => { if (e.key === "Enter") gir(); });

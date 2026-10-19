@@ -3,25 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261009-126">
+  <link rel="manifest" href="manifest.webmanifest?v=20261019-127">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261009-126">
-  <link rel="shortcut icon" href="favicon.ico?v=20261009-126">
-  <script src="pwa.js?v=20261009-126"></script>
-  <title>Ayarlar ve Yönetim</title>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-127">
+  <link rel="shortcut icon" href="favicon.ico?v=20261019-127">
+  <script src="pwa.js?v=20261019-127"></script>
+  <title>Ayarlar</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
           crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261009-126">
+  <link rel="stylesheet" href="app.css?v=20261019-127">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -32,11 +32,11 @@
     <div class="app-content-header">
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="col-sm-6"><h3 class="mb-0">Ayarlar ve Yönetim</h3></div>
+          <div class="col-sm-6"><h3 class="mb-0">Ayarlar</h3></div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
-              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
-              <li class="breadcrumb-item active">Ayarlar ve Yönetim</li>
+              <li class="breadcrumb-item"><a href="dashboard.html">Ana Sayfa</a></li>
+              <li class="breadcrumb-item active">Ayarlar</li>
             </ol>
           </div>
         </div>
@@ -92,11 +92,11 @@
               <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-2 py-2">
                 <div>
                   <i class="bi bi-file-earmark-excel text-success fs-5 me-2"></i>
-                  <strong>Excel Aktarım</strong>
+                  <strong>Özel Excel Raporu</strong>
                   <span class="text-muted small ms-2">Öğrenci listesini istediğiniz sütunlarla Excel'e aktarın.</span>
                 </div>
                 <a href="excel-export.html" class="btn btn-success btn-sm">
-                  <i class="bi bi-file-earmark-excel me-1"></i>Excel Aktarım Sayfasına Git
+                  <i class="bi bi-file-earmark-excel me-1"></i>Özel Excel Raporu Sayfasına Git
                 </a>
               </div>
             </div>
@@ -167,6 +167,9 @@
                 <h6 class="mb-0"><i class="bi bi-database-down me-1"></i>Verileri İçe / Dışa Aktar</h6>
               </div>
               <div class="card-body">
+                <p class="small mb-3" id="son-yedek-bilgi" role="status">
+                  <i class="bi bi-clock-history me-1"></i><span id="son-yedek-metin">Son yedek bilgisi okunuyor...</span>
+                </p>
                 <p class="text-muted small">
                   Dışa aktarma JSON yedek dosyası indirir. İçe aktarma aynı biçimdeki yedeği sisteme yazar; mevcut kayıtları silmez, aynı ID'leri günceller.
                 </p>
@@ -304,7 +307,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261009-126", "firebase-imports.js?v=20261009-126", "firebase-config.js?v=20261009-126", "utils.js?v=20261009-126", "school-settings.js?v=20261009-126", "students.js?v=20261009-126", "auth.js?v=20261009-126", "layout.js?v=20261009-126", "class-promotion.js?v=20261009-126"];
+  var liste = ["version.js?v=20261019-127", "firebase-imports.js?v=20261019-127", "firebase-config.js?v=20261019-127", "utils.js?v=20261019-127", "school-settings.js?v=20261019-127", "students.js?v=20261019-127", "auth.js?v=20261019-127", "layout.js?v=20261019-127", "class-promotion.js?v=20261019-127"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -325,7 +328,7 @@ window.OBSHazir = (function () {
 <script>
 OBSHazir(async () => {
 "use strict";
-const { requireAdmin, getCurrentUser, layoutYukle, db, EmailAuthProvider, reauthenticateWithCredential, collection, doc, getDocs, writeBatch, deleteField, toast, bugun, escapeHtml, APP_VERSION, APP_UPDATED_AT, okulAyarlariGetir, okulDonemiEtiketi, tumOgrencileriDurumlariylaGetir, tumDavranislariGetir, tumGorusmeleriGetir, IZINLI_OGRENCI_ALANLARI } = window.OBS;
+const { requireAdmin, getCurrentUser, layoutYukle, db, EmailAuthProvider, reauthenticateWithCredential, collection, doc, getDocs, writeBatch, deleteField, toast, bugun, escapeHtml, APP_VERSION, APP_UPDATED_AT, okulAyarlariGetir, okulDonemiEtiketi, tumOgrencileriDurumlariylaGetir, tumDavranislariGetir, tumGorusmeleriGetir, IZINLI_OGRENCI_ALANLARI, sonYedekZamaniKaydet } = window.OBS;
   const okulAyarlariKaydetDb = window.OBS.okulAyarlariKaydet;
 
   const KAYIT_KOLEKSIYONLARI = ["davranislar", "veligorusmeleri"];
@@ -371,7 +374,7 @@ const { requireAdmin, getCurrentUser, layoutYukle, db, EmailAuthProvider, reauth
       zorunlu: []
     },
     settings: {
-      izinli: ["egitim_ogretim_yili", "donem", "guncelleme_tarihi"],
+      izinli: ["egitim_ogretim_yili", "donem", "guncelleme_tarihi", "son_yedek_zamani"],
       zorunlu: []
     }
   };
@@ -440,6 +443,7 @@ const { requireAdmin, getCurrentUser, layoutYukle, db, EmailAuthProvider, reauth
       await okulAyarlariYukle();
     } catch (err) {
       document.getElementById("okul-ayar-durum").textContent = "Yüklenemedi.";
+      document.getElementById("son-yedek-metin").textContent = "Son yedek bilgisi okunamadı.";
       toast("Okul ayarları yüklenemedi: " + err.message, "danger");
     } finally {
       // Kaydet, mevcut ayarlar forma yüklenmeden etkinleşmez (varsayılan değerlerin üzerine yazmasın).
@@ -753,8 +757,29 @@ const { requireAdmin, getCurrentUser, layoutYukle, db, EmailAuthProvider, reauth
     );
   }
 
+  // Son yedek göstergesi: hiç alınmadıysa veya 7 günden eskiyse uyarı renginde gösterilir.
+  function sonYedekGoster(iso) {
+    const bilgi = document.getElementById("son-yedek-bilgi");
+    const metin = document.getElementById("son-yedek-metin");
+    bilgi.classList.remove("text-success", "text-warning-emphasis", "text-danger");
+    const zaman = iso ? new Date(iso) : null;
+    if (!zaman || Number.isNaN(zaman.getTime())) {
+      bilgi.classList.add("text-danger");
+      metin.textContent = "Henüz yedek alınmadı.";
+      return;
+    }
+    const baslangic = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const gun = Math.max(0, Math.round((baslangic(new Date()) - baslangic(zaman)) / 86400000));
+    const goreli = gun === 0 ? "bugün" : gun === 1 ? "dün" : `${gun} gün önce`;
+    const tarih = String(zaman.getDate()).padStart(2, "0") + "." + String(zaman.getMonth() + 1).padStart(2, "0") + "." + zaman.getFullYear();
+    const saat = String(zaman.getHours()).padStart(2, "0") + ":" + String(zaman.getMinutes()).padStart(2, "0");
+    bilgi.classList.add(gun > 7 ? "text-warning-emphasis" : "text-success");
+    metin.textContent = `Son yedek: ${tarih} ${saat} (${goreli})`;
+  }
+
   async function okulAyarlariYukle() {
     const ayarlar = await okulAyarlariGetir(true);
+    sonYedekGoster(ayarlar.son_yedek_zamani);
     document.getElementById("okul-yili").value = ayarlar.egitim_ogretim_yili || "2025-2026";
     document.getElementById("okul-donem").value = ayarlar.donem || "2. Dönem";
     document.getElementById("okul-ayar-durum").textContent = okulDonemiEtiketi(ayarlar);
@@ -1055,7 +1080,16 @@ const { requireAdmin, getCurrentUser, layoutYukle, db, EmailAuthProvider, reauth
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      durumYaz(`Yedek dosyası indirildi. Öğrenci: ${ozet.students || 0}, davranış: ${ozet.davranislar || 0}, görüşme: ${ozet.veligorusmeleri || 0}.`, "success");
+      let yedekNotu = "";
+      try {
+        const yedekZamani = new Date().toISOString();
+        await sonYedekZamaniKaydet(yedekZamani);
+        sonYedekGoster(yedekZamani);
+      } catch (err) {
+        console.warn("Son yedek zamanı kaydedilemedi:", err);
+        yedekNotu = " (Son yedek zamanı kaydedilemedi.)";
+      }
+      durumYaz(`Yedek dosyası indirildi. Öğrenci: ${ozet.students || 0}, davranış: ${ozet.davranislar || 0}, görüşme: ${ozet.veligorusmeleri || 0}.${yedekNotu}`, "success");
     } catch (err) {
       durumYaz("Yedek alınamadı: " + err.message, "danger");
     } finally {

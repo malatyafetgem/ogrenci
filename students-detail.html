@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261009-126">
+  <link rel="manifest" href="manifest.webmanifest?v=20261019-127">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261009-126">
-  <link rel="shortcut icon" href="favicon.ico?v=20261009-126">
-  <script src="pwa.js?v=20261009-126"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-127">
+  <link rel="shortcut icon" href="favicon.ico?v=20261019-127">
+  <script src="pwa.js?v=20261019-127"></script>
   <title>Öğrenci Detayı</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261009-126">
+  <link rel="stylesheet" href="app.css?v=20261019-127">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary student-detail-page">
 <div class="app-wrapper">
@@ -35,7 +35,7 @@
           <div class="col-sm-6"><h3 class="mb-0" id="sayfa-baslik">Öğrenci Detayı</h3></div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
-              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="dashboard.html">Ana Sayfa</a></li>
               <li class="breadcrumb-item"><a href="students-list.html">Öğrenciler</a></li>
               <li class="breadcrumb-item active" id="breadcrumb-ad">Detay</li>
             </ol>
@@ -73,10 +73,10 @@
                   </div>
                   <div class="detail-action-group detail-action-group-add">
                     <a href="#" id="davranis-ekle-btn" class="btn btn-sm detail-action-btn detail-action-behavior">
-                      <i class="bi bi-star"></i>Davranış Ekle
+                      <i class="bi bi-star"></i>Davranış Gir
                     </a>
                     <a href="#" id="gorusme-ekle-btn" class="btn btn-sm detail-action-btn detail-action-meeting">
-                      <i class="bi bi-chat-dots"></i>Görüşme Ekle
+                      <i class="bi bi-chat-dots"></i>Görüşme Gir
                     </a>
                   </div>
                   <div class="detail-action-group detail-action-group-print">
@@ -195,7 +195,7 @@
                       <thead class="table-light">
                         <tr>
                           <th>Tarih</th>
-                          <th>Veli</th>
+                          <th>Yakınlık / Veli Adı</th>
                           <th>Konu</th>
                           <th>Açıklama</th>
                           <th>Görüşmeyi Yapan</th>
@@ -285,7 +285,7 @@
             <input type="text" class="form-control" id="gorusme-duzenle-tarih" placeholder="GG.AA.YYYY">
           </div>
           <div class="col-6">
-            <label class="form-label" for="gorusme-duzenle-veli-yakinlik">Veli Yakınlığı</label>
+            <label class="form-label" for="gorusme-duzenle-veli-yakinlik">Yakınlık</label>
             <input type="text" class="form-control" id="gorusme-duzenle-veli-yakinlik">
           </div>
           <div class="col-12">
@@ -335,7 +335,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261009-126", "firebase-imports.js?v=20261009-126", "firebase-config.js?v=20261009-126", "utils.js?v=20261009-126", "school-settings.js?v=20261009-126", "avatar.js?v=20261009-126", "students.js?v=20261009-126", "auth.js?v=20261009-126", "layout.js?v=20261009-126"];
+  var liste = ["version.js?v=20261019-127", "firebase-imports.js?v=20261019-127", "firebase-config.js?v=20261019-127", "utils.js?v=20261019-127", "school-settings.js?v=20261019-127", "avatar.js?v=20261019-127", "students.js?v=20261019-127", "auth.js?v=20261019-127", "layout.js?v=20261019-127"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -356,7 +356,7 @@ window.OBSHazir = (function () {
 <script>
 OBSHazir(async () => {
 "use strict";
-const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogrenciGetir, ogrenciSil, davranislarGetir, davranisSil, davranisGuncelle, gorusmeleriGetir, gorusmeSil, gorusmeGuncelle, toast, onayIste, gecerliTarih, escapeHtml, escapeAttr, avatarSrc } = window.OBS;
+const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogrenciGetir, ogrenciSil, davranislarGetir, davranisSil, davranisGuncelle, gorusmeleriGetir, gorusmeSil, gorusmeGuncelle, toast, onayIste, gecerliTarih, escapeHtml, escapeAttr, avatarSrc, gelecekTarihMi } = window.OBS;
 
   let ogrenciId = null;
   let tumDavranislar = [];
@@ -534,7 +534,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
         const veliEtiketi = [g.veli_yakinlik, g.veli_adi].filter(Boolean).join(" - ") || "—";
         return `<tr>
           <td data-label="Tarih">${escapeHtml(g.tarih || "—")}</td>
-          <td data-label="Veli">${escapeHtml(veliEtiketi)}</td>
+          <td data-label="Yakınlık / Veli Adı">${escapeHtml(veliEtiketi)}</td>
           <td data-label="Konu">${escapeHtml(g.konu || "—")}</td>
           <td data-label="Açıklama">${escapeHtml(g.aciklama || "—")}</td>
           <td data-label="Görüşmeyi Yapan">${escapeHtml(g.gorusmeyi_yapan || "—")}</td>
@@ -625,6 +625,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     const hataEl   = document.getElementById("davranis-duzenle-hata");
     if (!tarih) { hataEl.textContent = "Tarih zorunludur."; hataEl.classList.remove("d-none"); return; }
     if (!gecerliTarih(tarih)) { hataEl.textContent = "Tarih geçerli bir GG.AA.YYYY tarihi olmalıdır."; hataEl.classList.remove("d-none"); return; }
+    if (gelecekTarihMi(tarih)) { hataEl.textContent = "Davranış tarihi bugünden sonra olamaz."; hataEl.classList.remove("d-none"); return; }
     if (!kategori) { hataEl.textContent = "Kategori zorunludur."; hataEl.classList.remove("d-none"); return; }
     const metin  = document.getElementById("davranis-duzenle-kaydet-metin");
     const yuklen = document.getElementById("davranis-duzenle-kaydet-yuklen");
@@ -676,6 +677,7 @@ const { requireAuth, adminActionAllowed, applyAdminVisibility, layoutYukle, ogre
     const hataEl       = document.getElementById("gorusme-duzenle-hata");
     if (!tarih) { hataEl.textContent = "Tarih zorunludur."; hataEl.classList.remove("d-none"); return; }
     if (!gecerliTarih(tarih)) { hataEl.textContent = "Tarih geçerli bir GG.AA.YYYY tarihi olmalıdır."; hataEl.classList.remove("d-none"); return; }
+    if (gelecekTarihMi(tarih)) { hataEl.textContent = "Görüşme tarihi bugünden sonra olamaz."; hataEl.classList.remove("d-none"); return; }
     if (!veliYakinlik || !konu) { hataEl.textContent = "Veli yakınlığı ve konu zorunludur."; hataEl.classList.remove("d-none"); return; }
     const metin  = document.getElementById("gorusme-duzenle-kaydet-metin");
     const yuklen = document.getElementById("gorusme-duzenle-kaydet-yuklen");

@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261009-126">
+  <link rel="manifest" href="manifest.webmanifest?v=20261019-127">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261009-126">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261009-126">
-  <link rel="shortcut icon" href="favicon.ico?v=20261009-126">
-  <script src="pwa.js?v=20261009-126"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-127">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-127">
+  <link rel="shortcut icon" href="favicon.ico?v=20261019-127">
+  <script src="pwa.js?v=20261019-127"></script>
   <title>Davranış Gir</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261009-126">
+  <link rel="stylesheet" href="app.css?v=20261019-127">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -38,7 +38,7 @@
           <div class="col-sm-6"><h3 class="mb-0">Davranış Gir</h3></div>
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-end">
-              <li class="breadcrumb-item"><a href="dashboard.html">Panel</a></li>
+              <li class="breadcrumb-item"><a href="dashboard.html">Ana Sayfa</a></li>
               <li class="breadcrumb-item active">Davranış Gir</li>
             </ol>
           </div>
@@ -51,8 +51,6 @@
 
         <div class="card davranis-form-card">
           <div class="card-body">
-            <div id="hata-mesaji" class="alert alert-danger d-none"></div>
-            <div id="basari-mesaji" class="alert alert-success d-none"></div>
 
             <div class="davranis-bilgi-kutusu mb-4" role="note">
               <div class="d-flex align-items-start gap-2">
@@ -134,6 +132,12 @@
                   </span>
                 </button>
               </div>
+
+              <!-- Geri bildirim: Kaydet düğmesinin hemen altında, mobilde de görünür kalır -->
+              <div class="mt-3">
+                <div id="hata-mesaji" class="alert alert-danger mb-0 d-none" role="alert"></div>
+                <div id="basari-mesaji" class="alert alert-success mb-0 d-none" role="status" aria-live="polite"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -164,7 +168,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261009-126", "firebase-imports.js?v=20261009-126", "firebase-config.js?v=20261009-126", "utils.js?v=20261009-126", "school-settings.js?v=20261009-126", "students.js?v=20261009-126", "auth.js?v=20261009-126", "layout.js?v=20261009-126"];
+  var liste = ["version.js?v=20261019-127", "firebase-imports.js?v=20261019-127", "firebase-config.js?v=20261019-127", "utils.js?v=20261019-127", "school-settings.js?v=20261019-127", "students.js?v=20261019-127", "auth.js?v=20261019-127", "layout.js?v=20261019-127"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -185,7 +189,7 @@ window.OBSHazir = (function () {
 <script>
 OBSHazir(async () => {
 "use strict";
-const { requireAuth, layoutYukle, tumOgrencileriGetir, davranisEkle, gecerliTarih, escapeHtml, escapeAttr } = window.OBS;
+const { requireAuth, layoutYukle, tumOgrencileriGetir, davranisEkle, gecerliTarih, escapeHtml, escapeAttr, davranislarGetir, gelecekTarihMi, onayIste, formatTarih } = window.OBS;
 
   const KATEGORILER = {
     Olumlu:  ["Yardımseverlik", "Sosyal Katkı", "Başarılı Davranış", "Diğer"],
@@ -201,7 +205,7 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, davranisEkle, gecerliTari
     // Tür düğmeleri ve form olayları, öğrenci listesi yüklenmeden ÖNCE bağlanır;
     // yavaş bağlantıda ilk dokunuşun boşa gitmesi böylece önlenir.
     baglayici();
-    flatpickr("#d-tarih", { locale: "tr", dateFormat: "d.m.Y", defaultDate: "today" });
+    flatpickr("#d-tarih", { locale: "tr", dateFormat: "d.m.Y", defaultDate: "today", maxDate: "today", allowInput: true });
 
     const params = new URLSearchParams(location.search);
     const ogrId = params.get("id");
@@ -332,13 +336,37 @@ const { requireAuth, layoutYukle, tumOgrencileriGetir, davranisEkle, gecerliTari
       return;
     }
 
+    if (gelecekTarihMi(tarih)) {
+      hataEl.textContent = "Davranış tarihi bugünden sonra olamaz.";
+      hataEl.classList.remove("d-none");
+      return;
+    }
+
     document.getElementById("kaydet-metin").classList.add("d-none");
     document.getElementById("kaydet-yuklen").classList.remove("d-none");
     document.getElementById("kaydet-btn").disabled = true;
 
     try {
+      const ogr = tumOgrenciler.find(o => o.id === ogrId);
+      const ogrAdi = ogr ? `${ogr.ad || ""} ${ogr.soyad || ""}`.trim() : "";
+
+      // Aynı öğrenci, aynı gün ve aynı kategoride kayıt varsa onay iste (ortak hesapta çift giriş olabilir).
+      const ayniKayitlar = (await davranislarGetir(ogrId)).filter(k =>
+        formatTarih(k.tarih) === formatTarih(tarih) && k.kategori === kategori && k.tur === tur);
+      if (ayniKayitlar.length) {
+        const devam = await onayIste({
+          baslik: "Aynı kayıt zaten var",
+          mesaj: `${ogrAdi || "Bu öğrenci"} için ${formatTarih(tarih)} tarihinde "${kategori}" kategorisinde ${ayniKayitlar.length} kayıt bulunuyor.`,
+          detay: "Yine de yeni bir kayıt eklensin mi?",
+          onayButonu: "Yine de Kaydet",
+          iptalButonu: "Vazgeç",
+          tip: "warning"
+        });
+        if (!devam) return;
+      }
+
       await davranisEkle(ogrId, { tur, tarih, kategori, aciklama, ...(girenAd ? { girisi_yapan: girenAd } : {}) });
-      basariEl.textContent = "Davranış kaydedildi.";
+      basariEl.textContent = ogrAdi ? `${ogrAdi} için davranış kaydedildi.` : "Davranış kaydedildi.";
       basariEl.classList.remove("d-none");
       // Formu temizle
       document.getElementById("ogr-ara").value = "";

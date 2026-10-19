@@ -1,7 +1,7 @@
 (function () {
 "use strict";
 const OBS = window.OBS = window.OBS || {};
-const { APP_VERSION, APP_UPDATED_AT, okulAyarlariGetir, okulDonemiEtiketi, escapeHtml, toast, isAdminUser } = OBS;
+const { APP_VERSION, APP_UPDATED_AT, okulAyarlariGetir, okulDonemiEtiketi, escapeHtml, toast, isAdminUser, getCurrentUser } = OBS;
 /**
  * layout.js — Ortak üst menü ve bottom navbar'ı sayfaya enjekte eder.
  * Her sayfada <div id="sidebar-kap"></div> ve <div id="bottom-nav-kap"></div> olmalı.
@@ -18,7 +18,7 @@ const MENU_GRUPLARI = [
   {
     baslik: "Öğrenciler",
     ogeler: [
-      { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci Ekle", adminOnly: true },
+      { href: "students-add-edit.html", ikon: "bi-person-plus", etiket: "Yeni Öğrenci", adminOnly: true },
       { href: "students-list.html", ikon: "bi-people", etiket: "Öğrenci Listesi" }
     ]
   },
@@ -419,7 +419,8 @@ function listeYazdirmaKolonAgirligi(baslik) {
   if (temiz.includes("telefon") || temiz.includes(" tel")) return 13;
   if (temiz.includes("e posta") || temiz.includes("eposta")) return 16;
   if (temiz.includes("ad soyad")) return 24;
-  if (temiz === "ogrenci" || temiz === "veli") return 20;
+  if (temiz === "ogrenci" || temiz === "veli" || temiz === "yakinlik") return 20;
+  if (temiz.includes("yakinlik") && temiz.includes("veli adi")) return 20;
   if (temiz.includes("ogrenci")) return 20;
   if (temiz.includes("yakinlik")) return 9;
   if (temiz.includes("veli adi") || temiz.includes("baba adi") || temiz.includes("anne adi")) return 17;
@@ -550,11 +551,13 @@ function dataTableSayfalamayiGeriAl() {
 function yukleTopbar() {
   const kap = document.getElementById("topbar-kap");
   if (!kap) return;
+  const hesapEposta = getCurrentUser()?.email || "";
+  const hesapYonetici = isAdminUser();
   kap.outerHTML = `
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20261009-126" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20261019-127" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
@@ -571,13 +574,17 @@ function yukleTopbar() {
           <div id="global-arama-sonuc" class="global-arama-sonuc d-none" role="listbox" aria-label="Öğrenci arama sonuçları"></div>
         </div>
         <div class="header-actions d-flex align-items-center gap-2">
+          <span class="hesap-bilgi d-flex align-items-center gap-2" id="hesap-bilgi" title="${escapeHtml(hesapEposta ? "Giriş yapılan hesap: " + hesapEposta : "Giriş yapılan hesap")}">
+            ${hesapYonetici ? '<span class="hesap-rozet d-none d-sm-inline">Yönetici</span>' : ""}
+            ${hesapEposta ? `<span class="hesap-eposta d-none d-xl-inline">${escapeHtml(hesapEposta)}</span>` : ""}
+          </span>
           <span class="nav-ikon-btn cevrimici" id="baglanti-durum" title="Bağlantı durumu kontrol ediliyor..." role="status" aria-live="polite" aria-label="Bağlantı durumu kontrol ediliyor" data-testid="connection-status">
             <i class="bi bi-wifi"></i>
           </span>
           <a class="nav-ikon-btn d-none" href="#" id="pwa-yukle-btn" title="Uygulamayı cihaza yükle" aria-label="Uygulamayı cihaza yükle" data-testid="pwa-install-btn">
             <i class="bi bi-download"></i>
           </a>
-          <a class="nav-ikon-btn" href="#" id="cikis-btn" title="Çıkış Yap" aria-label="Çıkış yap" data-testid="logout-btn">
+          <a class="nav-ikon-btn" href="#" id="cikis-btn" title="${escapeHtml(hesapEposta ? "Çıkış Yap (" + hesapEposta + ")" : "Çıkış Yap")}" aria-label="${escapeHtml(hesapEposta ? "Çıkış yap, giriş yapılan hesap: " + hesapEposta : "Çıkış yap")}" data-testid="logout-btn">
             <i class="bi bi-box-arrow-right"></i>
           </a>
         </div>

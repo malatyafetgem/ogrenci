@@ -73,14 +73,20 @@ async function okulAyarlariKaydet(veri) {
     guncelleme_tarihi: bugun()
   };
   await setDoc(doc(db, SETTINGS_COLLECTION, SCHOOL_DOC_ID), kayit, { merge: true });
-  okulAyarlariCache = { ...DEFAULT_SCHOOL_SETTINGS, ...kayit };
+  okulAyarlariCache = { ...DEFAULT_SCHOOL_SETTINGS, ...(okulAyarlariCache || {}), ...kayit };
   ayarDegisikliginiYayinla();
   return okulAyarlariCache;
+}
+
+/** JSON yedek indirildiğinde zamanı ortak ayar kaydına yazar (ISO biçimi). */
+async function sonYedekZamaniKaydet(iso) {
+  await setDoc(doc(db, SETTINGS_COLLECTION, SCHOOL_DOC_ID), { son_yedek_zamani: String(iso) }, { merge: true });
+  if (okulAyarlariCache) okulAyarlariCache = { ...okulAyarlariCache, son_yedek_zamani: String(iso) };
 }
 
 function okulDonemiEtiketi(ayarlar = DEFAULT_SCHOOL_SETTINGS) {
   return [ayarlar.egitim_ogretim_yili, ayarlar.donem].filter(Boolean).join(" · ");
 }
 
-Object.assign(OBS, { okulAyarlariGetir, okulAyarlariKaydet, okulDonemiEtiketi, DEFAULT_SCHOOL_SETTINGS });
+Object.assign(OBS, { okulAyarlariGetir, okulAyarlariKaydet, sonYedekZamaniKaydet, okulDonemiEtiketi, DEFAULT_SCHOOL_SETTINGS });
 })();
