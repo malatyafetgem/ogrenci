@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261019-127">
+  <link rel="manifest" href="manifest.webmanifest?v=20261019-128">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-127">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-127">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-127">
-  <link rel="shortcut icon" href="favicon.ico?v=20261019-127">
-  <script src="pwa.js?v=20261019-127"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-128">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-128">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-128">
+  <link rel="shortcut icon" href="favicon.ico?v=20261019-128">
+  <script src="pwa.js?v=20261019-128"></script>
   <title>Ayarlar</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
           integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261019-127">
+  <link rel="stylesheet" href="app.css?v=20261019-128">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary settings-page">
 <div class="app-wrapper">
@@ -307,7 +307,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261019-127", "firebase-imports.js?v=20261019-127", "firebase-config.js?v=20261019-127", "utils.js?v=20261019-127", "school-settings.js?v=20261019-127", "students.js?v=20261019-127", "auth.js?v=20261019-127", "layout.js?v=20261019-127", "class-promotion.js?v=20261019-127"];
+  var liste = ["version.js?v=20261019-128", "firebase-imports.js?v=20261019-128", "firebase-config.js?v=20261019-128", "utils.js?v=20261019-128", "school-settings.js?v=20261019-128", "students.js?v=20261019-128", "auth.js?v=20261019-128", "layout.js?v=20261019-128", "class-promotion.js?v=20261019-128"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }

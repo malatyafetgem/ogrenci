@@ -557,7 +557,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20261019-127" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20261019-128" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">
@@ -574,9 +574,8 @@ function yukleTopbar() {
           <div id="global-arama-sonuc" class="global-arama-sonuc d-none" role="listbox" aria-label="Öğrenci arama sonuçları"></div>
         </div>
         <div class="header-actions d-flex align-items-center gap-2">
-          <span class="hesap-bilgi d-flex align-items-center gap-2" id="hesap-bilgi" title="${escapeHtml(hesapEposta ? "Giriş yapılan hesap: " + hesapEposta : "Giriş yapılan hesap")}">
-            ${hesapYonetici ? '<span class="hesap-rozet d-none d-sm-inline">Yönetici</span>' : ""}
-            ${hesapEposta ? `<span class="hesap-eposta d-none d-xl-inline">${escapeHtml(hesapEposta)}</span>` : ""}
+          <span class="hesap-bilgi d-flex align-items-center" id="hesap-bilgi" title="${escapeHtml(hesapEposta ? "Giriş yapılan hesap: " + hesapEposta : "Giriş yapılan hesap")}">
+            <span class="hesap-rozet ${hesapYonetici ? "" : "hesap-rozet-kullanici"} d-none d-sm-inline d-md-none d-xl-inline">${hesapYonetici ? "Yönetici" : "Kullanıcı"}</span>
           </span>
           <span class="nav-ikon-btn cevrimici" id="baglanti-durum" title="Bağlantı durumu kontrol ediliyor..." role="status" aria-live="polite" aria-label="Bağlantı durumu kontrol ediliyor" data-testid="connection-status">
             <i class="bi bi-wifi"></i>

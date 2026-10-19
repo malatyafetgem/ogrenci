@@ -2949,11 +2949,8 @@ body.pwa-guncelle-var .app-wrapper {
   line-height: 1.2;
   white-space: nowrap;
 }
-.hesap-eposta {
-  max-width: 190px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: .78rem;
+.hesap-rozet-kullanici {
+  background: var(--obs-surface-alt);
   color: var(--obs-muted);
+  border: 1px solid var(--obs-border);
 }
