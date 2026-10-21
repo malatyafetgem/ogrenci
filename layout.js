@@ -557,7 +557,7 @@ function yukleTopbar() {
     <nav class="app-header navbar navbar-expand bg-body">
       <div class="container-fluid">
         <a href="dashboard.html" class="navbar-brand brand-link d-flex align-items-center" aria-label="Ana sayfa" title="Ana sayfa">
-          <span class="brand-logo-mark"><img src="icon-192.png?v=20261019-128" alt="Öğrenci Bilgileri"></span>
+          <span class="brand-logo-mark"><img src="icon-192.png?v=20261021-129" alt="Öğrenci Bilgileri"></span>
           <span class="brand-text">FETGEM</span>
         </a>
         <div class="header-center d-none d-md-flex align-items-center gap-3">

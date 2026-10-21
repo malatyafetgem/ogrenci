@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261019-128">
+  <link rel="manifest" href="manifest.webmanifest?v=20261021-129">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-128">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-128">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-128">
-  <link rel="shortcut icon" href="favicon.ico?v=20261019-128">
-  <script src="pwa.js?v=20261019-128"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261021-129">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261021-129">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261021-129">
+  <link rel="shortcut icon" href="favicon.ico?v=20261021-129">
+  <script src="pwa.js?v=20261021-129"></script>
   <title>Öğrenci Listesi</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/css/dataTables.bootstrap5.min.css"
           integrity="sha384-xkQqWcEusZ1bIXoKJoItkNbJJ1LG5QwR5InghOwFLsCoEkGcNLYjE0O83wWruaK9"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261019-128">
+  <link rel="stylesheet" href="app.css?v=20261021-129">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -160,6 +160,8 @@
                     Excel dosyanızı seçin, sonra sistem alanlarını Excel sütunlarıyla eşleştirin.
                     Öğrenci No her aktarımda eşleştirilmelidir. Öğrenci adı
                     ister tek parça "Adı Soyadı", ister ayrı "Ad" ve "Soyad" alanlarıyla aktarılabilir.
+                    Doğum tarihi 05.09.2011, 5-9-2011, 05/09/2011, 2011-09-05 gibi biçimlerde veya Excel tarih hücresi olarak
+                    verilebilir; kayıtta GG.AA.YYYY olarak saklanır.
                   </p>
                   <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                     <span class="small text-muted">Doğru sütun başlıklarıyla başlamak için hazır şablonu indirebilirsiniz.</span>
@@ -232,7 +234,7 @@
   <script src="https://cdn.jsdelivr.net/npm/datatables.net-bs5@2.3.0/js/dataTables.bootstrap5.min.js"
           integrity="sha384-G85lmdZCo2WkHaZ8U1ZceHekzKcg37sFrs4St2+u/r2UtfvSDQmQrkMsEx4Cgv/W"
           crossorigin="anonymous"></script>
-<script src="datatable-fallback.js?v=20261019-128"></script>
+<script src="datatable-fallback.js?v=20261021-129"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
         integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw"
         crossorigin="anonymous"></script>
@@ -244,7 +246,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261019-128", "firebase-imports.js?v=20261019-128", "firebase-config.js?v=20261019-128", "utils.js?v=20261019-128", "school-settings.js?v=20261019-128", "students.js?v=20261019-128", "auth.js?v=20261019-128", "layout.js?v=20261019-128"];
+  var liste = ["version.js?v=20261021-129", "firebase-imports.js?v=20261021-129", "firebase-config.js?v=20261021-129", "utils.js?v=20261021-129", "school-settings.js?v=20261021-129", "students.js?v=20261021-129", "auth.js?v=20261021-129", "layout.js?v=20261021-129"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -265,7 +267,7 @@ window.OBSHazir = (function () {
 <script>
 OBSHazir(async () => {
 "use strict";
-const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMevcutMu, ogrenciEkle, ogrenciGuncelle, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir, formatAd, formatSoyad, formatTarih, toast, bugun, escapeHtml, escapeAttr, compareOgrenci, gecerliTarih, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari, dataTableOlustur } = window.OBS;
+const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMevcutMu, ogrenciEkle, ogrenciGuncelle, tumSiniflariGetir, tumOgrencileriDurumlariylaGetir, formatAd, formatSoyad, formatTarih, toast, bugun, escapeHtml, escapeAttr, compareOgrenci, gecerliTarih, sinifSiralamaAnahtari, ogrenciNoSiralamaAnahtari, dataTableOlustur, dogumTarihiGoster, dogumTarihiNormalizeEt, tarihNormalizeEt } = window.OBS;
   let tumOgrenciler = [];
   let dt = null;
   let filtreZamanlayici = null;
@@ -389,7 +391,7 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
             <td data-order="${escapeAttr(sinifSiralamaAnahtari(o.sinif))}">${escapeHtml(o.sinif || "—")}</td>
             <td>${escapeHtml(o.cinsiyet || "—")}</td>
             <td>${escapeHtml(o.yatililik || "—")}</td>
-            <td>${escapeHtml(formatTarih(o.dogum_tarihi) || "—")}</td>
+            <td>${escapeHtml(dogumTarihiGoster(o.dogum_tarihi) || "—")}</td>
             <td class="no-print">
               <div class="d-inline-flex gap-1">
                 <a href="students-detail.html?id=${escapeAttr(o.id)}" class="btn btn-xs btn-outline-info" title="Detay" aria-label="Öğrenci detayını aç">
@@ -511,7 +513,7 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
       "Sınıf": o.sinif,
       "Cinsiyet": o.cinsiyet,
       "Yatılılık": o.yatililik,
-      "Doğum Tarihi": formatTarih(o.dogum_tarihi)
+      "Doğum Tarihi": dogumTarihiGoster(o.dogum_tarihi)
     }));
     const ws = XLSX.utils.json_to_sheet(satirlar);
     const wb = XLSX.utils.book_new();
@@ -556,9 +558,15 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
-        const wb = XLSX.read(ev.target.result, { type: "array", cellDates: true });
+        // cellDates kullanılmaz: tarih nesneleri saat dilimi yüzünden 1 gün kayabiliyor.
+        const wb = XLSX.read(ev.target.result, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
+        // Görünen metin (öğrenci no, sınıf vb. için) ve ham değerler (tarih hücrelerinin seri numarası için)
         const satirlar = XLSX.utils.sheet_to_json(ws, { defval: "", raw: false });
+        const hamSatirlar = XLSX.utils.sheet_to_json(ws, { defval: "", raw: true });
+        satirlar.forEach((satir, i) => {
+          Object.defineProperty(satir, "__ham", { value: hamSatirlar[i] || {}, enumerable: false });
+        });
         if (!satirlar.length) {
           importUyariGoster("Excel sayfasında aktarılacak satır bulunamadı.");
           return;
@@ -656,7 +664,7 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
       const coz = satirCoz(satir);
       let durum = `<span class="badge bg-success">Hazır</span>`;
       if (coz.hatalar.length) {
-        durum = `<span class="badge bg-warning text-dark">${coz.hatalar.join(", ")}</span>`;
+        durum = `<span class="badge bg-warning text-dark">${escapeHtml(coz.hatalar.join(", "))}</span>`;
       } else if (importModu() === "sadece-guncelle") {
         durum = `<span class="badge bg-info text-dark">Numarayla güncellenecek</span>`;
       } else if (coz.yeniKayitEksikleri.length) {
@@ -671,6 +679,7 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
         <td>${escapeHtml(coz.ogrVeri.sinif)}</td>
         <td>${escapeHtml(coz.ogrVeri.cinsiyet)}</td>
         <td>${escapeHtml(coz.ogrVeri.yatililik)}</td>
+        <td>${escapeHtml(coz.ogrVeri.dogum_tarihi)}</td>
       </tr>`;
     }).join("");
 
@@ -679,10 +688,10 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
         <thead class="table-light">
           <tr>
             <th>#</th><th>Durum</th><th>No</th><th>Ad</th><th>Soyad</th>
-            <th>Sınıf</th><th>Cinsiyet</th><th>Yatılılık</th>
+            <th>Sınıf</th><th>Cinsiyet</th><th>Yatılılık</th><th>Doğum Tarihi</th>
           </tr>
         </thead>
-        <tbody>${previewRows || `<tr><td colspan="8" class="text-muted text-center">Önizlenecek satır yok.</td></tr>`}</tbody>
+        <tbody>${previewRows || `<tr><td colspan="9" class="text-muted text-center">Önizlenecek satır yok.</td></tr>`}</tbody>
       </table>`;
   }
 
@@ -819,11 +828,19 @@ const { requireAuth, applyAdminVisibility, adminActionAllowed, layoutYukle, noMe
     alanEkle(ogrVeri, "sinif", temiz(raw.sinif));
     alanEkle(ogrVeri, "cinsiyet", normalizeCinsiyet(raw.cinsiyet));
     alanEkle(ogrVeri, "yatililik", temiz(raw.yatililik));
-    const dogumTarihi = temiz(raw.dogum_tarihi);
-    if (importEslesme.dogum_tarihi && dogumTarihi && !gecerliTarih(dogumTarihi)) {
-      hatalar.push("Doğum tarihi geçersiz");
-    } else {
-      alanEkle(ogrVeri, "dogum_tarihi", dogumTarihi);
+    // Doğum tarihi: ham hücre değeri kullanılır. Excel'in tarih hücreleri seri numarası olarak gelir
+    // (görünen metin "2/1/10" gibi ABD sıralı ve 2 haneli olabilir); metin tarihlerde . / - ayraçları kabul edilir.
+    if (importEslesme.dogum_tarihi) {
+      const sutun = importEslesme.dogum_tarihi;
+      const ham = satir.__ham && sutun in satir.__ham ? satir.__ham[sutun] : satir[sutun];
+      if (String(ham ?? "").trim() !== "") {
+        const dogumTarihi = dogumTarihiNormalizeEt(ham);
+        if (dogumTarihi) {
+          ogrVeri.dogum_tarihi = dogumTarihi;
+        } else {
+          hatalar.push(`Doğum tarihi geçersiz (${temiz(satir[sutun]) || String(ham)})`);
+        }
+      }
     }
 
     const yeniKayitEksikleri = [];

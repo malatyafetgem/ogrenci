@@ -1,7 +1,7 @@
 (function () {
 "use strict";
 const OBS = window.OBS = window.OBS || {};
-const { db, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, writeBatch, bugun, compareOgrenci, compareSinif, compareTarihDesc, formatTarih, tarihSiralamaAnahtari, APP_VERSION, orderBy, limit } = OBS;
+const { db, collection, doc, getDoc, getDocs, addDoc, setDoc, updateDoc, deleteDoc, deleteField, query, where, writeBatch, bugun, compareOgrenci, compareSinif, compareTarihDesc, formatTarih, tarihSiralamaAnahtari, APP_VERSION, orderBy, limit, tarihNormalizeEt } = OBS;
 /**
  * students.js — Öğrenci Firestore CRUD işlemleri
  */
@@ -295,9 +295,19 @@ async function noMevcutMu(ogrenciNo) {
   return snap.exists();
 }
 
+// Doğum tarihi tanınan bir biçimdeyse (5-9-2011, 05/09/2011, 2011-09-05, Excel seri no...) GG.AA.YYYY olarak saklanır.
+function dogumTarihiniDuzenle(veri) {
+  const sonuc = { ...veri };
+  if (sonuc.dogum_tarihi) {
+    const duzgun = tarihNormalizeEt(sonuc.dogum_tarihi);
+    if (duzgun) sonuc.dogum_tarihi = duzgun;
+  }
+  return sonuc;
+}
+
 function ogrenciEklemeVerisi(veri) {
   return {
-    ...veri,
+    ...dogumTarihiniDuzenle(veri),
     durum: "Aktif",
     olusturma_tarihi: bugun()
   };
@@ -305,7 +315,7 @@ function ogrenciEklemeVerisi(veri) {
 
 function ogrenciGuncellemeVerisi(veri, eski = {}) {
   const guncelVeri = {
-    ...veri,
+    ...dogumTarihiniDuzenle(veri),
     guncelleme_tarihi: bugun()
   };
   if ("durum" in guncelVeri) {

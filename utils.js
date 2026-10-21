@@ -159,6 +159,92 @@ function bugun() {
 /**
  * GG.AA.YYYY formatındaki tarihi Date nesnesine çevirir.
  */
+/**
+ * Tarih metnini/değerini GG.AA.YYYY biçimine çevirir; geçersizse null döner.
+ * Kabul edilenler: 5.9.2011, 05-09-2011, 05/09/2011, "05 09 2011", 2011-09-05, 2011.09.05,
+ * 05.09.11 (2 haneli yıl), 05092011 / 20110905 (8 hane), saat eki (05.09.2011 00:00),
+ * Date nesnesi ve Excel seri numarası (örn. 40426).
+ */
+function tarihNormalizeEt(deger) {
+  if (deger === null || deger === undefined) return null;
+  let g, a, y;
+
+  const excelSeri = n => {
+    const gun = Math.floor(n);
+    if (!(gun >= 10000 && gun <= 60000)) return null; // yaklaşık 1927–2064 arası
+    const d = new Date(Date.UTC(1899, 11, 30) + gun * 86400000);
+    return [d.getUTCDate(), d.getUTCMonth() + 1, d.getUTCFullYear()];
+  };
+
+  if (deger instanceof Date) {
+    if (Number.isNaN(deger.getTime())) return null;
+    [g, a, y] = [deger.getDate(), deger.getMonth() + 1, deger.getFullYear()];
+  } else if (typeof deger === "number") {
+    const seri = Number.isFinite(deger) ? excelSeri(deger) : null;
+    if (!seri) return null;
+    [g, a, y] = seri;
+  } else {
+    let s = String(deger).trim().replace(/^['"‘’“”]+|['"‘’“”]+$/g, "");
+    s = s.replace(/[\u2010-\u2015\u2212]/g, "-");                                       // farklı tire karakterleri
+    s = s.replace(/[T\s]+\d{1,2}:\d{2}(:\d{2}(\.\d+)?)?\s*(Z|[+-]\d{2}:?\d{2})?$/i, ""); // saat eki
+    s = s.replace(/^[\s.\-/,]+|[\s.\-/,]+$/g, "");                                       // uçlardaki ayraçlar
+    if (!s) return null;
+
+    if (/^\d{5}(\.\d+)?$/.test(s)) {
+      const seri = excelSeri(Number(s));
+      if (!seri) return null;
+      [g, a, y] = seri;
+    } else if (/^\d{8}$/.test(s)) {
+      // GGAAYYYY ya da YYYYAAGG
+      const gunAyYil = [Number(s.slice(0, 2)), Number(s.slice(2, 4)), Number(s.slice(4))];
+      const yilAyGun = [Number(s.slice(6)), Number(s.slice(4, 6)), Number(s.slice(0, 4))];
+      const gecerli = ([gg, aa, yy]) => yy >= 1900 && yy <= 2100 && aa >= 1 && aa <= 12 && gg >= 1 && gg <= 31;
+      [g, a, y] = gecerli(gunAyYil) ? gunAyYil : gecerli(yilAyGun) ? yilAyGun : [0, 0, 0];
+    } else {
+      const p = s.split(/[\s.\-/,]+/);
+      if (p.length !== 3 || !p.every(x => /^\d{1,4}$/.test(x))) return null;
+      if (p[0].length === 4 && p[2].length <= 2) {
+        [y, a, g] = [p[0], p[1], p[2]].map(Number);        // YYYY-AA-GG
+      } else if (p[2].length === 4 && p[0].length <= 2) {
+        [g, a, y] = [p[0], p[1], p[2]].map(Number);        // GG-AA-YYYY
+      } else if (p[2].length === 2 && p[0].length <= 2) {
+        [g, a] = [Number(p[0]), Number(p[1])];             // GG-AA-YY (2 haneli yıl)
+        const yy = Number(p[2]);
+        y = yy <= new Date().getFullYear() % 100 ? 2000 + yy : 1900 + yy;
+      } else {
+        return null;
+      }
+    }
+  }
+
+  if (!(y >= 1900 && y <= 2100)) return null;
+  const kontrol = new Date(y, a - 1, g);
+  if (kontrol.getFullYear() !== y || kontrol.getMonth() !== a - 1 || kontrol.getDate() !== g) return null;
+  return `${String(g).padStart(2, "0")}.${String(a).padStart(2, "0")}.${y}`;
+}
+
+/** flatpickr "parseDate" seçeneği için: yazılan metni (. / - ayraçları, 2 haneli yıl, ISO...) Date'e çevirir; çözemezse undefined. */
+function flatpickrTarihAyristir(metin) {
+  const duzgun = tarihNormalizeEt(metin);
+  if (!duzgun) return undefined;
+  const [g, a, y] = duzgun.split(".").map(Number);
+  return new Date(y, a - 1, g);
+}
+
+/** Gösterim için: tanınan biçimi GG.AA.YYYY'ye çevirir, tanınmazsa metni olduğu gibi döndürür. */
+function dogumTarihiGoster(deger) {
+  return tarihNormalizeEt(deger) || String(deger ?? "").trim();
+}
+
+/** Doğum tarihi için: tarihNormalizeEt + gelecekte olamaz, 1950'den önce olamaz. */
+function dogumTarihiNormalizeEt(deger) {
+  const tarih = tarihNormalizeEt(deger);
+  if (!tarih) return null;
+  if (gelecekTarihMi(tarih)) return null;
+  if (Number(tarih.slice(-4)) < 1950) return null;
+  return tarih;
+}
+
 /** Verilen GG.AA.YYYY tarihi bugünden sonra mı? Geçersiz tarih için false döner. */
 function gelecekTarihMi(str) {
   const tarih = tarihtenDate(str);
@@ -412,5 +498,5 @@ function dataTableOlustur(secici, secenekler) {
 }
 
 
-Object.assign(OBS, { dataTableOlustur, gelecekTarihMi, formatAd, formatSoyad, formatMetin, turkceBuyuk, turkcekucuk, escapeHtml, escapeAttr, formatTarih, gecerliTarih, bugun, tarihtenDate, tarihSiralamaAnahtari, compareTarihDesc, sinifParcala, sinifSiralamaAnahtari, compareSinif, ogrenciNoSiralamaAnahtari, compareOgrenciNo, compareOgrenci, baglaFormat, gecerliOgrenciNo, toast, onayIste });
+Object.assign(OBS, { dataTableOlustur, gelecekTarihMi, tarihNormalizeEt, dogumTarihiNormalizeEt, dogumTarihiGoster, flatpickrTarihAyristir, formatAd, formatSoyad, formatMetin, turkceBuyuk, turkcekucuk, escapeHtml, escapeAttr, formatTarih, gecerliTarih, bugun, tarihtenDate, tarihSiralamaAnahtari, compareTarihDesc, sinifParcala, sinifSiralamaAnahtari, compareSinif, ogrenciNoSiralamaAnahtari, compareOgrenciNo, compareOgrenci, baglaFormat, gecerliOgrenciNo, toast, onayIste });
 })();

@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.webmanifest?v=20261019-128">
+  <link rel="manifest" href="manifest.webmanifest?v=20261021-129">
   <meta name="theme-color" content="#D9542B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Öğrenci Bilgileri">
-  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261019-128">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261019-128">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261019-128">
-  <link rel="shortcut icon" href="favicon.ico?v=20261019-128">
-  <script src="pwa.js?v=20261019-128"></script>
+  <link rel="apple-touch-icon" href="apple-touch-icon-180.png?v=20261021-129">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=20261021-129">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png?v=20261021-129">
+  <link rel="shortcut icon" href="favicon.ico?v=20261021-129">
+  <script src="pwa.js?v=20261021-129"></script>
   <title>Öğrenci Ekle / Düzenle</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta2/dist/css/adminlte.min.css"
           integrity="sha384-9NjeuSnOx7U3Syj2WHHA8CjNMipUXl8AeHlvaLeK0j45IonjPwvvcsbC99v7+VVi"
@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
           integrity="sha384-RkASv+6KfBMW9eknReJIJ6b3UnjKOKC5bOUaNgIY778NFbQ8MtWq9Lr/khUgqtTt"
           crossorigin="anonymous">
-  <link rel="stylesheet" href="app.css?v=20261019-128">
+  <link rel="stylesheet" href="app.css?v=20261021-129">
 </head>
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
 <div class="app-wrapper">
@@ -149,7 +149,7 @@
 // Yerel betikleri tek tek ve hata olursa yeniden deneyerek yükler (zayıf yerel sunucularda kopan isteklere karşı).
 window.__yuklenemeyenler = [];
 window.OBSHazir = (function () {
-  var liste = ["version.js?v=20261019-128", "firebase-imports.js?v=20261019-128", "firebase-config.js?v=20261019-128", "utils.js?v=20261019-128", "school-settings.js?v=20261019-128", "avatar.js?v=20261019-128", "students.js?v=20261019-128", "auth.js?v=20261019-128", "layout.js?v=20261019-128"];
+  var liste = ["version.js?v=20261021-129", "firebase-imports.js?v=20261021-129", "firebase-config.js?v=20261021-129", "utils.js?v=20261021-129", "school-settings.js?v=20261021-129", "avatar.js?v=20261021-129", "students.js?v=20261021-129", "auth.js?v=20261021-129", "layout.js?v=20261021-129"];
   var bekleyen = [], bitti = false;
   function yukle(i, deneme) {
     if (i >= liste.length) { bitti = true; bekleyen.forEach(function (f) { f(); }); return; }
@@ -170,7 +170,7 @@ window.OBSHazir = (function () {
 <script>
 OBSHazir(async () => {
 "use strict";
-const { requireAdmin, layoutYukle, ogrenciGetir, ogrenciEkle, ogrenciGuncelle, siniflarGetir, noMevcutMu, formatAd, formatSoyad, baglaFormat, toast, gecerliOgrenciNo, gecerliTarih, escapeHtml, escapeAttr, avatarSrc } = window.OBS;
+const { requireAdmin, layoutYukle, ogrenciGetir, ogrenciEkle, ogrenciGuncelle, siniflarGetir, noMevcutMu, formatAd, formatSoyad, baglaFormat, toast, gecerliOgrenciNo, gecerliTarih, escapeHtml, escapeAttr, avatarSrc, tarihNormalizeEt, dogumTarihiNormalizeEt, gelecekTarihMi, flatpickrTarihAyristir } = window.OBS;
 
   const params = new URLSearchParams(location.search);
   const duzenlemeId = params.get("id");
@@ -191,7 +191,7 @@ const { requireAdmin, layoutYukle, ogrenciGetir, ogrenciEkle, ogrenciGuncelle, s
     }
     baglaSabitFormatlar();
     baglaOlaylar();
-    flatpickr("#f-dogum-tarihi", { locale: "tr", dateFormat: "d.m.Y", allowInput: true });
+    baglaDogumTarihi();
     avatarGuncelle();
   });
 
@@ -225,8 +225,27 @@ const { requireAdmin, layoutYukle, ogrenciGetir, ogrenciEkle, ogrenciGuncelle, s
     g("f-sinif").value = ogr.sinif || "";
     g("f-cinsiyet").value = ogr.cinsiyet || "";
     g("f-yatililik").value = ogr.yatililik || "";
-    g("f-dogum-tarihi").value = ogr.dogum_tarihi || "";
+    g("f-dogum-tarihi").value = tarihNormalizeEt(ogr.dogum_tarihi) || ogr.dogum_tarihi || "";
     avatarGuncelle();
+  }
+
+  // Doğum tarihi: 5.9.2011, 05-09-2011, 05/09/2011, 2011-09-05, 05.09.11, 05092011 gibi biçimler kabul edilir
+  // ve GG.AA.YYYY olarak gösterilir. Takvim (flatpickr) metni bizim ayrıştırıcımızla çözer.
+  let dogumYazilan = "";
+
+  function baglaDogumTarihi() {
+    const el = document.getElementById("f-dogum-tarihi");
+    // flatpickr geçersiz metni silerken yapay bir "input" olayı gönderir; o olay yazılan metni ezmesin.
+    el.addEventListener("input", e => {
+      if (e.isTrusted === false && el.value === "") return;
+      dogumYazilan = el.value;
+    });
+    flatpickr(el, {
+      locale: "tr",
+      dateFormat: "d.m.Y",
+      allowInput: true,
+      parseDate: flatpickrTarihAyristir
+    });
   }
 
   function baglaSabitFormatlar() {
@@ -267,9 +286,21 @@ const { requireAdmin, layoutYukle, ogrenciGetir, ogrenciEkle, ogrenciGuncelle, s
       return;
     }
 
-    const dogumTarihi = g("f-dogum-tarihi");
-    if (dogumTarihi && !gecerliTarih(dogumTarihi)) {
-      gosterHata("Doğum tarihi geçerli bir GG.AA.YYYY tarihi olmalıdır.", "f-dogum-tarihi");
+    const dogumMetni = g("f-dogum-tarihi");
+    let dogumTarihi = "";
+    if (dogumMetni) {
+      dogumTarihi = dogumTarihiNormalizeEt(dogumMetni);
+      if (!dogumTarihi) {
+        const gelecekte = tarihNormalizeEt(dogumMetni) && gelecekTarihMi(tarihNormalizeEt(dogumMetni));
+        gosterHata(gelecekte
+          ? "Doğum tarihi bugünden sonra olamaz."
+          : "Doğum tarihi geçerli bir tarih olmalıdır (örn. 05.09.2011).", "f-dogum-tarihi");
+        return;
+      }
+      document.getElementById("f-dogum-tarihi").value = dogumTarihi;
+    } else if (dogumYazilan.trim()) {
+      // Takvim, geçersiz yazılan metni (örn. 31.02.2010) alandan sildi; sessizce boş kaydetmek yerine uyar.
+      gosterHata("Doğum tarihi geçerli bir tarih olmalıdır (örn. 05.09.2011).", "f-dogum-tarihi");
       return;
     }
 
